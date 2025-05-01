@@ -336,10 +336,14 @@ export interface Mission {
   difficulty: number;
   xpReward: number;
   pathId: number;
-  content: any;
+  content?: any; // Tornando opcional para compatibilidade
   estimatedTime: number;
   sequence: number;
   createdAt: Date;
+  // Campos opcionais para compatibilidade com Supabase
+  location?: string;
+  type?: string;
+  objectives?: string[];
 }
 
 export type InsertMission = z.infer<typeof insertMissionSchema>;
@@ -376,7 +380,7 @@ export interface Achievement {
   description: string;
   area: string | null;
   iconName: string;
-  criteria: any;
+  criteria?: any; // Tornando opcional para compatibilidade
   createdAt: Date;
   // Campos estendidos para compatibilidade com Supabase
   category?: string;

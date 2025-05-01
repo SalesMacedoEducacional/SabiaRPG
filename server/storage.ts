@@ -389,7 +389,14 @@ export class MemStorage implements IStorage {
   async createAchievement(insertAchievement: InsertAchievement): Promise<Achievement> {
     const id = this.currentId.achievements++;
     const timestamp = new Date();
-    const achievement: Achievement = { ...insertAchievement, id, createdAt: timestamp };
+    // Garantindo que área será uma string ou null
+    const area = insertAchievement.area !== undefined ? insertAchievement.area : null;
+    const achievement: Achievement = { 
+      ...insertAchievement, 
+      id, 
+      createdAt: timestamp,
+      area: area
+    };
     this.achievements.set(id, achievement);
     return achievement;
   }
@@ -401,7 +408,8 @@ export class MemStorage implements IStorage {
 
   async grantUserAchievement(insertUserAchievement: InsertUserAchievement): Promise<UserAchievement> {
     const id = this.currentId.userAchievements++;
-    const userAchievement: UserAchievement = { ...insertUserAchievement, id };
+    const earnedAt = new Date();
+    const userAchievement: UserAchievement = { ...insertUserAchievement, id, earnedAt };
     this.userAchievements.set(id, userAchievement);
     return userAchievement;
   }
