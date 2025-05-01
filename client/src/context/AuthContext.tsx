@@ -40,12 +40,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch current user
-  const { data: user, isLoading: userLoading } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery<User | null>({
     queryKey: ['/api/auth/me'],
-    onError: () => {
-      setIsLoading(false);
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (!response.ok) {
+          if (response.status === 401) {
+            return null;
+          }
+          throw new Error('Failed to fetch user');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+      }
     },
-    onSuccess: () => {
+    onSettled: () => {
       setIsLoading(false);
     },
     retry: false,
@@ -55,8 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      // Debug log
+      console.log('Trying to login with:', { email });
       const response = await apiRequest('POST', '/api/auth/login', { email, password });
-      return response.json();
+      const data = await response.json();
+      console.log('Login response:', data);
+      return data;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['/api/auth/me'], data);

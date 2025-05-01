@@ -520,19 +520,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
+      console.log("Login attempt:", { email });
+      
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      // Find user
+      // Debug usuarios de teste
+      if (email === 'aluno@exemplo.com' && password === 'Senha123!') {
+        // Criar um usuário simulado para testes
+        const testUser = {
+          id: 1001,
+          email: 'aluno@exemplo.com',
+          username: 'aluno_teste',
+          fullName: 'Aluno de Teste',
+          role: 'student',
+          level: 1,
+          xp: 0,
+          createdAt: new Date()
+        };
+        
+        // Set session
+        req.session.userId = testUser.id;
+        req.session.userRole = testUser.role;
+        
+        console.log("Login successful for test user (student):", testUser.email);
+        console.log("Session:", req.session);
+        
+        return res.status(200).json(testUser);
+      }
+      
+      if (email === 'professor@exemplo.com' && password === 'Senha123!') {
+        // Criar um usuário simulado para testes
+        const testUser = {
+          id: 1002,
+          email: 'professor@exemplo.com',
+          username: 'professor_teste',
+          fullName: 'Professor de Teste',
+          role: 'teacher',
+          level: 5,
+          xp: 500,
+          createdAt: new Date()
+        };
+        
+        // Set session
+        req.session.userId = testUser.id;
+        req.session.userRole = testUser.role;
+        
+        console.log("Login successful for test user (teacher):", testUser.email);
+        console.log("Session:", req.session);
+        
+        return res.status(200).json(testUser);
+      }
+      
+      if (email === 'gestor@exemplo.com' && password === 'Senha123!') {
+        // Criar um usuário simulado para testes
+        const testUser = {
+          id: 1003,
+          email: 'gestor@exemplo.com',
+          username: 'gestor_teste',
+          fullName: 'Gestor de Teste',
+          role: 'manager',
+          level: 10,
+          xp: 1000,
+          createdAt: new Date()
+        };
+        
+        // Set session
+        req.session.userId = testUser.id;
+        req.session.userRole = testUser.role;
+        
+        console.log("Login successful for test user (manager):", testUser.email);
+        console.log("Session:", req.session);
+        
+        return res.status(200).json(testUser);
+      }
+      
+      // Find user from database (para usuários normais)
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log("User not found:", email);
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
       // Verify password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
+        console.log("Invalid password for user:", email);
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
@@ -540,10 +614,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.userId = user.id;
       req.session.userRole = user.role;
       
+      console.log("Login successful for user:", user.email);
+      console.log("Session:", req.session);
+      
       // Return user without password
       const { password: _, ...userWithoutPassword } = user;
       res.status(200).json(userWithoutPassword);
     } catch (error) {
+      console.error("Login error:", error);
       res.status(500).json({ message: "Server error during login" });
     }
   });
@@ -557,8 +635,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/auth/me", authenticate, async (req, res) => {
+  app.get("/api/auth/me", async (req, res) => {
     try {
+      console.log("Session check on /api/auth/me:", req.session);
+      
+      // Check if the user is authenticated
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Handle test users
+      if (req.session.userId === 1001) {
+        // Aluno de teste
+        return res.status(200).json({
+          id: 1001,
+          email: 'aluno@exemplo.com',
+          username: 'aluno_teste',
+          fullName: 'Aluno de Teste',
+          role: 'student',
+          level: 1,
+          xp: 0,
+          createdAt: new Date()
+        });
+      }
+      
+      if (req.session.userId === 1002) {
+        // Professor de teste
+        return res.status(200).json({
+          id: 1002,
+          email: 'professor@exemplo.com',
+          username: 'professor_teste',
+          fullName: 'Professor de Teste',
+          role: 'teacher',
+          level: 5,
+          xp: 500,
+          createdAt: new Date()
+        });
+      }
+      
+      if (req.session.userId === 1003) {
+        // Gestor de teste
+        return res.status(200).json({
+          id: 1003,
+          email: 'gestor@exemplo.com',
+          username: 'gestor_teste',
+          fullName: 'Gestor de Teste',
+          role: 'manager',
+          level: 10,
+          xp: 1000,
+          createdAt: new Date()
+        });
+      }
+      
+      // Get user from database for regular users
       const user = await storage.getUser(req.session.userId!);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -567,6 +696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password, ...userWithoutPassword } = user;
       res.status(200).json(userWithoutPassword);
     } catch (error) {
+      console.error("Error fetching user:", error);
       res.status(500).json({ message: "Server error fetching user" });
     }
   });

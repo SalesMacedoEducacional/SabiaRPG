@@ -11,6 +11,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { insertUserSchema } from '@shared/schema';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { InfoIcon } from "lucide-react";
 
 // Login form schema
 const loginSchema = z.object({
@@ -121,6 +123,18 @@ const Login: React.FC = () => {
           <h1 className="font-medieval text-4xl text-accent mb-2">SABIÁ RPG</h1>
           <p className="text-parchment-dark">Embarque na jornada do conhecimento</p>
         </div>
+        
+        <Alert className="mb-4 border-accent bg-dark text-parchment">
+          <InfoIcon className="h-5 w-5 text-accent" />
+          <AlertTitle className="text-accent font-medieval">Usuários de Teste</AlertTitle>
+          <AlertDescription>
+            <div className="mt-2 text-sm space-y-1">
+              <p><strong>Aluno:</strong> aluno@exemplo.com / Senha123!</p>
+              <p><strong>Professor:</strong> professor@exemplo.com / Senha123!</p>
+              <p><strong>Gestor:</strong> gestor@exemplo.com / Senha123!</p>
+            </div>
+          </AlertDescription>
+        </Alert>
         
         <Card className="bg-dark-light border-primary">
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
