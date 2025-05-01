@@ -42,7 +42,7 @@ function ProtectedRoute({ component: Component, requiredRoles, ...rest }: Protec
     return null;
   }
 
-  if (requiredRoles && !requiredRoles.includes(user?.role)) {
+  if (requiredRoles && user && user.role && !requiredRoles.includes(user.role as string)) {
     return <NotFound />;
   }
 
