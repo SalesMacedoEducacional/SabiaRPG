@@ -1,0 +1,45 @@
+Crie uma aplicação web educacional chamada “SABIÁ RPG” em HTML, CSS e JavaScript (ou com backend em Node.js/Express, se necessário), com as seguintes funcionalidades:
+
+1. Autenticação de usuários com Supabase Auth, diferenciando perfis (aluno, professor, gestor).
+
+2. Triagem diagnóstica adaptativa para alunos no primeiro acesso e a cada trimestre, com geração de trilhas personalizadas com base nas respostas.
+
+3. Mapa interativo baseado no formato real do estado do Piauí, com visual RPG medieval, onde cada cidade representa uma missão (Teresina, Oeiras, Parnaíba, etc).
+
+4. Trilhas de aprendizagem organizadas por áreas do conhecimento (Matemática, Linguagens, Ciências Humanas, etc), com missões sequenciais por trilha.
+
+5. Missões gamificadas com quizzes interativos, perguntas abertas e desafios com correção automática e feedback gerado por IA (OpenAI).
+
+6. Narrativa estilo RPG que acompanha o aluno, com enredo ramificado por escolhas e conquistas desbloqueadas, narradas com linguagem épica.
+
+7. Sistema de avatar personalizável, com evolução por experiência (XP), conquistas e troféus visuais.
+
+8. Ranking por aluno, turma e escola, com painel público de medalhas e destaques semanais.
+
+9. Painel exclusivo para professores com visualização do desempenho por trilha, aluno e turma, incluindo relatórios exportáveis.
+
+10. Fórum/mural para dúvidas, recados e comunicação entre alunos e professores (moderação incluída).
+
+11. Acesso offline às trilhas e missões salvas localmente (via service worker ou cache).
+
+12. Autoavaliação do aluno e feedback contínuo gerado com base no progresso individual, via OpenAI.
+
+13. Notificações e lembretes personalizados por trilha, meta e desempenho.
+
+14. Coleta e análise de dados educacionais: tempo de uso, trilhas concluídas, acertos, erros, dificuldades por conteúdo.
+
+15. Integração com Supabase (Auth, Database, Storage) e OpenAI.
+
+16. Interface responsiva e acessível, com inspiração em mapas de RPG medieval: tons terrosos, ícones de castelos e trilhas, caligrafia manuscrita.
+
+17. Implementar sistema modular, organizado por componentes e com estrutura de pastas otimizada.
+
+Estrutura sugerida:
+- /index.html
+- /style.css
+- /script.js
+- /db/supabase.js
+- /api/openai.js
+- /components/ (Map.js, Mission.js, Avatar.js, DashboardProfessor.js, etc)
+
+O objetivo da plataforma é promover o engajamento e o aprendizado dinâmico entre alunos do ensino médio da rede pública, conectando conteúdo escolar com desafios, narrativa e tecnologia.
