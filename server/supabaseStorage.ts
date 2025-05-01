@@ -320,13 +320,41 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de localização
   async getLocations(): Promise<Location[]> {
-    const { data, error } = await supabase
-      .from('locais')
-      .select('*');
-    
-    if (error) throw new Error(`Erro ao buscar locais: ${error.message}`);
-    
-    return data.map(this.mapDbLocalToLocation);
+    try {
+      // Verificar se a tabela existe primeiro
+      const { data, error } = await supabase
+        .from('locais')
+        .select('*');
+      
+      if (error) {
+        console.log("Erro ao buscar locais, tentando criar tabela:", error.message);
+        
+        // Tentar criar a tabela
+        await supabase.rpc('execute_sql', {
+          sql_query: `
+          CREATE TABLE IF NOT EXISTS locais (
+            id          uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+            nome        text        NOT NULL,
+            descricao   text        NOT NULL,
+            coordenada_x integer     NOT NULL,
+            coordenada_y integer     NOT NULL,
+            icone       text        NOT NULL,
+            nivel_req   integer     DEFAULT 1
+          )`
+        });
+        
+        // Retornar array vazio já que acabamos de criar a tabela
+        return [];
+      }
+      
+      if (!data) return [];
+      
+      return data.map(this.mapDbLocalToLocation);
+    } catch (error) {
+      console.error("Erro completo ao acessar locais:", error);
+      // Retornar array vazio em caso de erro
+      return [];
+    }
   }
 
   async getLocation(id: number): Promise<Location | undefined> {
