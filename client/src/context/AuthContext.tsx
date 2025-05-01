@@ -44,21 +44,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryKey: ['/api/auth/me'],
     queryFn: async () => {
       try {
+        console.log('Verificando autenticação do usuário em /api/auth/me');
         const response = await fetch('/api/auth/me');
+        
+        console.log('Resposta /api/auth/me:', response.status);
+        
         if (!response.ok) {
           if (response.status === 401) {
+            console.log('Usuário não autenticado');
             return null;
           }
+          console.error('Erro na resposta:', response.status);
           throw new Error('Failed to fetch user');
         }
-        return await response.json();
+        
+        const userData = await response.json();
+        console.log('Dados do usuário:', userData);
+        return userData;
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Erro ao buscar usuário:', error);
         return null;
+      } finally {
+        setIsLoading(false);
       }
-    },
-    onSettled: () => {
-      setIsLoading(false);
     },
     retry: false,
     enabled: true
