@@ -222,7 +222,7 @@ export class SupabaseStorage implements IStorage {
   }
 
   // Métodos auxiliares para mapear entre formatos de dados
-  private mapRoleToPapel(role: string): string {
+  private mapRoleToPapel(role: string): 'aluno' | 'professor' | 'gestor' {
     switch (role) {
       case 'student': return 'aluno';
       case 'teacher': return 'professor';
@@ -231,7 +231,7 @@ export class SupabaseStorage implements IStorage {
     }
   }
 
-  private mapPapelToRole(papel: string): string {
+  private mapPapelToRole(papel: string): 'student' | 'teacher' | 'manager' {
     switch (papel) {
       case 'aluno': return 'student';
       case 'professor': return 'teacher';
@@ -307,77 +307,389 @@ export class SupabaseStorage implements IStorage {
     };
   }
 
-  // Implementações restantes da interface IStorage - métodos não implementados ainda
+  // Implementação dos métodos de localização
   async getLocations(): Promise<Location[]> {
-    throw new Error("Método não implementado: getLocations");
+    const { data, error } = await supabase
+      .from('locais')
+      .select('*');
+    
+    if (error) throw new Error(`Erro ao buscar locais: ${error.message}`);
+    
+    return data.map(this.mapDbLocalToLocation);
   }
 
   async getLocation(id: number): Promise<Location | undefined> {
-    throw new Error("Método não implementado: getLocation");
+    const { data, error } = await supabase
+      .from('locais')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbLocalToLocation(data);
   }
 
   async createLocation(location: InsertLocation): Promise<Location> {
-    throw new Error("Método não implementado: createLocation");
+    const { data, error } = await supabase
+      .from('locais')
+      .insert({
+        nome: location.name,
+        descricao: location.description,
+        coordenada_x: location.coordX,
+        coordenada_y: location.coordY,
+        imagem_url: location.imageUrl
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar local: ${error.message}`);
+    
+    return this.mapDbLocalToLocation(data);
   }
 
+  // Implementação dos métodos de progresso do usuário
   async getUserProgress(userId: number): Promise<UserProgress[]> {
-    throw new Error("Método não implementado: getUserProgress");
+    const { data, error } = await supabase
+      .from('progresso_missoes')
+      .select(`
+        *,
+        missoes (id, titulo)
+      `)
+      .eq('usuario_id', userId);
+    
+    if (error) throw new Error(`Erro ao buscar progresso do usuário: ${error.message}`);
+    
+    return data.map(this.mapDbProgressoToUserProgress);
   }
 
   async getUserProgressByMission(userId: number, missionId: number): Promise<UserProgress | undefined> {
-    throw new Error("Método não implementado: getUserProgressByMission");
+    const { data, error } = await supabase
+      .from('progresso_missoes')
+      .select(`
+        *,
+        missoes (id, titulo)
+      `)
+      .eq('usuario_id', userId)
+      .eq('missao_id', missionId)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbProgressoToUserProgress(data);
   }
 
   async createUserProgress(progress: InsertUserProgress): Promise<UserProgress> {
-    throw new Error("Método não implementado: createUserProgress");
+    const { data, error } = await supabase
+      .from('progresso_missoes')
+      .insert({
+        usuario_id: progress.userId,
+        missao_id: progress.missionId,
+        progresso: progress.progress,
+        pontuacao: progress.score,
+        status: progress.status,
+        tempo_gasto: progress.timeSpent
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar progresso: ${error.message}`);
+    
+    return this.mapDbProgressoToUserProgress(data);
   }
 
   async updateUserProgress(id: number, progress: Partial<UserProgress>): Promise<UserProgress | undefined> {
-    throw new Error("Método não implementado: updateUserProgress");
+    // Primeiro verifica se o registro existe
+    const { data: existingData, error: existingError } = await supabase
+      .from('progresso_missoes')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (existingError || !existingData) return undefined;
+    
+    // Mapear campos para o formato do banco
+    const updates: any = {};
+    if (progress.progress !== undefined) updates.progresso = progress.progress;
+    if (progress.score !== undefined) updates.pontuacao = progress.score;
+    if (progress.status !== undefined) updates.status = progress.status;
+    if (progress.timeSpent !== undefined) updates.tempo_gasto = progress.timeSpent;
+    if (progress.completedAt !== undefined) updates.concluido_em = progress.completedAt;
+    
+    const { data, error } = await supabase
+      .from('progresso_missoes')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        missoes (id, titulo)
+      `)
+      .single();
+    
+    if (error) throw new Error(`Erro ao atualizar progresso: ${error.message}`);
+    
+    return this.mapDbProgressoToUserProgress(data);
+  }
+  
+  // Métodos auxiliares adicionais para mapeamento
+  private mapDbLocalToLocation(dbLocal: any): Location {
+    return {
+      id: dbLocal.id,
+      name: dbLocal.nome,
+      description: dbLocal.descricao,
+      coordX: dbLocal.coordenada_x,
+      coordY: dbLocal.coordenada_y,
+      imageUrl: dbLocal.imagem_url,
+      createdAt: new Date(dbLocal.criado_em)
+    };
+  }
+  
+  private mapDbProgressoToUserProgress(dbProgresso: any): UserProgress {
+    return {
+      id: dbProgresso.id,
+      userId: dbProgresso.usuario_id,
+      missionId: dbProgresso.missao_id,
+      progress: dbProgresso.progresso,
+      score: dbProgresso.pontuacao,
+      status: dbProgresso.status,
+      timeSpent: dbProgresso.tempo_gasto,
+      createdAt: new Date(dbProgresso.criado_em),
+      completedAt: dbProgresso.concluido_em ? new Date(dbProgresso.concluido_em) : null,
+      missionTitle: dbProgresso.missoes?.titulo
+    };
   }
 
+  // Implementação dos métodos de conquistas
   async getAchievements(): Promise<Achievement[]> {
-    throw new Error("Método não implementado: getAchievements");
+    const { data, error } = await supabase
+      .from('conquistas')
+      .select('*');
+    
+    if (error) throw new Error(`Erro ao buscar conquistas: ${error.message}`);
+    
+    return data.map(this.mapDbConquistaToAchievement);
   }
 
   async getAchievement(id: number): Promise<Achievement | undefined> {
-    throw new Error("Método não implementado: getAchievement");
+    const { data, error } = await supabase
+      .from('conquistas')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbConquistaToAchievement(data);
   }
 
   async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
-    throw new Error("Método não implementado: createAchievement");
+    const { data, error } = await supabase
+      .from('conquistas')
+      .insert({
+        titulo: achievement.title,
+        descricao: achievement.description,
+        categoria: achievement.category,
+        icone_url: achievement.iconUrl,
+        requisito: achievement.requirement,
+        pontos: achievement.points || 10
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar conquista: ${error.message}`);
+    
+    return this.mapDbConquistaToAchievement(data);
   }
 
   async getUserAchievements(userId: number): Promise<UserAchievement[]> {
-    throw new Error("Método não implementado: getUserAchievements");
+    const { data, error } = await supabase
+      .from('usuario_conquistas')
+      .select(`
+        *,
+        conquistas (id, titulo, descricao, icone_url)
+      `)
+      .eq('usuario_id', userId);
+    
+    if (error) throw new Error(`Erro ao buscar conquistas do usuário: ${error.message}`);
+    
+    return data.map(this.mapDbUsuarioConquistaToUserAchievement);
   }
 
   async grantUserAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement> {
-    throw new Error("Método não implementado: grantUserAchievement");
+    const { data, error } = await supabase
+      .from('usuario_conquistas')
+      .insert({
+        usuario_id: userAchievement.userId,
+        conquista_id: userAchievement.achievementId,
+        data_conquista: new Date().toISOString()
+      })
+      .select(`
+        *,
+        conquistas (id, titulo, descricao, icone_url)
+      `)
+      .single();
+    
+    if (error) throw new Error(`Erro ao conceder conquista ao usuário: ${error.message}`);
+    
+    return this.mapDbUsuarioConquistaToUserAchievement(data);
   }
 
+  // Implementação dos métodos de fórum
   async getForumPosts(): Promise<ForumPost[]> {
-    throw new Error("Método não implementado: getForumPosts");
+    const { data, error } = await supabase
+      .from('forum_posts')
+      .select(`
+        *,
+        usuarios (id, email, nome),
+        trilhas (id, titulo)
+      `)
+      .order('criado_em', { ascending: false });
+    
+    if (error) throw new Error(`Erro ao buscar posts do fórum: ${error.message}`);
+    
+    return data.map(this.mapDbForumPostToForumPost);
   }
 
   async getForumPostsByPath(pathId: number): Promise<ForumPost[]> {
-    throw new Error("Método não implementado: getForumPostsByPath");
+    const { data, error } = await supabase
+      .from('forum_posts')
+      .select(`
+        *,
+        usuarios (id, email, nome),
+        trilhas (id, titulo)
+      `)
+      .eq('trilha_id', pathId)
+      .order('criado_em', { ascending: false });
+    
+    if (error) throw new Error(`Erro ao buscar posts do fórum por trilha: ${error.message}`);
+    
+    return data.map(this.mapDbForumPostToForumPost);
   }
 
   async getForumPost(id: number): Promise<ForumPost | undefined> {
-    throw new Error("Método não implementado: getForumPost");
+    const { data, error } = await supabase
+      .from('forum_posts')
+      .select(`
+        *,
+        usuarios (id, email, nome),
+        trilhas (id, titulo)
+      `)
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbForumPostToForumPost(data);
   }
 
   async createForumPost(post: InsertForumPost): Promise<ForumPost> {
-    throw new Error("Método não implementado: createForumPost");
+    const { data, error } = await supabase
+      .from('forum_posts')
+      .insert({
+        usuario_id: post.userId,
+        trilha_id: post.pathId,
+        titulo: post.title,
+        conteudo: post.content,
+        tipo: post.type || 'duvida'
+      })
+      .select(`
+        *,
+        usuarios (id, email, nome),
+        trilhas (id, titulo)
+      `)
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar post no fórum: ${error.message}`);
+    
+    return this.mapDbForumPostToForumPost(data);
   }
 
   async getForumReplies(postId: number): Promise<ForumReply[]> {
-    throw new Error("Método não implementado: getForumReplies");
+    const { data, error } = await supabase
+      .from('forum_respostas')
+      .select(`
+        *,
+        usuarios (id, email, nome)
+      `)
+      .eq('post_id', postId)
+      .order('criado_em', { ascending: true });
+    
+    if (error) throw new Error(`Erro ao buscar respostas do fórum: ${error.message}`);
+    
+    return data.map(this.mapDbForumReplyToForumReply);
   }
 
   async createForumReply(reply: InsertForumReply): Promise<ForumReply> {
-    throw new Error("Método não implementado: createForumReply");
+    const { data, error } = await supabase
+      .from('forum_respostas')
+      .insert({
+        post_id: reply.postId,
+        usuario_id: reply.userId,
+        conteudo: reply.content,
+        melhor_resposta: reply.bestAnswer || false
+      })
+      .select(`
+        *,
+        usuarios (id, email, nome)
+      `)
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar resposta no fórum: ${error.message}`);
+    
+    return this.mapDbForumReplyToForumReply(data);
+  }
+  
+  // Métodos auxiliares adicionais para mapeamento
+  private mapDbConquistaToAchievement(dbConquista: any): Achievement {
+    return {
+      id: dbConquista.id,
+      title: dbConquista.titulo,
+      description: dbConquista.descricao,
+      category: dbConquista.categoria,
+      iconUrl: dbConquista.icone_url,
+      requirement: dbConquista.requisito,
+      points: dbConquista.pontos,
+      createdAt: new Date(dbConquista.criado_em)
+    };
+  }
+  
+  private mapDbUsuarioConquistaToUserAchievement(dbUsuarioConquista: any): UserAchievement {
+    return {
+      id: dbUsuarioConquista.id,
+      userId: dbUsuarioConquista.usuario_id,
+      achievementId: dbUsuarioConquista.conquista_id,
+      earnedAt: new Date(dbUsuarioConquista.data_conquista),
+      achievementTitle: dbUsuarioConquista.conquistas?.titulo,
+      achievementDescription: dbUsuarioConquista.conquistas?.descricao,
+      achievementIconUrl: dbUsuarioConquista.conquistas?.icone_url
+    };
+  }
+  
+  private mapDbForumPostToForumPost(dbForumPost: any): ForumPost {
+    return {
+      id: dbForumPost.id,
+      userId: dbForumPost.usuario_id,
+      pathId: dbForumPost.trilha_id,
+      title: dbForumPost.titulo,
+      content: dbForumPost.conteudo,
+      type: dbForumPost.tipo,
+      createdAt: new Date(dbForumPost.criado_em),
+      authorName: dbForumPost.usuarios?.nome || dbForumPost.usuarios?.email,
+      pathTitle: dbForumPost.trilhas?.titulo,
+      replyCount: dbForumPost.contagem_respostas || 0
+    };
+  }
+  
+  private mapDbForumReplyToForumReply(dbForumReply: any): ForumReply {
+    return {
+      id: dbForumReply.id,
+      postId: dbForumReply.post_id,
+      userId: dbForumReply.usuario_id,
+      content: dbForumReply.conteudo,
+      bestAnswer: dbForumReply.melhor_resposta,
+      createdAt: new Date(dbForumReply.criado_em),
+      authorName: dbForumReply.usuarios?.nome || dbForumReply.usuarios?.email
+    };
   }
 
   async getDiagnosticQuestions(): Promise<DiagnosticQuestion[]> {
