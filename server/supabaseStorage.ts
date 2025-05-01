@@ -438,7 +438,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
 
-  private mapDbMissaoToMission(dbMissao: any): Mission {
+  private mapDbMissaoToMission = (dbMissao: any): Mission => {
     return {
       id: dbMissao.id,
       title: dbMissao.titulo,
@@ -659,7 +659,7 @@ export class SupabaseStorage implements IStorage {
   }
   
   // Métodos auxiliares adicionais para mapeamento
-  private mapDbLocalToLocation(dbLocal: any): Location {
+  private mapDbLocalToLocation = (dbLocal: any): Location => {
     return {
       id: dbLocal.id,
       name: dbLocal.nome,
@@ -674,7 +674,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
   
-  private mapDbProgressoToUserProgress(dbProgresso: any): UserProgress {
+  private mapDbProgressoToUserProgress = (dbProgresso: any): UserProgress => {
     return {
       id: dbProgresso.id,
       userId: dbProgresso.usuario_id,
@@ -939,7 +939,7 @@ export class SupabaseStorage implements IStorage {
   }
   
   // Métodos auxiliares adicionais para mapeamento
-  private mapDbConquistaToAchievement(dbConquista: any): Achievement {
+  private mapDbConquistaToAchievement = (dbConquista: any): Achievement => {
     return {
       id: dbConquista.id,
       title: dbConquista.titulo,
@@ -956,7 +956,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
   
-  private mapDbUsuarioConquistaToUserAchievement(dbUsuarioConquista: any): UserAchievement {
+  private mapDbUsuarioConquistaToUserAchievement = (dbUsuarioConquista: any): UserAchievement => {
     return {
       id: dbUsuarioConquista.id,
       userId: dbUsuarioConquista.usuario_id,
@@ -968,7 +968,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
   
-  private mapDbForumPostToForumPost(dbForumPost: any): ForumPost {
+  private mapDbForumPostToForumPost = (dbForumPost: any): ForumPost => {
     return {
       id: dbForumPost.id,
       userId: dbForumPost.usuario_id,
@@ -983,7 +983,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
   
-  private mapDbForumReplyToForumReply(dbForumReply: any): ForumReply {
+  private mapDbForumReplyToForumReply = (dbForumReply: any): ForumReply => {
     return {
       id: dbForumReply.id,
       postId: dbForumReply.post_id,
@@ -1093,7 +1093,7 @@ export class SupabaseStorage implements IStorage {
   }
   
   // Métodos auxiliares adicionais para mapeamento de diagnósticos
-  private mapDbQuestaoToDiagnosticQuestion(dbQuestao: any): DiagnosticQuestion {
+  private mapDbQuestaoToDiagnosticQuestion = (dbQuestao: any): DiagnosticQuestion => {
     return {
       id: dbQuestao.id,
       question: dbQuestao.pergunta,
@@ -1105,7 +1105,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
   
-  private mapDbDiagnosticoToUserDiagnostic(dbDiagnostico: any): UserDiagnostic {
+  private mapDbDiagnosticoToUserDiagnostic = (dbDiagnostico: any): UserDiagnostic => {
     return {
       id: dbDiagnostico.id,
       userId: dbDiagnostico.usuario_id,
