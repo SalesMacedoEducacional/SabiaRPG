@@ -136,17 +136,19 @@ const DiagnosticModal: React.FC<DiagnosticModalProps> = ({ isOpen, onClose, onCo
   
   // Calculate score for current area
   const calculateAreaScore = () => {
-    const areaQuestions = questions;
+    const areaQuestions = Array.isArray(questions) ? questions : [];
     if (areaQuestions.length === 0) return;
     
     let correctAnswers = 0;
     let totalQuestions = areaQuestions.length;
     
-    areaQuestions.forEach((question: Question) => {
-      if (answers[question.id] === question.correctAnswer) {
+    // Usando loop for em vez de forEach para garantir que funcione
+    for (let i = 0; i < areaQuestions.length; i++) {
+      const question = areaQuestions[i] as Question;
+      if (question && answers[question.id] === question.correctAnswer) {
         correctAnswers++;
       }
-    });
+    }
     
     const score = Math.round((correctAnswers / totalQuestions) * 100);
     let recommendedDifficulty = 1;
