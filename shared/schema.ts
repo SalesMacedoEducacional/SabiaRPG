@@ -1,189 +1,437 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, integer, boolean, timestamp, json, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // User role enum
-export const userRoleEnum = pgEnum("user_role", ["student", "teacher", "manager"]);
-
-// Users table
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  username: text("username").notNull().unique(),
-  fullName: text("full_name").notNull(),
-  role: userRoleEnum("role").notNull().default("student"),
-  avatarUrl: text("avatar_url"),
-  level: integer("level").notNull().default(1),
-  xp: integer("xp").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const userRoleEnum = pgEnum("papel_usuario", ["aluno", "professor", "gestor"]);
 
 // Subject areas enum
-export const subjectAreaEnum = pgEnum("subject_area", [
-  "mathematics", 
-  "languages", 
-  "sciences", 
-  "history",
-  "geography",
-  "arts"
+export const subjectAreaEnum = pgEnum("disciplina", [
+  "matematica", 
+  "linguagens", 
+  "ciencias", 
+  "historia",
+  "geografia",
+  "artes"
 ]);
 
-// Learning paths table
-export const learningPaths = pgTable("learning_paths", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  area: subjectAreaEnum("area").notNull(),
-  difficulty: integer("difficulty").notNull().default(1),
-  requiredLevel: integer("required_level").notNull().default(1),
-  imageUrl: text("image_url"),
-  locationId: integer("location_id").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+// Status enum
+export const statusEnum = pgEnum("status", ["pendente", "concluida", "falhada"]);
+
+// Escolas table
+export const escolas = pgTable("escolas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nome: text("nome").notNull(),
+  codigoEscola: text("codigo_escola").notNull().unique(),
+  criadoEm: timestamp("criado_em").defaultNow(),
 });
 
-// Missions table
-export const missions = pgTable("missions", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  area: subjectAreaEnum("area").notNull(),
-  difficulty: integer("difficulty").notNull().default(1),
-  xpReward: integer("xp_reward").notNull().default(50),
-  pathId: integer("path_id").notNull(),
-  content: json("content").notNull(), // Questions, challenges, narrative
-  estimatedTime: integer("estimated_time").notNull(), // In minutes
-  sequence: integer("sequence").notNull(), // Order in the path
-  createdAt: timestamp("created_at").defaultNow(),
+// Usuarios table
+export const usuarios = pgTable("usuarios", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  senhaHash: text("senha_hash").notNull(),
+  papel: userRoleEnum("papel").notNull(),
+  criadoEm: timestamp("criado_em").defaultNow(),
 });
 
-// Map locations table
-export const locations = pgTable("locations", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  coordinates: json("coordinates").notNull(), // {x, y} position on map
-  icon: text("icon").notNull().default("castle"),
-  unlockLevel: integer("unlock_level").notNull().default(1),
-  createdAt: timestamp("created_at").defaultNow(),
+// Matriculas table
+export const matriculas = pgTable("matriculas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  numeroMatricula: text("numero_matricula").notNull().unique(),
+  nomeAluno: text("nome_aluno").notNull(),
+  turma: text("turma"),
+  criadoEm: timestamp("criado_em").defaultNow(),
 });
 
-// User progress table
-export const userProgress = pgTable("user_progress", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  missionId: integer("mission_id").notNull(),
-  completed: boolean("completed").notNull().default(false),
-  score: integer("score"),
-  attempts: integer("attempts").notNull().default(0),
-  feedback: text("feedback"),
-  completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").defaultNow(),
+// Perfis de aluno table
+export const perfisAluno = pgTable("perfis_aluno", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  matriculaId: uuid("matricula_id").references(() => matriculas.id, { onDelete: "restrict" }),
+  avatarImage: text("avatar_image"),
+  nivel: integer("nivel").notNull().default(1),
+  xp: integer("xp").notNull().default(0),
+  criadoEm: timestamp("criado_em").defaultNow(),
 });
 
-// Achievements table
-export const achievements = pgTable("achievements", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  area: subjectAreaEnum("area"),
-  iconName: text("icon_name").notNull(),
-  criteria: json("criteria").notNull(), // Requirements to earn
-  createdAt: timestamp("created_at").defaultNow(),
+// Trilhas de aprendizagem table
+export const trilhas = pgTable("trilhas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  titulo: text("titulo").notNull(),
+  disciplina: text("disciplina").notNull(),
+  nivel: integer("nivel").notNull(),
 });
 
-// User achievements table
-export const userAchievements = pgTable("user_achievements", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  achievementId: integer("achievement_id").notNull(),
-  earnedAt: timestamp("earned_at").defaultNow(),
+// Missões table
+export const missoes = pgTable("missoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  trilhaId: uuid("trilha_id").references(() => trilhas.id, { onDelete: "cascade" }),
+  titulo: text("titulo").notNull(),
+  descricao: text("descricao").notNull(),
+  ordem: integer("ordem").notNull(),
+  xpRecompensa: integer("xp_recompensa").default(10),
 });
 
-// Forum posts table
-export const forumPosts = pgTable("forum_posts", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  pathId: integer("path_id"),
-  missionId: integer("mission_id"),
-  createdAt: timestamp("created_at").defaultNow(),
+// Progresso do aluno table
+export const progressoAluno = pgTable("progresso_aluno", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  perfilId: uuid("perfil_id").references(() => perfisAluno.id, { onDelete: "cascade" }),
+  missaoId: uuid("missao_id").references(() => missoes.id, { onDelete: "cascade" }),
+  status: statusEnum("status").notNull(),
+  resposta: text("resposta"),
+  feedbackIa: text("feedback_ia"),
+  xpGanho: integer("xp_ganho"),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
 });
 
-// Forum replies table
-export const forumReplies = pgTable("forum_replies", {
-  id: serial("id").primaryKey(),
-  postId: integer("post_id").notNull(),
-  userId: integer("user_id").notNull(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+// Conquistas table
+export const conquistas = pgTable("conquistas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nome: text("nome").notNull(),
+  icone: text("icone"),
+  criterio: text("criterio"),
 });
 
-// Diagnostic questions table
-export const diagnosticQuestions = pgTable("diagnostic_questions", {
-  id: serial("id").primaryKey(),
-  question: text("question").notNull(),
-  area: subjectAreaEnum("area").notNull(),
-  options: json("options").notNull(), // Array of options
-  correctAnswer: integer("correct_answer").notNull(), // Index of correct answer
-  difficulty: integer("difficulty").notNull().default(1),
-  createdAt: timestamp("created_at").defaultNow(),
+// Conquistas do aluno table
+export const alunoConquistas = pgTable("aluno_conquistas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  perfilId: uuid("perfil_id").references(() => perfisAluno.id, { onDelete: "cascade" }),
+  conquistaId: uuid("conquista_id").references(() => conquistas.id, { onDelete: "cascade" }),
+  concedidoEm: timestamp("concedido_em").defaultNow(),
 });
 
-// User diagnostic results table
-export const userDiagnostics = pgTable("user_diagnostics", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  area: subjectAreaEnum("area").notNull(),
-  score: integer("score").notNull(),
-  recommendedDifficulty: integer("recommended_difficulty").notNull(),
-  completedAt: timestamp("completed_at").defaultNow(),
+// Notificações table
+export const notificacoes = pgTable("notificacoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  destinatarioId: uuid("destinatario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  tipo: text("tipo").notNull(),
+  conteudo: text("conteudo").notNull(),
+  enviadoEm: timestamp("enviado_em").defaultNow(),
+  lidoEm: timestamp("lido_em"),
 });
 
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
-export const insertLearningPathSchema = createInsertSchema(learningPaths).omit({ id: true, createdAt: true });
-export const insertMissionSchema = createInsertSchema(missions).omit({ id: true, createdAt: true });
-export const insertLocationSchema = createInsertSchema(locations).omit({ id: true, createdAt: true });
-export const insertUserProgressSchema = createInsertSchema(userProgress).omit({ id: true, createdAt: true });
-export const insertAchievementSchema = createInsertSchema(achievements).omit({ id: true, createdAt: true });
-export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({ id: true });
-export const insertForumPostSchema = createInsertSchema(forumPosts).omit({ id: true, createdAt: true });
-export const insertForumReplySchema = createInsertSchema(forumReplies).omit({ id: true, createdAt: true });
-export const insertDiagnosticQuestionSchema = createInsertSchema(diagnosticQuestions).omit({ id: true, createdAt: true });
-export const insertUserDiagnosticSchema = createInsertSchema(userDiagnostics).omit({ id: true, completedAt: true });
+// Fóruns table
+export const foruns = pgTable("foruns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  titulo: text("titulo").notNull(),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
 
-// Types
-export type User = typeof users.$inferSelect;
+// Posts no fórum table
+export const postsForum = pgTable("posts_forum", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  forumId: uuid("forum_id").references(() => foruns.id, { onDelete: "cascade" }),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  conteudo: text("conteudo").notNull(),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Configurações table
+export const configuracoes = pgTable("configuracoes", {
+  chave: text("chave").primaryKey(),
+  valor: text("valor"),
+});
+
+// Logs de auditoria table
+export const logsAuditoria = pgTable("logs_auditoria", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id),
+  acao: text("acao").notNull(),
+  detalhes: text("detalhes"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Insert schemas para o novo esquema Supabase
+export const insertEscolaSchema = createInsertSchema(escolas).omit({ id: true, criadoEm: true });
+export const insertUsuarioSchema = createInsertSchema(usuarios).omit({ id: true, criadoEm: true });
+export const insertMatriculaSchema = createInsertSchema(matriculas).omit({ id: true, criadoEm: true });
+export const insertPerfilAlunoSchema = createInsertSchema(perfisAluno).omit({ id: true, criadoEm: true });
+export const insertTrilhaSchema = createInsertSchema(trilhas).omit({ id: true });
+export const insertMissaoSchema = createInsertSchema(missoes).omit({ id: true });
+export const insertProgressoAlunoSchema = createInsertSchema(progressoAluno).omit({ id: true, atualizadoEm: true });
+export const insertConquistaSchema = createInsertSchema(conquistas).omit({ id: true });
+export const insertAlunoConquistaSchema = createInsertSchema(alunoConquistas).omit({ id: true, concedidoEm: true });
+export const insertNotificacaoSchema = createInsertSchema(notificacoes).omit({ id: true, enviadoEm: true, lidoEm: true });
+export const insertForumSchema = createInsertSchema(foruns).omit({ id: true, criadoEm: true });
+export const insertPostForumSchema = createInsertSchema(postsForum).omit({ id: true, criadoEm: true });
+export const insertConfiguracaoSchema = createInsertSchema(configuracoes);
+export const insertLogAuditoriaSchema = createInsertSchema(logsAuditoria).omit({ id: true, criadoEm: true });
+
+// Esquemas de compatibilidade para o código existente
+// Vamos definir schemas compat usando Zod
+export const insertUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  username: z.string().min(3),
+  fullName: z.string(),
+  role: z.enum(["student", "teacher", "manager"]).default("student"),
+  avatarUrl: z.string().optional(),
+  level: z.number().default(1),
+  xp: z.number().default(0),
+});
+
+export const insertLearningPathSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]),
+  difficulty: z.number().default(1),
+  requiredLevel: z.number().default(1),
+  imageUrl: z.string().optional(),
+  locationId: z.number(),
+});
+
+export const insertMissionSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]),
+  difficulty: z.number().default(1),
+  xpReward: z.number().default(50),
+  pathId: z.number(),
+  content: z.any(),
+  estimatedTime: z.number(),
+  sequence: z.number(),
+});
+
+export const insertLocationSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  coordinates: z.object({ x: z.number(), y: z.number() }),
+  icon: z.string().default("castle"),
+  unlockLevel: z.number().default(1),
+});
+
+export const insertUserProgressSchema = z.object({
+  userId: z.number(),
+  missionId: z.number(),
+  completed: z.boolean().default(false),
+  score: z.number().optional(),
+  attempts: z.number().default(0),
+  feedback: z.string().optional(),
+  completedAt: z.date().optional().nullable(),
+});
+
+export const insertAchievementSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]).optional().nullable(),
+  iconName: z.string(),
+  criteria: z.any(),
+});
+
+export const insertUserAchievementSchema = z.object({
+  userId: z.number(),
+  achievementId: z.number(),
+});
+
+export const insertForumPostSchema = z.object({
+  userId: z.number(),
+  title: z.string(),
+  content: z.string(),
+  pathId: z.number().optional(),
+  missionId: z.number().optional(),
+});
+
+export const insertForumReplySchema = z.object({
+  postId: z.number(),
+  userId: z.number(),
+  content: z.string(),
+});
+
+export const insertDiagnosticQuestionSchema = z.object({
+  question: z.string(),
+  area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]),
+  options: z.array(z.string()),
+  correctAnswer: z.number(),
+  difficulty: z.number().default(1),
+});
+
+export const insertUserDiagnosticSchema = z.object({
+  userId: z.number(),
+  area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]),
+  score: z.number(),
+  recommendedDifficulty: z.number(),
+});
+
+// Types para o novo esquema Supabase
+export type Escola = typeof escolas.$inferSelect;
+export type InsertEscola = z.infer<typeof insertEscolaSchema>;
+
+export type Usuario = typeof usuarios.$inferSelect;
+export type InsertUsuario = z.infer<typeof insertUsuarioSchema>;
+
+export type Matricula = typeof matriculas.$inferSelect;
+export type InsertMatricula = z.infer<typeof insertMatriculaSchema>;
+
+export type PerfilAluno = typeof perfisAluno.$inferSelect;
+export type InsertPerfilAluno = z.infer<typeof insertPerfilAlunoSchema>;
+
+export type Trilha = typeof trilhas.$inferSelect;
+export type InsertTrilha = z.infer<typeof insertTrilhaSchema>;
+
+export type Missao = typeof missoes.$inferSelect;
+export type InsertMissao = z.infer<typeof insertMissaoSchema>;
+
+export type ProgressoAluno = typeof progressoAluno.$inferSelect;
+export type InsertProgressoAluno = z.infer<typeof insertProgressoAlunoSchema>;
+
+export type Conquista = typeof conquistas.$inferSelect;
+export type InsertConquista = z.infer<typeof insertConquistaSchema>;
+
+export type AlunoConquista = typeof alunoConquistas.$inferSelect;
+export type InsertAlunoConquista = z.infer<typeof insertAlunoConquistaSchema>;
+
+export type Notificacao = typeof notificacoes.$inferSelect;
+export type InsertNotificacao = z.infer<typeof insertNotificacaoSchema>;
+
+export type Forum = typeof foruns.$inferSelect;
+export type InsertForum = z.infer<typeof insertForumSchema>;
+
+export type PostForum = typeof postsForum.$inferSelect;
+export type InsertPostForum = z.infer<typeof insertPostForumSchema>;
+
+export type Configuracao = typeof configuracoes.$inferSelect;
+export type InsertConfiguracao = z.infer<typeof insertConfiguracaoSchema>;
+
+export type LogAuditoria = typeof logsAuditoria.$inferSelect;
+export type InsertLogAuditoria = z.infer<typeof insertLogAuditoriaSchema>;
+
+// Types de compatibilidade para o código existente
+// Esses são tipos temporários que servem para manter a compatibilidade com o código existente
+export interface User {
+  id: number;
+  email: string;
+  password: string;
+  username: string;
+  fullName: string;
+  role: "student" | "teacher" | "manager";
+  avatarUrl?: string;
+  level: number;
+  xp: number;
+  createdAt: Date;
+}
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
-export type LearningPath = typeof learningPaths.$inferSelect;
+export interface LearningPath {
+  id: number;
+  title: string;
+  description: string;
+  area: string;
+  difficulty: number;
+  requiredLevel: number;
+  imageUrl?: string;
+  locationId: number;
+  createdAt: Date;
+}
+
 export type InsertLearningPath = z.infer<typeof insertLearningPathSchema>;
 
-export type Mission = typeof missions.$inferSelect;
+export interface Mission {
+  id: number;
+  title: string;
+  description: string;
+  area: string;
+  difficulty: number;
+  xpReward: number;
+  pathId: number;
+  content: any;
+  estimatedTime: number;
+  sequence: number;
+  createdAt: Date;
+}
+
 export type InsertMission = z.infer<typeof insertMissionSchema>;
 
-export type Location = typeof locations.$inferSelect;
+export interface Location {
+  id: number;
+  name: string;
+  description: string;
+  coordinates: { x: number; y: number };
+  icon: string;
+  unlockLevel: number;
+  createdAt: Date;
+}
+
 export type InsertLocation = z.infer<typeof insertLocationSchema>;
 
-export type UserProgress = typeof userProgress.$inferSelect;
+export interface UserProgress {
+  id: number;
+  userId: number;
+  missionId: number;
+  completed: boolean;
+  score?: number;
+  attempts: number;
+  feedback?: string;
+  completedAt: Date | null;
+  createdAt: Date;
+}
+
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 
-export type Achievement = typeof achievements.$inferSelect;
+export interface Achievement {
+  id: number;
+  title: string;
+  description: string;
+  area: string | null;
+  iconName: string;
+  criteria: any;
+  createdAt: Date;
+}
+
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 
-export type UserAchievement = typeof userAchievements.$inferSelect;
+export interface UserAchievement {
+  id: number;
+  userId: number;
+  achievementId: number;
+  earnedAt: Date;
+}
+
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
 
-export type ForumPost = typeof forumPosts.$inferSelect;
+export interface ForumPost {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+  pathId?: number;
+  missionId?: number;
+  createdAt: Date;
+}
+
 export type InsertForumPost = z.infer<typeof insertForumPostSchema>;
 
-export type ForumReply = typeof forumReplies.$inferSelect;
+export interface ForumReply {
+  id: number;
+  postId: number;
+  userId: number;
+  content: string;
+  createdAt: Date;
+}
+
 export type InsertForumReply = z.infer<typeof insertForumReplySchema>;
 
-export type DiagnosticQuestion = typeof diagnosticQuestions.$inferSelect;
+export interface DiagnosticQuestion {
+  id: number;
+  question: string;
+  area: string;
+  options: string[];
+  correctAnswer: number;
+  difficulty: number;
+  createdAt: Date;
+}
+
 export type InsertDiagnosticQuestion = z.infer<typeof insertDiagnosticQuestionSchema>;
 
-export type UserDiagnostic = typeof userDiagnostics.$inferSelect;
+export interface UserDiagnostic {
+  id: number;
+  userId: number;
+  area: string;
+  score: number;
+  recommendedDifficulty: number;
+  completedAt: Date;
+}
+
 export type InsertUserDiagnostic = z.infer<typeof insertUserDiagnosticSchema>;
