@@ -378,6 +378,11 @@ export interface Achievement {
   iconName: string;
   criteria: any;
   createdAt: Date;
+  // Campos estendidos para compatibilidade com Supabase
+  category?: string;
+  iconUrl?: string;
+  requirement?: string;
+  points?: number;
 }
 
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
@@ -387,6 +392,10 @@ export interface UserAchievement {
   userId: number;
   achievementId: number;
   earnedAt: Date;
+  // Campos estendidos para compatibilidade com Supabase
+  achievementTitle?: string;
+  achievementDescription?: string;
+  achievementIconUrl?: string;
 }
 
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
@@ -399,6 +408,11 @@ export interface ForumPost {
   pathId?: number;
   missionId?: number;
   createdAt: Date;
+  // Campos estendidos para compatibilidade com Supabase
+  type?: string;
+  authorName?: string;
+  pathTitle?: string;
+  replyCount?: number;
 }
 
 export type InsertForumPost = z.infer<typeof insertForumPostSchema>;
@@ -409,6 +423,9 @@ export interface ForumReply {
   userId: number;
   content: string;
   createdAt: Date;
+  // Campos estendidos para compatibilidade com Supabase
+  bestAnswer?: boolean;
+  authorName?: string;
 }
 
 export type InsertForumReply = z.infer<typeof insertForumReplySchema>;

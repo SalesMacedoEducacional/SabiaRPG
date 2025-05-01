@@ -336,9 +336,10 @@ export class SupabaseStorage implements IStorage {
       .insert({
         nome: location.name,
         descricao: location.description,
-        coordenada_x: location.coordX,
-        coordenada_y: location.coordY,
-        imagem_url: location.imageUrl
+        coordenada_x: location.coordinates.x,
+        coordenada_y: location.coordinates.y,
+        icone: location.icon,
+        nivel_desbloqueio: location.unlockLevel
       })
       .select()
       .single();
@@ -385,10 +386,11 @@ export class SupabaseStorage implements IStorage {
       .insert({
         usuario_id: progress.userId,
         missao_id: progress.missionId,
-        progresso: progress.progress,
+        status: progress.completed ? 'concluida' : 'pendente',
         pontuacao: progress.score,
-        status: progress.status,
-        tempo_gasto: progress.timeSpent
+        tentativas: progress.attempts,
+        feedback_ia: progress.feedback,
+        concluido_em: progress.completedAt ? new Date(progress.completedAt).toISOString() : null
       })
       .select()
       .single();
@@ -410,10 +412,10 @@ export class SupabaseStorage implements IStorage {
     
     // Mapear campos para o formato do banco
     const updates: any = {};
-    if (progress.progress !== undefined) updates.progresso = progress.progress;
+    if (progress.completed !== undefined) updates.status = progress.completed ? 'concluida' : 'pendente';
     if (progress.score !== undefined) updates.pontuacao = progress.score;
-    if (progress.status !== undefined) updates.status = progress.status;
-    if (progress.timeSpent !== undefined) updates.tempo_gasto = progress.timeSpent;
+    if (progress.attempts !== undefined) updates.tentativas = progress.attempts;
+    if (progress.feedback !== undefined) updates.feedback_ia = progress.feedback;
     if (progress.completedAt !== undefined) updates.concluido_em = progress.completedAt;
     
     const { data, error } = await supabase
@@ -437,9 +439,12 @@ export class SupabaseStorage implements IStorage {
       id: dbLocal.id,
       name: dbLocal.nome,
       description: dbLocal.descricao,
-      coordX: dbLocal.coordenada_x,
-      coordY: dbLocal.coordenada_y,
-      imageUrl: dbLocal.imagem_url,
+      coordinates: { 
+        x: dbLocal.coordenada_x, 
+        y: dbLocal.coordenada_y 
+      },
+      icon: dbLocal.icone || 'location',
+      unlockLevel: dbLocal.nivel_desbloqueio || 1,
       createdAt: new Date(dbLocal.criado_em)
     };
   }
@@ -449,13 +454,12 @@ export class SupabaseStorage implements IStorage {
       id: dbProgresso.id,
       userId: dbProgresso.usuario_id,
       missionId: dbProgresso.missao_id,
-      progress: dbProgresso.progresso,
+      completed: dbProgresso.status === 'concluida',
       score: dbProgresso.pontuacao,
-      status: dbProgresso.status,
-      timeSpent: dbProgresso.tempo_gasto,
+      attempts: dbProgresso.tentativas || 1,
+      feedback: dbProgresso.feedback_ia,
       createdAt: new Date(dbProgresso.criado_em),
-      completedAt: dbProgresso.concluido_em ? new Date(dbProgresso.concluido_em) : null,
-      missionTitle: dbProgresso.missoes?.titulo
+      completedAt: dbProgresso.concluido_em ? new Date(dbProgresso.concluido_em) : null
     };
   }
 
@@ -692,35 +696,127 @@ export class SupabaseStorage implements IStorage {
     };
   }
 
+  // Implementação dos métodos de perguntas diagnósticas
   async getDiagnosticQuestions(): Promise<DiagnosticQuestion[]> {
-    throw new Error("Método não implementado: getDiagnosticQuestions");
+    const { data, error } = await supabase
+      .from('diagnostico_questoes')
+      .select('*');
+    
+    if (error) throw new Error(`Erro ao buscar questões diagnósticas: ${error.message}`);
+    
+    return data.map(this.mapDbQuestaoToDiagnosticQuestion);
   }
 
   async getDiagnosticQuestionsByArea(area: string): Promise<DiagnosticQuestion[]> {
-    throw new Error("Método não implementado: getDiagnosticQuestionsByArea");
+    const disciplina = this.mapAreaToDisciplina(area);
+    const { data, error } = await supabase
+      .from('diagnostico_questoes')
+      .select('*')
+      .eq('disciplina', disciplina);
+    
+    if (error) throw new Error(`Erro ao buscar questões diagnósticas por área: ${error.message}`);
+    
+    return data.map(this.mapDbQuestaoToDiagnosticQuestion);
   }
 
   async getDiagnosticQuestion(id: number): Promise<DiagnosticQuestion | undefined> {
-    throw new Error("Método não implementado: getDiagnosticQuestion");
+    const { data, error } = await supabase
+      .from('diagnostico_questoes')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbQuestaoToDiagnosticQuestion(data);
   }
 
   async createDiagnosticQuestion(question: InsertDiagnosticQuestion): Promise<DiagnosticQuestion> {
-    throw new Error("Método não implementado: createDiagnosticQuestion");
+    const { data, error } = await supabase
+      .from('diagnostico_questoes')
+      .insert({
+        pergunta: question.question,
+        disciplina: this.mapAreaToDisciplina(question.area),
+        opcoes: JSON.stringify(question.options),
+        resposta_correta: question.correctAnswer,
+        dificuldade: question.difficulty
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar questão diagnóstica: ${error.message}`);
+    
+    return this.mapDbQuestaoToDiagnosticQuestion(data);
   }
 
+  // Implementação dos métodos de diagnóstico do usuário
   async getUserDiagnostics(userId: number): Promise<UserDiagnostic[]> {
-    throw new Error("Método não implementado: getUserDiagnostics");
+    const { data, error } = await supabase
+      .from('usuario_diagnosticos')
+      .select('*')
+      .eq('usuario_id', userId);
+    
+    if (error) throw new Error(`Erro ao buscar diagnósticos do usuário: ${error.message}`);
+    
+    return data.map(this.mapDbDiagnosticoToUserDiagnostic);
   }
 
   async getUserDiagnosticByArea(userId: number, area: string): Promise<UserDiagnostic | undefined> {
-    throw new Error("Método não implementado: getUserDiagnosticByArea");
+    const disciplina = this.mapAreaToDisciplina(area);
+    const { data, error } = await supabase
+      .from('usuario_diagnosticos')
+      .select('*')
+      .eq('usuario_id', userId)
+      .eq('disciplina', disciplina)
+      .maybeSingle();
+    
+    if (error || !data) return undefined;
+    
+    return this.mapDbDiagnosticoToUserDiagnostic(data);
   }
 
   async createUserDiagnostic(diagnostic: InsertUserDiagnostic): Promise<UserDiagnostic> {
-    throw new Error("Método não implementado: createUserDiagnostic");
+    const { data, error } = await supabase
+      .from('usuario_diagnosticos')
+      .insert({
+        usuario_id: diagnostic.userId,
+        disciplina: this.mapAreaToDisciplina(diagnostic.area),
+        pontuacao: diagnostic.score,
+        dificuldade_recomendada: diagnostic.recommendedDifficulty,
+        concluido_em: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Erro ao criar diagnóstico do usuário: ${error.message}`);
+    
+    return this.mapDbDiagnosticoToUserDiagnostic(data);
+  }
+  
+  // Métodos auxiliares adicionais para mapeamento de diagnósticos
+  private mapDbQuestaoToDiagnosticQuestion(dbQuestao: any): DiagnosticQuestion {
+    return {
+      id: dbQuestao.id,
+      question: dbQuestao.pergunta,
+      area: this.mapDisciplinaToArea(dbQuestao.disciplina),
+      options: typeof dbQuestao.opcoes === 'string' ? JSON.parse(dbQuestao.opcoes) : dbQuestao.opcoes,
+      correctAnswer: dbQuestao.resposta_correta,
+      difficulty: dbQuestao.dificuldade,
+      createdAt: new Date(dbQuestao.criado_em)
+    };
+  }
+  
+  private mapDbDiagnosticoToUserDiagnostic(dbDiagnostico: any): UserDiagnostic {
+    return {
+      id: dbDiagnostico.id,
+      userId: dbDiagnostico.usuario_id,
+      area: this.mapDisciplinaToArea(dbDiagnostico.disciplina),
+      score: dbDiagnostico.pontuacao,
+      recommendedDifficulty: dbDiagnostico.dificuldade_recomendada,
+      completedAt: new Date(dbDiagnostico.concluido_em)
+    };
   }
 }
 
 // Exportamos uma instância para uso imediato
-// Nota: Comentado por enquanto até que o banco esteja configurado
-// export const storage = new SupabaseStorage();
+export const supabaseStorage = new SupabaseStorage();

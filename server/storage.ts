@@ -476,4 +476,11 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Importar o armazenamento Supabase
+import { supabaseStorage } from "./supabaseStorage";
+
+// Usar o armazenamento em memória durante o desenvolvimento local se necessário
+// Para produção, usar o armazenamento Supabase
+export const storage = process.env.USE_MEMORY_STORAGE === 'true'
+  ? new MemStorage()
+  : supabaseStorage;
