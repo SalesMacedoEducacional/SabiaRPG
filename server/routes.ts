@@ -225,17 +225,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Rota de teste para missões e conquistas
   app.get("/api/test/game-content", async (_req, res) => {
     try {
-      // Buscar missões
+      // Buscar missões com logs
+      console.log("Buscando missões...");
       const missions = await storage.getMissions();
+      console.log(`Missões encontradas: ${missions.length}`);
       
-      // Buscar conquistas
+      // Buscar conquistas com logs
+      console.log("Buscando conquistas...");
       const achievements = await storage.getAchievements();
+      console.log(`Conquistas encontradas: ${achievements.length}`);
 
-      // Buscar localizações
+      // Buscar localizações com logs
+      console.log("Buscando localizações...");
       const locations = await storage.getLocations();
+      console.log(`Localizações encontradas: ${locations.length}`);
       
-      // Buscar trilhas de aprendizagem
+      // Buscar trilhas de aprendizagem com logs
+      console.log("Buscando trilhas...");
       const learningPaths = await storage.getLearningPaths();
+      console.log(`Trilhas encontradas: ${learningPaths.length}`);
       
       return res.json({
         status: "ok",

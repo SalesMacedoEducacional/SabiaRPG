@@ -31,6 +31,16 @@ export class SupabaseStorage implements IStorage {
   
   // Flag para controlar uso de dados simulados
   private useFallbackData: boolean = true; // Por padrão, usar dados simulados quando houver erro
+  
+  // Método utilitário para forçar o uso de dados simulados para todos os métodos
+  private forceUseFallbackData() {
+    return this.useFallbackData && (
+      this.mockLocations.size > 0 || 
+      this.mockLearningPaths.size > 0 || 
+      this.mockMissions.size > 0 || 
+      this.mockAchievements.size > 0
+    );
+  }
   private mockAchievements: Map<string, any> = new Map();
   private mockUserProgress: Map<string, any> = new Map();
   private mockUserAchievements: Map<string, any> = new Map();
