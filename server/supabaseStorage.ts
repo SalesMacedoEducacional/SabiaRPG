@@ -425,7 +425,7 @@ export class SupabaseStorage implements IStorage {
     };
   }
 
-  private mapDbTrilhaToLearningPath(dbTrilha: any): LearningPath {
+  private mapDbTrilhaToLearningPath = (dbTrilha: any): LearningPath => {
     return {
       id: dbTrilha.id,
       title: dbTrilha.titulo,
