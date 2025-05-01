@@ -22,6 +22,17 @@ import {
  */
 export class SupabaseStorage implements IStorage {
   // Métodos de usuário
+  async getUsers(): Promise<User[]> {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('*');
+    
+    if (error || !data) return [];
+    
+    // Converter do formato do banco para o formato esperado pela aplicação
+    return data.map(usuario => this.mapDbUsuarioToUser(usuario));
+  }
+  
   async getUser(id: number): Promise<User | undefined> {
     // Convertemos o id numérico para o formato de UUID esperado
     const { data, error } = await supabase
