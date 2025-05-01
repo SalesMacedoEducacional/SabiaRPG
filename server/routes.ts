@@ -249,6 +249,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Rota para acessar os dados simulados de desenvolvimento
+  app.get("/api/test/mock-data", async (_req, res) => {
+    try {
+      // Acesso às collections de dados simulados
+      // Verificamos se o storage é uma instância de SupabaseStorage para acessar os dados simulados
+      const mockData: any = {
+        locations: [],
+        learningPaths: [],
+        missions: [],
+        achievements: []
+      };
+      
+      // Verificamos se o storage tem as propriedades mockLocations, etc.
+      if ('mockLocations' in storage) {
+        // Convertemos os Maps para arrays
+        const storageWithMocks = storage as any;
+        
+        // Convertemos os mapas para arrays
+        if (storageWithMocks.mockLocations) {
+          mockData.locations = Array.from(storageWithMocks.mockLocations.values());
+        }
+        
+        if (storageWithMocks.mockLearningPaths) {
+          mockData.learningPaths = Array.from(storageWithMocks.mockLearningPaths.values());
+        }
+        
+        if (storageWithMocks.mockMissions) {
+          mockData.missions = Array.from(storageWithMocks.mockMissions.values());
+        }
+        
+        if (storageWithMocks.mockAchievements) {
+          mockData.achievements = Array.from(storageWithMocks.mockAchievements.values());
+        }
+      }
+      
+      return res.json({
+        status: "ok",
+        message: "Dados simulados para desenvolvimento",
+        data: mockData,
+        counts: {
+          locations: mockData.locations.length,
+          learningPaths: mockData.learningPaths.length,
+          missions: mockData.missions.length,
+          achievements: mockData.achievements.length
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao acessar dados simulados:", error);
+      return res.status(500).json({
+        status: "error",
+        message: `Erro ao acessar dados simulados: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+      });
+    }
+  });
+  
   // Rota para adicionar dados de demonstração para testes
   app.post("/api/test/seed-demo-data", async (_req, res) => {
     try {

@@ -19,8 +19,20 @@ import {
  * Implementação do IStorage usando Supabase.
  * Esta é uma implementação inicial que fará a ponte entre nossa interface de armazenamento
  * e o novo esquema do banco de dados Supabase.
+ * 
+ * Para ambiente de desenvolvimento, mantemos dados simulados em memória
+ * quando as tabelas correspondentes ainda não estão disponíveis no Supabase.
  */
 export class SupabaseStorage implements IStorage {
+  // Armazenamento simulado para desenvolvimento
+  private mockLocations: Map<string, any> = new Map();
+  private mockLearningPaths: Map<string, any> = new Map();
+  private mockMissions: Map<string, any> = new Map();
+  private mockAchievements: Map<string, any> = new Map();
+  private mockUserProgress: Map<string, any> = new Map();
+  private mockUserAchievements: Map<string, any> = new Map();
+  private mockForumPosts: Map<string, any> = new Map();
+  private mockForumReplies: Map<string, any> = new Map();
   // Métodos de usuário
   async getUsers(): Promise<User[]> {
     const { data, error } = await supabase
@@ -131,13 +143,36 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de trilhas de aprendizagem
   async getLearningPaths(): Promise<LearningPath[]> {
-    const { data, error } = await supabase
-      .from('trilhas')
-      .select('*');
-    
-    if (error) throw new Error(`Erro ao buscar trilhas: ${error.message}`);
-    
-    return data.map(this.mapDbTrilhaToLearningPath);
+    try {
+      const { data, error } = await supabase
+        .from('trilhas')
+        .select('*');
+      
+      if (error) {
+        console.log("Erro ao buscar trilhas, usando dados simulados:", error.message);
+        
+        // Se temos dados simulados, usamos eles
+        if (this.mockLearningPaths.size > 0) {
+          console.log(`Retornando ${this.mockLearningPaths.size} trilhas simuladas`);
+          return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
+        }
+        
+        throw error;
+      }
+      
+      return data.map(this.mapDbTrilhaToLearningPath);
+    } catch (error) {
+      console.error("Erro completo ao acessar trilhas:", error);
+      
+      // Se temos dados simulados, usamos eles mesmo em caso de erro
+      if (this.mockLearningPaths.size > 0) {
+        console.log(`Retornando ${this.mockLearningPaths.size} trilhas simuladas (fallback)`);
+        return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
+      }
+      
+      // Retornar array vazio em caso de erro
+      return [];
+    }
   }
 
   async getLearningPathsByArea(area: string): Promise<LearningPath[]> {
@@ -168,27 +203,36 @@ export class SupabaseStorage implements IStorage {
       console.log("Tentando criar trilha:", path);
       
       // Para desenvolvimento, vamos criar uma solução temporária 
+      const mockPathId = Date.now().toString();
       const mockTrilha = {
-        id: Date.now().toString(),
+        id: mockPathId,
         titulo: path.title,
         disciplina: this.mapAreaToDisciplina(path.area),
         nivel: path.difficulty || 1,
         criado_em: new Date().toISOString()
       };
       
+      // Armazenar na nossa coleção de simulação
+      this.mockLearningPaths.set(mockPathId, mockTrilha);
+      
       console.log("Criada trilha simulada:", mockTrilha);
+      console.log(`Trilhas simuladas armazenadas: ${this.mockLearningPaths.size}`);
       
       return this.mapDbTrilhaToLearningPath(mockTrilha);
     } catch (error) {
       console.error("Erro completo ao criar trilha:", error);
       // Criar um objeto trilha simulado para não quebrar o fluxo
+      const mockPathId = Date.now().toString();
       const mockTrilha = {
-        id: Date.now().toString(),
+        id: mockPathId,
         titulo: path.title,
         disciplina: this.mapAreaToDisciplina(path.area),
         nivel: path.difficulty || 1,
         criado_em: new Date().toISOString()
       };
+      
+      // Armazenar mesmo em caso de erro
+      this.mockLearningPaths.set(mockPathId, mockTrilha);
       
       return this.mapDbTrilhaToLearningPath(mockTrilha);
     }
@@ -196,13 +240,36 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de missões
   async getMissions(): Promise<Mission[]> {
-    const { data, error } = await supabase
-      .from('missoes')
-      .select('*');
-    
-    if (error) throw new Error(`Erro ao buscar missões: ${error.message}`);
-    
-    return data.map(this.mapDbMissaoToMission);
+    try {
+      const { data, error } = await supabase
+        .from('missoes')
+        .select('*');
+      
+      if (error) {
+        console.log("Erro ao buscar missões, usando dados simulados:", error.message);
+        
+        // Se temos dados simulados, usamos eles
+        if (this.mockMissions.size > 0) {
+          console.log(`Retornando ${this.mockMissions.size} missões simuladas`);
+          return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
+        }
+        
+        throw error;
+      }
+      
+      return data.map(this.mapDbMissaoToMission);
+    } catch (error) {
+      console.error("Erro completo ao acessar missões:", error);
+      
+      // Se temos dados simulados, usamos eles mesmo em caso de erro
+      if (this.mockMissions.size > 0) {
+        console.log(`Retornando ${this.mockMissions.size} missões simuladas (fallback)`);
+        return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
+      }
+      
+      // Retornar array vazio em caso de erro
+      return [];
+    }
   }
 
   async getMissionsByPath(pathId: number): Promise<Mission[]> {
@@ -234,8 +301,9 @@ export class SupabaseStorage implements IStorage {
       console.log("Tentando criar missão:", mission);
       
       // Para desenvolvimento, vamos criar uma solução temporária 
+      const mockMissionId = Date.now().toString();
       const mockMissao = {
-        id: Date.now().toString(),
+        id: mockMissionId,
         trilha_id: mission.pathId.toString(),
         titulo: mission.title,
         descricao: mission.description,
@@ -244,14 +312,19 @@ export class SupabaseStorage implements IStorage {
         criado_em: new Date().toISOString()
       };
       
+      // Armazenar na nossa coleção de simulação
+      this.mockMissions.set(mockMissionId, mockMissao);
+      
       console.log("Criada missão simulada:", mockMissao);
+      console.log(`Missões simuladas armazenadas: ${this.mockMissions.size}`);
       
       return this.mapDbMissaoToMission(mockMissao);
     } catch (error) {
       console.error("Erro completo ao criar missão:", error);
       // Criar um objeto missão simulado para não quebrar o fluxo
+      const mockMissionId = Date.now().toString();
       const mockMissao = {
-        id: Date.now().toString(),
+        id: mockMissionId,
         trilha_id: mission.pathId.toString(),
         titulo: mission.title,
         descricao: mission.description,
@@ -259,6 +332,9 @@ export class SupabaseStorage implements IStorage {
         xp_recompensa: mission.xpReward || 10,
         criado_em: new Date().toISOString()
       };
+      
+      // Armazenar mesmo em caso de erro
+      this.mockMissions.set(mockMissionId, mockMissao);
       
       return this.mapDbMissaoToMission(mockMissao);
     }
@@ -359,21 +435,31 @@ export class SupabaseStorage implements IStorage {
         .select('*');
       
       if (error) {
-        console.log("Erro ao buscar locais, tentando criar tabela:", error.message);
+        console.log("Erro ao buscar locais, usando dados simulados:", error.message);
+        
+        // Se temos dados simulados, usamos eles
+        if (this.mockLocations.size > 0) {
+          console.log(`Retornando ${this.mockLocations.size} locais simulados`);
+          return Array.from(this.mockLocations.values()).map(this.mapDbLocalToLocation);
+        }
         
         // Tentar criar a tabela
-        await supabase.rpc('execute_sql', {
-          sql_query: `
-          CREATE TABLE IF NOT EXISTS locais (
-            id          uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
-            nome        text        NOT NULL,
-            descricao   text        NOT NULL,
-            coordenada_x integer     NOT NULL,
-            coordenada_y integer     NOT NULL,
-            icone       text        NOT NULL,
-            nivel_req   integer     DEFAULT 1
-          )`
-        });
+        try {
+          await supabase.rpc('execute_sql', {
+            sql_query: `
+            CREATE TABLE IF NOT EXISTS locais (
+              id          uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+              nome        text        NOT NULL,
+              descricao   text        NOT NULL,
+              coordenada_x integer     NOT NULL,
+              coordenada_y integer     NOT NULL,
+              icone       text        NOT NULL,
+              nivel_req   integer     DEFAULT 1
+            )`
+          });
+        } catch (createError) {
+          console.error("Erro ao criar tabela locais:", createError);
+        }
         
         // Retornar array vazio já que acabamos de criar a tabela
         return [];
@@ -384,6 +470,13 @@ export class SupabaseStorage implements IStorage {
       return data.map(this.mapDbLocalToLocation);
     } catch (error) {
       console.error("Erro completo ao acessar locais:", error);
+      
+      // Se temos dados simulados, usamos eles mesmo em caso de erro
+      if (this.mockLocations.size > 0) {
+        console.log(`Retornando ${this.mockLocations.size} locais simulados (fallback)`);
+        return Array.from(this.mockLocations.values()).map(this.mapDbLocalToLocation);
+      }
+      
       // Retornar array vazio em caso de erro
       return [];
     }
@@ -411,30 +504,10 @@ export class SupabaseStorage implements IStorage {
         .select('*')
         .limit(1);
         
-      if (error) {
-        console.error("Erro ao verificar tabelas:", error.message);
-        // Vamos criar um objeto location simulado para desenvolvimento
-        const mockLocation = {
-          id: Date.now().toString(), // ID único baseado no timestamp atual
-          nome: location.name,
-          descricao: location.description,
-          coordenada_x: location.coordinates.x,
-          coordenada_y: location.coordinates.y,
-          icone: location.icon,
-          nivel_req: location.unlockLevel || 1,
-          criado_em: new Date().toISOString()
-        };
-        
-        return this.mapDbLocalToLocation(mockLocation);
-      }
-      
-      console.log("Tabela verificada, tentando inserir localização");
-      
-      // Se chegamos aqui, a tabela existe
-      // Para desenvolvimento, vamos criar uma solução temporária usando uma tabela que já existe
-      // No ambiente de produção, precisaria criar a tabela corretamente
+      // Criar um objeto location simulado para desenvolvimento
+      const mockLocationId = Date.now().toString(); // ID único baseado no timestamp atual
       const mockLocation = {
-        id: Date.now().toString(), // ID único baseado no timestamp atual
+        id: mockLocationId,
         nome: location.name,
         descricao: location.description,
         coordenada_x: location.coordinates.x,
@@ -444,14 +517,19 @@ export class SupabaseStorage implements IStorage {
         criado_em: new Date().toISOString()
       };
       
+      // Armazenar na nossa coleção de simulação
+      this.mockLocations.set(mockLocationId, mockLocation);
+      
       console.log("Criada localização simulada:", mockLocation);
+      console.log(`Localizações simuladas armazenadas: ${this.mockLocations.size}`);
       
       return this.mapDbLocalToLocation(mockLocation);
     } catch (error) {
       console.error("Erro completo ao criar localização:", error);
       // Criar um objeto location simulado para não quebrar o fluxo
+      const mockLocationId = Date.now().toString();
       const mockLocation = {
-        id: Date.now().toString(),
+        id: mockLocationId,
         nome: location.name,
         descricao: location.description,
         coordenada_x: location.coordinates.x,
@@ -460,6 +538,9 @@ export class SupabaseStorage implements IStorage {
         nivel_req: location.unlockLevel || 1,
         criado_em: new Date().toISOString()
       };
+      
+      // Armazenar mesmo em caso de erro
+      this.mockLocations.set(mockLocationId, mockLocation);
       
       return this.mapDbLocalToLocation(mockLocation);
     }
@@ -581,13 +662,36 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de conquistas
   async getAchievements(): Promise<Achievement[]> {
-    const { data, error } = await supabase
-      .from('conquistas')
-      .select('*');
-    
-    if (error) throw new Error(`Erro ao buscar conquistas: ${error.message}`);
-    
-    return data.map(this.mapDbConquistaToAchievement);
+    try {
+      const { data, error } = await supabase
+        .from('conquistas')
+        .select('*');
+      
+      if (error) {
+        console.log("Erro ao buscar conquistas, usando dados simulados:", error.message);
+        
+        // Se temos dados simulados, usamos eles
+        if (this.mockAchievements.size > 0) {
+          console.log(`Retornando ${this.mockAchievements.size} conquistas simuladas`);
+          return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
+        }
+        
+        throw error;
+      }
+      
+      return data.map(this.mapDbConquistaToAchievement);
+    } catch (error) {
+      console.error("Erro completo ao acessar conquistas:", error);
+      
+      // Se temos dados simulados, usamos eles mesmo em caso de erro
+      if (this.mockAchievements.size > 0) {
+        console.log(`Retornando ${this.mockAchievements.size} conquistas simuladas (fallback)`);
+        return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
+      }
+      
+      // Retornar array vazio em caso de erro
+      return [];
+    }
   }
 
   async getAchievement(id: number): Promise<Achievement | undefined> {
@@ -610,8 +714,9 @@ export class SupabaseStorage implements IStorage {
       const achievementExt = achievement as any;
       
       // Para desenvolvimento, vamos criar uma solução temporária 
+      const mockAchievementId = Date.now().toString();
       const mockConquista = {
-        id: Date.now().toString(),
+        id: mockAchievementId,
         titulo: achievement.title,
         descricao: achievement.description,
         area: achievement.area || null,
@@ -625,7 +730,11 @@ export class SupabaseStorage implements IStorage {
         criado_em: new Date().toISOString()
       };
       
+      // Armazenar na nossa coleção de simulação
+      this.mockAchievements.set(mockAchievementId, mockConquista);
+      
       console.log("Criada conquista simulada:", mockConquista);
+      console.log(`Conquistas simuladas armazenadas: ${this.mockAchievements.size}`);
       
       return this.mapDbConquistaToAchievement(mockConquista);
     } catch (error) {
@@ -633,8 +742,9 @@ export class SupabaseStorage implements IStorage {
       // Criar um objeto conquista simulado para não quebrar o fluxo
       const achievementExt = achievement as any;
       
+      const mockAchievementId = Date.now().toString();
       const mockConquista = {
-        id: Date.now().toString(),
+        id: mockAchievementId,
         titulo: achievement.title,
         descricao: achievement.description,
         area: achievement.area || null,
@@ -647,6 +757,9 @@ export class SupabaseStorage implements IStorage {
         pontos: achievementExt.points || 10,
         criado_em: new Date().toISOString()
       };
+      
+      // Armazenar mesmo em caso de erro
+      this.mockAchievements.set(mockAchievementId, mockConquista);
       
       return this.mapDbConquistaToAchievement(mockConquista);
     }
