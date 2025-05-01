@@ -156,7 +156,15 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de trilhas de aprendizagem
   async getLearningPaths(): Promise<LearningPath[]> {
+    // Verificar se devemos usar dados mockados primeiro
+    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
+    if (this.forceUseFallbackData() && this.mockLearningPaths.size > 0) {
+      console.log(`Usando ${this.mockLearningPaths.size} trilhas de dados simulados`);
+      return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
+    }
+    
     try {
+      // Caso contrário, tente buscar do Supabase
       const { data, error } = await supabase
         .from('trilhas')
         .select('*');
@@ -253,6 +261,13 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de missões
   async getMissions(): Promise<Mission[]> {
+    // Verificar se devemos usar dados mockados primeiro
+    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
+    if (this.forceUseFallbackData() && this.mockMissions.size > 0) {
+      console.log(`Usando ${this.mockMissions.size} missões de dados simulados`);
+      return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
+    }
+    
     try {
       const { data, error } = await supabase
         .from('missoes')
@@ -675,6 +690,13 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de conquistas
   async getAchievements(): Promise<Achievement[]> {
+    // Verificar se devemos usar dados mockados primeiro
+    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
+    if (this.forceUseFallbackData() && this.mockAchievements.size > 0) {
+      console.log(`Usando ${this.mockAchievements.size} conquistas de dados simulados`);
+      return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
+    }
+    
     try {
       const { data, error } = await supabase
         .from('conquistas')
