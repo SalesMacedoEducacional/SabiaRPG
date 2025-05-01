@@ -41,6 +41,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 86400000 }, // 24 hours
     store: new SessionStore({ checkPeriod: 86400000 }) // prune expired entries every 24h
   }));
+  
+  // API Health check
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok" });
+  });
+  
+  // Rota para testar a conexão com o Supabase
+  app.get("/api/test/supabase", async (_req, res) => {
+    try {
+      // Tentar buscar os usuários do banco de dados Supabase
+      const users = await storage.getUsers();
+      res.json({ 
+        status: "ok", 
+        message: "Conexão com Supabase bem-sucedida", 
+        usersCount: users.length,
+        // Não expomos dados sensíveis, apenas email para testes
+        users: users.map(user => ({ id: user.id, email: user.email, role: user.role }))
+      });
+    } catch (error) {
+      console.error("Erro ao testar conexão com Supabase:", error);
+      res.status(500).json({ 
+        status: "error", 
+        message: `Erro ao conectar com Supabase: ${error.message}` 
+      });
+    }
+  });
 
   // Authentication middleware
   const authenticate = (req: Request, res: Response, next: Function) => {
