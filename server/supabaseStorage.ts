@@ -605,7 +605,7 @@ export class SupabaseStorage implements IStorage {
         trilha_id: post.pathId,
         titulo: post.title,
         conteudo: post.content,
-        tipo: post.type || 'duvida'
+        tipo: (post as any).type || 'duvida'
       })
       .select(`
         *,
@@ -641,7 +641,7 @@ export class SupabaseStorage implements IStorage {
         post_id: reply.postId,
         usuario_id: reply.userId,
         conteudo: reply.content,
-        melhor_resposta: reply.bestAnswer || false
+        melhor_resposta: (reply as any).bestAnswer || false
       })
       .select(`
         *,
@@ -660,11 +660,15 @@ export class SupabaseStorage implements IStorage {
       id: dbConquista.id,
       title: dbConquista.titulo,
       description: dbConquista.descricao,
+      area: dbConquista.area || null,
+      iconName: dbConquista.icone || "trophy",
+      criteria: dbConquista.criterios || {},
+      createdAt: new Date(dbConquista.criado_em),
+      // Campos estendidos
       category: dbConquista.categoria,
       iconUrl: dbConquista.icone_url,
       requirement: dbConquista.requisito,
-      points: dbConquista.pontos,
-      createdAt: new Date(dbConquista.criado_em)
+      points: dbConquista.pontos
     };
   }
   
