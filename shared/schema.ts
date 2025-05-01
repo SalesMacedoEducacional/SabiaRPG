@@ -217,7 +217,12 @@ export const insertAchievementSchema = z.object({
   description: z.string(),
   area: z.enum(["mathematics", "languages", "sciences", "history", "geography", "arts"]).optional().nullable(),
   iconName: z.string(),
-  criteria: z.any(),
+  criteria: z.any().optional(),
+  // Campos estendidos para compatibilidade com Supabase
+  category: z.string().optional(),
+  iconUrl: z.string().optional(),
+  requirement: z.string().optional(),
+  points: z.number().optional(),
 });
 
 export const insertUserAchievementSchema = z.object({
@@ -231,12 +236,16 @@ export const insertForumPostSchema = z.object({
   content: z.string(),
   pathId: z.number().optional(),
   missionId: z.number().optional(),
+  // Campos estendidos para compatibilidade com Supabase
+  type: z.string().optional(),
 });
 
 export const insertForumReplySchema = z.object({
   postId: z.number(),
   userId: z.number(),
   content: z.string(),
+  // Campos estendidos para compatibilidade com Supabase
+  bestAnswer: z.boolean().optional(),
 });
 
 export const insertDiagnosticQuestionSchema = z.object({

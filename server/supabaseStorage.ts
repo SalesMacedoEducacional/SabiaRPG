@@ -498,15 +498,22 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    // Usando type assertion para acessar campos estendidos
+    const achievementExt = achievement as any;
+    
     const { data, error } = await supabase
       .from('conquistas')
       .insert({
         titulo: achievement.title,
         descricao: achievement.description,
-        categoria: achievement.category,
-        icone_url: achievement.iconUrl,
-        requisito: achievement.requirement,
-        pontos: achievement.points || 10
+        area: achievement.area || null,
+        icone: achievement.iconName || "trophy",
+        criterios: achievement.criteria || {},
+        // Campos estendidos
+        categoria: achievementExt.category,
+        icone_url: achievementExt.iconUrl,
+        requisito: achievementExt.requirement,
+        pontos: achievementExt.points || 10
       })
       .select()
       .single();
