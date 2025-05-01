@@ -230,6 +230,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Buscar conquistas
       const achievements = await storage.getAchievements();
+
+      // Buscar localizações
+      const locations = await storage.getLocations();
+      
+      // Buscar trilhas de aprendizagem
+      const learningPaths = await storage.getLearningPaths();
       
       return res.json({
         status: "ok",
@@ -237,7 +243,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           missions: missions.slice(0, 3), // limitar para 3 itens
           missionsCount: missions.length,
           achievements: achievements.slice(0, 3), // limitar para 3 itens 
-          achievementsCount: achievements.length
+          achievementsCount: achievements.length,
+          locations: locations.slice(0, 3),
+          locationsCount: locations.length,
+          learningPaths: learningPaths.slice(0, 3),
+          learningPathsCount: learningPaths.length
         }
       });
     } catch (error) {
