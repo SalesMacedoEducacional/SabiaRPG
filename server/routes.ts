@@ -314,6 +314,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Função auxiliar para atrasar a execução
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   // Rota para adicionar dados de demonstração para testes
   app.post("/api/test/seed-demo-data", async (_req, res) => {
     try {
@@ -333,6 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         locationId = locations[0].id;
       }
+
+      // Pequeno delay para garantir IDs únicos
+      await delay(10);
       
       // Criar um learning path
       const learningPath = await storage.createLearningPath({
@@ -344,6 +350,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imageUrl: "math_path.jpg",
         locationId
       });
+      
+      // Pequeno delay para garantir IDs únicos
+      await delay(10);
       
       // Criar missões
       const mission1 = await storage.createMission({
@@ -370,6 +379,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         objectives: ["Somar números naturais", "Subtrair números naturais", "Multiplicar números naturais", "Dividir números naturais"]
       });
       
+      // Pequeno delay para garantir IDs únicos
+      await delay(10);
+      
       const mission2 = await storage.createMission({
         title: "Frações",
         description: "Aprenda os conceitos básicos de frações",
@@ -382,6 +394,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         objectives: ["Entender o conceito de fração", "Somar frações", "Subtrair frações"]
       });
       
+      // Pequeno delay para garantir IDs únicos
+      await delay(10);
+      
       // Criar conquistas
       const achievement1 = await storage.createAchievement({
         title: "Primeiro Passo",
@@ -391,6 +406,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category: "beginner",
         points: 10
       });
+      
+      // Pequeno delay para garantir IDs únicos
+      await delay(10);
       
       const achievement2 = await storage.createAchievement({
         title: "Matemático Iniciante",

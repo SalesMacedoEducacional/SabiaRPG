@@ -28,6 +28,9 @@ export class SupabaseStorage implements IStorage {
   private mockLocations: Map<string, any> = new Map();
   private mockLearningPaths: Map<string, any> = new Map();
   private mockMissions: Map<string, any> = new Map();
+  
+  // Flag para controlar uso de dados simulados
+  private useFallbackData: boolean = true; // Por padrão, usar dados simulados quando houver erro
   private mockAchievements: Map<string, any> = new Map();
   private mockUserProgress: Map<string, any> = new Map();
   private mockUserAchievements: Map<string, any> = new Map();
