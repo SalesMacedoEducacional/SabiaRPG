@@ -22,6 +22,7 @@ function Router() {
       {/* Rotas públicas */}
       <Route path="/auth" component={Login} />
       <Route path="/acesso-negado" component={AccessDenied} />
+      <Route path="/teste-upload" component={TestUpload} />
       
       {/* Rotas para todos os usuários autenticados */}
       <ProtectedRoute 

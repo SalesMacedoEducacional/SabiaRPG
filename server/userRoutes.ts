@@ -18,10 +18,11 @@ declare module 'express-session' {
 const storage = multer.diskStorage({
   destination: (req: any, file: any, cb: any) => {
     // Verificar se o diretório existe, se não, criar
-    const uploadDir = path.join(__dirname, '..', 'uploads');
+    const uploadDir = path.join(__dirname, '..', 'uploads', 'tmp');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
+    console.log(`Saving temporary file to: ${uploadDir}`);
     cb(null, uploadDir);
   },
   filename: (req: any, file: any, cb: any) => {
@@ -57,6 +58,7 @@ const upload = multer({
 export function registerUserRoutes(app: Express) {
   // Rota de teste para upload de imagem
   app.post('/api/test/upload', (req: any, res: Response) => {
+    console.log('Recebida requisição para /api/test/upload');
     const uploadMiddleware = upload.single('file');
     
     uploadMiddleware(req, res, async (err: any) => {
@@ -65,7 +67,10 @@ export function registerUserRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro no upload: ' + err.message });
       }
       
+      console.log('Upload processado. Arquivo recebido:', req.file);
+      
       if (!req.file) {
+        console.error('Nenhum arquivo recebido');
         return res.status(400).json({ message: 'Nenhum arquivo enviado.' });
       }
       
