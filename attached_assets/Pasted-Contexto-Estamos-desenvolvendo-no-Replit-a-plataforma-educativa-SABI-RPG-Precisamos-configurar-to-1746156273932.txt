@@ -1,0 +1,36 @@
+Contexto: Estamos desenvolvendo no Replit a plataforma educativa SABIÁ RPG. Precisamos configurar todos os níveis de acesso e as respectivas permissões, habilitar a visualização da senha no formulário de login e remover temporariamente as opções de login com Google e Microsoft.
+
+1. Papéis e Permissões
+
+Aluno: pode editar próprio perfil, fazer triagem diagnóstica, iniciar e concluir missões, receber feedback IA, ver e gerenciar conquistas, falar em fóruns/chat da turma, autoavaliar progresso e baixar conteúdo offline.
+
+Professor: tudo o que aluno faz (em modo leitura), mais criar/atribuir missões extras, visualizar dashboard de relatórios de turma e de alunos, enviar feedbacks customizados, gerir mural/turmas e exportar relatórios CSV/JSON.
+
+Gestor Escolar: tudo do Professor (leitura ampla em todas as turmas), mais visualizar relatórios agregados por série/turma/região, comparar escolas, configurar cronogramas/trilhas globais, gerenciar contas de alunos e professores, e integrar com sistemas escolares.
+
+Administrador de Sistema: tudo do Gestor, mais acesso aos logs de servidor, backups/restaurações, configurações de API, políticas de LGPD, deploy de novas versões e gestão de contas de gestores a nível estadual.
+
+2. UI de Autenticação
+
+Remover temporariamente os botões “Login com Google” e “Login com Microsoft” da tela de acesso.
+
+Incluir um ícone “👁️” dentro do campo de senha que, ao clicar, alterne entre ocultar/exibir o texto digitado (toggle show/hide password).
+
+3. Validação & Feedback
+
+Após configurar cada papel, criar testes automatizados (unitários ou mocks) que assegurem que cada rota/API ou componente de UI só fica visível/acessível ao tipo correto de usuário.
+
+Verificar se os formulários de login continuam funcionando normalmente em modo “usuário e senha” com a nova opção de visualização de senha.
+
+4. Instruções Específicas de Implementação (Replit + Node.js/Express ou equivalente)
+
+Atualizar o middleware de autenticação para mapear papéis em variáveis req.user.role e proteger rotas conforme a lista acima.
+
+Atualizar componentes de front-end (React/Vue/Svelte) para renderizar menus e botões condicionais de acordo com user.role.
+
+Adicionar atributo type="text" ou type="password" dinamicamente no campo de senha via JavaScript ao clicar no ícone olho.
+
+Remover blocos <OAuthButton provider="google" /> e <OAuthButton provider="microsoft" /> temporariamente.
+
+Peça ao Ghostwriter:
+“Por favor, implemente todas essas alterações no código do Replit, gerando os arquivos atualizados e indicando exatamente onde cada linha de código foi adicionada ou removida. Inclua também testes de verificação de papéis e uma breve documentação de commits para que possamos revisar.”

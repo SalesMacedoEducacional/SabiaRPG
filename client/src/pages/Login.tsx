@@ -11,8 +11,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { insertUserSchema } from '@shared/schema';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { InfoIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon, Eye as EyeIcon, EyeOff as EyeOffIcon } from "lucide-react";
 
 // Login form schema
 const loginSchema = z.object({
@@ -35,6 +35,8 @@ const Login: React.FC = () => {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('login');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   // Redirect if already authenticated
   useEffect(() => {
@@ -169,13 +171,23 @@ const Login: React.FC = () => {
                         Esqueceu a senha?
                       </Button>
                     </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-dark border-primary text-parchment"
-                      {...loginForm.register('password')}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="bg-dark border-primary text-parchment pr-10"
+                        {...loginForm.register('password')}
+                      />
+                      <button 
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-dark hover:text-accent focus:outline-none"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </div>
                     {loginForm.formState.errors.password && (
                       <p className="text-red-500 text-xs mt-1">{loginForm.formState.errors.password.message}</p>
                     )}
@@ -197,25 +209,7 @@ const Login: React.FC = () => {
                     {isLoading ? 'Carregando...' : 'Entrar'}
                   </Button>
                   
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-primary"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-dark-light text-parchment-dark">Ou continue com</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button type="button" variant="outline" className="w-full border-primary bg-dark">
-                      <i className="fab fa-google text-lg mr-2"></i>
-                      Google
-                    </Button>
-                    <Button type="button" variant="outline" className="w-full border-primary bg-dark">
-                      <i className="fab fa-microsoft text-lg mr-2"></i>
-                      Microsoft
-                    </Button>
-                  </div>
+                  {/* Botões de OAuth removidos temporariamente */}
                 </form>
               </TabsContent>
               
@@ -265,13 +259,23 @@ const Login: React.FC = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="register-password">Senha</Label>
-                    <Input
-                      id="register-password"
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-dark border-primary text-parchment"
-                      {...registerForm.register('password')}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="register-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="bg-dark border-primary text-parchment pr-10"
+                        {...registerForm.register('password')}
+                      />
+                      <button 
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-dark hover:text-accent focus:outline-none"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </div>
                     {registerForm.formState.errors.password && (
                       <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.password.message}</p>
                     )}
@@ -279,13 +283,23 @@ const Login: React.FC = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirmar senha</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      className="bg-dark border-primary text-parchment"
-                      {...registerForm.register('confirmPassword')}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="bg-dark border-primary text-parchment pr-10"
+                        {...registerForm.register('confirmPassword')}
+                      />
+                      <button 
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-dark hover:text-accent focus:outline-none"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showConfirmPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </div>
                     {registerForm.formState.errors.confirmPassword && (
                       <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.confirmPassword.message}</p>
                     )}
