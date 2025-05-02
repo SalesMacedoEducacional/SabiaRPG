@@ -1,12 +1,11 @@
 import React from 'react';
-import { Route, Redirect } from 'wouter';
+import { Route, Redirect, RouteComponentProps } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
-import { hasPermission } from '@/lib/permissions';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   path: string;
-  component: React.ComponentType;
+  component: React.ComponentType<any>;
   permissions?: string[]; // Lista de permissões necessárias para acessar a rota
   requireAuth?: boolean; // Se true, requer autenticação mesmo sem permissões específicas
 }
@@ -50,8 +49,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Verifica se o usuário tem TODAS as permissões requeridas
+  const { hasPermission } = useAuth();
   const hasAllPermissions = permissions.every(permissionId => 
-    hasPermission(user, permissionId)
+    hasPermission(permissionId)
   );
 
   if (!hasAllPermissions) {

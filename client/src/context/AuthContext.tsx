@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUserPermissions } from '@/lib/permissions';
 
 interface User {
   id: number;
@@ -19,6 +20,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  userPermissions: string[];
+  hasPermission: (permissionId: string) => boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
@@ -166,12 +169,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   };
 
+  // Calcular permissões do usuário
+  const userPermissions = getUserPermissions(user);
+  
+  // Função para verificar se o usuário tem uma permissão específica
+  const hasPermission = (permissionId: string): boolean => {
+    return userPermissions.includes(permissionId);
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
         isLoading,
+        userPermissions,
+        hasPermission,
         login,
         register,
         logout,
