@@ -465,7 +465,7 @@ const UserProfile: React.FC = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="avatarUrl">URL da Foto de Perfil</Label>
+                      <Label htmlFor="avatarUrl">Foto de Perfil</Label>
                       <div className="flex">
                         <Input
                           id="avatarUrl"
