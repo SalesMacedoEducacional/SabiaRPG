@@ -170,10 +170,12 @@
     height: auto;
     display: block;
     transition: transform 0.3s ease;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
   }
   
   .logo:hover {
     transform: scale(1.05);
+    filter: drop-shadow(0 0 5px theme('colors.accent.DEFAULT'));
   }
   
   .logo-sm {
