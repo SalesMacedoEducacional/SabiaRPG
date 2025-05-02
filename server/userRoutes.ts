@@ -5,6 +5,12 @@ import fs from 'fs';
 import { randomUUID } from 'crypto';
 import { pool } from './db';
 import session from 'express-session';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Como estamos usando ESM, precisamos definir __filename e __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Declaração para estender o tipo Request do Express
 declare module 'express-session' {

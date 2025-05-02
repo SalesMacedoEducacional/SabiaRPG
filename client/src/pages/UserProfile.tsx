@@ -100,8 +100,36 @@ const UserProfile: React.FC = () => {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: z.infer<typeof profileSchema>) => {
-      const response = await apiRequest('PATCH', `/api/users/${user?.id}`, data);
-      return response.json();
+      console.log('Enviando atualização de perfil:', data);
+      try {
+        const response = await fetch(`/api/users/${user?.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+          credentials: 'include'
+        });
+        
+        console.log('Resposta da atualização:', response.status);
+        
+        if (!response.ok) {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erro ${response.status}`);
+          } else {
+            const errorText = await response.text();
+            console.error('Resposta de erro não-JSON:', errorText);
+            throw new Error(`Erro ${response.status}: Formato de resposta inválido`);
+          }
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro na atualização do perfil:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
