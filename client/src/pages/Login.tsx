@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { insertUserSchema } from '@shared/schema';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon, Eye as EyeIcon, EyeOff as EyeOffIcon, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Login form schema
 const loginSchema = z.object({
@@ -55,11 +56,14 @@ const registerSchema = insertUserSchema.extend({
 
 const Login: React.FC = () => {
   const { login, register, isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('login');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
   
   // Redirect if already authenticated
   useEffect(() => {
@@ -92,6 +96,25 @@ const Login: React.FC = () => {
       birthDate: '',
       enrollment: '',
       classId: '',
+    }
+  });
+  
+  // Forgot password form
+  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+      recoveryMethod: 'email'
+    }
+  });
+  
+  // Reset password form
+  const resetPasswordForm = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      code: '',
+      password: '',
+      confirmPassword: ''
     }
   });
   
@@ -194,10 +217,27 @@ const Login: React.FC = () => {
         <Card className="bg-dark-light border-primary">
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
             <CardHeader>
-              <TabsList className="grid grid-cols-2 w-full bg-dark">
-                <TabsTrigger value="login" className="font-medieval">Entrar</TabsTrigger>
-                <TabsTrigger value="register" className="font-medieval">Registrar</TabsTrigger>
-              </TabsList>
+              {(activeTab === 'login' || activeTab === 'register') ? (
+                <TabsList className="grid grid-cols-2 w-full bg-dark">
+                  <TabsTrigger value="login" className="font-medieval">Entrar</TabsTrigger>
+                  <TabsTrigger value="register" className="font-medieval">Registrar</TabsTrigger>
+                </TabsList>
+              ) : (
+                <div className="flex justify-between items-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="p-0 flex items-center text-accent hover:text-accent-dark"
+                    onClick={() => setActiveTab('login')}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <span>Voltar</span>
+                  </Button>
+                  <h3 className="font-medieval text-lg text-accent">
+                    {activeTab === 'forgot-password' ? 'Recuperar Senha' : 'Redefinir Senha'}
+                  </h3>
+                </div>
+              )}
             </CardHeader>
             
             <CardContent>
@@ -268,6 +308,167 @@ const Login: React.FC = () => {
                   </Button>
                   
                   {/* Botões de OAuth removidos temporariamente */}
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="forgot-password">
+                <form 
+                  onSubmit={forgotPasswordForm.handleSubmit((data) => {
+                    setIsLoading(true);
+                    // Simulação de envio de código de recuperação
+                    setTimeout(() => {
+                      setRecoveryEmail(data.email);
+                      setShowResetPassword(true);
+                      setActiveTab('reset-password');
+                      toast({
+                        title: "Código enviado",
+                        description: `Um código de recuperação foi enviado para ${data.email} via ${data.recoveryMethod === 'email' ? 'email' : 'SMS'}`,
+                      });
+                      setIsLoading(false);
+                    }, 1500);
+                  })} 
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="recovery-email">Email</Label>
+                    <Input
+                      id="recovery-email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      className="bg-dark border-primary text-parchment"
+                      {...forgotPasswordForm.register('email')}
+                    />
+                    {forgotPasswordForm.formState.errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{forgotPasswordForm.formState.errors.email.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Método de recuperação</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2 bg-dark p-3 rounded border border-primary">
+                        <input
+                          type="radio"
+                          id="email-method"
+                          value="email"
+                          className="accent-accent"
+                          {...forgotPasswordForm.register('recoveryMethod')}
+                          defaultChecked
+                        />
+                        <Label htmlFor="email-method" className="cursor-pointer">Email</Label>
+                      </div>
+                      <div className="flex items-center space-x-2 bg-dark p-3 rounded border border-primary">
+                        <input
+                          type="radio"
+                          id="sms-method"
+                          value="sms"
+                          className="accent-accent"
+                          {...forgotPasswordForm.register('recoveryMethod')}
+                        />
+                        <Label htmlFor="sms-method" className="cursor-pointer">SMS</Label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-accent hover:bg-accent-dark text-dark font-bold"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Enviando...' : 'Enviar código de recuperação'}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="reset-password">
+                <form 
+                  onSubmit={resetPasswordForm.handleSubmit((data) => {
+                    setIsLoading(true);
+                    // Simulação de redefinição de senha
+                    setTimeout(() => {
+                      toast({
+                        title: "Senha redefinida",
+                        description: "Sua senha foi redefinida com sucesso. Você já pode entrar com a nova senha.",
+                      });
+                      setActiveTab('login');
+                      setIsLoading(false);
+                    }, 1500);
+                  })}
+                  className="space-y-4"
+                >
+                  <p className="text-sm text-parchment-dark">
+                    Um código de verificação foi enviado para <span className="font-medium text-accent">{recoveryEmail}</span>
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="verification-code">Código de verificação</Label>
+                    <Input
+                      id="verification-code"
+                      type="text"
+                      placeholder="Insira o código recebido"
+                      className="bg-dark border-primary text-parchment"
+                      {...resetPasswordForm.register('code')}
+                    />
+                    {resetPasswordForm.formState.errors.code && (
+                      <p className="text-red-500 text-xs mt-1">{resetPasswordForm.formState.errors.code.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nova senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="new-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="bg-dark border-primary text-parchment pr-10"
+                        {...resetPasswordForm.register('password')}
+                      />
+                      <button 
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-dark hover:text-accent focus:outline-none"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </div>
+                    {resetPasswordForm.formState.errors.password && (
+                      <p className="text-red-500 text-xs mt-1">{resetPasswordForm.formState.errors.password.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-password">Confirmar nova senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="confirm-new-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="bg-dark border-primary text-parchment pr-10"
+                        {...resetPasswordForm.register('confirmPassword')}
+                      />
+                      <button 
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-dark hover:text-accent focus:outline-none"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showConfirmPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </div>
+                    {resetPasswordForm.formState.errors.confirmPassword && (
+                      <p className="text-red-500 text-xs mt-1">{resetPasswordForm.formState.errors.confirmPassword.message}</p>
+                    )}
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-accent hover:bg-accent-dark text-dark font-bold"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Redefinindo...' : 'Redefinir senha'}
+                  </Button>
                 </form>
               </TabsContent>
               
