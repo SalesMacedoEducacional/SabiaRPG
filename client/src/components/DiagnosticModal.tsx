@@ -46,6 +46,27 @@ const DiagnosticModal: React.FC<DiagnosticModalProps> = ({ isOpen, onClose, onCo
   const { user } = useAuth();
   const { toast } = useToast();
   
+  // Verificar se o usuário é professor ou gestor
+  // Nesse caso, não deve mostrar a triagem diagnóstica
+  const isTeacherOrManager = user?.role === 'teacher' || user?.role === 'manager';
+  
+  // Se for professor ou gestor, fechamos o modal e completamos imediatamente
+  useEffect(() => {
+    if (isOpen && isTeacherOrManager) {
+      // Marcamos a triagem como completa no localStorage para esse usuário
+      localStorage.setItem('diagnostic_completed', 'true');
+      // Fechamos o modal
+      onComplete();
+      onClose();
+      
+      // Mostrar toast informativo
+      toast({
+        title: "Triagem ignorada",
+        description: "Professores e gestores não precisam passar pela triagem diagnóstica.",
+      });
+    }
+  }, [isOpen, isTeacherOrManager, onComplete, onClose, toast]);
+  
   const [currentArea, setCurrentArea] = useState('mathematics');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number | null>>({});

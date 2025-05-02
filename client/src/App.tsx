@@ -6,6 +6,7 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
+import ManagerDashboard from "@/pages/ManagerDashboard";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
@@ -52,13 +53,23 @@ function Router() {
         requireAuth={true}
       />
       
-      {/* Rotas apenas para professores e gestores */}
+      {/* Rotas apenas para professores */}
       <ProtectedRoute 
         path="/teacher" 
         component={TeacherDashboard}
         permissions={[
           PERMISSIONS.REPORT_STUDENT_VIEW.id,
           PERMISSIONS.CLASS_MANAGE.id
+        ]}
+      />
+      
+      {/* Rotas apenas para gestores */}
+      <ProtectedRoute 
+        path="/manager" 
+        component={ManagerDashboard}
+        permissions={[
+          PERMISSIONS.REPORT_SCHOOL_VIEW.id,
+          PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
       

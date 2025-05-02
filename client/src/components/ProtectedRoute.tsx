@@ -42,6 +42,38 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       </Route>
     );
   }
+  
+  // Verificação especial para triagem diagnóstica
+  // Alunos precisam passar pela triagem, professores e gestores vão diretamente para seus painéis
+  if (user && path === '/') {
+    // Se for aluno, verifica se precisa fazer triagem diagnóstica
+    if (user.role === 'student') {
+      const needsDiagnostic = localStorage.getItem('diagnostic_completed') !== 'true';
+      if (needsDiagnostic) {
+        return (
+          <Route path={path}>
+            <Component showDiagnostic={true} />
+          </Route>
+        );
+      }
+    } 
+    // Se for professor, redireciona para dashboard de professor
+    else if (user.role === 'teacher') {
+      return (
+        <Route path={path}>
+          <Redirect to="/teacher" />
+        </Route>
+      );
+    }
+    // Se for gestor, redireciona para dashboard de gestor
+    else if (user.role === 'manager') {
+      return (
+        <Route path={path}>
+          <Redirect to="/manager" />
+        </Route>
+      );
+    }
+  }
 
   // Se não há permissões específicas requeridas, apenas renderiza o componente
   if (permissions.length === 0) {
