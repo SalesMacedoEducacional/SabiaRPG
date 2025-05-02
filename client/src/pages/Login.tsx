@@ -99,28 +99,11 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
-            <svg 
-              width="60" 
-              height="60" 
-              viewBox="0 0 40 40" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-accent"
-            >
-              <path 
-                d="M10 30L20 10L30 30L20 25L10 30Z" 
-                fill="currentColor" 
-                stroke="currentColor" 
-                strokeWidth="2"
-              />
-              <circle 
-                cx="20" 
-                cy="15" 
-                r="5" 
-                fill="currentColor" 
-                stroke="currentColor"
-              />
-            </svg>
+            <img 
+              src="/assets/sabia-logo.png" 
+              alt="Logomarca SABIÁ RPG" 
+              className="logo logo-lg"
+            />
           </div>
           <h1 className="font-medieval text-4xl text-accent mb-2">SABIÁ RPG</h1>
           <p className="text-parchment-dark">Embarque na jornada do conhecimento</p>
