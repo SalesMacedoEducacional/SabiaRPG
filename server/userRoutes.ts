@@ -4,10 +4,19 @@ import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 import { pool } from './db';
+import session from 'express-session';
+
+// Declaração para estender o tipo Request do Express
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    userRole?: string;
+  }
+}
 
 // Configurar o multer para armazenar arquivos temporariamente
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req: any, file: any, cb: any) => {
     // Verificar se o diretório existe, se não, criar
     const uploadDir = path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -15,7 +24,7 @@ const storage = multer.diskStorage({
     }
     cb(null, uploadDir);
   },
-  filename: (req, file, cb) => {
+  filename: (req: any, file: any, cb: any) => {
     // Gerar nome único para o arquivo
     const uniquePrefix = `${Date.now()}-${randomUUID()}`;
     const extname = path.extname(file.originalname).toLowerCase();
@@ -24,7 +33,7 @@ const storage = multer.diskStorage({
 });
 
 // Filtro para permitir apenas JPG e PNG
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: any, file: any, cb: any) => {
   const allowedMimeTypes = ['image/jpeg', 'image/png'];
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -50,7 +59,7 @@ export function registerUserRoutes(app: Express) {
    * Rota para upload de imagem de perfil
    * POST /api/usuarios/:id/foto
    */
-  app.post('/api/usuarios/:id/foto', (req: Request, res: Response) => {
+  app.post('/api/usuarios/:id/foto', (req: any, res: Response) => {
     // Se o usuário não estiver autenticado, retornar erro
     if (!req.session || !req.session.userId) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -69,7 +78,7 @@ export function registerUserRoutes(app: Express) {
     // Processar o upload
     const uploadMiddleware = upload.single('file');
     
-    uploadMiddleware(req, res, async (err) => {
+    uploadMiddleware(req, res, async (err: any) => {
       if (err) {
         if (err.message === 'Formato inválido. Use JPG ou PNG.') {
           return res.status(400).json({ message: err.message });
