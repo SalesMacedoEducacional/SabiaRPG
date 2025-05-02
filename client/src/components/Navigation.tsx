@@ -39,7 +39,7 @@ const Navigation: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    setLocation('/login');
+    setLocation('/auth');
   };
   
   const isActive = (path: string) => location === path;
