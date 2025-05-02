@@ -150,11 +150,39 @@ const UserProfile: React.FC = () => {
   // Update password mutation
   const updatePasswordMutation = useMutation({
     mutationFn: async (data: z.infer<typeof passwordSchema>) => {
-      const response = await apiRequest('PATCH', `/api/users/${user?.id}/password`, {
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      });
-      return response.json();
+      console.log('Enviando atualização de senha');
+      try {
+        const response = await fetch(`/api/users/${user?.id}/password`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+          }),
+          credentials: 'include'
+        });
+        
+        console.log('Resposta da atualização de senha:', response.status);
+        
+        if (!response.ok) {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erro ${response.status}`);
+          } else {
+            const errorText = await response.text();
+            console.error('Resposta de erro não-JSON:', errorText);
+            throw new Error(`Erro ${response.status}: Formato de resposta inválido`);
+          }
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro na atualização de senha:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       passwordForm.reset();
@@ -253,8 +281,15 @@ const UserProfile: React.FC = () => {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao fazer upload da imagem');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Erro ${response.status}`);
+        } else {
+          const errorText = await response.text();
+          console.error('Resposta de erro não-JSON:', errorText);
+          throw new Error(`Erro ${response.status}: Formato de resposta inválido`);
+        }
       }
       
       const data = await response.json();
