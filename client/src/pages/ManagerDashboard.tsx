@@ -1,27 +1,15 @@
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  FileSpreadsheet, 
-  UsersRound, 
-  School, 
-  Settings, 
-  Calendar, 
-  UserPlus, 
-  Cable, 
-  ScrollText, 
-  Download, 
-  Send, 
-  BarChart4 
-} from 'lucide-react';
-import Navigation from '@/components/Navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Search, Plus, Edit, Download, RefreshCw, Info, Users, BookOpen, Award, School } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { PERMISSIONS } from '@/lib/permissions';
+import { apiRequest } from '@/lib/queryClient';
 
 /**
  * Interface para os dados básicos de um relatório
@@ -57,658 +45,641 @@ interface IntegrationData {
   lastSync?: string;
 }
 
-const ManagerDashboard: React.FC = () => {
-  const { user, hasPermission } = useAuth();
+/**
+ * Dashboard principal para o perfil Gestor
+ */
+export default function ManagerDashboard() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('relatorios');
+  const { user, logout } = useAuth();
   
-  // Estado para os dados de exemplo (simulação)
-  const [reports] = useState<ReportData[]>([
-    { 
-      id: 'r1', 
-      title: 'Desempenho Escolar 2023', 
-      type: 'school', 
-      date: '20/04/2023',
-      downloadUrl: '#' 
-    },
-    { 
-      id: 'r2', 
-      title: 'Progresso Regional', 
-      type: 'region', 
-      date: '15/03/2023',
-      downloadUrl: '#'  
-    },
-    { 
-      id: 'r3', 
-      title: 'Estatísticas de Uso', 
-      type: 'school', 
-      date: '10/05/2023',
-      downloadUrl: '#'  
-    },
-  ]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [schools, setSchools] = useState<SchoolData[]>([]);
+  const [reports, setReports] = useState<ReportData[]>([]);
+  const [integrations, setIntegrations] = useState<IntegrationData[]>([]);
+  const [loading, setLoading] = useState({
+    schools: false,
+    reports: false,
+    integrations: false
+  });
   
-  const [schools] = useState<SchoolData[]>([
-    {
-      id: 's1',
-      name: 'Escola Municipal Pedro II',
-      code: 'EM-001',
-      teachers: 35,
-      students: 650,
-      active: true
-    },
-    {
-      id: 's2',
-      name: 'Escola Estadual Dom Pedro I',
-      code: 'EE-022',
-      teachers: 42,
-      students: 820,
-      active: true
-    },
-    {
-      id: 's3',
-      name: 'Centro Educacional Maria José',
-      code: 'CE-045',
-      teachers: 28,
-      students: 520,
-      active: false
+  // Buscar os dados iniciais
+  useEffect(() => {
+    fetchSchools();
+    fetchReports();
+    fetchIntegrations();
+  }, []);
+  
+  // Funções para buscar dados
+  const fetchSchools = async () => {
+    setLoading(prev => ({ ...prev, schools: true }));
+    try {
+      const response = await apiRequest('GET', '/api/schools');
+      const data = await response.json();
+      setSchools(data);
+    } catch (error) {
+      console.error('Erro ao buscar escolas:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar a lista de escolas.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, schools: false }));
     }
-  ]);
+  };
   
-  const [integrations] = useState<IntegrationData[]>([
-    {
-      id: 'i1',
-      name: 'SIGE Piauí',
-      type: 'API',
-      status: 'active',
-      lastSync: '01/05/2023'
-    },
-    {
-      id: 'i2',
-      name: 'Google Classroom',
-      type: 'OAuth',
-      status: 'inactive'
-    },
-    {
-      id: 'i3',
-      name: 'Sistema Censo Escolar',
-      type: 'SFTP',
-      status: 'error',
-      lastSync: '15/03/2023'
+  const fetchReports = async () => {
+    setLoading(prev => ({ ...prev, reports: true }));
+    try {
+      const response = await apiRequest('GET', '/api/reports');
+      const data = await response.json();
+      setReports(data);
+    } catch (error) {
+      console.error('Erro ao buscar relatórios:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os relatórios.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, reports: false }));
     }
-  ]);
+  };
   
-  // Função para demo de exportação
-  const handleExportData = () => {
+  const fetchIntegrations = async () => {
+    setLoading(prev => ({ ...prev, integrations: true }));
+    try {
+      const response = await apiRequest('GET', '/api/integrations');
+      const data = await response.json();
+      setIntegrations(data);
+    } catch (error) {
+      console.error('Erro ao buscar integrações:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar as integrações.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, integrations: false }));
+    }
+  };
+
+  // Funções para as ações
+  const handleNewSchool = () => {
     toast({
-      title: 'Exportação iniciada',
-      description: 'Os dados serão exportados e o download iniciará em breve.',
+      title: 'Recursos em Desenvolvimento',
+      description: 'A função de adicionar escolas está em desenvolvimento.',
     });
   };
   
-  // Função para demo de notificação
-  const handleSendNotification = () => {
+  const handleGenerateReport = () => {
     toast({
-      title: 'Notificação enviada',
-      description: 'A notificação foi enviada para todos os destinatários selecionados.',
+      title: 'Recursos em Desenvolvimento',
+      description: 'A função de gerar novos relatórios está em desenvolvimento.',
     });
   };
   
-  // Verifica se o usuário tem permissão para exportar dados
-  const canExportData = hasPermission(PERMISSIONS.REPORT_EXPORT.id);
-  
-  // Verifica se o usuário tem permissão para gerenciar escolas
-  const canManageSchools = hasPermission(PERMISSIONS.SCHOOL_CONFIG.id);
-  
-  // Verifica se o usuário tem permissão para gerenciar integrações
-  const canManageIntegrations = hasPermission(PERMISSIONS.INTEGRATION_MANAGE.id);
+  const handleIntegration = () => {
+    toast({
+      title: 'Recursos em Desenvolvimento',
+      description: 'A função de configurar integrações está em desenvolvimento.',
+    });
+  };
   
   return (
-    <div className="min-h-screen bg-dark">
-      <Navigation />
-      <main className="container mx-auto py-6 px-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-parchment mb-2">Administração Escolar</h1>
-          <p className="text-parchment-dark">
-            Bem-vindo ao Painel de Administração, {user?.fullName}. 
-            Gerencie todos os aspectos da plataforma SABIÁ-RPG para sua instituição.
-          </p>
+    <div className="container mx-auto p-4 max-w-7xl">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard do Gestor</h1>
+          <p className="text-muted-foreground">Bem-vindo, {user?.fullName || 'Gestor'}!</p>
         </div>
+        <div className="flex gap-4 items-center">
+          <Button variant="outline" onClick={() => setActiveTab('settings')}>
+            Configurações
+          </Button>
+          <Button variant="destructive" onClick={logout}>Sair</Button>
+        </div>
+      </div>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="schools">Escolas</TabsTrigger>
+          <TabsTrigger value="reports">Relatórios</TabsTrigger>
+          <TabsTrigger value="integrations">Integrações</TabsTrigger>
+          <TabsTrigger value="settings">Configurações</TabsTrigger>
+        </TabsList>
         
-        <Tabs defaultValue="relatorios" value={activeTab} onValueChange={setActiveTab} 
-          className="space-y-4">
-          <TabsList className="grid grid-cols-4 md:grid-cols-8 gap-2">
-            <TabsTrigger value="relatorios" className="flex flex-col items-center p-2">
-              <FileSpreadsheet className="h-5 w-5 mb-1" />
-              <span className="text-xs">Relatórios</span>
-            </TabsTrigger>
-            <TabsTrigger value="configuracoes" className="flex flex-col items-center p-2">
-              <Settings className="h-5 w-5 mb-1" />
-              <span className="text-xs">Configurações</span>
-            </TabsTrigger>
-            <TabsTrigger value="contas" className="flex flex-col items-center p-2">
-              <UsersRound className="h-5 w-5 mb-1" />
-              <span className="text-xs">Contas</span>
-            </TabsTrigger>
-            <TabsTrigger value="matriculas" className="flex flex-col items-center p-2">
-              <UserPlus className="h-5 w-5 mb-1" />
-              <span className="text-xs">Matrículas</span>
-            </TabsTrigger>
-            <TabsTrigger value="escolas" className="flex flex-col items-center p-2">
-              <School className="h-5 w-5 mb-1" />
-              <span className="text-xs">Escolas</span>
-            </TabsTrigger>
-            <TabsTrigger value="integrações" className="flex flex-col items-center p-2">
-              <Cable className="h-5 w-5 mb-1" />
-              <span className="text-xs">Integrações</span>
-            </TabsTrigger>
-            <TabsTrigger value="logs" className="flex flex-col items-center p-2">
-              <ScrollText className="h-5 w-5 mb-1" />
-              <span className="text-xs">Logs</span>
-            </TabsTrigger>
-            <TabsTrigger value="comunicados" className="flex flex-col items-center p-2">
-              <Send className="h-5 w-5 mb-1" />
-              <span className="text-xs">Comunicados</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Tab: Relatórios */}
-          <TabsContent value="relatorios" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Relatórios Escolares</CardTitle>
-                  <CardDescription>
-                    Relatórios de desempenho por escola
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="h-[180px] flex items-center justify-center border rounded border-primary/20">
-                    <BarChart4 className="h-20 w-20 text-primary/50" />
-                  </div>
-                  <Button className="w-full">Ver Relatórios Escolares</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Relatórios Regionais</CardTitle>
-                  <CardDescription>
-                    Comparativos e métricas por região
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="h-[180px] flex items-center justify-center border rounded border-primary/20">
-                    <BarChart4 className="h-20 w-20 text-primary/50" />
-                  </div>
-                  <Button className="w-full">Ver Relatórios Regionais</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Relatórios Personalizados</CardTitle>
-                  <CardDescription>
-                    Crie relatórios com métricas específicas
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="h-[180px] flex items-center justify-center border rounded border-primary/20">
-                    <FileSpreadsheet className="h-20 w-20 text-primary/50" />
-                  </div>
-                  <Button className="w-full">Criar Novo Relatório</Button>
-                </CardContent>
-              </Card>
-            </div>
+        {/* Visão Geral */}
+        <TabsContent value="overview">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Total de Escolas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{schools.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {schools.filter(s => s.active).length} ativas
+                </p>
+              </CardContent>
+            </Card>
             
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-parchment">Relatórios Recentes</CardTitle>
-                  {canExportData && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleExportData}
-                      className="flex items-center gap-1"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>Exportar Dados</span>
-                    </Button>
-                  )}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {schools.reduce((sum, school) => sum + school.teachers, 0)}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Em todas as escolas
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {schools.reduce((sum, school) => sum + school.students, 0)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Em todas as escolas
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Relatórios</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{reports.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Disponíveis para download
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Escolas Recentes</CardTitle>
                 <CardDescription>
-                  Visualize e baixe os relatórios gerados recentemente
+                  Lista das últimas escolas adicionadas
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {reports.map((report) => (
-                    <div 
-                      key={report.id} 
-                      className="flex justify-between items-center p-3 border border-primary/20 rounded-md hover:bg-dark-lighter transition-colors"
-                    >
+                  {schools.slice(0, 3).map(school => (
+                    <div key={school.id} className="flex justify-between items-center border-b pb-2">
                       <div>
-                        <p className="font-semibold text-parchment">{report.title}</p>
-                        <p className="text-xs text-parchment-dark">
-                          {report.type === 'school' ? 'Escola' : 
-                           report.type === 'class' ? 'Turma' : 'Regional'} • {report.date}
-                        </p>
+                        <p className="font-medium">{school.name}</p>
+                        <p className="text-sm text-muted-foreground">Código: {school.code}</p>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
+                      <Badge variant={school.active ? "default" : "outline"}>
+                        {school.active ? "Ativa" : "Inativa"}
+                      </Badge>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Tab: Configurações */}
-          <TabsContent value="configuracoes" className="space-y-4">
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <CardTitle className="text-parchment">Configurações Escolares</CardTitle>
-                <CardDescription>
-                  Defina parâmetros gerais para toda a escola
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="school-name">Nome da Escola</Label>
-                  <Input id="school-name" defaultValue="Escola Municipal João Paulo II" />
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-parchment">Sistema de XP</h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="xp-missao">XP Base por Missão</Label>
-                      <Input id="xp-missao" type="number" defaultValue="100" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="xp-bonus">Bônus de XP por Excelência</Label>
-                      <Input id="xp-bonus" type="number" defaultValue="50" />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="nivel-max">Nível Máximo</Label>
-                      <Input id="nivel-max" type="number" defaultValue="50" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="xp-por-nivel">XP para Subir de Nível</Label>
-                      <Input id="xp-por-nivel" type="number" defaultValue="1000" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-parchment">Configurações de Triagem</h3>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="triagem-obrigatoria">Triagem Obrigatória</Label>
-                    <Switch id="triagem-obrigatoria" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="permitir-pular">Permitir Pular Triagem</Label>
-                    <Switch id="permitir-pular" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="triagem-periodica">Triagem Periódica</Label>
-                    <Switch id="triagem-periodica" defaultChecked />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="periodo-triagem">Intervalo de Triagem (dias)</Label>
-                    <Input id="periodo-triagem" type="number" defaultValue="90" />
-                  </div>
-                </div>
-                
-                <Button className="w-full">Salvar Configurações</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Tab: Contas */}
-          <TabsContent value="contas" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Gestão de Alunos</CardTitle>
-                  <CardDescription>
-                    Gerenciar contas de alunos
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-center p-4">
-                    <p className="text-3xl font-bold text-parchment">534</p>
-                    <p className="text-sm text-parchment-dark">Alunos ativos</p>
-                  </div>
-                  <Button className="w-full">Gerenciar Alunos</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Gestão de Professores</CardTitle>
-                  <CardDescription>
-                    Gerenciar contas de professores
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-center p-4">
-                    <p className="text-3xl font-bold text-parchment">42</p>
-                    <p className="text-sm text-parchment-dark">Professores ativos</p>
-                  </div>
-                  <Button className="w-full">Gerenciar Professores</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-dark-light border-primary">
-                <CardHeader>
-                  <CardTitle className="text-parchment">Gestão de Gestores</CardTitle>
-                  <CardDescription>
-                    Gerenciar contas de gestores
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-center p-4">
-                    <p className="text-3xl font-bold text-parchment">8</p>
-                    <p className="text-sm text-parchment-dark">Gestores ativos</p>
-                  </div>
-                  <Button className="w-full">Gerenciar Gestores</Button>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-parchment">Criar Nova Conta</CardTitle>
-                </div>
-                <CardDescription>
-                  Adicione um novo usuário ao sistema
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-user-name">Nome Completo</Label>
-                      <Input id="new-user-name" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-user-email">Email</Label>
-                      <Input id="new-user-email" type="email" />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-user-role">Perfil</Label>
-                      <select id="new-user-role" className="w-full rounded-md bg-dark border border-primary p-2">
-                        <option value="student">Aluno</option>
-                        <option value="teacher">Professor</option>
-                        <option value="manager">Gestor</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-user-school">Escola</Label>
-                      <select id="new-user-school" className="w-full rounded-md bg-dark border border-primary p-2">
-                        {schools.map(school => (
-                          <option key={school.id} value={school.id}>
-                            {school.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full">Criar Conta</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Tab: Escolas */}
-          <TabsContent value="escolas" className="space-y-4">
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-parchment">Escolas Cadastradas</CardTitle>
-                  {canManageSchools && (
-                    <Button variant="default" size="sm">
-                      Adicionar Escola
-                    </Button>
-                  )}
-                </div>
-                <CardDescription>
-                  Gerencie as escolas participantes
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {schools.map((school) => (
-                    <div 
-                      key={school.id} 
-                      className="p-4 border border-primary/20 rounded-md hover:bg-dark-lighter transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-bold text-parchment">{school.name}</p>
-                          <p className="text-sm text-parchment-dark">Código: {school.code}</p>
-                          <div className="flex space-x-4 mt-2">
-                            <p className="text-xs text-parchment-dark">
-                              <span className="font-semibold">{school.teachers}</span> professores
-                            </p>
-                            <p className="text-xs text-parchment-dark">
-                              <span className="font-semibold">{school.students}</span> alunos
-                            </p>
-                            <p className={`text-xs ${school.active ? 'text-green-500' : 'text-red-500'}`}>
-                              {school.active ? 'Ativa' : 'Inativa'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">Editar</Button>
-                          <Button variant="outline" size="sm">Configurar</Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Tab: Integrações */}
-          <TabsContent value="integrações" className="space-y-4">
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-parchment">Integrações Externas</CardTitle>
-                  {canManageIntegrations && (
-                    <Button variant="default" size="sm">
-                      Nova Integração
-                    </Button>
-                  )}
-                </div>
-                <CardDescription>
-                  Gerencie integrações com sistemas externos
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {integrations.map((integration) => (
-                    <div 
-                      key={integration.id} 
-                      className="p-4 border border-primary/20 rounded-md hover:bg-dark-lighter transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-bold text-parchment">{integration.name}</p>
-                          <p className="text-sm text-parchment-dark">Tipo: {integration.type}</p>
-                          {integration.lastSync && (
-                            <p className="text-xs text-parchment-dark mt-1">
-                              Última sincronização: {integration.lastSync}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <div className={`h-2 w-2 rounded-full ${
-                            integration.status === 'active' ? 'bg-green-500' : 
-                            integration.status === 'inactive' ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}></div>
-                          <span className="text-xs text-parchment-dark">
-                            {integration.status === 'active' ? 'Ativa' : 
-                             integration.status === 'inactive' ? 'Inativa' : 'Erro'}
-                          </span>
-                          <div className="ml-4">
-                            <Button variant="outline" size="sm">Configurar</Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <CardTitle className="text-parchment">Autenticação e Tokens</CardTitle>
-                <CardDescription>
-                  Gerenciar credenciais para integrações externas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sige-token">Token SIGE</Label>
-                    <div className="flex space-x-2">
-                      <Input id="sige-token" type="password" value="••••••••••••••••" readOnly />
-                      <Button variant="outline" size="sm">Renovar</Button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="google-auth">Autorização Google</Label>
-                    <div className="flex space-x-2">
-                      <Input id="google-auth" placeholder="Não configurado" readOnly />
-                      <Button variant="outline" size="sm">Configurar</Button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-parchment">Sincronização Automática</p>
-                      <p className="text-xs text-parchment-dark">
-                        Sincronizar dados automaticamente todos os dias
-                      </p>
-                    </div>
-                    <Switch id="sync-auto" defaultChecked />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Tab: Comunicados */}
-          <TabsContent value="comunicados" className="space-y-4">
-            <Card className="bg-dark-light border-primary">
-              <CardHeader>
-                <CardTitle className="text-parchment">Enviar Comunicado</CardTitle>
-                <CardDescription>
-                  Envie comunicados para alunos, professores ou toda a escola
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="announcement-title">Título</Label>
-                    <Input id="announcement-title" placeholder="Digite o título do comunicado" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="announcement-content">Conteúdo</Label>
-                    <textarea 
-                      id="announcement-content" 
-                      className="w-full h-32 bg-dark border border-primary rounded-md p-2"
-                      placeholder="Digite o conteúdo do comunicado"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="announcement-recipients">Destinatários</Label>
-                    <select 
-                      id="announcement-recipients" 
-                      className="w-full bg-dark border border-primary rounded-md p-2"
-                    >
-                      <option value="all">Todos</option>
-                      <option value="students">Apenas Alunos</option>
-                      <option value="teachers">Apenas Professores</option>
-                      <option value="managers">Apenas Gestores</option>
-                    </select>
-                  </div>
-                  
-                  <Button 
-                    className="w-full" 
-                    onClick={handleSendNotification}
-                  >
-                    Enviar Comunicado
+                  <Button variant="outline" className="mt-4 w-full" onClick={() => setActiveTab('schools')}>
+                    Ver todas as escolas
                   </Button>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-dark-light border-primary">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-parchment">Comunicados Anteriores</CardTitle>
+                <CardTitle>Relatórios Recentes</CardTitle>
                 <CardDescription>
-                  Histórico de comunicados enviados
+                  Últimos relatórios gerados
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="p-3 border border-primary/20 rounded-md">
-                    <p className="font-semibold text-parchment">Manutenção Programada</p>
-                    <p className="text-xs text-parchment-dark">30/04/2023 • Todos os usuários</p>
-                    <p className="text-sm mt-2 text-parchment-dark">
-                      O sistema estará indisponível para manutenção programada no dia 02/05/2023 das 22h às 00h.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  {reports.slice(0, 3).map(report => (
+                    <div key={report.id} className="flex justify-between items-center border-b pb-2">
+                      <div>
+                        <p className="font-medium">{report.title}</p>
+                        <p className="text-sm text-muted-foreground">Data: {report.date}</p>
+                      </div>
+                      <Button variant="outline" size="icon">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
                   
-                  <div className="p-3 border border-primary/20 rounded-md">
-                    <p className="font-semibold text-parchment">Nova Trilha de Matemática</p>
-                    <p className="text-xs text-parchment-dark">25/04/2023 • Alunos e Professores</p>
-                    <p className="text-sm mt-2 text-parchment-dark">
-                      Uma nova trilha de aprendizado de Matemática foi disponibilizada para todos os alunos.
-                    </p>
-                  </div>
-                  
-                  <div className="p-3 border border-primary/20 rounded-md">
-                    <p className="font-semibold text-parchment">Calendário de Triagens</p>
-                    <p className="text-xs text-parchment-dark">20/04/2023 • Professores</p>
-                    <p className="text-sm mt-2 text-parchment-dark">
-                      O novo calendário de triagens diagnósticas já está disponível na plataforma.
-                    </p>
-                  </div>
+                  <Button variant="outline" className="mt-4 w-full" onClick={() => setActiveTab('reports')}>
+                    Ver todos os relatórios
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          {/* Mostrar Tab Padrão */}
-          {!['relatorios', 'configuracoes', 'contas', 'escolas', 'integrações', 'comunicados'].includes(activeTab) && (
-            <div className="flex items-center justify-center h-64">
-              <p className="text-parchment-dark">Selecione uma aba para visualizar o conteúdo</p>
-            </div>
-          )}
-        </Tabs>
-      </main>
+          </div>
+        </TabsContent>
+        
+        {/* Escolas */}
+        <TabsContent value="schools">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Gerenciamento de Escolas</CardTitle>
+                  <CardDescription>
+                    Gerencie todas as escolas da rede
+                  </CardDescription>
+                </div>
+                <Button onClick={handleNewSchool}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Escola
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <div className="relative w-full max-w-sm">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Buscar escolas..." className="pl-8" />
+                </div>
+                <div className="flex gap-2">
+                  <Select defaultValue="all">
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="active">Ativas</SelectItem>
+                      <SelectItem value="inactive">Inativas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon" onClick={fetchSchools} disabled={loading.schools}>
+                    <RefreshCw className={`h-4 w-4 ${loading.schools ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="grid grid-cols-12 bg-muted p-4 rounded-t-md font-medium">
+                  <div className="col-span-5">Nome</div>
+                  <div className="col-span-2">Código</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-2">Professores</div>
+                  <div className="col-span-2">Alunos</div>
+                </div>
+                
+                {loading.schools ? (
+                  <div className="p-8 text-center">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p>Carregando escolas...</p>
+                  </div>
+                ) : schools.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <School className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p>Nenhuma escola encontrada</p>
+                    <Button variant="outline" className="mt-4" onClick={handleNewSchool}>
+                      Adicionar Escola
+                    </Button>
+                  </div>
+                ) : (
+                  schools.map((school, index) => (
+                    <div 
+                      key={school.id} 
+                      className={`grid grid-cols-12 p-4 hover:bg-muted/50 cursor-pointer ${
+                        index !== schools.length - 1 ? 'border-b' : ''
+                      }`}
+                    >
+                      <div className="col-span-5 font-medium">{school.name}</div>
+                      <div className="col-span-2 text-muted-foreground">{school.code}</div>
+                      <div className="col-span-1">
+                        <Badge variant={school.active ? "default" : "outline"}>
+                          {school.active ? "Ativa" : "Inativa"}
+                        </Badge>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          {school.teachers}
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-muted-foreground" />
+                          {school.students}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Relatórios */}
+        <TabsContent value="reports">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Relatórios</CardTitle>
+                  <CardDescription>
+                    Gere e visualize relatórios detalhados
+                  </CardDescription>
+                </div>
+                <Button onClick={handleGenerateReport}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Relatório
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <div className="relative w-full max-w-sm">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Buscar relatórios..." className="pl-8" />
+                </div>
+                <div className="flex gap-2">
+                  <Select defaultValue="all">
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="school">Escola</SelectItem>
+                      <SelectItem value="class">Turma</SelectItem>
+                      <SelectItem value="region">Regional</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon" onClick={fetchReports} disabled={loading.reports}>
+                    <RefreshCw className={`h-4 w-4 ${loading.reports ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="grid grid-cols-5 bg-muted p-4 rounded-t-md font-medium">
+                  <div className="col-span-2">Título</div>
+                  <div className="col-span-1">Tipo</div>
+                  <div className="col-span-1">Data</div>
+                  <div className="col-span-1 text-right">Ações</div>
+                </div>
+                
+                {loading.reports ? (
+                  <div className="p-8 text-center">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p>Carregando relatórios...</p>
+                  </div>
+                ) : reports.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <Info className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p>Nenhum relatório encontrado</p>
+                    <Button variant="outline" className="mt-4" onClick={handleGenerateReport}>
+                      Gerar Relatório
+                    </Button>
+                  </div>
+                ) : (
+                  reports.map((report, index) => (
+                    <div 
+                      key={report.id} 
+                      className={`grid grid-cols-5 p-4 hover:bg-muted/50 ${
+                        index !== reports.length - 1 ? 'border-b' : ''
+                      }`}
+                    >
+                      <div className="col-span-2 font-medium">{report.title}</div>
+                      <div className="col-span-1">
+                        <Badge variant="outline">
+                          {report.type === 'school' ? 'Escola' : 
+                            report.type === 'class' ? 'Turma' : 'Regional'}
+                        </Badge>
+                      </div>
+                      <div className="col-span-1 text-muted-foreground">{report.date}</div>
+                      <div className="col-span-1 flex justify-end gap-2">
+                        <Button variant="outline" size="icon">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Integrações */}
+        <TabsContent value="integrations">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Integrações</CardTitle>
+                  <CardDescription>
+                    Gerencie as integrações com sistemas externos
+                  </CardDescription>
+                </div>
+                <Button onClick={handleIntegration}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Integração
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-end mb-4">
+                <Button variant="outline" size="icon" onClick={fetchIntegrations} disabled={loading.integrations}>
+                  <RefreshCw className={`h-4 w-4 ${loading.integrations ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="grid grid-cols-5 bg-muted p-4 rounded-t-md font-medium">
+                  <div className="col-span-2">Nome</div>
+                  <div className="col-span-1">Tipo</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-1 text-right">Ações</div>
+                </div>
+                
+                {loading.integrations ? (
+                  <div className="p-8 text-center">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p>Carregando integrações...</p>
+                  </div>
+                ) : integrations.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <Info className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p>Nenhuma integração encontrada</p>
+                    <Button variant="outline" className="mt-4" onClick={handleIntegration}>
+                      Configurar Integração
+                    </Button>
+                  </div>
+                ) : (
+                  integrations.map((integration, index) => (
+                    <div 
+                      key={integration.id} 
+                      className={`grid grid-cols-5 p-4 hover:bg-muted/50 ${
+                        index !== integrations.length - 1 ? 'border-b' : ''
+                      }`}
+                    >
+                      <div className="col-span-2 font-medium">{integration.name}</div>
+                      <div className="col-span-1 text-muted-foreground">{integration.type}</div>
+                      <div className="col-span-1">
+                        <Badge 
+                          variant={
+                            integration.status === 'active' ? 'default' : 
+                            integration.status === 'inactive' ? 'outline' : 'destructive'
+                          }
+                        >
+                          {integration.status === 'active' ? 'Ativa' : 
+                           integration.status === 'inactive' ? 'Inativa' : 'Erro'}
+                        </Badge>
+                      </div>
+                      <div className="col-span-1 flex justify-end gap-2">
+                        <Button variant="outline" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          disabled={integration.status !== 'active'}
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Configurações */}
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações do Sistema</CardTitle>
+              <CardDescription>
+                Gerencie as configurações do SABIÁ RPG para sua rede
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium">Configurações de Perfil</h3>
+                  <Separator className="my-4" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Nome Completo</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input defaultValue={user?.fullName || ''} />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Email</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input defaultValue={user?.email || ''} />
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button>Salvar Alterações</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium">Configurações de Segurança</h3>
+                  <Separator className="my-4" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Senha Atual</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input type="password" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Nova Senha</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input type="password" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Confirmar Senha</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input type="password" />
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button>Alterar Senha</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium">Configurações do Sistema</h3>
+                  <Separator className="my-4" />
+                  <p className="text-muted-foreground mb-4">
+                    Estas configurações afetam todas as escolas e usuários da sua rede.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Nome da Rede</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Input defaultValue="Rede Municipal de Educação" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1">
+                        <label className="text-sm font-medium">Ano Letivo</label>
+                      </div>
+                      <div className="col-span-3">
+                        <Select defaultValue="2023">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o ano letivo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="2022">2022</SelectItem>
+                            <SelectItem value="2023">2023</SelectItem>
+                            <SelectItem value="2024">2024</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button>Salvar Configurações</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
-};
-
-export default ManagerDashboard;
+}

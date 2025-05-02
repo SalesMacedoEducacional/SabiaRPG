@@ -56,7 +56,23 @@ export function registerManagerRoutes(
       const schoolId = req.params.id;
       
       // Simular busca de escola (na implementação real, isto viria do banco de dados)
-      const schools = {
+      type SchoolDetails = {
+        id: string;
+        name: string;
+        code: string;
+        address: string;
+        phone: string;
+        email: string;
+        director: string;
+        coordinators: string[];
+        teachers: number;
+        students: number;
+        classes: number;
+        active: boolean;
+        createdAt: string;
+      };
+      
+      const schools: Record<string, SchoolDetails> = {
         "s1": {
           id: "s1",
           name: "Escola Municipal Pedro II",
@@ -227,7 +243,7 @@ export function registerManagerRoutes(
         date: new Date().toLocaleDateString('pt-BR'),
         downloadUrl: '#',
         parameters,
-        createdBy: req.session.userId
+        createdBy: req.session.userId as number
       };
       
       res.status(201).json(newReport);
@@ -318,7 +334,7 @@ export function registerManagerRoutes(
         content,
         recipients,
         sentAt: new Date().toISOString(),
-        sentBy: req.session.userId
+        sentBy: req.session.userId as number
       };
       
       res.status(201).json({
