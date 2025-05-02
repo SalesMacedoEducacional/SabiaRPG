@@ -11,6 +11,7 @@ import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
 import UserProfile from "@/pages/UserProfile";
+import TestUpload from "@/pages/TestUpload";
 import { GameProvider } from "./context/GameContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";

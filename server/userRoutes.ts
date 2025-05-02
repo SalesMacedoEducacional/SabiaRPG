@@ -55,6 +55,60 @@ const upload = multer({
  * Registra as rotas de usuário, incluindo upload de foto
  */
 export function registerUserRoutes(app: Express) {
+  // Rota de teste para upload de imagem
+  app.post('/api/test/upload', (req: any, res: Response) => {
+    const uploadMiddleware = upload.single('file');
+    
+    uploadMiddleware(req, res, async (err: any) => {
+      if (err) {
+        console.error('Erro no upload:', err);
+        return res.status(500).json({ message: 'Erro no upload: ' + err.message });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ message: 'Nenhum arquivo enviado.' });
+      }
+      
+      try {
+        // Obter o caminho do arquivo temporário
+        const tempFilePath = req.file.path;
+        
+        // Criar diretório permanente para armazenar imagens se não existir
+        const publicDir = path.join(__dirname, '..', 'client', 'public', 'uploads', 'profile-images');
+        if (!fs.existsSync(publicDir)) {
+          fs.mkdirSync(publicDir, { recursive: true });
+        }
+        
+        // Gerar nome de arquivo único 
+        const fileName = `test-${Date.now()}-${path.basename(req.file.filename)}`;
+        const destPath = path.join(publicDir, fileName);
+        
+        // Mover arquivo do diretório temporário para permanente
+        fs.copyFileSync(tempFilePath, destPath);
+        
+        // Limpar arquivo temporário
+        fs.unlinkSync(tempFilePath);
+        
+        // Gerar URL relativa para o frontend
+        const imageUrl = `/uploads/profile-images/${fileName}`;
+        
+        // Retornar sucesso
+        return res.status(200).json({ 
+          message: 'Imagem enviada com sucesso!',
+          imageUrl
+        });
+        
+      } catch (error) {
+        console.error('Erro ao processar o upload:', error);
+        // Limpar o arquivo temporário em caso de erro
+        if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        
+        return res.status(500).json({ message: 'Erro ao processar a imagem. Tente novamente.' });
+      }
+    });
+  });
   /**
    * Rota para upload de imagem de perfil
    * POST /api/usuarios/:id/foto
