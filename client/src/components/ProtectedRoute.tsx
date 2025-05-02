@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Redirect, RouteComponentProps } from 'wouter';
+import { Route, Redirect } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 

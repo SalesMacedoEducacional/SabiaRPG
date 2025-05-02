@@ -1,4 +1,16 @@
-import { User } from '@shared/schema';
+// Importação de tipos
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  fullName: string;
+  role: 'student' | 'teacher' | 'manager' | 'admin';
+  avatarUrl?: string;
+  level?: number;
+  xp?: number;
+  createdAt?: string;
+  password?: string;
+}
 
 // Definição dos papéis de usuário
 export type UserRole = 'student' | 'teacher' | 'manager' | 'admin';
