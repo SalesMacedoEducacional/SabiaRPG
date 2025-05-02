@@ -53,28 +53,11 @@ const Navigation: React.FC = () => {
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
                 <a className="flex items-center">
-                  <svg 
-                    width="40" 
-                    height="40" 
-                    viewBox="0 0 40 40" 
-                    fill="none" 
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-accent"
-                  >
-                    <path 
-                      d="M10 30L20 10L30 30L20 25L10 30Z" 
-                      fill="currentColor" 
-                      stroke="currentColor" 
-                      strokeWidth="2"
-                    />
-                    <circle 
-                      cx="20" 
-                      cy="15" 
-                      r="5" 
-                      fill="currentColor" 
-                      stroke="currentColor"
-                    />
-                  </svg>
+                  <img 
+                    src="/assets/sabia-logo.png" 
+                    alt="Logomarca SABIÁ RPG" 
+                    className="logo logo-sm"
+                  />
                   <span className="ml-3 font-medieval text-2xl text-accent">SABIÁ RPG</span>
                 </a>
               </Link>

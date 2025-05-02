@@ -516,30 +516,15 @@ export const FlaskIcon: React.FC<IconProps> = ({ size = 24, color = "currentColo
 };
 
 // SABIA RPG Logo
-export const SabiaLogo: React.FC<IconProps> = ({ size = 40, color = "currentColor", className = "" }) => {
+export const SabiaLogo: React.FC<IconProps> = ({ size = 40, className = "" }) => {
   return (
-    <svg 
+    <img 
+      src="/assets/sabia-logo.png" 
+      alt="Logomarca SABIÁ RPG" 
       width={size} 
       height={size} 
-      viewBox="0 0 40 40" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      <path 
-        d="M10 30L20 10L30 30L20 25L10 30Z" 
-        fill={color} 
-        stroke={color} 
-        strokeWidth="2"
-      />
-      <circle 
-        cx="20" 
-        cy="15" 
-        r="5" 
-        fill={color} 
-        stroke={color}
-      />
-    </svg>
+      className={`logo ${className}`}
+    />
   );
 };
 
