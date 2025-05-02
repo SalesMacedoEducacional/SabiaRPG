@@ -51,50 +51,53 @@ const Navigation: React.FC = () => {
           {/* Logo and Brand */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <a className="flex items-center">
-                  <img 
-                    src="/assets/sabia-logo.png" 
-                    alt="Logomarca SABIÁ RPG" 
-                    className="logo logo-sm"
-                  />
-                  <span className="ml-3 font-medieval text-2xl text-accent">SABIÁ RPG</span>
-                </a>
+              <Link href="/" className="flex items-center">
+                <img 
+                  src="/assets/sabia-logo.png" 
+                  alt="Logomarca SABIÁ RPG" 
+                  className="logo logo-sm"
+                />
+                <span className="ml-3 font-medieval text-2xl text-accent">SABIÁ RPG</span>
               </Link>
             </div>
           </div>
           
           {/* Navigation Menu - Desktop */}
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link href="/">
-              <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}>
-                <MapPin className="inline mr-1 h-4 w-4" />
-                Mapa
-              </a>
+            <Link 
+              href="/" 
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}
+            >
+              <MapPin className="inline mr-1 h-4 w-4" />
+              Mapa
             </Link>
-            <Link href="/mission/active">
-              <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/mission/active') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}>
-                <Sword className="inline mr-1 h-4 w-4" />
-                Missões
-              </a>
+            <Link 
+              href="/mission/active" 
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/mission/active') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}
+            >
+              <Sword className="inline mr-1 h-4 w-4" />
+              Missões
             </Link>
-            <Link href="/ranking">
-              <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ranking') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}>
-                <Trophy className="inline mr-1 h-4 w-4" />
-                Ranking
-              </a>
+            <Link 
+              href="/ranking" 
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ranking') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}
+            >
+              <Trophy className="inline mr-1 h-4 w-4" />
+              Ranking
             </Link>
-            <Link href="/forum">
-              <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/forum') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}>
-                <MessageSquare className="inline mr-1 h-4 w-4" />
-                Fórum
-              </a>
+            <Link 
+              href="/forum" 
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/forum') ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white'}`}
+            >
+              <MessageSquare className="inline mr-1 h-4 w-4" />
+              Fórum
             </Link>
             {user.role !== 'student' && (
-              <Link href="/teacher">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/teacher') ? 'bg-secondary text-white' : 'hover:bg-secondary hover:text-white'}`}>
-                  Painel de Professor
-                </a>
+              <Link 
+                href="/teacher" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/teacher') ? 'bg-secondary text-white' : 'hover:bg-secondary hover:text-white'}`}
+              >
+                Painel de Professor
               </Link>
             )}
           </div>
@@ -166,12 +169,12 @@ const Navigation: React.FC = () => {
               <DropdownMenuContent align="end" className="bg-dark-light border-primary">
                 <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-primary" />
-                <Link href="/profile">
-                  <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     <span>Perfil</span>
-                  </DropdownMenuItem>
-                </Link>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sair</span>
@@ -203,42 +206,48 @@ const Navigation: React.FC = () => {
                 </div>
                 <div className="py-4">
                   <nav className="flex flex-col space-y-1">
-                    <Link href="/">
-                      <a className={`flex items-center px-4 py-3 ${isActive('/') ? 'bg-primary' : ''}`}>
-                        <MapPin className="mr-3 h-5 w-5" />
-                        <span>Mapa</span>
-                      </a>
+                    <Link 
+                      href="/" 
+                      className={`flex items-center px-4 py-3 ${isActive('/') ? 'bg-primary' : ''}`}
+                    >
+                      <MapPin className="mr-3 h-5 w-5" />
+                      <span>Mapa</span>
                     </Link>
-                    <Link href="/mission/active">
-                      <a className={`flex items-center px-4 py-3 ${isActive('/mission/active') ? 'bg-primary' : ''}`}>
-                        <Sword className="mr-3 h-5 w-5" />
-                        <span>Missões</span>
-                      </a>
+                    <Link 
+                      href="/mission/active" 
+                      className={`flex items-center px-4 py-3 ${isActive('/mission/active') ? 'bg-primary' : ''}`}
+                    >
+                      <Sword className="mr-3 h-5 w-5" />
+                      <span>Missões</span>
                     </Link>
-                    <Link href="/ranking">
-                      <a className={`flex items-center px-4 py-3 ${isActive('/ranking') ? 'bg-primary' : ''}`}>
-                        <Trophy className="mr-3 h-5 w-5" />
-                        <span>Ranking</span>
-                      </a>
+                    <Link 
+                      href="/ranking" 
+                      className={`flex items-center px-4 py-3 ${isActive('/ranking') ? 'bg-primary' : ''}`}
+                    >
+                      <Trophy className="mr-3 h-5 w-5" />
+                      <span>Ranking</span>
                     </Link>
-                    <Link href="/forum">
-                      <a className={`flex items-center px-4 py-3 ${isActive('/forum') ? 'bg-primary' : ''}`}>
-                        <MessageSquare className="mr-3 h-5 w-5" />
-                        <span>Fórum</span>
-                      </a>
+                    <Link 
+                      href="/forum" 
+                      className={`flex items-center px-4 py-3 ${isActive('/forum') ? 'bg-primary' : ''}`}
+                    >
+                      <MessageSquare className="mr-3 h-5 w-5" />
+                      <span>Fórum</span>
                     </Link>
                     {user.role !== 'student' && (
-                      <Link href="/teacher">
-                        <a className={`flex items-center px-4 py-3 ${isActive('/teacher') ? 'bg-secondary' : ''}`}>
-                          <span>Painel de Professor</span>
-                        </a>
+                      <Link 
+                        href="/teacher" 
+                        className={`flex items-center px-4 py-3 ${isActive('/teacher') ? 'bg-secondary' : ''}`}
+                      >
+                        <span>Painel de Professor</span>
                       </Link>
                     )}
-                    <Link href="/profile">
-                      <a className={`flex items-center px-4 py-3 ${isActive('/profile') ? 'bg-primary' : ''}`}>
-                        <User className="mr-3 h-5 w-5" />
-                        <span>Perfil</span>
-                      </a>
+                    <Link 
+                      href="/profile" 
+                      className={`flex items-center px-4 py-3 ${isActive('/profile') ? 'bg-primary' : ''}`}
+                    >
+                      <User className="mr-3 h-5 w-5" />
+                      <span>Perfil</span>
                     </Link>
                     <div 
                       className="flex items-center px-4 py-3 cursor-pointer hover:bg-primary" 
