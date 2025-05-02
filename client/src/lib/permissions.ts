@@ -33,10 +33,12 @@ export const PERMISSIONS = {
   MISSION_COMPLETE: { id: 'mission:complete', description: 'Concluir missões' },
   MISSION_CREATE: { id: 'mission:create', description: 'Criar missões' },
   MISSION_ASSIGN: { id: 'mission:assign', description: 'Atribuir missões a alunos' },
+  MISSION_PRIORITIZE: { id: 'mission:prioritize', description: 'Definir missões prioritárias' },
   
   // Permissões de diagnóstico
   DIAGNOSTIC_START: { id: 'diagnostic:start', description: 'Iniciar triagem diagnóstica' },
   DIAGNOSTIC_VIEW_RESULTS: { id: 'diagnostic:view_results', description: 'Ver resultados do diagnóstico' },
+  DIAGNOSTIC_SCHEDULE: { id: 'diagnostic:schedule', description: 'Agendar triagens diagnósticas' },
   
   // Permissões de feedback
   FEEDBACK_RECEIVE: { id: 'feedback:receive', description: 'Receber feedback da IA' },
@@ -59,6 +61,7 @@ export const PERMISSIONS = {
   REPORT_STUDENT_VIEW: { id: 'report:student_view', description: 'Visualizar relatórios de alunos individuais' },
   REPORT_CLASS_VIEW: { id: 'report:class_view', description: 'Visualizar relatórios de turmas' },
   REPORT_SCHOOL_VIEW: { id: 'report:school_view', description: 'Visualizar relatórios de escolas' },
+  REPORT_REGION_VIEW: { id: 'report:region_view', description: 'Visualizar relatórios regionais' },
   REPORT_EXPORT: { id: 'report:export', description: 'Exportar relatórios' },
   
   // Permissões de usuários
@@ -66,8 +69,25 @@ export const PERMISSIONS = {
   USER_MANAGE_TEACHERS: { id: 'user:manage_teachers', description: 'Gerenciar contas de professores' },
   USER_MANAGE_MANAGERS: { id: 'user:manage_managers', description: 'Gerenciar contas de gestores' },
   
+  // Permissões de gestão escolar
+  SCHOOL_CONFIG: { id: 'school:config', description: 'Configurar parâmetros da escola' },
+  SCHOOL_CALENDAR: { id: 'school:calendar', description: 'Gerenciar calendário escolar' },
+  SCHOOL_ENROLLMENT: { id: 'school:enrollment', description: 'Gerenciar matrículas' },
+  SCHOOL_XP_CONFIG: { id: 'school:xp_config', description: 'Configurar sistema de XP' },
+  
+  // Permissões de comunicação
+  COMMUNICATION_SEND: { id: 'communication:send', description: 'Enviar comunicados' },
+  COMMUNICATION_MANAGE: { id: 'communication:manage', description: 'Gerenciar comunicados' },
+  
+  // Permissões de integrações
+  INTEGRATION_VIEW: { id: 'integration:view', description: 'Visualizar integrações' },
+  INTEGRATION_MANAGE: { id: 'integration:manage', description: 'Gerenciar integrações externas' },
+  
   // Permissões de sistema
   SYSTEM_VIEW_LOGS: { id: 'system:view_logs', description: 'Visualizar logs do sistema' },
+  SYSTEM_VIEW_ERROR_LOGS: { id: 'system:view_error_logs', description: 'Visualizar logs de erros' },
+  SYSTEM_VIEW_ACCESS_LOGS: { id: 'system:view_access_logs', description: 'Visualizar logs de acesso' },
+  SYSTEM_VIEW_STATISTICS: { id: 'system:view_statistics', description: 'Visualizar estatísticas de uso' },
   SYSTEM_BACKUP: { id: 'system:backup', description: 'Realizar backup do sistema' },
   SYSTEM_RESTORE: { id: 'system:restore', description: 'Restaurar a partir de backup' },
   SYSTEM_CONFIG: { id: 'system:config', description: 'Alterar configurações do sistema' },
@@ -114,7 +134,7 @@ const rolePermissionsMap: Record<UserRole, Array<string>> = {
     PERMISSIONS.USER_MANAGE_STUDENTS.id,
   ],
   
-  // Permissões de Gestor (inclui todas do Professor + específicas)
+  // Permissões de Gestor (inclui todas do Professor + específicas avançadas)
   manager: [
     // Herda permissões do professor (que já inclui as do aluno)
     PERMISSIONS.PROFILE_VIEW.id,
@@ -136,9 +156,34 @@ const rolePermissionsMap: Record<UserRole, Array<string>> = {
     PERMISSIONS.REPORT_EXPORT.id,
     PERMISSIONS.USER_MANAGE_STUDENTS.id,
     
-    // Permissões específicas de gestor
+    // Permissões exclusivas de gestor para relatórios
     PERMISSIONS.REPORT_SCHOOL_VIEW.id,
+    PERMISSIONS.REPORT_REGION_VIEW.id,
+    
+    // Permissões exclusivas de gestor para gestão de usuários
     PERMISSIONS.USER_MANAGE_TEACHERS.id,
+    
+    // Permissões específicas de gestão escolar
+    PERMISSIONS.SCHOOL_CONFIG.id,
+    PERMISSIONS.SCHOOL_CALENDAR.id,
+    PERMISSIONS.SCHOOL_ENROLLMENT.id,
+    PERMISSIONS.SCHOOL_XP_CONFIG.id,
+    PERMISSIONS.MISSION_PRIORITIZE.id,
+    PERMISSIONS.DIAGNOSTIC_SCHEDULE.id,
+    
+    // Permissões de comunicação
+    PERMISSIONS.COMMUNICATION_SEND.id,
+    PERMISSIONS.COMMUNICATION_MANAGE.id,
+    
+    // Permissões de integrações
+    PERMISSIONS.INTEGRATION_VIEW.id,
+    PERMISSIONS.INTEGRATION_MANAGE.id,
+    
+    // Permissões de monitoramento
+    PERMISSIONS.SYSTEM_VIEW_LOGS.id,
+    PERMISSIONS.SYSTEM_VIEW_ERROR_LOGS.id,
+    PERMISSIONS.SYSTEM_VIEW_ACCESS_LOGS.id,
+    PERMISSIONS.SYSTEM_VIEW_STATISTICS.id,
   ],
   
   // Permissões de Administrador (todas)

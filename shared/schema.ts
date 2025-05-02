@@ -5,6 +5,29 @@ import { z } from "zod";
 // User role enum
 export const userRoleEnum = pgEnum("papel_usuario", ["aluno", "professor", "gestor"]);
 
+// Interface de permissões para cada perfil
+export const permissionSets = {
+  aluno: [
+    "view:missions", "submit:mission-answers", "view:own-progress", 
+    "view:forum", "post:forum", "view:own-diagnostics"
+  ],
+  professor: [
+    "view:missions", "view:forum", "post:forum", "view:class-progress", 
+    "view:class-diagnostics", "create:missions", "edit:missions", 
+    "grade:mission-answers", "view:class-reports"
+  ],
+  gestor: [
+    // Permissões de visualização
+    "view:missions", "view:forum", "view:school-progress", "view:school-diagnostics",
+    "view:school-reports", "view:region-reports", "view:access-logs", "view:error-logs", 
+    "view:usage-statistics",
+    // Permissões de gerenciamento escolar
+    "manage:school-settings", "manage:school-calendar", "manage:school-integrations",
+    "manage:users", "manage:teachers", "manage:students", "manage:enrollments",
+    "export:school-data", "send:school-notifications", "create:announcements"
+  ]
+};
+
 // Subject areas enum
 export const subjectAreaEnum = pgEnum("disciplina", [
   "matematica", 
@@ -18,12 +41,17 @@ export const subjectAreaEnum = pgEnum("disciplina", [
 // Status enum
 export const statusEnum = pgEnum("status", ["pendente", "concluida", "falhada"]);
 
-// Escolas table
+// Escolas table - Expandida para atender necessidades dos gestores
 export const escolas = pgTable("escolas", {
   id: uuid("id").primaryKey().defaultRandom(),
   nome: text("nome").notNull(),
   codigoEscola: text("codigo_escola").notNull().unique(),
+  endereco: text("endereco"),
+  telefone: text("telefone"),
+  configTrilhas: json("config_trilhas").default({}), // Configurações de trilhas específicas da escola
+  calendarioTriagens: json("calendario_triagens").default({}), // Calendário de triagens diagnósticas
   criadoEm: timestamp("criado_em").defaultNow(),
+  ativo: boolean("ativo").default(true),
 });
 
 // Usuarios table
@@ -134,6 +162,102 @@ export const configuracoes = pgTable("configuracoes", {
   valor: text("valor"),
 });
 
+// Perfis de Gestores table
+export const perfilGestor = pgTable("perfis_gestor", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "restrict" }),
+  cargo: text("cargo"),
+  permissoesEspeciais: json("permissoes_especiais").default({}),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Perfis de Professores table 
+export const perfilProfessor = pgTable("perfis_professor", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "restrict" }),
+  disciplinas: text("disciplinas").array(),
+  turmas: text("turmas").array(),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Configurações Escolares table para gerenciamento pelo Gestor
+export const configuracoesEscolares = pgTable("configuracoes_escolares", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  chave: text("chave").notNull(),
+  valor: json("valor"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
+});
+
+// Integrações Externas table
+export const integracoesExternas = pgTable("integracoes_externas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  tipo: text("tipo").notNull(), // SIGE, Google Classroom, etc.
+  configJSON: json("config_json"),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
+});
+
+// Tokens API para integrações
+export const tokensAPI = pgTable("tokens_api", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  integracaoId: uuid("integracao_id").references(() => integracoesExternas.id, { onDelete: "cascade" }),
+  token: text("token").notNull(),
+  expiraEm: timestamp("expira_em"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Relatórios para acessos de gestores
+export const relatorios = pgTable("relatorios", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tipo: text("tipo").notNull(), // turma, escola, região
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  turmaId: text("turma_id"), // opcional, dependendo do tipo de relatório
+  periodo: json("periodo"), // período de tempo do relatório
+  dadosJSON: json("dados_json"),
+  geradoEm: timestamp("gerado_em").defaultNow(),
+});
+
+// Comunicados table
+export const comunicados = pgTable("comunicados", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  titulo: text("titulo").notNull(),
+  conteudo: text("conteudo").notNull(),
+  destinatarios: text("destinatarios").array(), // tipos de destinatários: todos, professores, alunos, etc.
+  enviadoEm: timestamp("enviado_em").defaultNow(),
+  expiraEm: timestamp("expira_em"),
+});
+
+// Logs de acesso para monitoramento
+export const logsAcesso = pgTable("logs_acesso", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id),
+  rota: text("rota").notNull(),
+  metodo: text("metodo").notNull(),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  sucesso: boolean("sucesso").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+// Logs de erros para monitoramento
+export const logsErro = pgTable("logs_erro", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id),
+  mensagem: text("mensagem").notNull(),
+  stackTrace: text("stack_trace"),
+  rota: text("rota"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
 // Logs de auditoria table
 export const logsAuditoria = pgTable("logs_auditoria", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -148,6 +272,8 @@ export const insertEscolaSchema = createInsertSchema(escolas).omit({ id: true, c
 export const insertUsuarioSchema = createInsertSchema(usuarios).omit({ id: true, criadoEm: true });
 export const insertMatriculaSchema = createInsertSchema(matriculas).omit({ id: true, criadoEm: true });
 export const insertPerfilAlunoSchema = createInsertSchema(perfisAluno).omit({ id: true, criadoEm: true });
+export const insertPerfilGestorSchema = createInsertSchema(perfilGestor).omit({ id: true, criadoEm: true });
+export const insertPerfilProfessorSchema = createInsertSchema(perfilProfessor).omit({ id: true, criadoEm: true });
 export const insertTrilhaSchema = createInsertSchema(trilhas).omit({ id: true });
 export const insertMissaoSchema = createInsertSchema(missoes).omit({ id: true });
 export const insertProgressoAlunoSchema = createInsertSchema(progressoAluno).omit({ id: true, atualizadoEm: true });
@@ -157,6 +283,13 @@ export const insertNotificacaoSchema = createInsertSchema(notificacoes).omit({ i
 export const insertForumSchema = createInsertSchema(foruns).omit({ id: true, criadoEm: true });
 export const insertPostForumSchema = createInsertSchema(postsForum).omit({ id: true, criadoEm: true });
 export const insertConfiguracaoSchema = createInsertSchema(configuracoes);
+export const insertConfiguracoesEscolaresSchema = createInsertSchema(configuracoesEscolares).omit({ id: true, criadoEm: true, atualizadoEm: true });
+export const insertIntegracoesExternasSchema = createInsertSchema(integracoesExternas).omit({ id: true, criadoEm: true, atualizadoEm: true });
+export const insertTokensAPISchema = createInsertSchema(tokensAPI).omit({ id: true, criadoEm: true });
+export const insertRelatoriosSchema = createInsertSchema(relatorios).omit({ id: true, geradoEm: true });
+export const insertComunicadosSchema = createInsertSchema(comunicados).omit({ id: true, enviadoEm: true });
+export const insertLogsAcessoSchema = createInsertSchema(logsAcesso).omit({ id: true, criadoEm: true });
+export const insertLogsErroSchema = createInsertSchema(logsErro).omit({ id: true, criadoEm: true });
 export const insertLogAuditoriaSchema = createInsertSchema(logsAuditoria).omit({ id: true, criadoEm: true });
 
 // Esquemas de compatibilidade para o código existente
@@ -276,6 +409,12 @@ export type InsertMatricula = z.infer<typeof insertMatriculaSchema>;
 export type PerfilAluno = typeof perfisAluno.$inferSelect;
 export type InsertPerfilAluno = z.infer<typeof insertPerfilAlunoSchema>;
 
+export type PerfilGestor = typeof perfilGestor.$inferSelect;
+export type InsertPerfilGestor = z.infer<typeof insertPerfilGestorSchema>;
+
+export type PerfilProfessor = typeof perfilProfessor.$inferSelect;
+export type InsertPerfilProfessor = z.infer<typeof insertPerfilProfessorSchema>;
+
 export type Trilha = typeof trilhas.$inferSelect;
 export type InsertTrilha = z.infer<typeof insertTrilhaSchema>;
 
@@ -302,6 +441,27 @@ export type InsertPostForum = z.infer<typeof insertPostForumSchema>;
 
 export type Configuracao = typeof configuracoes.$inferSelect;
 export type InsertConfiguracao = z.infer<typeof insertConfiguracaoSchema>;
+
+export type ConfiguracaoEscolar = typeof configuracoesEscolares.$inferSelect;
+export type InsertConfiguracaoEscolar = z.infer<typeof insertConfiguracoesEscolaresSchema>;
+
+export type IntegracaoExterna = typeof integracoesExternas.$inferSelect;
+export type InsertIntegracaoExterna = z.infer<typeof insertIntegracoesExternasSchema>;
+
+export type TokenAPI = typeof tokensAPI.$inferSelect;
+export type InsertTokenAPI = z.infer<typeof insertTokensAPISchema>;
+
+export type Relatorio = typeof relatorios.$inferSelect;
+export type InsertRelatorio = z.infer<typeof insertRelatoriosSchema>;
+
+export type Comunicado = typeof comunicados.$inferSelect;
+export type InsertComunicado = z.infer<typeof insertComunicadosSchema>;
+
+export type LogAcesso = typeof logsAcesso.$inferSelect;
+export type InsertLogAcesso = z.infer<typeof insertLogsAcessoSchema>;
+
+export type LogErro = typeof logsErro.$inferSelect;
+export type InsertLogErro = z.infer<typeof insertLogsErroSchema>;
 
 export type LogAuditoria = typeof logsAuditoria.$inferSelect;
 export type InsertLogAuditoria = z.infer<typeof insertLogAuditoriaSchema>;

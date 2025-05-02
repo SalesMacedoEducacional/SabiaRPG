@@ -1,0 +1,42 @@
+Contexto: Você está no Replit configurando a plataforma SABIÁ RPG. A seguir, implemente o perfil “Gestor Escolar” com todas as permissões exclusivas — não apenas replicando o perfil Professor — e garanta a ligação correta com as tabelas de banco de dados. Além disso, ajuste o fluxo de login para que professores e gestores não passem pela triagem de conhecimentos e sejam direcionados diretamente ao seu painel.
+
+1. Crie um novo role “gestor” no esquema de autorização, distinto de “professor”.
+2. No banco de dados, adicione as tabelas e campos necessários:
+   - `gestores` (id, nome, email, escola_id, ativo)
+   - `escolas` (id, nome, endereço, telefone, configuração_de_trilhas, calendário_triagens)
+   - Relacione `gestores.escola_id` à tabela `escolas.id`.
+3. Permissões do Gestor Escolar:
+   - **Relatórios agregados**: leitura de `relatorios_turma`, `relatorios_escola` e `relatorios_regiao`.
+   - **Configuração global**: CRUD em `configuracoes_escolares` (XP, calendário de triagens, missões prioritárias).
+   - **Gestão de contas**: criar/editar/desativar registros em `usuarios`, `professores` e `alunos`, vinculando cada registro a `escola_id`.
+   - **Matrículas**: endpoints para inserir em `matriculas` (aluno_id, escola_id, turma_id, data_matricula).
+   - **Integrações externas**: tabelas `integracoes` e `tokens_api` para credenciais SIGE, Google Classroom etc.
+   - **Monitoramento**: leitura de `logs_acesso`, `logs_erro` e `estatisticas_uso`.
+   - **Exportação de dados**: rotas que gerem CSV/JSON de `relatorios_escola` e `matriculas`.
+   - **Comunicação global**: CRUD em `comunicados` e envio de notificações push.
+4. Fluxo de Login:
+   - Alunos: após autenticação, passam pela triagem diagnóstica antes de acessar o painel.
+   - Professores e Gestores: ao fazer login, **não passam pela triagem** e são redirecionados **diretamente para seus respectivos painéis**.
+5. Middleware de autenticação:
+   - `req.user.role === "gestor"` habilita somente rotas de gestão escolar.
+   - `req.user.role === "professor"` habilita apenas as rotas de professor (sem triagem).
+   - `req.user.role === "aluno"` aplica triagem antes de permitir acesso ao painel.
+6. Front-end:
+   - Dashboards separados para cada role:  
+     - **Aluno**: triagem ➔ mapa ➔ missões  
+     - **Professor**: painel de relatórios e missões da turma  
+     - **Gestor**: tela “Administração Escolar” com abas (Relatórios, Configurações, Contas, Matrículas, Integrações, Logs, Exportações, Comunicados)  
+   - Remover triagem do fluxo de professor e gestor.
+   - Criar menus condicionais baseados em `user.role`.
+7. Testes automatizados:
+   - Verificar que **somente alunos** veem e acessam a triagem.
+   - Verificar que **professores** e **gestores** sejam redirecionados imediatamente ao painéis corretos sem triagem.
+   - Garantir acesso correto a rotas e operações de CRUD conforme role.
+8. Documentação:
+   - Comentários em migrations SQL explicando novas tabelas.
+   - Mensagens de commit detalhadas:  
+     - “Adiciona perfil gestor e tabelas de escolas, matrículas e config.”  
+     - “Ajusta fluxo de login: professor/gestor sem triagem.”  
+   - Atualização do README com o mapeamento de roles, permissões e fluxo de autenticação.
+
+Por favor, implemente todas essas alterações garantindo que o perfil Gestor Escolar seja único e que professores e gestores não precisem realizar a triagem de conhecimentos.```
