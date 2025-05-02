@@ -26,6 +26,7 @@ import {
 import OpenAI from "openai";
 import { initializeDatabase } from "../db/supabase";
 import { registerManagerRoutes } from "./managerRoutes";
+import { registerUserRoutes } from "./userRoutes";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -1332,6 +1333,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
+  
+  // Registrar rotas de usuário, incluindo upload de foto
+  registerUserRoutes(app);
   
   const httpServer = createServer(app);
   return httpServer;

@@ -3,8 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
-import { apiRequest } from '@/lib/queryClient';
-import { db, supabase } from './db';
+import { pool } from './db';
 
 // Configurar o multer para armazenar arquivos temporariamente
 const storage = multer.diskStorage({
@@ -87,42 +86,33 @@ export function registerUserRoutes(app: Express) {
       }
 
       try {
-        // Upload para o storage do Supabase
-        const filePath = req.file.path;
-        const fileContent = fs.readFileSync(filePath);
+        // Obter o caminho do arquivo temporário
+        const tempFilePath = req.file.path;
         
-        // Nome do bucket pode variar de acordo com seu projeto
-        const bucketName = 'profile-images';
-        const objectName = `user-${userId}/${path.basename(req.file.filename)}`;
-        
-        // Upload para o Supabase Storage
-        const { data, error } = await supabase
-          .storage
-          .from(bucketName)
-          .upload(objectName, fileContent, {
-            contentType: req.file.mimetype,
-            upsert: true,
-          });
-        
-        if (error) {
-          console.error('Erro no Supabase Storage:', error);
-          return res.status(500).json({ message: 'Falha ao salvar a imagem.' });
+        // Criar diretório permanente para armazenar imagens se não existir
+        const publicDir = path.join(__dirname, '..', 'client', 'public', 'uploads', 'profile-images');
+        if (!fs.existsSync(publicDir)) {
+          fs.mkdirSync(publicDir, { recursive: true });
         }
         
-        // Gerar URL pública
-        const imageUrl = supabase
-          .storage
-          .from(bucketName)
-          .getPublicUrl(objectName).data.publicUrl;
+        // Gerar nome de arquivo único 
+        const fileName = `user-${userId}-${path.basename(req.file.filename)}`;
+        const destPath = path.join(publicDir, fileName);
+        
+        // Mover arquivo do diretório temporário para permanente
+        fs.copyFileSync(tempFilePath, destPath);
+        
+        // Limpar arquivo temporário
+        fs.unlinkSync(tempFilePath);
+        
+        // Gerar URL relativa para o frontend
+        const imageUrl = `/uploads/profile-images/${fileName}`;
         
         // Atualizar o perfil do usuário no banco de dados
-        await db.query(
+        await pool.query(
           'UPDATE usuarios SET perfil_foto_url = $1 WHERE id = $2',
           [imageUrl, userId]
         );
-        
-        // Limpar o arquivo temporário
-        fs.unlinkSync(filePath);
         
         // Retornar sucesso
         return res.status(200).json({ 
