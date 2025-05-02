@@ -461,6 +461,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Role authorization middleware
+  const requireRole = (roles: string[]) => {
+    return async (req: Request, res: Response, next: Function) => {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      try {
+        const user = await storage.getUser(req.session.userId);
+        if (!user || !roles.includes(user.role)) {
+          return res.status(403).json({ message: "Forbidden: Insufficient permissions" });
+        }
+        next();
+      } catch (error) {
+        console.error('Error in requireRole middleware:', error);
+        return res.status(500).json({ 
+          message: "Internal server error" 
+        });
+      }
+    };
+  };
+
+  // Role authorization middleware
   const authorize = (roles: string[]) => {
     return async (req: Request, res: Response, next: Function) => {
       if (!req.session.userId) {

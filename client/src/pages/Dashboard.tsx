@@ -9,12 +9,16 @@ import DiagnosticModal from '@/components/DiagnosticModal';
 import { useAuth } from '@/context/AuthContext';
 import { useGame } from '@/context/GameContext';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  showDiagnostic?: boolean;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ showDiagnostic = false }) => {
   const { isAuthenticated, user } = useAuth();
   const { isFirstAccess, setIsFirstAccess, hasDiagnosticCompleted, activeMissionId } = useGame();
   
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(showDiagnostic);
   
   // Check if user is authenticated
   useEffect(() => {
@@ -23,16 +27,22 @@ const Dashboard: React.FC = () => {
     }
   }, [isAuthenticated]);
   
-  // Check if diagnostic is needed
+  // Check if diagnostic is needed (only for students)
   useEffect(() => {
-    if (isAuthenticated && isFirstAccess && !hasDiagnosticCompleted) {
+    // Se a propriedade showDiagnostic for definida externamente, ela tem prioridade
+    if (showDiagnostic) {
+      setShowDiagnosticModal(true);
+    } 
+    // Caso contrário, verificamos as condições normais para alunos
+    else if (isAuthenticated && isFirstAccess && !hasDiagnosticCompleted && user?.role === 'student') {
       setShowDiagnosticModal(true);
     }
-  }, [isAuthenticated, isFirstAccess, hasDiagnosticCompleted]);
+  }, [isAuthenticated, isFirstAccess, hasDiagnosticCompleted, user?.role, showDiagnostic]);
   
   // Handle diagnostic completion
   const handleDiagnosticComplete = () => {
     setIsFirstAccess(false);
+    localStorage.setItem('diagnostic_completed', 'true');
   };
 
   return (
