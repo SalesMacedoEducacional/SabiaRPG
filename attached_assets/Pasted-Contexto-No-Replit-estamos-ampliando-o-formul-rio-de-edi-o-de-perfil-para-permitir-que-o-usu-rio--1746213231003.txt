@@ -1,0 +1,25 @@
+Contexto: No Replit, estamos ampliando o formulário de edição de perfil para permitir que o usuário anexe uma imagem de perfil diretamente do dispositivo (JPG, PNG) e que essa imagem seja salva no banco de dados vinculada ao seu perfil.
+
+1. UI de Upload  
+   - Adicione um campo de input do tipo `file` no formulário de edição de perfil com atributo `accept="image/png, image/jpeg"` e rótulo em português “Anexar foto de perfil (JPG ou PNG)”.  
+   - Mostre uma pré-visualização da imagem selecionada antes de enviar.
+
+2. Backend e Armazenamento  
+   - Crie um endpoint `POST /api/usuarios/:id/foto` que receba multipart/form-data (`file`), valide tipo (`.jpg` ou `.png`), tamanho máximo (ex: 5 MB) e gere um nome único para o arquivo.  
+   - Armazene o arquivo no storage configurado (Supabase Storage, S3 ou similar) e recupere a URL pública ou chave interna.  
+   - Atualize o registro na tabela `usuarios` definindo `perfil_foto_url = '<URL ou caminho gerado>'` para `usuario.id`.
+
+3. Fluxo de Cadastro/Atualização  
+   - Quando o usuário anexar e clicar em “Salvar”, faça upload da imagem via `fetch` ou `axios` para o endpoint `/api/usuarios/:id/foto`.  
+   - Aguarde a resposta; em caso de sucesso, exiba mensagem em português “Foto de perfil atualizada com sucesso!” e atualize a tag `<img>` do perfil para a nova URL.  
+   - Em caso de erro (tipo inválido, excedeu tamanho, problema no upload), mostre alerta em português adequado, ex: “Formato inválido. Use JPG ou PNG.” ou “Falha ao salvar. Tente novamente.”  
+
+4. Segurança e Permissões  
+   - Garanta que apenas o próprio usuário (`auth.uid()`) ou gestores/admins possam chamar esse endpoint para `:id`.  
+   - Valide no backend que `req.user.id === :id` ou `req.user.role IN ('gestor','admin')` antes de salvar.
+
+5. Persistência no Banco  
+   - A coluna `perfil_foto_url` já existe em `public.usuarios`.  
+   - O endpoint deve usar uma query SQL ou ORM para `UPDATE usuarios SET perfil_foto_url = $1 WHERE id = $2`.
+
+Por favor, implemente essa funcionalidade completa: front-end, back-end, storage, validações e mensagens em português, garantindo que qualquer imagem JPG ou PNG existente no dispositivo seja anexada ao perfil do usuário e salva corretamente no banco de dados.```

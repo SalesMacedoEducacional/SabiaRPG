@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
 import {
@@ -29,7 +29,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import {
-  User,
+  User as UserIcon,
   Settings,
   Trophy,
   BookOpen,
@@ -41,6 +41,7 @@ import {
   BarChart2,
   Award,
   Shield,
+  X
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -72,6 +73,9 @@ const UserProfile: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Forms
   const profileForm = useForm<z.infer<typeof profileSchema>>({
@@ -147,6 +151,110 @@ const UserProfile: React.FC = () => {
   
   const onUpdatePassword = (data: z.infer<typeof passwordSchema>) => {
     updatePasswordMutation.mutateAsync(data);
+  };
+  
+  // Função para manipular o upload de imagem
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validar o tipo de arquivo
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      setUploadStatus({
+        type: 'error',
+        message: 'Formato inválido. Use JPG ou PNG.'
+      });
+      return;
+    }
+    
+    // Validar o tamanho (máximo 5MB)
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSizeInBytes) {
+      setUploadStatus({
+        type: 'error',
+        message: 'Imagem muito grande. O tamanho máximo é 5MB.'
+      });
+      return;
+    }
+    
+    // Criar URL para pré-visualização
+    const objectUrl = URL.createObjectURL(file);
+    setImagePreview(objectUrl);
+    setUploadStatus(null);
+  };
+  
+  // Remover a imagem selecionada
+  const removeSelectedImage = () => {
+    setImagePreview(null);
+    setUploadStatus(null);
+    
+    // Limpar o input file
+    const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+  
+  // Upload da imagem para o servidor
+  const uploadImage = async () => {
+    if (!imagePreview || !user?.id) return;
+    
+    // Converter a URL para um arquivo
+    const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+    
+    if (!file) {
+      setUploadStatus({
+        type: 'error',
+        message: 'Nenhum arquivo selecionado.'
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    setUploadStatus(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch(`/api/usuarios/${user.id}/foto`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Falha ao fazer upload da imagem');
+      }
+      
+      const data = await response.json();
+      
+      // Atualizar o valor do formulário com a nova URL
+      profileForm.setValue('avatarUrl', data.imageUrl);
+      
+      // Limpar a pré-visualização
+      setImagePreview(null);
+      
+      // Atualizar o estado com mensagem de sucesso
+      setUploadStatus({
+        type: 'success',
+        message: 'Foto de perfil atualizada com sucesso!'
+      });
+      
+      // Atualizar o cache da consulta do usuário
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      setUploadStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Falha ao salvar. Tente novamente.'
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
   
   // Calculate XP needed for next level (simple formula)
@@ -283,7 +391,7 @@ const UserProfile: React.FC = () => {
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-dark border border-primary">
             <TabsTrigger value="profile" className="data-[state=active]:bg-primary">
-              <User className="mr-2 h-4 w-4" />
+              <UserIcon className="mr-2 h-4 w-4" />
               Perfil
             </TabsTrigger>
             <TabsTrigger value="progress" className="data-[state=active]:bg-primary">
@@ -367,14 +475,71 @@ const UserProfile: React.FC = () => {
                         <Button
                           type="button"
                           className="rounded-l-none bg-primary"
+                          onClick={() => document.getElementById('profileImage')?.click()}
                         >
                           <Upload className="h-4 w-4 mr-2" />
-                          Enviar
+                          Selecionar
                         </Button>
                       </div>
+                      {imagePreview && (
+                        <Button
+                          type="button"
+                          className="mt-2 bg-accent text-dark"
+                          onClick={uploadImage}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-dark mr-2"></div>
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Salvar Imagem
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      <input 
+                        type="file" 
+                        id="profileImage" 
+                        accept="image/png, image/jpeg"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
                       <p className="text-xs text-parchment-dark">
-                        Cole uma URL de imagem ou clique em enviar para fazer upload
+                        Cole uma URL de imagem ou clique em enviar para fazer upload (JPG ou PNG, máx 5MB)
                       </p>
+                      
+                      {/* Preview da imagem selecionada */}
+                      {imagePreview && (
+                        <div className="mt-2">
+                          <p className="text-xs font-medium mb-1">Pré-visualização:</p>
+                          <div className="relative w-32 h-32 border border-primary rounded overflow-hidden">
+                            <img 
+                              src={imagePreview} 
+                              alt="Pré-visualização" 
+                              className="w-full h-full object-cover"
+                            />
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="destructive"
+                              className="absolute top-1 right-1 h-6 w-6"
+                              onClick={removeSelectedImage}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {uploadStatus && (
+                        <p className={`text-sm mt-2 ${uploadStatus.type === 'error' ? 'text-red-500' : 'text-green-500'}`}>
+                          {uploadStatus.message}
+                        </p>
+                      )}
                     </div>
                     
                     <Button
