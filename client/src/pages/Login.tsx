@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { insertUserSchema } from '@shared/schema';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, Eye as EyeIcon, EyeOff as EyeOffIcon } from "lucide-react";
+import { InfoIcon, Eye as EyeIcon, EyeOff as EyeOffIcon, ArrowLeft } from "lucide-react";
 
 // Login form schema
 const loginSchema = z.object({
@@ -21,10 +21,33 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional()
 });
 
+// Esqueceu a senha - solicitar recuperação
+const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: 'Email inválido' }),
+  recoveryMethod: z.enum(['email', 'sms']).default('email')
+});
+
+// Confirmar código de recuperação e definir nova senha
+const resetPasswordSchema = z.object({
+  code: z.string().min(6, { message: 'O código deve ter pelo menos 6 caracteres' }),
+  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres' }),
+  confirmPassword: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres' })
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'As senhas não coincidem',
+  path: ['confirmPassword']
+});
+
 // Registration form schema - extend from insertUserSchema
 const registerSchema = insertUserSchema.extend({
   confirmPassword: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres' }),
-  role: z.enum(['student', 'teacher', 'manager']).default('student')
+  role: z.enum(['student', 'teacher', 'manager']).default('student'),
+  phone: z.string().min(10, { message: 'Telefone inválido' }).max(15),
+  birthDate: z.string().refine(date => {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    return regex.test(date);
+  }, { message: 'Formato de data inválido (AAAA-MM-DD)' }),
+  enrollment: z.string().min(3, { message: 'Número de matrícula é obrigatório' }),
+  classId: z.string().min(1, { message: 'Selecione uma turma' }),
 }).refine(data => data.password === data.confirmPassword, {
   message: 'As senhas não coincidem',
   path: ['confirmPassword']
@@ -64,14 +87,58 @@ const Login: React.FC = () => {
       fullName: '',
       password: '',
       confirmPassword: '',
-      role: 'student'
+      role: 'student',
+      phone: '',
+      birthDate: '',
+      enrollment: '',
+      classId: '',
     }
   });
+  
+  // Estado para armazenar as turmas disponíveis
+  const [classes, setClasses] = useState<{id: string, name: string}[]>([]);
+  
+  // Buscar as turmas disponíveis para o registro
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await fetch('/api/classes');
+        if (response.ok) {
+          const data = await response.json();
+          setClasses(data);
+        } else {
+          // Para fins de teste, incluímos algumas turmas simuladas
+          setClasses([
+            { id: "1", name: "1º Ano A" },
+            { id: "2", name: "1º Ano B" },
+            { id: "3", name: "2º Ano A" },
+            { id: "4", name: "3º Ano A" }
+          ]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar turmas:", error);
+        // Para fins de teste, incluímos algumas turmas simuladas
+        setClasses([
+          { id: "1", name: "1º Ano A" },
+          { id: "2", name: "1º Ano B" },
+          { id: "3", name: "2º Ano A" },
+          { id: "4", name: "3º Ano A" }
+        ]);
+      }
+    };
+    
+    if (activeTab === 'register') {
+      fetchClasses();
+    }
+  }, [activeTab]);
   
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
       await login(data.email, data.password);
+      
+      // O redirecionamento será tratado pelo componente ProtectedRoute no App.tsx
+      // Pois ele já direciona para /teacher, /manager ou / (aluno) conforme a role
       setLocation('/');
     } catch (error) {
       console.error('Login error:', error);
@@ -85,7 +152,10 @@ const Login: React.FC = () => {
       setIsLoading(true);
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...registerData } = data;
+      // Garante que novos registros sejam sempre como 'student'
+      registerData.role = 'student';
       await register(registerData);
+      // O redirecionamento automático também será feito pelo ProtectedRoute
       setLocation('/');
     } catch (error) {
       console.error('Registration error:', error);
@@ -150,7 +220,12 @@ const Login: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <Label htmlFor="password">Senha</Label>
-                      <Button type="button" variant="link" className="px-0 text-accent text-xs">
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="px-0 text-accent text-xs"
+                        onClick={() => setActiveTab('forgot-password')}
+                      >
                         Esqueceu a senha?
                       </Button>
                     </div>
@@ -199,7 +274,7 @@ const Login: React.FC = () => {
               <TabsContent value="register">
                 <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
+                    <Label htmlFor="register-email">Email *</Label>
                     <Input
                       id="register-email"
                       type="email"
@@ -213,7 +288,7 @@ const Login: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="username">Nome de usuário</Label>
+                    <Label htmlFor="username">Nome de usuário *</Label>
                     <Input
                       id="username"
                       type="text"
@@ -227,7 +302,7 @@ const Login: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Nome completo</Label>
+                    <Label htmlFor="fullName">Nome completo *</Label>
                     <Input
                       id="fullName"
                       type="text"
@@ -241,7 +316,67 @@ const Login: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Senha</Label>
+                    <Label htmlFor="phone">Telefone *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="(99) 99999-9999"
+                      className="bg-dark border-primary text-parchment"
+                      {...registerForm.register('phone')}
+                    />
+                    {registerForm.formState.errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.phone.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="birthDate">Data de Nascimento *</Label>
+                    <Input
+                      id="birthDate"
+                      type="date"
+                      className="bg-dark border-primary text-parchment"
+                      {...registerForm.register('birthDate')}
+                    />
+                    {registerForm.formState.errors.birthDate && (
+                      <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.birthDate.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="enrollment">Matrícula *</Label>
+                    <Input
+                      id="enrollment"
+                      type="text"
+                      placeholder="Número de matrícula"
+                      className="bg-dark border-primary text-parchment"
+                      {...registerForm.register('enrollment')}
+                    />
+                    {registerForm.formState.errors.enrollment && (
+                      <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.enrollment.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="classId">Turma *</Label>
+                    <select
+                      id="classId"
+                      className="w-full bg-dark border-primary text-parchment rounded h-10 px-3"
+                      {...registerForm.register('classId')}
+                    >
+                      <option value="">Selecione uma turma</option>
+                      {classes.map(cls => (
+                        <option key={cls.id} value={cls.id}>
+                          {cls.name}
+                        </option>
+                      ))}
+                    </select>
+                    {registerForm.formState.errors.classId && (
+                      <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.classId.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Senha *</Label>
                     <div className="relative">
                       <Input
                         id="register-password"
@@ -265,7 +400,7 @@ const Login: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                    <Label htmlFor="confirmPassword">Confirmar senha *</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -287,6 +422,8 @@ const Login: React.FC = () => {
                       <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.confirmPassword.message}</p>
                     )}
                   </div>
+                  
+                  <p className="text-xs text-parchment-dark mt-2">* Todos os campos são obrigatórios</p>
                   
                   <Button 
                     type="submit" 

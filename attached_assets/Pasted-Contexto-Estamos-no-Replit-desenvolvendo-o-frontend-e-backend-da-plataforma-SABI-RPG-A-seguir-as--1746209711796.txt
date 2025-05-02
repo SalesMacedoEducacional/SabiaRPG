@@ -1,0 +1,46 @@
+Contexto: Estamos no Replit desenvolvendo o frontend e backend da plataforma SABIÁ RPG. A seguir as tarefas a serem implementadas de forma imperativa e completa:
+
+1. **Logout**  
+   - Em todas as páginas e painéis (Aluno, Professor, Gestor, Admin), configure o botão “Sair” para limpar a sessão do usuário e redirecionar SEM ERROS para a página de login.
+
+2. **Tela de Registro (apenas para Alunos)**  
+   - Disponibilize um formulário exclusivo para o perfil “aluno” com os campos obrigatórios:  
+     • Nome completo  
+     • E-mail  
+     • Telefone  
+     • Data de Nascimento  
+     • Seleção de Turma (dropdown) carregado a partir das turmas cadastradas pelo Gestor  
+     • Matrícula  
+     • Senha (e confirmação de senha)  
+   - Ao submeter, verifique no banco de dados se existe uma matrícula válida para aquele aluno na turma selecionada **e** se não há conta já cadastrada com o mesmo e-mail, telefone ou matrícula+turma.  
+   - Se a validação for bem-sucedida, crie o usuário com `role = 'aluno'`, associe à matrícula e envie notificação em português “Conta criada com sucesso! Faça login.”  
+   - Se houver qualquer erro (matrícula inexistente, dados inconsistentes ou conta duplicada), exiba mensagem clara em português (ex: “Matrícula não encontrada na Turma X.” ou “Já existe conta para este e-mail.”) e permaneça na aba de registro.
+
+3. **Campos Obrigatórios**  
+   - Todos os campos do formulário de registro devem ser validados como “required” no frontend e no backend. Exiba mensagem em português “Campo obrigatório” ao usuário deixar em branco.
+
+4. **Login e Acesso ao Perfil**  
+   - Após o login (com usuário e senha), redirecione usuários conforme `role`:  
+     • Aluno → `/aluno/dashboard` (triagem, mapa…)  
+     • Professor → `/professor/dashboard`  
+     • Gestor → `/gestor/dashboard`  
+     • Admin → `/admin/dashboard`  
+   - Garanta login sem erros e persistência de sessão.
+
+5. **Edição de Perfil**  
+   - Permita que todo usuário edite **todos os campos**, exceto:  
+     • Matrícula  
+     • Turma  
+   - Para editar qualquer outro dado (nome, e-mail, telefone, data de nascimento, foto/avatar), solicite confirmação de senha atual antes de salvar.
+
+6. **Recuperação de Senha**  
+   - Implemente fluxo “Esqueci minha senha” com:  
+     • Solicitação de envio de link seguro por e-mail ou código via SMS para o telefone cadastrado  
+     • Endpoint que valide o token ou código enviado e permita redefinir a senha  
+   - Assegure que o link/código expire após 15 minutos e só permita uma tentativa válida por solicitação  
+   - Exiba todas as mensagens e instruções de segurança em português.
+
+7. **Mensagens e Notificações**  
+   - Todas as validações, confirmações, erros, avisos e instruções devem ser escritas em português claro, personalizado para cada fluxo (registro, login, logout, edição de perfil, recuperação de senha).
+
+Por favor, implemente todos esses fluxos no Replit, gerando os arquivos atualizados e indicando em comentários de código onde cada funcionalidade foi adicionada ou alterada.```
