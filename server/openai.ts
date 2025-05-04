@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Usar exclusivamente o modelo definido em process.env.MODEL_ID (configurado como gpt-3.5-mini)
+const MODEL_ID = process.env.MODEL_ID || 'gpt-3.5-mini';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
@@ -41,7 +42,7 @@ export async function generateFeedback(params: {
     `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: MODEL_ID,
       messages: [{ role: "user", content: prompt }],
       max_tokens: 500,
       temperature: 0.7,
@@ -93,7 +94,7 @@ export async function generateDiagnosticRecommendation(params: {
     `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: MODEL_ID,
       messages: [{ role: "user", content: prompt }],
       max_tokens: 600,
       temperature: 0.7,
@@ -153,7 +154,7 @@ export async function generatePersonalizedRecommendations(params: {
     `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: MODEL_ID,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       max_tokens: 800,

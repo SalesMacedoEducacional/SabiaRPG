@@ -1216,8 +1216,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         Keep the feedback under 200 words.
       `;
       
+      // Usar o modelo definido em MODEL_ID (process.env.MODEL_ID ou 'gpt-3.5-mini')
+      const MODEL_ID = process.env.MODEL_ID || 'gpt-3.5-mini';
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        model: MODEL_ID,
         messages: [{ role: "user", content: prompt }],
         max_tokens: 500,
       });
