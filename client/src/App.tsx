@@ -6,7 +6,7 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
-import ManagerDashboard from "@/pages/ManagerDashboard";
+import ManagerDashboard from "@/pages/ManagerDashboardNew";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
