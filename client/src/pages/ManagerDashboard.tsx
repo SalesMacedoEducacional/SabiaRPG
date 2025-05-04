@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Download, RefreshCw, Info, Users, BookOpen, Award, School } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Search, Plus, Edit, Download, RefreshCw, AlertTriangle, Users, UserPlus, BookOpen, Award, School, FileText, BarChart3, FilePlus2, Calendar, Settings, Bell, Laptop, Link, User, LogOut, FileCog, BookCopy, Building, UserCog, Lock, Trash2, Upload, Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { apiRequest } from '@/lib/queryClient';
+import { useForm } from 'react-hook-form';
 
 /**
  * Interface para os dados básicos de um relatório
@@ -162,12 +171,11 @@ export default function ManagerDashboard() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="schools">Escolas</TabsTrigger>
           <TabsTrigger value="reports">Relatórios</TabsTrigger>
-          <TabsTrigger value="integrations">Integrações</TabsTrigger>
           <TabsTrigger value="settings">Configurações</TabsTrigger>
+          <TabsTrigger value="profile">Meu Perfil</TabsTrigger>
         </TabsList>
         
         {/* Visão Geral */}
@@ -175,7 +183,7 @@ export default function ManagerDashboard() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total de Escolas</CardTitle>
+                <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{schools.length}</div>
@@ -215,13 +223,88 @@ export default function ManagerDashboard() {
             
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Relatórios</CardTitle>
+                <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{reports.length}</div>
+                <div className="text-2xl font-bold">24</div>
                 <p className="text-xs text-muted-foreground">
-                  Disponíveis para download
+                  Distribuídas em todas as escolas
                 </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-2xl font-bold">487</div>
+                    <p className="text-xs text-muted-foreground">Últimos 7 dias</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold">1.248</div>
+                    <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Nível de Engajamento Geral</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">72%</div>
+                <div className="mt-2">
+                  <Progress value={72} className="h-2" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Baseado no tempo de uso e missões completadas
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <div className="text-2xl font-bold text-destructive">38</div>
+                  <AlertTriangle className="h-5 w-5 text-destructive ml-2" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Alunos com mais de 10 dias sem acesso
+                </p>
+                <Button variant="outline" className="w-full mt-2" size="sm">
+                  Ver Lista
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Missões</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold">149</span>
+                    <span className="text-xs text-muted-foreground">Em andamento</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold">263</span>
+                    <span className="text-xs text-muted-foreground">Concluídas</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold">92</span>
+                    <span className="text-xs text-muted-foreground">Pendentes</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -229,27 +312,34 @@ export default function ManagerDashboard() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Escolas Recentes</CardTitle>
+                <CardTitle>Escolas com Maior Engajamento</CardTitle>
                 <CardDescription>
-                  Lista das últimas escolas adicionadas
+                  Escolas com maiores taxas de participação
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {schools.slice(0, 3).map(school => (
-                    <div key={school.id} className="flex justify-between items-center border-b pb-2">
-                      <div>
-                        <p className="font-medium">{school.name}</p>
-                        <p className="text-sm text-muted-foreground">Código: {school.code}</p>
+                <div className="space-y-4">
+                  {schools.slice(0, 3).map((school, index) => (
+                    <div key={school.id} className="border-b pb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center">
+                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary mr-2 font-bold">
+                            {index + 1}
+                          </div>
+                          <p className="font-medium">{school.name}</p>
+                        </div>
+                        <Badge variant="outline">{Math.floor(70 + Math.random() * 20)}%</Badge>
                       </div>
-                      <Badge variant={school.active ? "default" : "outline"}>
-                        {school.active ? "Ativa" : "Inativa"}
-                      </Badge>
+                      <Progress value={Math.floor(70 + Math.random() * 20)} className="h-2" />
+                      <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                        <span>{school.teachers} professores</span>
+                        <span>{school.students} alunos</span>
+                      </div>
                     </div>
                   ))}
                   
-                  <Button variant="outline" className="mt-4 w-full" onClick={() => setActiveTab('schools')}>
-                    Ver todas as escolas
+                  <Button variant="outline" className="w-full" onClick={() => setActiveTab('reports')}>
+                    Ver relatório detalhado
                   </Button>
                 </div>
               </CardContent>
@@ -257,27 +347,48 @@ export default function ManagerDashboard() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Relatórios Recentes</CardTitle>
+                <CardTitle>Atividade Recente</CardTitle>
                 <CardDescription>
-                  Últimos relatórios gerados
+                  Últimas ações e eventos no sistema
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {reports.slice(0, 3).map(report => (
-                    <div key={report.id} className="flex justify-between items-center border-b pb-2">
-                      <div>
-                        <p className="font-medium">{report.title}</p>
-                        <p className="text-sm text-muted-foreground">Data: {report.date}</p>
-                      </div>
-                      <Button variant="outline" size="icon">
-                        <Download className="h-4 w-4" />
-                      </Button>
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-start pb-4 border-b">
+                    <div className="bg-primary/10 p-2 rounded-full">
+                      <FileText className="h-4 w-4 text-primary" />
                     </div>
-                  ))}
+                    <div>
+                      <p className="font-medium">Novo relatório gerado</p>
+                      <p className="text-sm text-muted-foreground">Relatório bimestral da Escola Municipal Pedro II</p>
+                      <p className="text-xs text-muted-foreground mt-1">Hoje, 09:45</p>
+                    </div>
+                  </div>
                   
-                  <Button variant="outline" className="mt-4 w-full" onClick={() => setActiveTab('reports')}>
-                    Ver todos os relatórios
+                  <div className="flex gap-4 items-start pb-4 border-b">
+                    <div className="bg-blue-500/10 p-2 rounded-full">
+                      <UserPlus className="h-4 w-4 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Novos usuários cadastrados</p>
+                      <p className="text-sm text-muted-foreground">12 alunos adicionados à plataforma</p>
+                      <p className="text-xs text-muted-foreground mt-1">Ontem, 15:20</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 items-start">
+                    <div className="bg-amber-500/10 p-2 rounded-full">
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Alerta de engajamento</p>
+                      <p className="text-sm text-muted-foreground">Queda de atividade em 2 turmas do 8º ano</p>
+                      <p className="text-xs text-muted-foreground mt-1">2 dias atrás</p>
+                    </div>
+                  </div>
+                  
+                  <Button variant="outline" className="w-full">
+                    Ver todas as atividades
                   </Button>
                 </div>
               </CardContent>

@@ -1,0 +1,51 @@
+Implemente um novo dashboard para o perfil “Gestor Escolar” da plataforma SABIÁ RPG.
+
+O dashboard deverá conter 4 abas principais fixas na barra de navegação superior, com o seguinte layout e funcionalidades:
+
+1. [ABA] Visão Geral:
+- Exibir todos os indicadores resumidos da escola do gestor, com os seguintes cards:
+   • Total de Escolas Vinculadas
+   • Total de Professores
+   • Total de Alunos
+   • Turmas Ativas
+   • Alunos Ativos na Plataforma nos últimos 7/30 dias
+   • Nível de Engajamento Geral
+   • Alerta de evasão potencial (alunos com mais de 10 dias sem acesso)
+   • Total de missões em andamento / concluídas / pendentes
+- Todos os dados devem ser obtidos das tabelas correspondentes no banco de dados Supabase e apresentados em cards com título, número e descrição.
+
+2. [ABA] Relatórios:
+- Criar uma interface para que o gestor gere relatórios por:
+   • Turma
+   • Série
+   • Disciplina
+   • Período (mensal, bimestral, trimestral, semestral)
+   • Relatórios individuais por aluno
+- Os dados dos relatórios devem se basear no desempenho nas trilhas, missões e avaliações.
+- Implementar opção de exportação em `.pdf`, `.xlsx`, `.ods` e `.csv`.
+- Exibir uma lista de relatórios recentes com botão para download.
+
+3. [ABA] Configurações:
+- Criar painel com os seguintes recursos:
+   • Cadastro e gerenciamento de usuários (alunos, professores, gestores)
+      - Botão “Adicionar Usuário”
+      - Campos: nome, e-mail, telefone, data de nascimento, tipo de perfil (seleção), matrícula, turma
+      - Validação automática para não duplicar usuários
+   • Configuração do cronograma de triagens e missões
+   • Escolher temas prioritários
+   • Gerenciar permissões básicas dos perfis
+   • Seções de integração (Google Classroom, SIGE) — com menos destaque visual
+
+4. [ABA] Meu Perfil:
+- Permitir ao gestor:
+   • Editar dados pessoais (nome, e-mail, telefone)
+   • Alterar foto de perfil (upload de imagem ou escolha de avatar)
+   • Redefinir senha com confirmação
+   • Visualizar logs de acesso e permissões
+- O perfil do gestor **não precisa de triagem de conhecimento**, deve acessar direto o painel após login.
+
+IMPORTANTE:
+- O botão "Sair" deve redirecionar com segurança para a tela de login.
+- A navegação entre as abas deve manter o estado e as permissões do gestor.
+- Exibir todas as mensagens, botões e textos da interface em **português brasileiro**.
+- Todas as funcionalidades devem estar protegidas por verificação do tipo de usuário com `perfil = gestor`, e nunca utilizar permissões do tipo professor ou aluno.
