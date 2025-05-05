@@ -37,6 +37,44 @@ export function registerSchoolRoutes(
   requireRole: (roles: string[]) => (req: Request, res: Response, next: Function) => Promise<void>
 ) {
   /**
+   * Rota para verificar se o gestor possui escolas cadastradas
+   * Acessível apenas para gestores
+   */
+  app.get(
+    '/api/schools/check-has-schools',
+    authenticate,
+    requireRole(['manager']),
+    async (req: Request, res: Response) => {
+      try {
+        // Verificar se o usuário é um gestor
+        if (req.session.userRole !== 'manager') {
+          return res.status(403).json({ 
+            message: 'Somente gestores podem acessar este recurso' 
+          });
+        }
+        
+        // Buscar contagem de escolas do gestor
+        const { count, error } = await supabase
+          .from('escolas')
+          .select('*', { count: 'exact', head: true })
+          .eq('gestor_id', req.session.userId);
+          
+        if (error) throw error;
+        
+        return res.status(200).json({ 
+          hasSchools: count !== null && count > 0,
+          count: count || 0
+        });
+      } catch (error) {
+        console.error('Erro ao verificar escolas do gestor:', error);
+        return res.status(500).json({ 
+          message: 'Erro ao verificar escolas do gestor' 
+        });
+      }
+    }
+  );
+
+  /**
    * Rota para listar todas as escolas
    * Acessível apenas para administradores e gestores
    */
@@ -264,4 +302,5 @@ export function registerSchoolRoutes(
       }
     }
   );
+  
 }

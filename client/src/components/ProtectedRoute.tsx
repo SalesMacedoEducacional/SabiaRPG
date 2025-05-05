@@ -26,13 +26,52 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Mostra um spinner de carregamento enquanto verifica a autenticação
-  if (isLoading) {
+  // Verificar se o gestor tem escolas cadastradas
+  useEffect(() => {
+    // Apenas verifica para gestores e apenas se estiver navegando para o dashboard do gestor
+    if (user?.role === 'manager' && path === '/manager') {
+      const checkForSchools = async () => {
+        setCheckingSchools(true);
+        try {
+          const response = await apiRequest('GET', '/api/schools/check-has-schools');
+          
+          if (response.status === 200) {
+            const data = await response.json();
+            setHasSchools(data.hasSchools);
+            console.log('Verificação de escolas:', data);
+          } else {
+            // Em caso de erro, assume que não tem escolas para ser seguro
+            console.warn('Erro ao verificar escolas. Status:', response.status);
+            setHasSchools(false);
+          }
+        } catch (error) {
+          console.error('Erro ao verificar escolas:', error);
+          setHasSchools(false);
+        } finally {
+          setCheckingSchools(false);
+        }
+      };
+      
+      checkForSchools();
+    }
+  }, [user, path]);
+  
+  // Mostra um spinner de carregamento enquanto verifica a autenticação ou escolas
+  if (isLoading || checkingSchools) {
     return (
       <Route path={path}>
         <div className="flex items-center justify-center min-h-screen">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
+      </Route>
+    );
+  }
+  
+  // Verificação especial para gestores - redireciona para cadastro de escola se não tiver escolas
+  if (user?.role === 'manager' && path === '/manager' && !hasSchools) {
+    return (
+      <Route path={path}>
+        <Redirect to="/school-registration" />
       </Route>
     );
   }
