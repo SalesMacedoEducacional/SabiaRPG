@@ -70,7 +70,7 @@ const estadosBrasileiros = [
 // Schema de validação do formulário
 const schoolSchema = z.object({
   nome: z.string().min(3, "O nome da escola deve ter pelo menos 3 caracteres"),
-  codigo_escola: z.string().optional(),
+  codigo_escola: z.string().min(1, "O código da escola é obrigatório"),
   tipo: z.enum(["estadual", "municipal", "particular", "federal"], {
     required_error: "Selecione o tipo de escola",
   }),
@@ -297,7 +297,7 @@ export default function SchoolRegistration() {
                   name="nome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome da Escola</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Nome da Escola</FormLabel>
                       <FormControl>
                         <Input placeholder="Ex: Escola Municipal Pedro II" {...field} />
                       </FormControl>
@@ -312,7 +312,7 @@ export default function SchoolRegistration() {
                   name="codigo_escola"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Código da Escola (opcional)</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Código da Escola</FormLabel>
                       <FormControl>
                         <Input placeholder="Ex: 23456789" {...field} />
                       </FormControl>
@@ -330,7 +330,7 @@ export default function SchoolRegistration() {
                   name="tipo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo de Escola</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Tipo de Escola</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -358,7 +358,7 @@ export default function SchoolRegistration() {
                   name="modalidade_ensino"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Modalidade de Ensino</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Modalidade de Ensino</FormLabel>
                       <FormControl>
                         <Input placeholder="Ex: Médio, Técnico, EJA" {...field} />
                       </FormControl>
@@ -373,7 +373,7 @@ export default function SchoolRegistration() {
                   name="cidade"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cidade</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Cidade</FormLabel>
                       <FormControl>
                         <Input placeholder="Ex: Teresina" {...field} />
                       </FormControl>
@@ -388,7 +388,7 @@ export default function SchoolRegistration() {
                   name="estado"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Estado</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Estado</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -417,7 +417,7 @@ export default function SchoolRegistration() {
                   name="zona_geografica"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Zona Geográfica</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Zona Geográfica</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -443,7 +443,7 @@ export default function SchoolRegistration() {
                   name="telefone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Telefone</FormLabel>
+                      <FormLabel><span className="text-red-500 mr-1">*</span>Telefone</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="(99) 99999-9999" 
@@ -485,7 +485,7 @@ export default function SchoolRegistration() {
                 name="endereco_completo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Endereço Completo</FormLabel>
+                    <FormLabel><span className="text-red-500 mr-1">*</span>Endereço Completo</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Ex: Rua das Flores, 123, Centro"
