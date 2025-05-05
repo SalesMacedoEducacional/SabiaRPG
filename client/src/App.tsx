@@ -9,6 +9,8 @@ import TeacherDashboard from "@/pages/TeacherDashboard";
 import ManagerDashboard from "@/pages/ManagerDashboardNew";
 import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistration from "@/pages/UserRegistration";
+import ClassRegistration from "@/pages/ClassRegistration";
+import ClassListPage from "@/pages/ClassListPage";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
@@ -91,6 +93,22 @@ function Router() {
         permissions={[
           PERMISSIONS.USER_MANAGE_STUDENTS.id,
           PERMISSIONS.USER_MANAGE_TEACHERS.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/class-registration" 
+        component={ClassRegistration}
+        permissions={[
+          PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/class-list" 
+        component={ClassListPage}
+        permissions={[
+          PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
       

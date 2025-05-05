@@ -325,7 +325,7 @@ export default function ManagerDashboard() {
                   <Button 
                     variant="outline" 
                     className="h-24 flex flex-col items-center justify-center space-y-2"
-                    onClick={() => setLocation('/manager/classes')}
+                    onClick={() => setLocation('/class-list')}
                   >
                     <BookCopy className="h-6 w-6 text-primary" />
                     <span className="text-sm font-medium text-center">Gerenciar Turmas</span>
