@@ -28,6 +28,7 @@ import { initializeDatabase } from "../db/supabase";
 import { registerManagerRoutes } from "./managerRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerSchoolRoutes } from "./schoolRoutes";
+import { registerClassRoutes } from "./classRoutes";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -1339,7 +1340,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Registrar rotas de usuário, incluindo upload de foto
   registerUserRoutes(app);
+  
+  // Registrar rotas de escolas e turmas
   registerSchoolRoutes(app, authenticate, requireRole);
+  registerClassRoutes(app, authenticate, requireRole);
   
   const httpServer = createServer(app);
   return httpServer;
