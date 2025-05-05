@@ -470,8 +470,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
+      
+      // Verificar se é um usuário de teste com base no userRole na sessão
+      if (req.session.userRole && roles.includes(req.session.userRole)) {
+        return next();
+      }
 
       try {
+        // Para usuários regulares armazenados no banco de dados
         const user = await storage.getUser(req.session.userId);
         if (!user || !roles.includes(user.role)) {
           return res.status(403).json({ message: "Forbidden: Insufficient permissions" });
@@ -491,6 +497,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return async (req: Request, res: Response, next: Function) => {
       if (!req.session.userId) {
         return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Verificar se é um usuário de teste com base no userRole na sessão
+      if (req.session.userRole && roles.includes(req.session.userRole)) {
+        return next();
       }
 
       const user = await storage.getUser(req.session.userId);

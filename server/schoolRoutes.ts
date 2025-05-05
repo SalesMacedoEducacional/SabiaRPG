@@ -232,8 +232,8 @@ export function registerSchoolRoutes(
             });
           }
           
-          // Definir o ID do gestor
-          schoolData.gestor_id = req.session.userId;
+          // Definir o ID do gestor (convertendo para string se necessário para compatibilidade com UUID)
+          schoolData.gestor_id = String(req.session.userId);
         }
         
         // Inserir a nova escola no banco de dados
@@ -292,12 +292,12 @@ export function registerSchoolRoutes(
             throw error;
           }
           
-          if (data.gestor_id !== req.session.userId) {
+          if (data.gestor_id !== String(req.session.userId)) {
             return res.status(403).json({ message: 'Você não tem permissão para atualizar esta escola' });
           }
           
           // Garantir que o gestor_id não seja alterado
-          schoolData.gestor_id = req.session.userId;
+          schoolData.gestor_id = String(req.session.userId);
         }
         
         // Atualizar os dados da escola
