@@ -44,12 +44,7 @@ export function registerSchoolRoutes(
     requireRole(['manager']),
     async (req: Request, res: Response) => {
       try {
-        // Verificar se o usuário é um gestor
-        if (req.session.userRole !== 'manager') {
-          return res.status(403).json({ 
-            message: 'Somente gestores podem acessar este recurso' 
-          });
-        }
+        // O middleware requireRole já verificou a permissão
         
         // Buscar contagem de escolas do gestor
         const { count, error } = await supabase
@@ -82,12 +77,7 @@ export function registerSchoolRoutes(
     requireRole(['manager']),
     async (req: Request, res: Response) => {
       try {
-        // Verificar se o usuário é um gestor
-        if (req.session.userRole !== 'manager') {
-          return res.status(403).json({ 
-            message: 'Somente gestores podem acessar este recurso' 
-          });
-        }
+        // O middleware requireRole já verificou a permissão
         
         // Buscar escolas do gestor
         const { data, error } = await supabase
