@@ -1,6 +1,6 @@
 import { Express, Request, Response } from 'express';
 import { z } from 'zod';
-import { supabase } from '../db/supabase';
+import { supabase } from '../db/supabase.js';
 
 // Schema para validação dos dados da escola
 const schoolSchema = z.object({

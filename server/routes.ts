@@ -1339,6 +1339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Registrar rotas de usuário, incluindo upload de foto
   registerUserRoutes(app);
+  registerSchoolRoutes(app, authenticate, requireRole);
   
   const httpServer = createServer(app);
   return httpServer;

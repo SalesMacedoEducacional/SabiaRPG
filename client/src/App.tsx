@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import ManagerDashboard from "@/pages/ManagerDashboardNew";
+import SchoolRegistration from "@/pages/SchoolRegistration";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
@@ -71,6 +72,14 @@ function Router() {
         component={ManagerDashboard}
         permissions={[
           PERMISSIONS.REPORT_SCHOOL_VIEW.id,
+          PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/school-registration" 
+        component={SchoolRegistration}
+        permissions={[
           PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
