@@ -139,9 +139,9 @@ export function registerManagerRoutes(
       const schoolData = req.body;
       
       // Validação básica
-      if (!schoolData.name || !schoolData.code) {
+      if (!schoolData.nome || !schoolData.codigo_escola) {
         return res.status(400).json({ 
-          message: "School name and code are required" 
+          message: "Nome e código da escola são obrigatórios" 
         });
       }
       
