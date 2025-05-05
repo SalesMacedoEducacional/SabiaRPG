@@ -233,7 +233,9 @@ export default function ManagerDashboard() {
         
         {/* Aba 1: Visão Geral */}
         <TabsContent value="overview">
+          {/* Primeira fileira - estatísticas gerais */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            {/* Card 1 - Escolas */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
@@ -246,6 +248,7 @@ export default function ManagerDashboard() {
               </CardContent>
             </Card>
             
+            {/* Card 2 - Professores */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
@@ -260,6 +263,7 @@ export default function ManagerDashboard() {
               </CardContent>
             </Card>
             
+            {/* Card 3 - Alunos */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
@@ -274,6 +278,7 @@ export default function ManagerDashboard() {
               </CardContent>
             </Card>
             
+            {/* Card 4 - Turmas */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
@@ -287,82 +292,141 @@ export default function ManagerDashboard() {
             </Card>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          {/* Segunda fileira - Ações rápidas e estatísticas */}
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-6">
+            {/* Coluna 1 - Ações rápidas */}
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg">Ações Rápidas</CardTitle>
+                <CardDescription>
+                  Acesso direto às principais tarefas administrativas
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-2xl font-bold">487</div>
-                    <p className="text-xs text-muted-foreground">Últimos 7 dias</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold">1.248</div>
-                    <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
-                  </div>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setLocation('/user-registration')}
+                  >
+                    <UserPlus className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium text-center">Cadastrar Novo Usuário</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setLocation('/school-registration')}
+                  >
+                    <Building className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium text-center">Cadastrar Nova Escola</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setLocation('/manager/classes')}
+                  >
+                    <BookCopy className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium text-center">Gerenciar Turmas</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setLocation('/manager/reports')}
+                  >
+                    <FileText className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium text-center">Gerar Relatórios</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Nível de Engajamento Geral</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">72%</div>
-                <div className="mt-2">
-                  <Progress value={72} className="h-2" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Baseado no tempo de uso e missões completadas
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <div className="text-2xl font-bold text-destructive">38</div>
-                  <AlertTriangle className="h-5 w-5 text-destructive ml-2" />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Alunos com mais de 10 dias sem acesso
-                </p>
-                <Button variant="outline" className="w-full mt-2" size="sm">
-                  Ver Lista
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Missões</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-xl font-bold">149</span>
-                    <span className="text-xs text-muted-foreground">Em andamento</span>
+
+            {/* Coluna 2-3 - Estatísticas e métricas */}
+            <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Card 1 - Alunos Ativos */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-2xl font-bold">487</div>
+                      <p className="text-xs text-muted-foreground">Últimos 7 dias</p>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">1.248</div>
+                      <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xl font-bold">263</span>
-                    <span className="text-xs text-muted-foreground">Concluídas</span>
+                </CardContent>
+              </Card>
+              
+              {/* Card 2 - Engajamento */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Nível de Engajamento Geral</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">72%</div>
+                  <div className="mt-2">
+                    <Progress value={72} className="h-2" />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xl font-bold">92</span>
-                    <span className="text-xs text-muted-foreground">Pendentes</span>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Baseado no tempo de uso e missões completadas
+                  </p>
+                </CardContent>
+              </Card>
+              
+              {/* Card 3 - Alertas */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center">
+                    <div className="text-2xl font-bold text-destructive">38</div>
+                    <AlertTriangle className="h-5 w-5 text-destructive ml-2" />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <p className="text-xs text-muted-foreground">
+                    Alunos com mais de 10 dias sem acesso
+                  </p>
+                  <Button variant="outline" className="w-full mt-2" size="sm">
+                    Ver Lista
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Card 4 - Missões */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Missões</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold">149</span>
+                      <span className="text-xs text-muted-foreground">Em andamento</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold">263</span>
+                      <span className="text-xs text-muted-foreground">Concluídas</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold">92</span>
+                      <span className="text-xs text-muted-foreground">Pendentes</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
+          {/* Terceira fileira - Escolas e Atividades */}
           <div className="grid gap-4 md:grid-cols-2">
+            {/* Card 1 - Escolas com Maior Engajamento */}
             <Card>
               <CardHeader>
                 <CardTitle>Escolas com Maior Engajamento</CardTitle>
@@ -398,6 +462,7 @@ export default function ManagerDashboard() {
               </CardContent>
             </Card>
             
+            {/* Card 2 - Atividade Recente */}
             <Card>
               <CardHeader>
                 <CardTitle>Atividade Recente</CardTitle>
