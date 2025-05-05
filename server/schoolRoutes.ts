@@ -5,23 +5,21 @@ import { supabase } from '../db/supabase.js';
 // Schema para validação dos dados da escola
 const schoolSchema = z.object({
   nome: z.string().min(3, "O nome da escola deve ter pelo menos 3 caracteres"),
-  codigo: z.string().optional(),
+  codigo_escola: z.string().optional(),
   tipo: z.enum(["estadual", "municipal", "particular", "federal"], {
     required_error: "Selecione o tipo de escola",
   }),
-  modalidade: z.enum(["fundamental", "medio", "tecnico", "eja", "superior"], {
-    required_error: "Selecione a modalidade de ensino",
-  }),
+  modalidade_ensino: z.string().min(2, "Informe a modalidade de ensino"),
   cidade: z.string().min(2, "Informe a cidade"),
   estado: z.string({
     required_error: "Selecione o estado",
   }),
-  zona: z.enum(["urbana", "rural"], {
+  zona_geografica: z.enum(["urbana", "rural"], {
     required_error: "Selecione a zona geográfica",
   }),
-  endereco: z.string().min(5, "Informe o endereço completo"),
-  telefone: z.string().min(14, "Formato de telefone inválido"),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+  endereco_completo: z.string().min(5, "Informe o endereço completo"),
+  telefone: z.string().min(14, "Formato de telefone inválido").max(15, "Formato de telefone inválido"),
+  email_institucional: z.string().email("E-mail inválido").optional().or(z.literal("")),
   gestor_id: z.number().or(z.string())
 });
 
@@ -69,6 +67,46 @@ export function registerSchoolRoutes(
         console.error('Erro ao verificar escolas do gestor:', error);
         return res.status(500).json({ 
           message: 'Erro ao verificar escolas do gestor' 
+        });
+      }
+    }
+  );
+  
+  /**
+   * Rota para verificar se o gestor já possui uma escola cadastrada
+   * Acessível apenas para gestores
+   */
+  app.get(
+    '/api/schools/check-manager-school',
+    authenticate,
+    requireRole(['manager']),
+    async (req: Request, res: Response) => {
+      try {
+        // Verificar se o usuário é um gestor
+        if (req.session.userRole !== 'manager') {
+          return res.status(403).json({ 
+            message: 'Somente gestores podem acessar este recurso' 
+          });
+        }
+        
+        // Buscar escolas do gestor
+        const { data, error } = await supabase
+          .from('escolas')
+          .select('*')
+          .eq('gestor_id', req.session.userId);
+          
+        if (error) throw error;
+        
+        const hasSchool = data && data.length > 0;
+        
+        return res.status(200).json({ 
+          hasSchool,
+          school: hasSchool ? data[0] : null
+        });
+      } catch (error) {
+        console.error('Erro ao verificar escola do gestor:', error);
+        return res.status(500).json({ 
+          message: 'Erro ao verificar escola do gestor' 
         });
       }
     }
@@ -190,6 +228,21 @@ export function registerSchoolRoutes(
         
         // Garantir que se o usuário for gestor, o gestor_id será o seu próprio ID
         if (req.session.userRole === 'manager') {
+          // Verificar se o gestor já possui uma escola cadastrada
+          const { data: existingSchools, error: checkError } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('gestor_id', req.session.userId);
+            
+          if (checkError) throw checkError;
+          
+          if (existingSchools && existingSchools.length > 0) {
+            return res.status(403).json({ 
+              message: 'Você já possui uma escola cadastrada. Não é possível cadastrar mais de uma escola por gestor.' 
+            });
+          }
+          
+          // Definir o ID do gestor
           schoolData.gestor_id = req.session.userId;
         }
         

@@ -70,26 +70,24 @@ const estadosBrasileiros = [
 // Schema de validação do formulário
 const schoolSchema = z.object({
   nome: z.string().min(3, "O nome da escola deve ter pelo menos 3 caracteres"),
-  codigo: z.string().optional(),
+  codigo_escola: z.string().optional(),
   tipo: z.enum(["estadual", "municipal", "particular", "federal"], {
     required_error: "Selecione o tipo de escola",
   }),
-  modalidade: z.enum(["fundamental", "medio", "tecnico", "eja", "superior"], {
-    required_error: "Selecione a modalidade de ensino",
-  }),
+  modalidade_ensino: z.string().min(2, "Informe a modalidade de ensino"),
   cidade: z.string().min(2, "Informe a cidade"),
   estado: z.string({
     required_error: "Selecione o estado",
   }),
-  zona: z.enum(["urbana", "rural"], {
+  zona_geografica: z.enum(["urbana", "rural"], {
     required_error: "Selecione a zona geográfica",
   }),
-  endereco: z.string().min(5, "Informe o endereço completo"),
+  endereco_completo: z.string().min(5, "Informe o endereço completo"),
   telefone: z
     .string()
     .min(14, "Formato de telefone inválido")
     .max(15, "Formato de telefone inválido"),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+  email_institucional: z.string().email("E-mail inválido").optional().or(z.literal("")),
 });
 
 type SchoolFormData = z.infer<typeof schoolSchema>;
@@ -105,15 +103,15 @@ export default function SchoolRegistration() {
     resolver: zodResolver(schoolSchema),
     defaultValues: {
       nome: "",
-      codigo: "",
+      codigo_escola: "",
       tipo: undefined,
-      modalidade: undefined,
+      modalidade_ensino: "",
       cidade: "",
       estado: "",
-      zona: undefined,
-      endereco: "",
+      zona_geografica: undefined,
+      endereco_completo: "",
       telefone: "",
-      email: "",
+      email_institucional: "",
     },
   });
 
@@ -211,7 +209,7 @@ export default function SchoolRegistration() {
                 {/* Código da escola (opcional) */}
                 <FormField
                   control={form.control}
-                  name="codigo"
+                  name="codigo_escola"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Código da Escola (opcional)</FormLabel>
@@ -257,27 +255,13 @@ export default function SchoolRegistration() {
                 {/* Modalidade de ensino */}
                 <FormField
                   control={form.control}
-                  name="modalidade"
+                  name="modalidade_ensino"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Modalidade de Ensino</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a modalidade" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="fundamental">Ensino Fundamental</SelectItem>
-                          <SelectItem value="medio">Ensino Médio</SelectItem>
-                          <SelectItem value="tecnico">Ensino Técnico</SelectItem>
-                          <SelectItem value="eja">EJA</SelectItem>
-                          <SelectItem value="superior">Ensino Superior</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input placeholder="Ex: Médio, Técnico, EJA" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -330,7 +314,7 @@ export default function SchoolRegistration() {
                 {/* Zona geográfica */}
                 <FormField
                   control={form.control}
-                  name="zona"
+                  name="zona_geografica"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Zona Geográfica</FormLabel>

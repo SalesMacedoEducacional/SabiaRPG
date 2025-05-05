@@ -1,0 +1,49 @@
+✅ PROMPT PARA O REPLIT – Atualização da Tela de Cadastro de Nova Escola (Perfil Gestor) – SABIÁ RPG
+Objetivo: Atualize a tela de cadastro de nova escola da plataforma SABIÁ RPG, garantindo o correto funcionamento do formulário, validações e integração com o Supabase. Essa tela deve ser acessível apenas por usuários com o papel de GESTOR.
+
+🎯 Campos do formulário (visíveis no frontend):
+Nome da escola (nome) – campo de texto obrigatório
+
+Código da escola (codigo_escola) – campo opcional
+
+Tipo de escola (tipo) – dropdown obrigatório: Estadual, Municipal, Particular, Federal
+
+Modalidade de ensino (modalidade_ensino) – campo obrigatório: Ex: Médio, Técnico, EJA
+
+Cidade (cidade) – obrigatório
+
+Estado (estado) – dropdown com todos os estados do Brasil – obrigatório
+
+Zona geográfica (zona_geografica) – dropdown obrigatório: Urbana, Rural
+
+Endereço completo (endereco_completo) – obrigatório
+
+Telefone (telefone) – obrigatório, com máscara (formato brasileiro)
+
+E-mail institucional (email_institucional) – opcional, mas deve ser validado como e-mail
+
+🛠️ Comportamento esperado no Replit:
+Somente usuários com papel = "gestor" podem acessar essa tela.
+
+Todos os campos obrigatórios devem ser validados antes de permitir o envio.
+
+O botão “Cadastrar Escola” só será habilitado após a validação completa dos campos.
+
+No momento do envio, os dados devem ser enviados via requisição para o Supabase na tabela escolas.
+
+O campo gestor_id deve ser automaticamente preenchido com o ID do usuário logado (via autenticação).
+
+Após o envio bem-sucedido, exibir uma mensagem: Escola cadastrada com sucesso!
+
+Após o cadastro, a escola deve ser vinculada ao gestor logado, e não será possível cadastrar outra.
+
+💡 Regras específicas:
+Impedir que o mesmo gestor cadastre mais de uma escola.
+
+Se email_institucional for preenchido, validar se está em formato de e-mail.
+
+Campo telefone deve estar no formato: (99) 99999-9999.
+
+Após cadastro, redirecionar automaticamente o gestor para a aba Visão Geral.
+
+A escola cadastrada deve ser exibida em cards ou campos informativos para visualização do gestor.
