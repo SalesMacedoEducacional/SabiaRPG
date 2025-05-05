@@ -95,7 +95,7 @@ type SchoolFormData = z.infer<typeof schoolSchema>;
 export default function SchoolRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasSchool, setHasSchool] = useState(false);
