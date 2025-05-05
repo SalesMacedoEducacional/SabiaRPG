@@ -27,6 +27,7 @@ import OpenAI from "openai";
 import { initializeDatabase } from "../db/supabase";
 import { registerManagerRoutes } from "./managerRoutes";
 import { registerUserRoutes } from "./userRoutes";
+import { registerSchoolRoutes } from "./schoolRoutes";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
