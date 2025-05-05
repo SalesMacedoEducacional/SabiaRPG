@@ -253,10 +253,13 @@ export default function SchoolRegistration() {
                 </div>
               </div>
               
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-4">
                 <Button onClick={() => setLocation("/manager")}>
                   Ir para o Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button variant="outline" onClick={logout}>
+                  Sair
                 </Button>
               </div>
             </div>
@@ -516,8 +519,11 @@ export default function SchoolRegistration() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center text-sm text-muted-foreground">
-          Todos os campos marcados são obrigatórios para o cadastro da escola
+        <CardFooter className="flex flex-col gap-4 justify-center items-center text-sm text-muted-foreground">
+          <div>Todos os campos marcados são obrigatórios para o cadastro da escola</div>
+          <Button variant="ghost" size="sm" onClick={logout}>
+            Sair
+          </Button>
         </CardFooter>
       </Card>
     </div>
