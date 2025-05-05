@@ -8,6 +8,7 @@ import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import ManagerDashboard from "@/pages/ManagerDashboardNew";
 import SchoolRegistration from "@/pages/SchoolRegistration";
+import UserRegistration from "@/pages/UserRegistration";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
@@ -81,6 +82,15 @@ function Router() {
         component={SchoolRegistration}
         permissions={[
           PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/user-registration" 
+        component={UserRegistration}
+        permissions={[
+          PERMISSIONS.USER_MANAGE_STUDENTS.id,
+          PERMISSIONS.USER_MANAGE_TEACHERS.id
         ]}
       />
       

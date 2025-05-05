@@ -199,10 +199,7 @@ export default function ManagerDashboard() {
   };
   
   const handleAddUser = () => {
-    toast({
-      title: 'Recurso em Desenvolvimento',
-      description: 'A função de adicionar usuários está em desenvolvimento.',
-    });
+    setLocation("/user-registration");
   };
   
   const handleAddSchool = () => {

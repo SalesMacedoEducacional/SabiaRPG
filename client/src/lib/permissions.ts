@@ -65,6 +65,7 @@ export const PERMISSIONS = {
   REPORT_EXPORT: { id: 'report:export', description: 'Exportar relatórios' },
   
   // Permissões de usuários
+  USER_MANAGE: { id: 'user:manage', description: 'Gerenciar usuários' },
   USER_MANAGE_STUDENTS: { id: 'user:manage_students', description: 'Gerenciar contas de alunos' },
   USER_MANAGE_TEACHERS: { id: 'user:manage_teachers', description: 'Gerenciar contas de professores' },
   USER_MANAGE_MANAGERS: { id: 'user:manage_managers', description: 'Gerenciar contas de gestores' },
@@ -161,6 +162,7 @@ const rolePermissionsMap: Record<UserRole, Array<string>> = {
     PERMISSIONS.REPORT_REGION_VIEW.id,
     
     // Permissões exclusivas de gestor para gestão de usuários
+    PERMISSIONS.USER_MANAGE.id,
     PERMISSIONS.USER_MANAGE_TEACHERS.id,
     
     // Permissões específicas de gestão escolar

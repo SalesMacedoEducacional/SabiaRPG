@@ -12,14 +12,28 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  isFormData: boolean = false
 ): Promise<Response> {
   console.log(`Requisição API: ${method} ${url}`, data || '');
   
   try {
+    const headers: Record<string, string> = {};
+    let body: any = undefined;
+    
+    if (data) {
+      if (isFormData && data instanceof FormData) {
+        // FormData não precisa de Content-Type, o fetch define automaticamente
+        body = data;
+      } else {
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(data);
+      }
+    }
+    
     const res = await fetch(url, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
-      body: data ? JSON.stringify(data) : undefined,
+      headers,
+      body,
       credentials: "include",
     });
     
