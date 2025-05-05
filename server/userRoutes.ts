@@ -62,6 +62,172 @@ const upload = multer({
  * Registra as rotas de usuário, incluindo upload de foto
  */
 export function registerUserRoutes(app: Express) {
+  // Rota para criar novo usuário (apenas para gestores e administradores)
+  app.post('/api/users', (req: any, res: Response) => {
+    console.log('Recebida requisição para criar novo usuário');
+    
+    // Se o usuário não estiver autenticado, retornar erro
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    // Verificar se o usuário é gestor ou administrador
+    const userRole = req.session.userRole;
+    if (!['gestor', 'admin'].includes(userRole as string)) {
+      return res.status(403).json({ message: 'Você não tem permissão para cadastrar novos usuários' });
+    }
+
+    const uploadMiddleware = upload.single('imagem_perfil');
+    
+    uploadMiddleware(req, res, async (err: any) => {
+      if (err) {
+        if (err.message === 'Formato inválido. Use JPG ou PNG.') {
+          return res.status(400).json({ message: err.message });
+        } else if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: 'Imagem muito grande. O tamanho máximo é 5MB.' });
+        }
+        console.error('Erro no upload:', err);
+        return res.status(500).json({ message: 'Falha ao processar o upload da imagem.' });
+      }
+
+      try {
+        const { 
+          nome_completo, 
+          email, 
+          telefone, 
+          data_nascimento, 
+          papel, 
+          turma_id, 
+          numero_matricula, 
+          cpf 
+        } = req.body;
+        
+        console.log('Dados recebidos para criação de usuário:', { 
+          nome_completo, 
+          email, 
+          telefone, 
+          data_nascimento, 
+          papel,
+          turma_id,
+          numero_matricula,
+          cpf
+        });
+        
+        // Validar campos obrigatórios
+        if (!nome_completo || !email || !telefone || !data_nascimento || !papel) {
+          return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
+        }
+        
+        // Validar campos específicos por papel
+        if (papel === 'aluno' && (!turma_id || !numero_matricula)) {
+          return res.status(400).json({ message: 'Para alunos, é necessário informar turma e número de matrícula' });
+        }
+        
+        if (papel === 'professor' && !cpf) {
+          return res.status(400).json({ message: 'Para professores, é necessário informar o CPF' });
+        }
+        
+        let imageUrl = null;
+        // Processar a imagem se foi enviada
+        if (req.file) {
+          // Obter o caminho do arquivo temporário
+          const tempFilePath = req.file.path;
+          
+          // Criar diretório permanente para armazenar imagens se não existir
+          const publicDir = path.join(__dirname, '..', 'client', 'public', 'uploads', 'profile-images');
+          if (!fs.existsSync(publicDir)) {
+            fs.mkdirSync(publicDir, { recursive: true });
+          }
+          
+          // Gerar nome de arquivo único 
+          const fileName = `new-user-${Date.now()}-${path.basename(req.file.filename)}`;
+          const destPath = path.join(publicDir, fileName);
+          
+          // Mover arquivo do diretório temporário para permanente
+          fs.copyFileSync(tempFilePath, destPath);
+          
+          // Limpar arquivo temporário
+          fs.unlinkSync(tempFilePath);
+          
+          // Gerar URL relativa para o frontend
+          imageUrl = `/uploads/profile-images/${fileName}`;
+        }
+        
+        // Gerar senha padrão
+        let senha;
+        if (papel === 'aluno') {
+          // Para alunos, usar o número de matrícula como senha inicial
+          senha = numero_matricula;
+        } else if (papel === 'professor') {
+          // Para professores, usar o CPF como senha inicial (sem pontos e traços)
+          senha = cpf.replace(/[.-]/g, '');
+        } else {
+          // Para gestores, gerar senha aleatória
+          senha = 'Senha123!'; // Em produção, usar algo como: Math.random().toString(36).slice(-8) + "A!"
+        }
+        
+        // Em uma implementação real, seria necessário:
+        // 1. Verificar se o e-mail já está em uso
+        // 2. Criptografar a senha antes de salvar
+        // 3. Realizar transação de banco de dados para garantir consistência
+        
+        // Para fins de demonstração, simular criação bem-sucedida
+        const novoUsuario = {
+          id: Math.floor(Math.random() * 1000) + 2000, // ID aleatório para demonstração
+          nome_completo,
+          email,
+          telefone,
+          data_nascimento,
+          papel,
+          perfil_foto_url: imageUrl,
+          created_at: new Date().toISOString()
+        };
+        
+        // No caso de usuários reais, usar algo como:
+        /*
+        // Criar o usuário no banco de dados
+        const result = await pool.query(
+          'INSERT INTO usuarios (nome, email, telefone, data_nascimento, papel, perfil_foto_url, senha_hash) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+          [nome_completo, email, telefone, data_nascimento, papel, imageUrl, senhaHash]
+        );
+        
+        const novoUsuario = result.rows[0];
+        
+        // Para alunos, criar registro na tabela perfis_aluno
+        if (papel === 'aluno' && novoUsuario.id) {
+          await pool.query(
+            'INSERT INTO perfis_aluno (usuario_id, turma_id, matricula) VALUES ($1, $2, $3)',
+            [novoUsuario.id, turma_id, numero_matricula]
+          );
+        }
+        
+        // Para professores, criar registro na tabela perfis_professor
+        if (papel === 'professor' && novoUsuario.id) {
+          await pool.query(
+            'INSERT INTO perfis_professor (usuario_id, cpf) VALUES ($1, $2)',
+            [novoUsuario.id, cpf]
+          );
+        }
+        */
+        
+        return res.status(201).json({
+          ...novoUsuario,
+          message: 'Usuário cadastrado com sucesso!'
+        });
+        
+      } catch (error) {
+        console.error('Erro ao criar novo usuário:', error);
+        // Limpar a imagem temporária em caso de erro
+        if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        
+        return res.status(500).json({
+          message: 'Erro ao processar o cadastro. Tente novamente mais tarde.'
+        });
+      }
+    });
+  });
   // Rota para atualizar os dados do usuário
   app.patch('/api/users/:id', (req: any, res: Response) => {
     console.log('Recebida requisição para atualizar usuário:', req.params.id);
@@ -223,6 +389,38 @@ export function registerUserRoutes(app: Express) {
    * Rota para upload de imagem de perfil
    * POST /api/usuarios/:id/foto
    */
+  // Rota para obter a lista de turmas disponíveis
+  app.get('/api/turmas', (req: any, res: Response) => {
+    console.log('Recebida requisição para obter lista de turmas');
+    
+    // Se o usuário não estiver autenticado, retornar erro
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    try {
+      // Para fins de demonstração, retornar lista de turmas
+      const turmas = [
+        { id: "1", nome: "6º Ano A", serie: "6º Ano" },
+        { id: "2", nome: "7º Ano A", serie: "7º Ano" },
+        { id: "3", nome: "8º Ano A", serie: "8º Ano" },
+        { id: "4", nome: "9º Ano A", serie: "9º Ano" },
+        { id: "5", nome: "1º Ano EM A", serie: "1º Ano EM" },
+        { id: "6", nome: "2º Ano EM A", serie: "2º Ano EM" },
+        { id: "7", nome: "3º Ano EM A", serie: "3º Ano EM" }
+      ];
+      
+      // Em uma implementação real, buscar do banco de dados
+      // const result = await pool.query('SELECT id, nome, serie FROM turmas ORDER BY serie, nome');
+      // const turmas = result.rows;
+      
+      return res.status(200).json(turmas);
+    } catch (error) {
+      console.error('Erro ao buscar turmas:', error);
+      return res.status(500).json({ message: 'Erro ao buscar turmas' });
+    }
+  });
+  
   app.post('/api/usuarios/:id/foto', (req: any, res: Response) => {
     // Se o usuário não estiver autenticado, retornar erro
     if (!req.session || !req.session.userId) {
