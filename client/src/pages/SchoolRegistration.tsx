@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -97,6 +97,34 @@ export default function SchoolRegistration() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasSchool, setHasSchool] = useState(false);
+  const [schoolData, setSchoolData] = useState<any>(null);
+  
+  // Verificar se o gestor já tem uma escola cadastrada
+  useEffect(() => {
+    const checkManagerSchool = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/schools/check-manager-school");
+        const data = await response.json();
+        
+        setHasSchool(data.hasSchool);
+        if (data.hasSchool) {
+          setSchoolData(data.school);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar escola do gestor:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (user?.role === "manager") {
+      checkManagerSchool();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   // Inicializar formulário com react-hook-form e validação de zod
   const form = useForm<SchoolFormData>({
@@ -173,6 +201,75 @@ export default function SchoolRegistration() {
     }
   };
 
+  // Renderizar estado de carregamento
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Verificando seus dados...</p>
+      </div>
+    );
+  }
+  
+  // Renderizar mensagem se o gestor já tiver uma escola cadastrada
+  if (hasSchool && schoolData) {
+    return (
+      <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center">
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-primary/10 p-3 rounded-full">
+                <School className="h-10 w-10 text-primary" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl text-center">Escola Já Cadastrada</CardTitle>
+            <CardDescription className="text-center">
+              Você já possui uma escola registrada no sistema
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <h3 className="font-semibold text-xl mb-2">{schoolData.nome}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium">Código:</span> {schoolData.codigo_escola || "Não informado"}
+                  </div>
+                  <div>
+                    <span className="font-medium">Tipo:</span> {schoolData.tipo}
+                  </div>
+                  <div>
+                    <span className="font-medium">Modalidade:</span> {schoolData.modalidade_ensino}
+                  </div>
+                  <div>
+                    <span className="font-medium">Cidade/Estado:</span> {schoolData.cidade}/{schoolData.estado}
+                  </div>
+                  <div>
+                    <span className="font-medium">Telefone:</span> {schoolData.telefone}
+                  </div>
+                  <div>
+                    <span className="font-medium">Email:</span> {schoolData.email_institucional || "Não informado"}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button onClick={() => setLocation("/manager")}>
+                  Ir para o Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center text-sm text-muted-foreground">
+            Se precisar modificar os dados da escola, acesse as configurações no painel de gestão
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Renderizar formulário de cadastro
   return (
     <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center">
       <Card className="w-full">
@@ -362,7 +459,7 @@ export default function SchoolRegistration() {
                 {/* E-mail institucional (opcional) */}
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="email_institucional"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>E-mail Institucional (opcional)</FormLabel>
@@ -382,7 +479,7 @@ export default function SchoolRegistration() {
               {/* Endereço completo */}
               <FormField
                 control={form.control}
-                name="endereco"
+                name="endereco_completo"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Endereço Completo</FormLabel>
