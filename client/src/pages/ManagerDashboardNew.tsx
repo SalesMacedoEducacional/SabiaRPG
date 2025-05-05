@@ -50,6 +50,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { apiRequest } from '@/lib/queryClient';
 import { useForm } from 'react-hook-form';
+import { useLocation } from 'wouter';
 
 /**
  * Interface para os dados básicos de um relatório
@@ -92,6 +93,7 @@ interface UserData {
 export default function ManagerDashboard() {
   const { toast } = useToast();
   const { user, logout } = useAuth();
+  const [, setLocation] = useLocation();
   
   const [activeTab, setActiveTab] = useState('overview');
   const [schools, setSchools] = useState<SchoolData[]>([]);
@@ -102,6 +104,7 @@ export default function ManagerDashboard() {
     reports: false,
     users: false
   });
+  const [firstTimeAccess, setFirstTimeAccess] = useState(false);
   
   // Buscar os dados iniciais
   useEffect(() => {
@@ -109,6 +112,24 @@ export default function ManagerDashboard() {
     fetchReports();
     fetchUsers();
   }, []);
+  
+  // Verificar se é o primeiro acesso (sem escolas cadastradas)
+  useEffect(() => {
+    if (!loading.schools && schools.length === 0) {
+      setFirstTimeAccess(true);
+      
+      // Exibir notificação sobre necessidade de cadastrar uma escola
+      toast({
+        title: "Bem-vindo ao SABIÁ RPG!",
+        description: "É necessário cadastrar uma escola antes de utilizar a plataforma.",
+      });
+      
+      // Redirecionar para a página de cadastro de escola
+      setTimeout(() => {
+        setLocation("/school-registration");
+      }, 2000);
+    }
+  }, [schools, loading.schools, setLocation, toast]);
   
   // Funções para buscar dados
   const fetchSchools = async () => {
@@ -182,6 +203,10 @@ export default function ManagerDashboard() {
       title: 'Recurso em Desenvolvimento',
       description: 'A função de adicionar usuários está em desenvolvimento.',
     });
+  };
+  
+  const handleAddSchool = () => {
+    setLocation("/school-registration");
   };
   
   const handleSaveProfile = () => {
@@ -674,7 +699,92 @@ export default function ManagerDashboard() {
         {/* Aba 3: Configurações */}
         <TabsContent value="settings">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle>Gerenciamento de Escolas</CardTitle>
+                      <CardDescription>
+                        Cadastre e gerencie escolas na plataforma
+                      </CardDescription>
+                    </div>
+                    <Button onClick={handleAddSchool}>
+                      <Building className="h-4 w-4 mr-2" />
+                      Nova Escola
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div className="relative w-full max-w-sm">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Buscar escolas..." className="pl-8" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="active">Ativas</SelectItem>
+                          <SelectItem value="inactive">Inativas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Código</TableHead>
+                          <TableHead>Alunos</TableHead>
+                          <TableHead>Professores</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {schools.map((school) => (
+                          <TableRow key={school.id}>
+                            <TableCell className="font-medium">{school.name}</TableCell>
+                            <TableCell>{school.code}</TableCell>
+                            <TableCell>{school.students}</TableCell>
+                            <TableCell>{school.teachers}</TableCell>
+                            <TableCell>
+                              {school.active ? 
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Ativa</Badge> : 
+                                <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200">Inativa</Badge>
+                              }
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" title="Editar">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" title="Detalhes">
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {schools.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                              Nenhuma escola cadastrada. Clique em "Nova Escola" para adicionar.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+              
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center">

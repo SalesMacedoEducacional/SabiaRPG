@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Redirect } from 'wouter';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
 interface ProtectedRouteProps {
   path: string;
@@ -22,6 +23,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAuth = true
 }) => {
   const { user, isLoading } = useAuth();
+  const [checkingSchools, setCheckingSchools] = useState(false);
+  const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
   // Mostra um spinner de carregamento enquanto verifica a autenticação
   if (isLoading) {
