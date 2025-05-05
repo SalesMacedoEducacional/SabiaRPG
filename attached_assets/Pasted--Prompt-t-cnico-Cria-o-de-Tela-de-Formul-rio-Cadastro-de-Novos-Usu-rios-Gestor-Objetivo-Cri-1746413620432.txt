@@ -1,0 +1,60 @@
+🔧 Prompt técnico: Criação de Tela de Formulário – Cadastro de Novos Usuários (Gestor)
+Objetivo: Criar uma tela exclusiva no painel do Gestor para o cadastro de novos usuários (Aluno, Professor e Gestor), vinculando corretamente cada um às suas tabelas e relacionamentos no banco de dados.
+
+🧾 Campos do Formulário
+nome_completo (obrigatório) – Campo de texto
+
+email (obrigatório, único) – Campo de texto
+
+telefone (obrigatório) – Campo com máscara (ex: (99) 99999-9999)
+
+data_nascimento (obrigatório) – Campo de data
+
+papel (obrigatório) – Dropdown com as opções: aluno, professor, gestor
+
+turma_id – Dropdown (obrigatório apenas se papel = aluno) com as turmas cadastradas no banco (turmas)
+
+numero_matricula – Campo de texto (obrigatório apenas se papel = aluno)
+
+senha_inicial – Gerada automaticamente com base no CPF (somente para professores)
+
+imagem_perfil – Upload de imagem opcional (.jpg ou .png)
+
+🔐 Regras e Validações
+Apenas usuários com papel gestor podem acessar essa funcionalidade.
+
+Matrícula e e-mail devem ser únicos.
+
+Validação obrigatória para todos os campos marcados.
+
+Se o usuário for do tipo aluno, validar se numero_matricula e turma_id existem na tabela matriculas antes de permitir cadastro.
+
+Para professores, vincular automaticamente à escola associada ao gestor logado.
+
+A senha inicial do professor será o CPF (criptografado antes de ser salvo).
+
+A imagem de perfil será armazenada com vínculo ao ID do usuário.
+
+O sistema deve impedir o envio do formulário até que todos os dados obrigatórios estejam preenchidos corretamente.
+
+💾 Armazenamento no Banco de Dados
+Tabela usuarios:
+
+Campos: id, nome_completo, email, telefone, data_nascimento, papel, senha_hash, imagem_perfil, criado_em
+
+Tabelas específicas:
+
+Se papel = aluno → criar vínculo com perfis_aluno contendo: usuario_id, numero_matricula, turma_id, escola_id
+
+Se papel = professor → criar vínculo com perfis_professor contendo: usuario_id, cpf, escola_id
+
+Se papel = gestor → criar vínculo com perfis_gestor contendo: usuario_id, escola_id
+
+✅ Ações após o envio
+Validar dados.
+
+Salvar informações nas tabelas corretas.
+
+Exibir mensagens de sucesso ou erro.
+
+Redirecionar para o painel de gestão de usuários ou limpar o formulário para novo cadastro.
