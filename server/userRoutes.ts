@@ -290,6 +290,66 @@ export function registerUserRoutes(app: Express) {
     }
   });
   
+  // Rota para atualizar o perfil do usuário com vínculo de escola
+  app.patch('/api/users/update-profile', (req: any, res: Response) => {
+    console.log('Recebida requisição para atualizar perfil de usuário com escola');
+    
+    // Se o usuário não estiver autenticado, retornar erro
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    try {
+      const userId = req.session.userId;
+      const userRole = req.session.userRole;
+      const { escola_id } = req.body;
+      
+      console.log(`Atualizando perfil do usuário ${userId} (${userRole}) com escola_id: ${escola_id}`);
+      
+      // Validar se tem escola_id
+      if (!escola_id) {
+        return res.status(400).json({ message: 'ID da escola é obrigatório' });
+      }
+      
+      // Validar se é gestor
+      if (userRole !== 'manager' && userRole !== 'gestor') {
+        return res.status(403).json({ message: 'Apenas gestores podem ser vinculados a escolas' });
+      }
+      
+      // Para usuários de teste
+      if (userId === 1003) { // gestor
+        console.log('Atualizando perfil do gestor de teste com escola_id:', escola_id);
+        return res.status(200).json({ 
+          id: userId,
+          escola_id: escola_id,
+          message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
+        });
+      }
+      
+      // Para usuários reais, atualizar no banco de dados
+      pool.query(
+        'UPDATE perfis_gestor SET escola_id = $1 WHERE usuario_id = $2 RETURNING *',
+        [escola_id, userId]
+      ).then(result => {
+        if (result.rowCount === 0) {
+          return res.status(404).json({ message: 'Perfil de gestor não encontrado' });
+        }
+        
+        console.log('Gestor vinculado à escola com sucesso:', result.rows[0]);
+        return res.status(200).json({ 
+          ...result.rows[0],
+          message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
+        });
+      }).catch(error => {
+        console.error('Erro ao vincular gestor à escola:', error);
+        return res.status(500).json({ message: 'Erro ao atualizar perfil. Tente novamente.' });
+      });
+    } catch (error) {
+      console.error('Erro ao processar atualização do perfil com escola:', error);
+      return res.status(500).json({ message: 'Erro ao processar a solicitação. Tente novamente.' });
+    }
+  });
+
   // Rota para atualizar a senha do usuário
   app.patch('/api/users/:id/password', (req: any, res: Response) => {
     // Se o usuário não estiver autenticado, retornar erro

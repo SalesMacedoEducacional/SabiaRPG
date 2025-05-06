@@ -67,8 +67,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
   
-  // Verificação especial para gestores - redireciona para cadastro de escola se não tiver escolas
-  if (user?.role === 'manager' && path === '/manager' && !hasSchools) {
+  // Verificação especial para gestores - redireciona para cadastro de escola se não tiver escola vinculada
+  if (user?.role === 'manager' && path === '/manager' && !user.escola_id) {
+    console.log('Gestor sem escola vinculada. Redirecionando para cadastro...');
     return (
       <Route path={path}>
         <Redirect to="/school-registration" />

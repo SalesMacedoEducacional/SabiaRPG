@@ -1,0 +1,38 @@
+PROMPT PARA CORREÇÃO E IMPLEMENTAÇÃO – FLUXO DE CADASTRO DE ESCOLA (GESTOR)
+
+⚠️ DIVERGÊNCIAS ATUAIS (ERROS A SEREM CORRIGIDOS)
+Mesmo após o gestor estar vinculado a uma escola no banco de dados, a plataforma continua redirecionando-o para a tela de cadastro de escola.
+➤ Correção: Verificar corretamente no login se o campo escola_id do perfil do gestor está preenchido. Se estiver, o redirecionamento deve ir para o /dashboard-gestor, e não mais para o formulário de cadastro de escola.
+
+Ao preencher o formulário de cadastro de escola e clicar em "Cadastrar", a página apenas recarrega e não salva os dados no banco de dados.
+➤ Correção: A função de submissão do formulário não está persistindo os dados na tabela escolas. Verifique se há falhas no evento onSubmit, chamadas assíncronas mal tratadas (await ausente), ou erro no insert para o Supabase.
+
+Mesmo após tentar cadastrar uma escola, o campo escola_id do gestor não é atualizado.
+➤ Correção: Após criar com sucesso uma nova escola, o ID da escola recém-criada deve ser atualizado automaticamente no campo escola_id do perfil do gestor (tabela usuarios, perfis_gestor), garantindo o vínculo correto.
+
+✅ AÇÕES A SEREM EXECUTADAS PELO REPLIT
+Durante o login, se o usuário for do tipo gestor, verifique se ele possui escola vinculada (escola_id no perfil):
+
+Se sim, redirecione para /dashboard-gestor.
+
+Se não, redirecione obrigatoriamente para /cadastrar-escola.
+
+Na rota /cadastrar-escola, apresente um formulário TODOS os campos obrigatórios:
+
+No botão "Cadastrar", ao submeter:
+
+Insira os dados corretamente na tabela escolas (Supabase).
+
+Recupere o id da escola recém-criada.
+
+Atualize o campo escola_id do usuário logado na tabela usuarios, perfis_gestor, vinculando-o à nova escola.
+
+Após o vínculo, redirecione imediatamente o usuário para a tela /dashboard-gestor.
+
+Exiba mensagens de sucesso ou erro visíveis no topo da tela, em português, como:
+
+"Escola cadastrada com sucesso. Redirecionando para o painel..."
+
+"Erro ao cadastrar escola. Verifique os dados e tente novamente."
+
+Bloqueie o acesso a qualquer outra funcionalidade do gestor enquanto ele não tiver uma escola cadastrada. Essa verificação deve ser feita em todas as rotas protegidas.

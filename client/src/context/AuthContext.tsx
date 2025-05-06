@@ -14,6 +14,7 @@ interface User {
   level: number;
   xp: number;
   createdAt: string;
+  escola_id?: string; // ID da escola vinculada (principalmente para gestores)
 }
 
 interface AuthContextType {

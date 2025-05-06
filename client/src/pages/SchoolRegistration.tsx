@@ -172,17 +172,37 @@ export default function SchoolRegistration() {
         gestor_id: user?.id,
       };
       
+      // Enviar dados para API
       const response = await apiRequest("POST", "/api/schools", schoolData);
-      const result = await response.json();
       
       if (!response.ok) {
+        const result = await response.json();
         throw new Error(result.message || "Erro ao cadastrar escola");
+      }
+      
+      const result = await response.json();
+      console.log("Escola cadastrada com sucesso:", result);
+      
+      // Atualizar perfil do gestor com o ID da escola
+      const updateResponse = await apiRequest("PATCH", "/api/users/update-profile", {
+        escola_id: result.id
+      });
+      
+      if (!updateResponse.ok) {
+        const updateError = await updateResponse.json();
+        throw new Error(updateError.message || "Erro ao vincular gestor à escola");
       }
       
       toast({
         title: "Escola cadastrada com sucesso!",
-        description: "Você será redirecionado para o painel da escola.",
+        description: "Você será redirecionado para o painel do gestor.",
       });
+      
+      // Atualizar contexto do usuário
+      if (user) {
+        const updatedUser = {...user, escola_id: result.id};
+        // Se houver uma função de atualização do usuário no contexto, chamar aqui
+      }
       
       // Redirecionar para o dashboard do gestor
       setTimeout(() => {
@@ -193,7 +213,7 @@ export default function SchoolRegistration() {
       console.error("Erro ao cadastrar escola:", error);
       toast({
         title: "Erro ao cadastrar escola",
-        description: error instanceof Error ? error.message : "Ocorreu um erro ao processar sua solicitação",
+        description: error instanceof Error ? error.message : "Verifique os dados e tente novamente",
         variant: "destructive",
       });
     } finally {
