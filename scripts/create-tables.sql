@@ -1,17 +1,32 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE escolas (
-  id            uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
-  nome          text        NOT NULL,
-  codigo_escola text        UNIQUE NOT NULL,
-  criado_em     timestamp   DEFAULT now()
+  id                 uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nome               text        NOT NULL,
+  codigo_escola      text        UNIQUE NOT NULL,
+  tipo               text        NOT NULL,
+  modalidade_ensino  text        NOT NULL,
+  cidade             text        NOT NULL,
+  estado             text        NOT NULL,
+  zona_geografica    text        NOT NULL,
+  endereco_completo  text        NOT NULL,
+  telefone           text        NOT NULL,
+  email_institucional text       NULL,
+  gestor_id          text        NULL,
+  criado_em          timestamp   DEFAULT now()
 );
 
 CREATE TABLE usuarios (
   id            uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
   email         text        UNIQUE NOT NULL,
   senha_hash    text        NOT NULL,
-  papel         text        NOT NULL CHECK (papel IN ('aluno','professor','gestor')),
+  papel         text        NOT NULL CHECK (papel IN ('aluno','professor','gestor','admin')),
+  nome_completo text        NULL,
+  username      text        NULL UNIQUE,
+  avatar_url    text        NULL,
+  escola_id     uuid        NULL REFERENCES escolas(id),
+  ultimo_login  timestamp,
+  ativo         boolean     DEFAULT true,
   criado_em     timestamp   DEFAULT now()
 );
 

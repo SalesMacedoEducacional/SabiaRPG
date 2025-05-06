@@ -30,7 +30,15 @@ async function setupDatabase() {
       .from('escolas')
       .insert([{
         nome: 'Escola Teste SABIÁ',
-        codigo_escola: 'SABIA001'
+        codigo_escola: 'SABIA001',
+        tipo: 'estadual',
+        modalidade_ensino: 'Fundamental e Médio',
+        cidade: 'Teresina',
+        estado: 'PI',
+        zona_geografica: 'urbana',
+        endereco_completo: 'Av. Teste, 123',
+        telefone: '(86) 99999-9999',
+        email_institucional: 'teste@escola.edu.br'
       }])
       .select()
       .maybeSingle();
@@ -50,7 +58,11 @@ async function setupDatabase() {
         .insert([{
           email: 'professor@example.com',
           senha_hash: 'senha_hash_temporaria',
-          papel: 'professor'
+          papel: 'professor',
+          nome_completo: 'Professor Teste',
+          username: 'professor.teste',
+          avatar_url: null,
+          escola_id: escolaData?.id
         }])
         .select()
         .maybeSingle();
