@@ -26,33 +26,43 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Verificar se o gestor tem escolas cadastradas
+  // Após a adição do campo escola_id no contexto do usuário, não precisamos mais verificar escolas
+  // através de uma chamada separada - podemos verificar diretamente no objeto do usuário
   useEffect(() => {
-    // Apenas verifica para gestores e apenas se estiver navegando para o dashboard do gestor
+    // Se estiver carregando o dashboard do gestor, verificar se tem escola vinculada
     if (user?.role === 'manager' && path === '/manager') {
-      const checkForSchools = async () => {
-        setCheckingSchools(true);
-        try {
-          const response = await apiRequest('GET', '/api/schools/check-has-schools');
-          
-          if (response.status === 200) {
-            const data = await response.json();
-            setHasSchools(data.hasSchools);
-            console.log('Verificação de escolas:', data);
-          } else {
-            // Em caso de erro, assume que não tem escolas para ser seguro
-            console.warn('Erro ao verificar escolas. Status:', response.status);
-            setHasSchools(false);
-          }
-        } catch (error) {
-          console.error('Erro ao verificar escolas:', error);
-          setHasSchools(false);
-        } finally {
-          setCheckingSchools(false);
-        }
-      };
+      setCheckingSchools(true);
       
-      checkForSchools();
+      // Se o usuário já tem o campo escola_id preenchido, não precisa fazer a chamada API
+      if (user.escola_id) {
+        console.log('Gestor já possui escola vinculada:', user.escola_id);
+        setHasSchools(true);
+        setCheckingSchools(false);
+      } else {
+        // Caso não tenha, verificar no servidor por segurança
+        const checkForSchools = async () => {
+          try {
+            const response = await apiRequest('GET', '/api/schools/check-has-schools');
+            
+            if (response.status === 200) {
+              const data = await response.json();
+              setHasSchools(data.hasSchools);
+              console.log('Verificação de escolas:', data);
+            } else {
+              // Em caso de erro, assume que não tem escolas para ser seguro
+              console.warn('Erro ao verificar escolas. Status:', response.status);
+              setHasSchools(false);
+            }
+          } catch (error) {
+            console.error('Erro ao verificar escolas:', error);
+            setHasSchools(false);
+          } finally {
+            setCheckingSchools(false);
+          }
+        };
+        
+        checkForSchools();
+      }
     }
   }, [user, path]);
   

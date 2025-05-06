@@ -26,6 +26,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 interface RegisterData {
@@ -177,6 +178,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasPermission = (permissionId: string): boolean => {
     return userPermissions.includes(permissionId);
   };
+  
+  // Função para atualizar os dados do usuário no contexto
+  const updateUser = (userData: Partial<User>) => {
+    if (!user) return;
+    
+    // Combinar dados atuais com novos dados
+    const updatedUser = { ...user, ...userData };
+    
+    // Atualizar o cache de consulta
+    queryClient.setQueryData(['/api/auth/me'], updatedUser);
+    
+    console.log('Usuário atualizado no contexto:', updatedUser);
+  };
 
   return (
     <AuthContext.Provider
@@ -189,6 +203,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

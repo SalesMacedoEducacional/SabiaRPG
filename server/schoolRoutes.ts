@@ -35,6 +35,80 @@ export function registerSchoolRoutes(
   requireRole: (roles: string[]) => (req: Request, res: Response, next: Function) => Promise<void>
 ) {
   /**
+   * Rota para verificar se o gestor tem uma escola vinculada ao seu perfil
+   * Acessível apenas para gestores
+   */
+  app.get(
+    '/api/schools/check-manager-school',
+    authenticate,
+    requireRole(['manager']),
+    async (req: Request, res: Response) => {
+      try {
+        // Obter ID do usuário da sessão
+        const userId = req.session?.userId;
+        
+        if (!userId) {
+          return res.status(401).json({ message: 'Não autorizado' });
+        }
+        
+        console.log('Verificando escola vinculada ao gestor:', userId);
+        
+        // Primeiro, verificar na tabela de perfis_gestor se há escola vinculada
+        const { data: gestorProfile, error: profileError } = await supabase
+          .from('perfis_gestor')
+          .select('escola_id')
+          .eq('usuario_id', userId)
+          .single();
+        
+        // Se encontrou um perfil com escola_id
+        if (gestorProfile && gestorProfile.escola_id) {
+          // Buscar os detalhes da escola
+          const { data: school, error: schoolError } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('id', gestorProfile.escola_id)
+            .single();
+            
+          if (schoolError) {
+            console.error('Erro ao buscar detalhes da escola:', schoolError);
+            return res.status(404).json({ message: 'School not found', hasSchool: false });
+          }
+          
+          return res.status(200).json({ 
+            hasSchool: true, 
+            school 
+          });
+        }
+        
+        // Se não tem escola vinculada, verificar se há escola criada por este gestor
+        const { data: schools, error } = await supabase
+          .from('escolas')
+          .select('*')
+          .eq('gestor_id', userId);
+        
+        if (error) {
+          console.error('Erro ao verificar escolas do gestor:', error);
+          return res.status(500).json({ message: 'Erro ao verificar escolas' });
+        }
+        
+        // Se há pelo menos uma escola criada por este gestor
+        if (schools && schools.length > 0) {
+          return res.status(200).json({ 
+            hasSchool: true, 
+            school: schools[0]  // Retorna a primeira escola encontrada
+          });
+        }
+        
+        // Não tem escola
+        return res.status(200).json({ hasSchool: false });
+      } catch (error) {
+        console.error('Erro ao verificar escola do gestor:', error);
+        return res.status(500).json({ message: 'Erro ao verificar escola' });
+      }
+    }
+  );
+
+  /**
    * Rota para verificar se o gestor possui escolas cadastradas
    * Acessível apenas para gestores
    */
@@ -67,40 +141,7 @@ export function registerSchoolRoutes(
     }
   );
   
-  /**
-   * Rota para verificar se o gestor já possui uma escola cadastrada
-   * Acessível apenas para gestores
-   */
-  app.get(
-    '/api/schools/check-manager-school',
-    authenticate,
-    requireRole(['manager']),
-    async (req: Request, res: Response) => {
-      try {
-        // O middleware requireRole já verificou a permissão
-        
-        // Buscar escolas do gestor
-        const { data, error } = await supabase
-          .from('escolas')
-          .select('*')
-          .eq('gestor_id', req.session.userId);
-          
-        if (error) throw error;
-        
-        const hasSchool = data && data.length > 0;
-        
-        return res.status(200).json({ 
-          hasSchool,
-          school: hasSchool ? data[0] : null
-        });
-      } catch (error) {
-        console.error('Erro ao verificar escola do gestor:', error);
-        return res.status(500).json({ 
-          message: 'Erro ao verificar escola do gestor' 
-        });
-      }
-    }
-  );
+  // Endpoint único para verificar escola do gestor já foi definido acima
 
   /**
    * Rota para listar todas as escolas

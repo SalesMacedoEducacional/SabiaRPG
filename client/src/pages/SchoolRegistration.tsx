@@ -95,7 +95,7 @@ type SchoolFormData = z.infer<typeof schoolSchema>;
 export default function SchoolRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasSchool, setHasSchool] = useState(false);
@@ -200,8 +200,9 @@ export default function SchoolRegistration() {
       
       // Atualizar contexto do usuário
       if (user) {
-        const updatedUser = {...user, escola_id: result.id};
-        // Se houver uma função de atualização do usuário no contexto, chamar aqui
+        // Atualizar contexto do usuário com o ID da escola
+        updateUser({ escola_id: result.id });
+        console.log('Contexto do usuário atualizado com escola_id:', result.id);
       }
       
       // Redirecionar para o dashboard do gestor
