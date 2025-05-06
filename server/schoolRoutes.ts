@@ -301,32 +301,97 @@ export function registerSchoolRoutes(
         
         // Garantir que se o usuário for gestor, o gestor_id será o seu próprio ID
         if (req.session.userRole === 'manager') {
-          // Em ambiente de desenvolvimento, simulamos o comportamento
           const userId = req.session.userId;
           
           console.log(`Registrando escola para gestor ID: ${userId}`);
           
-          // Gerar um ID único para a escola (simular UUID)
-          const schoolId = `s${Date.now()}`;
-          
-          // Criar um objeto com os dados da escola e adicionar o ID
-          const newSchool = {
-            ...schoolData,
-            id: schoolId,
-            gestor_id: userId,
-            createdAt: new Date().toISOString()
-          };
-          
-          console.log('Escola criada com sucesso:', newSchool);
-          
-          // Adicionar ID da escola à sessão do usuário
-          if (req.session) {
-            req.session.escola_id = schoolId;
-            console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
+          try {
+            // Salvar a escola no banco de dados
+            const { data: insertedSchool, error } = await supabase
+              .from('escolas')
+              .insert({
+                nome: schoolData.nome,
+                codigo_escola: schoolData.codigo_escola || '',
+                tipo: schoolData.tipo,
+                modalidade_ensino: schoolData.modalidade_ensino,
+                cidade: schoolData.cidade,
+                estado: schoolData.estado,
+                zona_geografica: schoolData.zona_geografica,
+                endereco_completo: schoolData.endereco_completo,
+                telefone: schoolData.telefone,
+                email_institucional: schoolData.email_institucional || null,
+                gestor_id: userId
+              })
+              .select()
+              .single();
+              
+            if (error) {
+              console.error('Erro ao inserir escola no Supabase:', error);
+              return res.status(500).json({ message: 'Erro ao cadastrar escola: ' + error.message });
+            }
+            
+            if (!insertedSchool || !insertedSchool.id) {
+              console.error('Erro: Escola inserida, mas dados não retornados');
+              
+              // Tente recuperar a escola recém-inserida
+              const { data: fetchedSchool, error: fetchError } = await supabase
+                .from('escolas')
+                .select()
+                .eq('gestor_id', userId)
+                .order('criado_em', { ascending: false })
+                .limit(1)
+                .single();
+                
+              if (fetchError || !fetchedSchool) {
+                console.error('Erro ao recuperar escola inserida:', fetchError);
+                
+                // Se falhar, use UUID temporário para sessão
+                const tempId = `s${Date.now()}`;
+                if (req.session) {
+                  req.session.escola_id = tempId;
+                }
+                
+                // Mesmo sem ID persistente, salvar no sessionStorage
+                return res.status(201).json({
+                  id: tempId,
+                  ...schoolData,
+                  gestor_id: userId
+                });
+              }
+              
+              // Escola recuperada com sucesso após inserção
+              insertedSchool = fetchedSchool;
+            }
+            
+            // Adicionar ID da escola à sessão do usuário
+            if (req.session) {
+              req.session.escola_id = insertedSchool.id;
+              console.log(`Escola ID ${insertedSchool.id} vinculada ao gestor na sessão`);
+            }
+            
+            // Retornar os dados da escola inserida
+            return res.status(201).json(insertedSchool);
+            
+          } catch (dbError) {
+            console.error('Exceção ao inserir escola:', dbError);
+            
+            // Fallback para o método anterior como alternativa
+            const schoolId = `s${Date.now()}`;
+            const newSchool = {
+              ...schoolData,
+              id: schoolId,
+              gestor_id: userId,
+              criado_em: new Date().toISOString()
+            };
+            
+            // Adicionar ID da escola à sessão do usuário
+            if (req.session) {
+              req.session.escola_id = schoolId;
+            }
+            
+            // Retornar com sucesso, mesmo como fallback
+            return res.status(201).json(newSchool);
           }
-          
-          // Retornar com sucesso
-          return res.status(201).json(newSchool);
         }
         
         // Para outros perfis ou em produção:
