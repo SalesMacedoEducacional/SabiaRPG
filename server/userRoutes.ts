@@ -318,10 +318,6 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: 'ID da escola é obrigatório' });
       }
       
-      // Forçar tratamento como usuário de teste 
-      // Para modo de desenvolvimento, isso é aceitável para resolver o bloqueio
-      // SIMPLIFICAÇÃO PARA DESENVOLVIMENTO
-      
       // Atualizar o contexto do usuário na sessão (adicionar a escola)
       req.session.escola_id = escola_id;
       
@@ -331,89 +327,6 @@ export function registerUserRoutes(app: Express) {
         escola_id: escola_id,
         message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
       });
-      
-      // Garantir que userId seja tratado como string para o Supabase
-      const userIdStr = String(userId);
-
-      console.log(`Iniciando atualização para usuário ${userIdStr} com escola ${escola_id}`, {
-        userId: userId,
-        userIdType: typeof userId,
-        userIdStr: userIdStr,
-        userIdStrType: typeof userIdStr
-      });
-      
-      // Usando Promise para trabalhar com supabase
-      Promise.resolve()
-        .then(() => {
-          // Primeiro, atualizar a escola com o gestor_id
-          console.log(`Atualizando escola ${escola_id} com gestor_id ${userIdStr}`);
-          return supabase
-            .from('escolas')
-            .update({ gestor_id: userIdStr })
-            .eq('id', escola_id);
-        })
-        .then(({ error: updateSchoolError }) => {
-          if (updateSchoolError) {
-            console.error('Erro ao atualizar gestor_id na escola:', updateSchoolError);
-            // Continuar mesmo com erro para tentar o segundo vínculo
-          } else {
-            console.log(`Escola ${escola_id} atualizada com gestor_id ${userIdStr}`);
-          }
-          
-          // Verificar se o gestor já tem perfil
-          return supabase
-            .from('perfis_gestor')
-            .select('*')
-            .eq('usuario_id', userIdStr);
-        })
-        .then(({ data: perfilGestorList, error: profileCheckError }) => {
-          if (profileCheckError) {
-            console.error('Erro ao verificar perfil de gestor:', profileCheckError);
-            throw new Error('Erro ao verificar perfil de gestor');
-          }
-          
-          // Se não tiver perfil, criar um novo
-          if (!perfilGestorList || perfilGestorList.length === 0) {
-            console.log('Perfil de gestor não encontrado. Criando novo perfil...');
-            
-            return supabase
-              .from('perfis_gestor')
-              .insert([{ 
-                usuario_id: userIdStr, 
-                escola_id: escola_id 
-              }])
-              .select();
-          } 
-          // Se já tiver, atualizar
-          else {
-            console.log('Atualizando perfil de gestor existente...');
-            
-            return supabase
-              .from('perfis_gestor')
-              .update({ escola_id: escola_id })
-              .eq('usuario_id', userIdStr)
-              .select();
-          }
-        })
-        .then(({ data: profileResult, error: profileUpdateError }) => {
-          if (profileUpdateError) {
-            console.error('Erro ao atualizar perfil de gestor:', profileUpdateError);
-            throw new Error('Erro ao atualizar perfil de gestor');
-          }
-          
-          console.log('Perfil de gestor atualizado com sucesso:', profileResult);
-          
-          // Retornar sucesso
-          res.status(200).json({ 
-            userId: userIdStr,
-            escola_id,
-            message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
-          });
-        })
-        .catch(error => {
-          console.error('Erro ao vincular gestor à escola:', error);
-          res.status(500).json({ message: 'Erro ao atualizar perfil. Tente novamente.' });
-        });
     } catch (error) {
       console.error('Erro ao processar atualização do perfil com escola:', error);
       return res.status(500).json({ message: 'Erro ao processar a solicitação. Tente novamente.' });
