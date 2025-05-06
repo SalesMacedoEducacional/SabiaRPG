@@ -317,9 +317,14 @@ export function registerUserRoutes(app: Express) {
         return res.status(403).json({ message: 'Apenas gestores podem ser vinculados a escolas' });
       }
       
-      // Para usuários de teste
-      if (userId === 1003) { // gestor
-        console.log('Atualizando perfil do gestor de teste com escola_id:', escola_id);
+      console.log(`Verificando userId: ${userId}, typeof userId: ${typeof userId}`);
+      
+      // Para usuários de teste, qualquer userId numérico (como o 1003 do usuário de teste)
+      // O único usuário real vem do Supabase será ID UUID, portanto tipo string
+      if (typeof userId === 'number' || userId === 1003) { 
+        console.log('Detectado usuário de teste, atualizando perfil com escola_id:', escola_id);
+        // Atualizar o contexto do usuário na sessão (adicionar a escola)
+        req.session.escola_id = escola_id;
         return res.status(200).json({ 
           id: userId,
           escola_id: escola_id,
@@ -336,17 +341,6 @@ export function registerUserRoutes(app: Express) {
         userIdStr: userIdStr,
         userIdStrType: typeof userIdStr
       });
-      
-      // Para usuários de teste, hardcoded para 1003
-      // Especificar aqui mesmo sendo redundante para garantir funcionamento
-      if (userId === 1003 || userIdStr === '1003') { 
-        console.log('Atualizando perfil do gestor de teste com escola_id:', escola_id);
-        return res.status(200).json({ 
-          id: userId,
-          escola_id: escola_id,
-          message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
-        });
-      }
       
       // Usando Promise para trabalhar com supabase
       Promise.resolve()
