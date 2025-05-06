@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import { z } from "zod";
+import { supabase } from '../db/supabase.js';
 import MemoryStore from "memorystore";
 import { 
   insertUserSchema,
