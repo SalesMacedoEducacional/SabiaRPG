@@ -65,6 +65,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         const userData = await response.json();
         console.log('Dados do usuário:', userData);
+
+        // Se o usuário for um gestor, verificar a escola vinculada
+        if (userData && userData.role === 'manager') {
+          try {
+            // Verificar se já temos um school_id válido em localStorage/sessionStorage
+            const savedSchoolId = sessionStorage.getItem('saved_school_id');
+            if (savedSchoolId && !userData.escola_id) {
+              console.log('Recuperando ID da escola salvo no sessionStorage:', savedSchoolId);
+              userData.escola_id = savedSchoolId;
+            }
+            
+            // Verificar no servidor a escola vinculada
+            const schoolResponse = await apiRequest('GET', '/api/schools/check-manager-school');
+            if (schoolResponse.ok) {
+              const schoolData = await schoolResponse.json();
+              
+              if (schoolData.hasSchool && schoolData.school && schoolData.school.id) {
+                console.log('Escola encontrada para o gestor:', schoolData.school.id);
+                
+                // Atualizar o ID da escola no usuário
+                userData.escola_id = schoolData.school.id;
+                
+                // Salvar no sessionStorage também
+                sessionStorage.setItem('saved_school_id', schoolData.school.id);
+                sessionStorage.setItem('saved_school_name', schoolData.school.nome || '');
+                sessionStorage.setItem('saved_school_code', schoolData.school.codigo_escola || '');
+              }
+            }
+          } catch (error) {
+            console.error('Erro ao verificar escola do gestor:', error);
+          }
+        }
+        
         return userData;
       } catch (error) {
         console.error('Erro ao buscar usuário:', error);
@@ -87,8 +120,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Login response:', data);
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Inicialmente, usar os dados retornados do login
       queryClient.setQueryData(['/api/auth/me'], data);
+      
+      // Salvar no localStorage para persistência
+      localStorage.setItem('auth_user', JSON.stringify(data));
+      
+      // Se o usuário for um gestor, verificar se há uma escola associada
+      if (data.role === 'manager') {
+        try {
+          // Verificar escola vinculada
+          const schoolResponse = await apiRequest('GET', '/api/schools/check-manager-school');
+          if (schoolResponse.ok) {
+            const schoolData = await schoolResponse.json();
+            
+            // Se encontrou escola, atualizar o contexto do usuário com o ID da escola
+            if (schoolData.hasSchool && schoolData.school && schoolData.school.id) {
+              console.log('Escola encontrada para o gestor após login:', schoolData.school.id);
+              
+              // Atualizar o contexto e localStorage com o ID da escola
+              const updatedUserData = {
+                ...data,
+                escola_id: schoolData.school.id
+              };
+              
+              // Atualizar cache e localStorage
+              queryClient.setQueryData(['/api/auth/me'], updatedUserData);
+              localStorage.setItem('auth_user', JSON.stringify(updatedUserData));
+              
+              // Salvar dados básicos no sessionStorage também
+              sessionStorage.setItem('saved_school_id', schoolData.school.id);
+              sessionStorage.setItem('saved_school_name', schoolData.school.nome || '');
+              sessionStorage.setItem('saved_school_code', schoolData.school.codigo_escola || '');
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao verificar escola do gestor após login:', error);
+        }
+      }
+      
       toast({
         title: "Login bem-sucedido!",
         description: `Bem-vindo de volta, ${data.username}!`,
@@ -179,7 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userPermissions.includes(permissionId);
   };
   
-  // Função para atualizar os dados do usuário no contexto
+  // Função para atualizar os dados do usuário no contexto e localStorage
   const updateUser = (userData: Partial<User>) => {
     if (!user) return;
     
@@ -188,6 +259,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Atualizar o cache de consulta
     queryClient.setQueryData(['/api/auth/me'], updatedUser);
+    
+    // Atualizar também no localStorage para persistência entre recargas
+    try {
+      const storedUserData = localStorage.getItem('auth_user');
+      if (storedUserData) {
+        const parsedUserData = JSON.parse(storedUserData);
+        // Mesclar com os dados existentes e atualizar
+        const mergedUserData = { ...parsedUserData, ...userData };
+        localStorage.setItem('auth_user', JSON.stringify(mergedUserData));
+        console.log('Usuário atualizado no localStorage:', mergedUserData);
+      } else {
+        // Se não encontrar no localStorage, salvar o objeto atualizado completo
+        localStorage.setItem('auth_user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error('Erro ao persistir atualização no localStorage:', error);
+    }
     
     console.log('Usuário atualizado no contexto:', updatedUser);
   };
