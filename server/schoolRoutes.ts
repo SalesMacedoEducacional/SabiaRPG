@@ -52,59 +52,67 @@ export function registerSchoolRoutes(
         }
         
         console.log('Verificando escola vinculada ao gestor:', userId);
-        
-        // Verificar se há escola_id na sessão (abordagem simplificada)
-        if (req.session?.escola_id) {
-          console.log(`Escola encontrada na sessão: ${req.session.escola_id}`);
+      
+        // Verificar no banco de dados se o gestor possui escola
+        const { data, error } = await supabase
+          .from('escolas')
+          .select('*')
+          .eq('gestor_id', userId)
+          .order('criado_em', { ascending: false })
+          .limit(1);
           
-          // Retornar dados simulados para a escola encontrada na sessão
-          // Em ambiente de desenvolvimento, usamos dados mock
+        if (error) {
+          console.error('Erro ao consultar escola do gestor no banco:', error);
+        } else if (data && data.length > 0) {
+          // Escola encontrada no banco de dados
+          console.log(`Escola encontrada para gestor ${userId}:`, data[0].id);
+          
+          // Atualizar a sessão com o ID da escola
+          if (req.session) {
+            req.session.escola_id = data[0].id;
+          }
+          
           return res.status(200).json({
             hasSchool: true,
-            school: {
-              id: req.session.escola_id,
-              nome: "Escola do Gestor",
-              codigo_escola: "123456",
-              tipo: "estadual",
-              modalidade_ensino: "Fundamental e Médio",
-              cidade: "Teresina",
-              estado: "PI",
-              zona_geografica: "urbana",
-              endereco_completo: "Av. Principal, 1000",
-              telefone: "(86) 3222-1234",
-              email_institucional: "escola@edu.pi.gov.br",
-              gestor_id: userId,
-              createdAt: new Date().toISOString()
-            }
+            school: data[0]
           });
         }
         
-        // Verificar escolas de teste associadas ao gestor
-        // Para fins de desenvolvimento, retornamos um objeto fictício
-        // Verificar se o usuário é o gestor de teste específico
-        if (userId === 1003) { // ID do gestor de teste
-          // Verificar se há algum dado de escola salvo para este usuário
-          const escolasDoGestor = [
-            {
-              id: "escola_teste_gestor",
-              nome: "Escola de Teste do Gestor",
-              codigo_escola: "TESTE123",
-              tipo: "estadual",
-              modalidade_ensino: "Fundamental e Médio",
-              cidade: "Teresina",
-              estado: "PI",
-              zona_geografica: "urbana",
-              endereco_completo: "Rua de Teste, 123",
-              telefone: "(86) 99999-9999",
-              email_institucional: "teste@escola.edu.br",
-              gestor_id: 1003
-            }
-          ];
+        // Se não encontrou no banco, verificar se há escola_id na sessão
+        if (req.session?.escola_id) {
+          console.log(`Escola encontrada apenas na sessão: ${req.session.escola_id}`);
           
-          if (escolasDoGestor.length > 0) {
+          // Tentar recuperar do banco de dados novamente usando o ID da sessão
+          const { data: sessionSchool, error: sessionError } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('id', req.session.escola_id)
+            .single();
+            
+          if (!sessionError && sessionSchool) {
             return res.status(200).json({
               hasSchool: true,
-              school: escolasDoGestor[0]
+              school: sessionSchool
+            });
+          }
+        }
+        
+        // Fallback para modo de desenvolvimento - usuário gestor de teste
+        if (userId === 1003) { // ID do gestor de teste
+          console.log("Gestor de teste detectado: verificando escolas no banco de dados");
+          
+          // Tentar novamente com busca específica para o gestor de teste
+          const { data: testUserSchools, error: testUserError } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('gestor_id', 1003)
+            .limit(1);
+            
+          if (!testUserError && testUserSchools && testUserSchools.length > 0) {
+            // Escola encontrada para o gestor de teste
+            return res.status(200).json({
+              hasSchool: true,
+              school: testUserSchools[0]
             });
           }
         }
@@ -360,7 +368,14 @@ export function registerSchoolRoutes(
               }
               
               // Escola recuperada com sucesso após inserção
-              insertedSchool = fetchedSchool;
+              // Usar os dados recuperados
+              if (req.session) {
+                req.session.escola_id = fetchedSchool.id;
+                console.log(`Escola ID ${fetchedSchool.id} vinculada ao gestor na sessão`);
+              }
+              
+              // Retornar a escola recuperada
+              return res.status(201).json(fetchedSchool);
             }
             
             // Adicionar ID da escola à sessão do usuário

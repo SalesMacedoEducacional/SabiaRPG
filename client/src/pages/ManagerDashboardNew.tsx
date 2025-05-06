@@ -166,16 +166,73 @@ export default function ManagerDashboard() {
   const fetchSchools = async () => {
     setLoading(prev => ({ ...prev, schools: true }));
     try {
+      // Consultar as escolas usando a API
       const response = await apiRequest('GET', '/api/schools');
       const data = await response.json();
-      setSchools(data);
+      
+      if (data && data.length > 0) {
+        console.log('Escolas encontradas na API:', data);
+        setSchools(data);
+      } else {
+        console.log('Nenhuma escola encontrada na API, verificando escola na sessão');
+        
+        // Se não encontrar escolas, verificar se há escola salva na sessão
+        const savedSchoolId = sessionStorage.getItem('saved_school_id');
+        if (savedSchoolId) {
+          console.log('Escola encontrada na sessão:', savedSchoolId);
+          
+          // Tentar obter mais detalhes da escola
+          try {
+            const schoolResponse = await apiRequest('GET', `/api/schools/${savedSchoolId}`);
+            if (schoolResponse.ok) {
+              const schoolData = await schoolResponse.json();
+              setSchools([schoolData]);
+              return;
+            }
+          } catch (detailError) {
+            console.error('Erro ao buscar detalhes da escola da sessão:', detailError);
+          }
+          
+          // Se não conseguir buscar detalhes, usar dados da sessão
+          const schoolName = sessionStorage.getItem('saved_school_name') || 'Escola Cadastrada';
+          setSchools([{
+            id: savedSchoolId,
+            name: schoolName,
+            code: sessionStorage.getItem('saved_school_code') || '',
+            city: sessionStorage.getItem('saved_school_city') || '',
+            state: sessionStorage.getItem('saved_school_state') || '',
+            level: 'Fundamental e Médio',
+            students: 0,
+            teachers: 0,
+            active: true
+          }]);
+        }
+      }
     } catch (error) {
       console.error('Erro ao buscar escolas:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar a lista de escolas.',
-        variant: 'destructive'
-      });
+      
+      // Verificar se há uma escola no sessionStorage como último recurso
+      const savedSchoolId = sessionStorage.getItem('saved_school_id');
+      if (savedSchoolId) {
+        const schoolName = sessionStorage.getItem('saved_school_name') || 'Escola Cadastrada';
+        setSchools([{
+          id: savedSchoolId,
+          name: schoolName,
+          code: sessionStorage.getItem('saved_school_code') || '',
+          city: sessionStorage.getItem('saved_school_city') || '',
+          state: sessionStorage.getItem('saved_school_state') || '',
+          level: 'Fundamental e Médio',
+          students: 0,
+          teachers: 0,
+          active: true
+        }]);
+      } else {
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível carregar a lista de escolas.',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setLoading(prev => ({ ...prev, schools: false }));
     }
