@@ -293,10 +293,14 @@ export function registerUserRoutes(app: Express) {
   
   // Rota para atualizar o perfil do usuário com vínculo de escola
   app.patch('/api/users/update-profile', (req: any, res: Response) => {
-    console.log('Recebida requisição para atualizar perfil de usuário com escola');
+    console.log('Recebida requisição para atualizar perfil de usuário com escola', {
+      body: req.body,
+      session: req.session
+    });
     
     // Se o usuário não estiver autenticado, retornar erro
     if (!req.session || !req.session.userId) {
+      console.log('Usuário não autenticado na requisição');
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
@@ -305,7 +309,15 @@ export function registerUserRoutes(app: Express) {
       const userRole = req.session.userRole;
       const { escola_id } = req.body;
       
-      console.log(`Atualizando perfil do usuário ${userId} (${userRole}) com escola_id: ${escola_id}`);
+      console.log(`Atualizando perfil do usuário ${userId} (${userRole}) com escola_id: ${escola_id}`, {
+        userId: userId, 
+        userIdType: typeof userId,
+        userRole: userRole, 
+        userRoleType: typeof userRole,
+        escola_id: escola_id,
+        escola_idType: typeof escola_id,
+        sessionKeys: Object.keys(req.session || {}),
+      });
       
       // Validar se tem escola_id
       if (!escola_id) {
