@@ -70,6 +70,9 @@ interface SchoolData {
   id: string;
   name: string;
   code: string;
+  city?: string;
+  state?: string;
+  level?: string;
   teachers: number;
   students: number;
   active: boolean;
@@ -115,6 +118,34 @@ export default function ManagerDashboard() {
   
   // Verificar se é o primeiro acesso (sem escolas cadastradas)
   useEffect(() => {
+    // Verificar se há um ID de escola no sessionStorage (adicionado durante cadastro)
+    const savedSchoolId = sessionStorage.getItem('saved_school_id');
+    
+    // Se tiver uma escola salva na sessão, não redirecionar
+    if (savedSchoolId) {
+      console.log('Escola encontrada na sessão:', savedSchoolId);
+      setFirstTimeAccess(false);
+      
+      // Adicionar a escola aos dados locais se não estiver lá
+      if (schools.length === 0) {
+        const schoolName = sessionStorage.getItem('saved_school_name') || 'Escola Cadastrada';
+        setSchools([{
+          id: savedSchoolId,
+          name: schoolName,
+          code: sessionStorage.getItem('saved_school_code') || '',
+          city: sessionStorage.getItem('saved_school_city') || '',
+          state: sessionStorage.getItem('saved_school_state') || '',
+          level: 'Fundamental e Médio',
+          students: 0,
+          teachers: 0,
+          active: true
+        }]);
+      }
+      
+      return; // Não prosseguir com o redirecionamento
+    }
+    
+    // Somente redirecionar se não tiver escolas e não estiver carregando
     if (!loading.schools && schools.length === 0) {
       setFirstTimeAccess(true);
       
