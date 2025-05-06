@@ -397,7 +397,7 @@ export function registerSchoolRoutes(
         // Verificar se o usuário é um gestor
         if (req.session.userRole === 'manager') {
           // Para usuários de teste, verificar se o ID solicitado é o ID da escola simulada
-          if ((req.session.userId === 1003 || req.session.userId === '1003') &&
+          if (isTestUser(req.session.userId) && 
               (schoolId === 'school-test-1003' || schoolId === req.session?.escola_id)) {
             
             console.log('Retornando dados de escola simulada para gestor de teste');
@@ -442,7 +442,7 @@ export function registerSchoolRoutes(
             console.error('Erro ao buscar escola específica:', error);
             
             // Se for gestor de teste e ocorrer erro, tentar verificar se ID está na sessão
-            if ((req.session.userId === 1003 || req.session.userId === '1003') && 
+            if (isTestUser(req.session.userId) && 
                 req.session?.escola_id === schoolId) {
               const mockSchool = {
                 id: schoolId,
