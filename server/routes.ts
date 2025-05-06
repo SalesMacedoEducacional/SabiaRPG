@@ -610,11 +610,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(200).json(testUser);
       }
       
-      if (email === 'gestor@exemplo.com' && password === 'Senha123!') {
+      if ((email === 'gestor@exemplo.com' || email === 'gestor@teste.com') && password === 'Senha123!') {
         // Criar um usuário simulado para testes
         const testUser = {
           id: 1003,
-          email: 'gestor@exemplo.com',
+          email: email, // Usar o email informado
           username: 'gestor_teste',
           fullName: 'Gestor de Teste',
           role: 'manager',
@@ -631,6 +631,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Session:", req.session);
         
         return res.status(200).json(testUser);
+      }
+      
+      // Verificar se é o gestor criado manualmente no Supabase (bypass de validação de senha)
+      // Isso é útil para teste quando a senha foi inserida diretamente no banco
+      if (email === 'gestor@teste.com' && password === 'Senha123!') {
+        try {
+          // Tentar buscar do Supabase diretamente
+          const { data: userData, error: userError } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('email', email)
+            .single();
+            
+          if (!userError && userData) {
+            // Criar sessão com os dados do usuário
+            const testUser = {
+              id: userData.id,
+              email: userData.email,
+              username: userData.username || 'gestor_supabase',
+              fullName: userData.nome_completo || 'Gestor Supabase',
+              role: userData.papel || 'manager',
+              createdAt: userData.criado_em || new Date()
+            };
+            
+            // Set session
+            req.session.userId = testUser.id;
+            req.session.userRole = testUser.role;
+            
+            console.log("Login successful for Supabase user:", testUser.email);
+            console.log("Session:", req.session);
+            
+            return res.status(200).json(testUser);
+          }
+        } catch (supabaseError) {
+          console.error("Erro ao verificar usuário no Supabase:", supabaseError);
+        }
       }
       
       // Find user from database (para usuários normais)
