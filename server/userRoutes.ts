@@ -327,17 +327,52 @@ export function registerUserRoutes(app: Express) {
       }
       
       // Para usuários reais, atualizar no banco de dados
+      // Primeiro, verificar se o perfil de gestor existe
       pool.query(
-        'UPDATE perfis_gestor SET escola_id = $1 WHERE usuario_id = $2 RETURNING *',
-        [escola_id, userId]
-      ).then(result => {
+        'SELECT * FROM perfis_gestor WHERE usuario_id = $1',
+        [userId]
+      ).then(profileResult => {
+        // Se não existe, criar o perfil de gestor
+        if (profileResult.rowCount === 0) {
+          console.log('Perfil de gestor não encontrado. Criando novo perfil...');
+          
+          return pool.query(
+            'INSERT INTO perfis_gestor (usuario_id, escola_id) VALUES ($1, $2) RETURNING *',
+            [userId, escola_id]
+          );
+        } 
+        // Se existe, atualizar o perfil existente
+        else {
+          console.log('Atualizando perfil de gestor existente...');
+          
+          return pool.query(
+            'UPDATE perfis_gestor SET escola_id = $1 WHERE usuario_id = $2 RETURNING *',
+            [escola_id, userId]
+          );
+        }
+      }).then(result => {
         if (result.rowCount === 0) {
-          return res.status(404).json({ message: 'Perfil de gestor não encontrado' });
+          return res.status(500).json({ message: 'Não foi possível atualizar o perfil do gestor' });
         }
         
         console.log('Gestor vinculado à escola com sucesso:', result.rows[0]);
+        
+        // Agora, garantir que a escola tenha o gestor_id correto
+        return pool.query(
+          'UPDATE escolas SET gestor_id = $1 WHERE id = $2 RETURNING *',
+          [userId, escola_id]
+        );
+      }).then(schoolResult => {
+        // Mesmo se a atualização da escola falhar, o vínculo principal já foi feito
+        if (schoolResult.rowCount > 0) {
+          console.log('Escola atualizada com gestor_id:', schoolResult.rows[0]);
+        } else {
+          console.log('Escola não encontrada ou já possui o gestor_id correto');
+        }
+        
         return res.status(200).json({ 
-          ...result.rows[0],
+          userId,
+          escola_id,
           message: 'Perfil atualizado com sucesso! Gestor vinculado à escola.'
         });
       }).catch(error => {

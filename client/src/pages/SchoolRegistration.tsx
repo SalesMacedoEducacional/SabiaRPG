@@ -200,9 +200,24 @@ export default function SchoolRegistration() {
       
       // Atualizar contexto do usuário
       if (user) {
-        // Atualizar contexto do usuário com o ID da escola
-        updateUser({ escola_id: result.id });
-        console.log('Contexto do usuário atualizado com escola_id:', result.id);
+        try {
+          // Atualizar contexto do usuário com o ID da escola
+          updateUser({ escola_id: result.id });
+          console.log('Contexto do usuário atualizado com escola_id:', result.id);
+          
+          // Verificar se a atualização teve efeito
+          setTimeout(() => {
+            const updatedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+            if (updatedUser && updatedUser.escola_id === result.id) {
+              console.log('Confirmado: usuário atualizado no localStorage com escola_id:', updatedUser.escola_id);
+            } else {
+              console.warn('Alerta: escola_id pode não ter sido persistido corretamente no localStorage');
+            }
+          }, 500);
+        } catch (error) {
+          console.error('Erro ao atualizar contexto do usuário:', error);
+          // Não impede o fluxo principal em caso de erro
+        }
       }
       
       // Redirecionar para o dashboard do gestor
@@ -298,10 +313,19 @@ export default function SchoolRegistration() {
     <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center">
       <Card className="w-full">
         <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={logout} 
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Sair
+            </Button>
             <div className="bg-primary/10 p-3 rounded-full">
               <School className="h-10 w-10 text-primary" />
             </div>
+            <div className="w-16"></div> {/* Espaçador para centralizar o ícone */}
           </div>
           <CardTitle className="text-2xl text-center">Cadastro de Nova Escola</CardTitle>
           <CardDescription className="text-center">
@@ -541,10 +565,7 @@ export default function SchoolRegistration() {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 justify-center items-center text-sm text-muted-foreground">
-          <div>Todos os campos marcados são obrigatórios para o cadastro da escola</div>
-          <Button variant="ghost" size="sm" onClick={logout}>
-            Sair
-          </Button>
+          <div>Todos os campos marcados com <span className="text-red-500">*</span> são obrigatórios para o cadastro da escola</div>
         </CardFooter>
       </Card>
     </div>
