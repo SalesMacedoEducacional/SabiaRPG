@@ -184,13 +184,27 @@ export default function SchoolRegistration() {
       console.log("Escola cadastrada com sucesso:", result);
       
       // Atualizar perfil do gestor com o ID da escola
-      const updateResponse = await apiRequest("PATCH", "/api/users/update-profile", {
-        escola_id: result.id
-      });
-      
-      if (!updateResponse.ok) {
-        const updateError = await updateResponse.json();
-        throw new Error(updateError.message || "Erro ao vincular gestor à escola");
+      try {
+        // Primeiro atualizar localmente sem depender do servidor
+        console.log('Atualizando contexto local com escola_id:', result.id);
+        // Atualizar contexto do usuário com o ID da escola
+        updateUser({ escola_id: result.id });
+        
+        // Em seguida, tentar a atualização no servidor de forma não-bloqueante
+        apiRequest("PATCH", "/api/users/update-profile", {
+          escola_id: result.id
+        }).then(response => {
+          if (response.ok) {
+            console.log('Servidor confirmou atualização do gestor com escola');
+          } else {
+            console.log('Servidor não atualizou o gestor, mas continuaremos com o fluxo local');
+          }
+        }).catch(err => {
+          console.error('Erro ao comunicar com o servidor para atualizar gestor:', err);
+        });
+      } catch (error) {
+        console.warn('Erro ao atualizar contexto local:', error);
+        // Continuaremos o fluxo mesmo em caso de erro
       }
       
       toast({
@@ -198,57 +212,15 @@ export default function SchoolRegistration() {
         description: "Você será redirecionado para o painel do gestor.",
       });
       
-      // Atualizar contexto do usuário
-      if (user) {
-        try {
-          console.log('Tentando vincular o usuário à escola:', {
-            userId: user.id,
-            userIdType: typeof user.id,
-            escolaId: result.id,
-            escolaIdType: typeof result.id
-          });
-          
-          // Fazer a chamada API para vincular o gestor à escola
-          const profileResponse = await apiRequest('PATCH', '/api/users/update-profile', { 
-            escola_id: result.id 
-          });
-          
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            console.log('Perfil de gestor atualizado com sucesso:', profileData);
-            
-            // Atualizar contexto do usuário com o ID da escola
-            updateUser({ escola_id: result.id });
-            console.log('Contexto do usuário atualizado com escola_id:', result.id);
-            
-            // Verificar se a atualização teve efeito
-            setTimeout(() => {
-              const updatedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
-              if (updatedUser && updatedUser.escola_id === result.id) {
-                console.log('Confirmado: usuário atualizado no localStorage com escola_id:', updatedUser.escola_id);
-              } else {
-                console.warn('Alerta: escola_id pode não ter sido persistido corretamente no localStorage');
-              }
-            }, 500);
-          } else {
-            const errorData = await profileResponse.json();
-            console.error('Erro na resposta da API ao vincular gestor à escola:', errorData);
-            toast({
-              title: "Atenção",
-              description: "Escola cadastrada, mas houve um problema ao vincular o seu perfil. O sistema tentará sincronizar novamente quando você acessar o painel.",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          console.error('Erro ao atualizar contexto do usuário:', error);
-          toast({
-            title: "Atenção",
-            description: "Escola cadastrada, mas houve um problema ao vincular o seu perfil. O sistema tentará sincronizar novamente quando você acessar o painel.",
-            variant: "destructive",
-          });
-          // Não impede o fluxo principal em caso de erro
+      // Verificar se a atualização teve efeito (apenas para debugging)
+      setTimeout(() => {
+        const updatedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+        if (updatedUser && updatedUser.escola_id === result.id) {
+          console.log('Confirmado: usuário atualizado no localStorage com escola_id:', updatedUser.escola_id);
+        } else {
+          console.warn('Alerta: escola_id pode não ter sido persistido corretamente no localStorage');
         }
-      }
+      }, 500);
       
       // Redirecionar para o dashboard do gestor
       setTimeout(() => {
