@@ -1,6 +1,13 @@
 import { Express, Request, Response } from 'express';
 import { z } from 'zod';
 import { supabase } from '../db/supabase.js';
+import './types'; // Importa as extensões de tipo para express-session
+
+// Função auxiliar para comparar valores que podem ser string ou number
+function isTestUser(userId: string | number | undefined): boolean {
+  if (userId === undefined) return false;
+  return String(userId) === '1003';
+}
 
 // Schema para validação dos dados da escola
 const schoolSchema = z.object({
@@ -110,7 +117,7 @@ export function registerSchoolRoutes(
         // Solução temporária para contornar políticas RLS
         
         // Para o usuário de teste, simular uma escola
-        if (userId === 1003 || userId === '1003') {
+        if (String(userId) === '1003') {
           console.log('Usando escola simulada para usuário gestor de teste');
           
           const mockSchool = {
@@ -160,7 +167,7 @@ export function registerSchoolRoutes(
         }
         
         // Fallback para modo de desenvolvimento - usuário gestor de teste
-        if (userId === 1003) { // ID do gestor de teste
+        if (String(userId) === '1003') { // ID do gestor de teste
           console.log("Gestor de teste detectado: verificando escolas no banco de dados");
           
           // Tentar novamente com busca específica para o gestor de teste
@@ -212,7 +219,7 @@ export function registerSchoolRoutes(
         }
         
         // Para usuário de teste específico
-        if (req.session.userId === 1003) {
+        if (String(req.session.userId) === '1003') {
           // Verificar se há algum dado de escola salvo para este usuário
           return res.status(200).json({ 
             hasSchools: true,
@@ -268,7 +275,7 @@ export function registerSchoolRoutes(
         // Verificar se o usuário é um gestor
         if (req.session.userRole === 'manager') {
           // Para o usuário de teste, simular uma lista de escolas
-          if (req.session.userId === 1003 || req.session.userId === '1003') {
+          if (isTestUser(req.session.userId)) {
             console.log('Usando lista de escolas simulada para gestor de teste');
             
             // Verificar se existe ID da escola na sessão
@@ -303,7 +310,7 @@ export function registerSchoolRoutes(
             console.error('Erro ao buscar escolas do gestor:', error);
             
             // Se for gestor de teste e ocorrer erro, retornar lista simulada
-            if (req.session.userId === 1003 || req.session.userId === '1003') {
+            if (isTestUser(req.session.userId)) {
               const mockSchool = {
                 id: 'school-test-1003',
                 nome: 'Escola Simulada SABIÁ',
@@ -332,8 +339,7 @@ export function registerSchoolRoutes(
           }
           
           // Se não encontrou nenhuma escola no banco e é usuário de teste
-          if ((!data || data.length === 0) && 
-              (req.session.userId === 1003 || req.session.userId === '1003')) {
+          if ((!data || data.length === 0) && isTestUser(req.session.userId)) {
             const mockSchool = {
               id: 'school-test-1003',
               nome: 'Escola Simulada SABIÁ',
