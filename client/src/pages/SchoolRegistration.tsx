@@ -201,21 +201,51 @@ export default function SchoolRegistration() {
       // Atualizar contexto do usuário
       if (user) {
         try {
-          // Atualizar contexto do usuário com o ID da escola
-          updateUser({ escola_id: result.id });
-          console.log('Contexto do usuário atualizado com escola_id:', result.id);
+          console.log('Tentando vincular o usuário à escola:', {
+            userId: user.id,
+            userIdType: typeof user.id,
+            escolaId: result.id,
+            escolaIdType: typeof result.id
+          });
           
-          // Verificar se a atualização teve efeito
-          setTimeout(() => {
-            const updatedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
-            if (updatedUser && updatedUser.escola_id === result.id) {
-              console.log('Confirmado: usuário atualizado no localStorage com escola_id:', updatedUser.escola_id);
-            } else {
-              console.warn('Alerta: escola_id pode não ter sido persistido corretamente no localStorage');
-            }
-          }, 500);
+          // Fazer a chamada API para vincular o gestor à escola
+          const profileResponse = await apiRequest('PATCH', '/api/users/update-profile', { 
+            escola_id: result.id 
+          });
+          
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            console.log('Perfil de gestor atualizado com sucesso:', profileData);
+            
+            // Atualizar contexto do usuário com o ID da escola
+            updateUser({ escola_id: result.id });
+            console.log('Contexto do usuário atualizado com escola_id:', result.id);
+            
+            // Verificar se a atualização teve efeito
+            setTimeout(() => {
+              const updatedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+              if (updatedUser && updatedUser.escola_id === result.id) {
+                console.log('Confirmado: usuário atualizado no localStorage com escola_id:', updatedUser.escola_id);
+              } else {
+                console.warn('Alerta: escola_id pode não ter sido persistido corretamente no localStorage');
+              }
+            }, 500);
+          } else {
+            const errorData = await profileResponse.json();
+            console.error('Erro na resposta da API ao vincular gestor à escola:', errorData);
+            toast({
+              title: "Atenção",
+              description: "Escola cadastrada, mas houve um problema ao vincular o seu perfil. O sistema tentará sincronizar novamente quando você acessar o painel.",
+              variant: "destructive",
+            });
+          }
         } catch (error) {
           console.error('Erro ao atualizar contexto do usuário:', error);
+          toast({
+            title: "Atenção",
+            description: "Escola cadastrada, mas houve um problema ao vincular o seu perfil. O sistema tentará sincronizar novamente quando você acessar o painel.",
+            variant: "destructive",
+          });
           // Não impede o fluxo principal em caso de erro
         }
       }
