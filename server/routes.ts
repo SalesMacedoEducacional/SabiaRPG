@@ -686,22 +686,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email e senha são obrigatórios" });
       }
       
-      // Autenticar usando Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // Autenticar usando nova API do Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      if (authError) {
-        console.error("Erro de autenticação no Supabase:", authError.message);
+      if (error) {
+        console.error("Erro de autenticação no Supabase:", error.message);
         return res.status(401).json({ message: "Credenciais inválidas" });
       }
       
-      if (!authData || !authData.user) {
+      if (!data || !data.user) {
         console.error("Usuário não encontrado após autenticação");
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
       
+      const authData = data;
       console.log("Usuário autenticado no Supabase. ID:", authData.user.id);
       
       // Obter dados completos do usuário no Supabase
@@ -744,9 +745,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Armazenar dados na sessão
-      req.session.userId = authData.user.id;
-      req.session.userRole = usuarioDb.papel;
-      req.session.authToken = authData.session.access_token;
+      if (req.session) {
+        req.session.userId = authData.user.id;
+        req.session.userRole = usuarioDb.papel;
+        
+        // Armazenar o token de acesso
+        if (authData.session && authData.session.access_token) {
+          req.session.authToken = authData.session.access_token;
+        }
+      }
       
       console.log("Login bem-sucedido para:", email);
       console.log("ID do usuário autenticado (auth.uid):", authData.user.id);
@@ -767,8 +774,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         level: usuarioDb.nivel || 1,
         xp: usuarioDb.xp || 0,
         createdAt: usuarioDb.criado_em || new Date(),
-        token: authData.session.access_token
+        token: authData.session?.access_token || ''
       };
+      
+      // Log de debug para a sessão
+      console.log("Sessão após login:", {
+        userId: req.session?.userId,
+        userRole: req.session?.userRole,
+        authToken: req.session?.authToken ? 'Token presente' : 'Token ausente'
+      });
       
       return res.status(200).json(userResponse);
     } catch (error) {

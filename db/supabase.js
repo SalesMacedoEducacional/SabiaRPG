@@ -3,7 +3,19 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Erro: SUPABASE_URL e SUPABASE_KEY são obrigatórios nas variáveis de ambiente');
+  console.error('   Verifique se as variáveis estão definidas no ambiente ou arquivo .env');
+}
+
+// Inicializar cliente Supabase com opções
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 /**
  * Executa SQL diretamente no Supabase através da API
