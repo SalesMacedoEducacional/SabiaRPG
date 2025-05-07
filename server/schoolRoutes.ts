@@ -4,6 +4,7 @@ import './types'; // Importa as extensões de tipo para express-session
 import { db } from './db';
 import { escolas, perfilGestor } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
+import { supabase } from '../db/supabase';
 
 // Função auxiliar para comparar valores que podem ser string ou number
 function isTestUser(userId: string | number | undefined): boolean {
@@ -685,41 +686,62 @@ export function registerSchoolRoutes(
           console.log('Inserindo escola com dados:', escolaInsert);
           
           try {
-            // Salvar a escola no banco de dados usando Drizzle ORM
-            const insertedSchools = await db.insert(escolas).values({
-              nome: escolaInsert.nome,
-              codigoEscola: escolaInsert.codigo_escola,
-              endereco: escolaInsert.endereco_completo,
-              telefone: escolaInsert.telefone,
-            }).returning();
-            
-            if (!insertedSchools || insertedSchools.length === 0) {
-              console.error('Escola inserida, mas não retornada');
+            // Tenta salvar a escola usando o Supabase direto
+            const { data: insertedSupabaseSchool, error: supabaseError } = await supabase
+              .from('escolas')
+              .insert({
+                nome: escolaInsert.nome,
+                codigo_escola: escolaInsert.codigo_escola,
+                tipo: escolaInsert.tipo,
+                modalidade_ensino: escolaInsert.modalidade_ensino,
+                cidade: escolaInsert.cidade,
+                estado: escolaInsert.estado,
+                zona_geografica: escolaInsert.zona_geografica,
+                endereco_completo: escolaInsert.endereco_completo,
+                telefone: escolaInsert.telefone,
+                email_institucional: escolaInsert.email_institucional,
+                gestor_id: escolaInsert.gestor_id,
+                criado_em: new Date().toISOString(),
+                ativo: true
+              })
+              .select()
+              .single();
+              
+            if (supabaseError) {
+              console.error('Erro ao inserir escola no Supabase:', supabaseError);
+              
+              // Retornar erro ao cliente
               return res.status(500).json({ 
-                message: 'Falha ao obter dados da escola cadastrada'
+                message: 'Erro ao cadastrar escola no Supabase', 
+                details: supabaseError.message 
               });
             }
             
-            const insertedSchool = insertedSchools[0];
+            const insertedSchool = insertedSupabaseSchool;
             
             // Escola salva com sucesso
             const schoolId = insertedSchool.id;
-            console.log(`Escola cadastrada com sucesso. ID: ${schoolId}`);
+            console.log(`Escola cadastrada com sucesso no Supabase. ID: ${schoolId}`);
             
-            // Criar vínculo na tabela perfis_gestor
-            const perfilGestorResult = await db.insert(perfilGestor).values({
-              usuarioId: userId,
-              escolaId: schoolId,
-              cargo: 'Gestor Escolar',
-              permissoesEspeciais: {},
-            }).returning();
-            
-            if (!perfilGestorResult || perfilGestorResult.length === 0) {
-              console.error('Erro ao criar perfil do gestor');
+            // Criar vínculo na tabela perfis_gestor usando Supabase
+            const { data: perfilGestorData, error: perfilError } = await supabase
+              .from('perfis_gestor')
+              .insert({
+                usuario_id: userId,
+                escola_id: schoolId,
+                cargo: 'Gestor Escolar',
+                nivel_acesso: 'completo',
+                data_vinculo: new Date().toISOString(),
+                ativo: true
+              })
+              .select()
+              .single();
+              
+            if (perfilError) {
+              console.error('Erro ao criar perfil do gestor no Supabase:', perfilError);
               // Continuar mesmo com erro no perfil, pois a escola já foi criada
             } else {
-              const perfilGestorEntry = perfilGestorResult[0];
-              console.log('Perfil de gestor criado com sucesso. ID:', perfilGestorEntry?.id);
+              console.log('Perfil de gestor criado com sucesso no Supabase. ID:', perfilGestorData.id);
             }
           
             // Adicionar ID da escola à sessão do usuário
