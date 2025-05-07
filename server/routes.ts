@@ -464,100 +464,215 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Authentication middleware
-  const authenticate = (req: Request, res: Response, next: Function) => {
-    if (!req.session.userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    next();
-  };
-
-  // Role authorization middleware
-  const requireRole = (roles: string[]) => {
-    return async (req: Request, res: Response, next: Function) => {
+  // Middleware de autenticação usando Supabase
+  const authenticate = async (req: Request, res: Response, next: Function) => {
+    try {
+      // Verificar se o usuário está autenticado na sessão
       if (!req.session.userId) {
-        return res.status(401).json({ message: "Unauthorized" });
+        console.log("Usuário não autenticado na sessão");
+        return res.status(401).json({ message: "Não autorizado" });
       }
       
-      // Verificar se é um usuário de teste com base no userRole na sessão
-      if (req.session.userRole && roles.includes(req.session.userRole)) {
-        return next();
+      // Se tivermos um token JWT na sessão, configurar o Supabase
+      if (req.session.authToken) {
+        supabase.auth.setAuth(req.session.authToken);
       }
+      
+      next();
+    } catch (error) {
+      console.error("Erro no middleware de autenticação:", error);
+      return res.status(500).json({ message: "Erro no servidor durante autenticação" });
+    }
+  };
 
+  // Middleware de autorização de papel usando Supabase
+  const requireRole = (roles: string[]) => {
+    return async (req: Request, res: Response, next: Function) => {
       try {
-        // Para usuários regulares armazenados no banco de dados
-        const user = await storage.getUser(req.session.userId);
-        if (!user || !roles.includes(user.role)) {
-          return res.status(403).json({ message: "Forbidden: Insufficient permissions" });
+        // Verificar se o usuário está autenticado
+        if (!req.session.userId) {
+          return res.status(401).json({ message: "Não autorizado" });
         }
+        
+        // Verificar papel do usuário na sessão
+        if (req.session.userRole && roles.includes(req.session.userRole)) {
+          return next();
+        }
+        
+        // Consultar o papel do usuário diretamente no Supabase
+        const { data: userData, error: userError } = await supabase
+          .from('usuarios')
+          .select('papel')
+          .eq('id', req.session.userId)
+          .single();
+          
+        if (userError || !userData) {
+          console.error("Erro ao verificar papel do usuário:", userError?.message);
+          return res.status(403).json({ message: "Permissão negada: Usuário não encontrado" });
+        }
+        
+        // Converter papel para formato da aplicação
+        let role = "student";
+        if (userData.papel === "professor") role = "teacher";
+        if (userData.papel === "gestor") role = "manager";
+        
+        // Verificar se o papel do usuário está na lista de papéis permitidos
+        if (!roles.includes(role)) {
+          return res.status(403).json({ message: "Permissão negada: Perfil não autorizado" });
+        }
+        
         next();
       } catch (error) {
-        console.error('Error in requireRole middleware:', error);
+        console.error('Erro no middleware requireRole:', error);
         return res.status(500).json({ 
-          message: "Internal server error" 
+          message: "Erro interno do servidor" 
         });
       }
     };
   };
 
-  // Role authorization middleware
+  // Middleware de autorização usando Supabase
   const authorize = (roles: string[]) => {
     return async (req: Request, res: Response, next: Function) => {
-      if (!req.session.userId) {
-        return res.status(401).json({ message: "Unauthorized" });
+      try {
+        // Verificar se o usuário está autenticado
+        if (!req.session.userId) {
+          return res.status(401).json({ message: "Não autorizado" });
+        }
+        
+        // Verificar papel do usuário na sessão
+        if (req.session.userRole && roles.includes(req.session.userRole)) {
+          return next();
+        }
+        
+        // Verificar papel usando o Supabase diretamente
+        if (req.session.authToken) {
+          supabase.auth.setAuth(req.session.authToken);
+        }
+        
+        // Consultar o papel do usuário diretamente no Supabase
+        const { data: userData, error: userError } = await supabase
+          .from('usuarios')
+          .select('papel')
+          .eq('id', req.session.userId)
+          .single();
+          
+        if (userError || !userData) {
+          console.error("Erro ao verificar papel do usuário:", userError?.message);
+          return res.status(403).json({ message: "Permissão negada: Usuário não encontrado" });
+        }
+        
+        // Converter papel para formato da aplicação
+        let role = "student";
+        if (userData.papel === "professor") role = "teacher";
+        if (userData.papel === "gestor") role = "manager";
+        
+        // Verificar se o papel do usuário está na lista de papéis permitidos
+        if (!roles.includes(role)) {
+          return res.status(403).json({ message: "Permissão negada: Perfil não autorizado" });
+        }
+        
+        next();
+      } catch (error) {
+        console.error('Erro no middleware authorize:', error);
+        return res.status(500).json({ message: "Erro interno do servidor" });
       }
-      
-      // Verificar se é um usuário de teste com base no userRole na sessão
-      if (req.session.userRole && roles.includes(req.session.userRole)) {
-        return next();
-      }
-
-      const user = await storage.getUser(req.session.userId);
-      if (!user || !roles.includes(user.role)) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
-
-      next();
     };
   };
 
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const userData = insertUserSchema.parse(req.body);
+      const { email, password, username, fullName, role } = req.body;
       
-      // Check if user already exists
-      const existingEmail = await storage.getUserByEmail(userData.email);
-      if (existingEmail) {
-        return res.status(400).json({ message: "Email already in use" });
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
       }
       
-      const existingUsername = await storage.getUserByUsername(userData.username);
-      if (existingUsername) {
-        return res.status(400).json({ message: "Username already taken" });
+      console.log("Tentando registrar novo usuário:", email);
+      
+      // Verificar se email já existe no Supabase Auth
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('usuarios')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
+        
+      if (existingUsers && existingUsers.length > 0) {
+        return res.status(400).json({ message: "Email já está em uso" });
       }
       
-      // Hash password
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      
-      // Create user
-      const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
+      // Registrar no Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password
       });
       
-      // Set session
-      req.session.userId = user.id;
-      req.session.userRole = user.role;
-      
-      // Return user without password
-      const { password, ...userWithoutPassword } = user;
-      res.status(201).json(userWithoutPassword);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: error.errors });
+      if (authError) {
+        console.error("Erro ao registrar no Supabase Auth:", authError.message);
+        return res.status(500).json({ message: "Erro ao criar conta: " + authError.message });
       }
-      res.status(500).json({ message: "Server error during registration" });
+      
+      if (!authData || !authData.user) {
+        console.error("Usuário não encontrado após registro");
+        return res.status(500).json({ message: "Erro ao criar conta: usuário não encontrado" });
+      }
+      
+      console.log("Usuário registrado no Supabase Auth. ID:", authData.user.id);
+      
+      // Determinar papel com base no parâmetro ou no email
+      let papel = "aluno";
+      if (role === "teacher" || email.includes('professor')) papel = "professor";
+      if (role === "manager" || email.includes('gestor')) papel = "gestor";
+      
+      // Criar o perfil de usuário na tabela usuarios
+      const { data: userData, error: profileError } = await supabase
+        .from('usuarios')
+        .insert({
+          id: authData.user.id,
+          email: email,
+          username: username || email.split('@')[0],
+          nome_completo: fullName || "Usuário",
+          papel: papel,
+          senha_hash: "autenticado_pelo_supabase"
+        })
+        .select()
+        .single();
+        
+      if (profileError) {
+        console.error("Erro ao criar perfil do usuário:", profileError.message);
+        // TODO: considerar excluir o usuário do Auth já que o perfil falhou
+        return res.status(500).json({ message: "Erro ao criar perfil de usuário" });
+      }
+      
+      // Armazenar dados na sessão
+      req.session.userId = authData.user.id;
+      req.session.userRole = papel;
+      if (authData.session) {
+        req.session.authToken = authData.session.access_token;
+      }
+      
+      // Converter papel para formato da aplicação
+      let userRole = "student";
+      if (papel === "professor") userRole = "teacher";
+      if (papel === "gestor") userRole = "manager";
+      
+      // Construir resposta de usuário
+      const userResponse = {
+        id: authData.user.id,
+        email: email,
+        username: username || email.split('@')[0],
+        fullName: fullName || "Usuário",
+        role: userRole,
+        level: 1,
+        xp: 0,
+        createdAt: new Date()
+      };
+      
+      res.status(201).json(userResponse);
+    } catch (error) {
+      console.error("Erro durante o registro:", error);
+      res.status(500).json({ message: "Erro no servidor durante o registro" });
     }
   });
 
@@ -662,13 +777,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Failed to logout" });
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      // Fazer logout no Supabase Auth se tiver token
+      if (req.session.authToken) {
+        supabase.auth.setAuth(req.session.authToken);
+        await supabase.auth.signOut();
       }
-      res.status(200).json({ message: "Logged out successfully" });
-    });
+      
+      // Destruir a sessão no servidor
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Erro ao destruir sessão:", err);
+          return res.status(500).json({ message: "Erro ao fazer logout" });
+        }
+        res.status(200).json({ message: "Logout realizado com sucesso" });
+      });
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      res.status(500).json({ message: "Erro ao fazer logout" });
+    }
   });
 
   app.get("/api/auth/me", async (req, res) => {
