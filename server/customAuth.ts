@@ -120,7 +120,7 @@ export async function handleCustomLogin(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, senha_hash, papel, nome_completo')
+      .select('id, email, senha_hash, papel')
       .eq('email', email)
       .maybeSingle();
     
@@ -192,7 +192,7 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, papel, nome_completo, criado_em, avatar_url, escola_id')
+      .select('id, email, papel, escola_id')
       .eq('id', req.session.userId)
       .maybeSingle();
     
@@ -224,9 +224,6 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       id: usuarioEncontrado.id,
       email: usuarioEncontrado.email,
       role: usuarioEncontrado.papel,
-      fullName: usuarioEncontrado.nome_completo,
-      createdAt: usuarioEncontrado.criado_em,
-      avatarUrl: usuarioEncontrado.avatar_url,
       escola_id: usuarioEncontrado.escola_id
     };
     
