@@ -46,8 +46,14 @@ export const escolas = pgTable("escolas", {
   id: uuid("id").primaryKey().defaultRandom(),
   nome: text("nome").notNull(),
   codigoEscola: text("codigo_escola").notNull().unique(),
+  tipo: text("tipo").notNull(), // estadual, municipal, particular, federal
+  modalidadeEnsino: text("modalidade_ensino").notNull(), // fundamental, médio, etc
+  cidade: text("cidade").notNull(),
+  estado: text("estado").notNull(),
+  zonaGeografica: text("zona_geografica").notNull(), // urbana, rural
   endereco: text("endereco"),
   telefone: text("telefone"),
+  emailInstitucional: text("email_institucional"),
   configTrilhas: json("config_trilhas").default({}), // Configurações de trilhas específicas da escola
   calendarioTriagens: json("calendario_triagens").default({}), // Calendário de triagens diagnósticas
   criadoEm: timestamp("criado_em").defaultNow(),

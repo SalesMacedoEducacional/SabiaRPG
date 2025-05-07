@@ -148,8 +148,14 @@ export function registerDrizzleSchoolRoutes(
             const escolaInsert = {
               nome: schoolData.nome,
               codigoEscola: schoolData.codigo_escola || '',
+              tipo: schoolData.tipo,
+              modalidadeEnsino: schoolData.modalidade_ensino,
+              cidade: schoolData.cidade,
+              estado: schoolData.estado,
+              zonaGeografica: schoolData.zona_geografica,
               endereco: schoolData.endereco_completo || null,
               telefone: schoolData.telefone || null,
+              emailInstitucional: schoolData.email_institucional || null
             };
             
             console.log('Inserindo escola com dados:', escolaInsert);
