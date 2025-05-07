@@ -160,9 +160,26 @@ const Login: React.FC = () => {
       setIsLoading(true);
       await login(data.email, data.password);
       
-      // O redirecionamento será tratado pelo componente ProtectedRoute no App.tsx
-      // Pois ele já direciona para /teacher, /manager ou / (aluno) conforme a role
-      setLocation('/');
+      // Verificar se é um gestor que precisa de escola
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+      const needsSchool = localStorage.getItem('manager_needs_school') === 'true';
+      
+      console.log('Usuário logado:', user);
+      console.log('Precisa de escola?', needsSchool);
+      
+      if (user.role === 'manager' && needsSchool) {
+        // Limpar flag que indica necessidade de escola
+        localStorage.removeItem('manager_needs_school');
+        
+        // Redirecionar para a página de registro de escola
+        console.log('Redirecionando gestor para cadastro de escola');
+        setLocation('/school-registration');
+      } else {
+        // Redirecionamento normal para outro perfil ou gestor com escola
+        // O redirecionamento será tratado pelo componente ProtectedRoute no App.tsx
+        // Pois ele já direciona para /teacher, /manager ou / (aluno) conforme a role
+        setLocation('/');
+      }
     } catch (error) {
       console.error('Login error:', error);
     } finally {

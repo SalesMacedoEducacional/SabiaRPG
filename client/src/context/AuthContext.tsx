@@ -153,10 +153,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               sessionStorage.setItem('saved_school_id', schoolData.school.id);
               sessionStorage.setItem('saved_school_name', schoolData.school.nome || '');
               sessionStorage.setItem('saved_school_code', schoolData.school.codigo_escola || '');
+              
+              // Redirecionamento para o dashboard do gestor será feito pela página de login
+            } else {
+              // Escola não encontrada - Definir flag para redirecionamento ao formulário de escola
+              console.log('Gestor não possui escola vinculada, será redirecionado para cadastro de escola');
+              localStorage.setItem('manager_needs_school', 'true');
             }
+          } else {
+            // Erro na verificação ou escola não encontrada
+            console.log('Gestor não possui escola vinculada ou houve erro na verificação');
+            localStorage.setItem('manager_needs_school', 'true');
           }
         } catch (error) {
           console.error('Erro ao verificar escola do gestor após login:', error);
+          // Por segurança, também marcar para redirecionamento
+          localStorage.setItem('manager_needs_school', 'true');
         }
       }
       

@@ -55,20 +55,20 @@ export default function ManagerDashboard() {
     users: false
   });
   
-  // Dados estatísticos para o dashboard (serão substituídos por dados reais)
+  // Dados estatísticos para o dashboard (serão buscados via API)
   const [stats, setStats] = useState({
-    totalSchools: 3,
-    activeSchools: 2,
-    totalTeachers: 105,
-    totalStudents: 1990,
-    activeClasses: 24,
-    activeStudents7Days: 487,
-    activeStudents30Days: 1248,
-    potentialEvasion: 38,
-    engagementLevel: 72,
-    missionsInProgress: 149,
-    missionsCompleted: 263,
-    missionsPending: 92
+    totalSchools: 0,
+    activeSchools: 0,
+    totalTeachers: 0,
+    totalStudents: 0,
+    activeClasses: 0,
+    activeStudents7Days: 0,
+    activeStudents30Days: 0,
+    potentialEvasion: 0,
+    engagementLevel: 0,
+    missionsInProgress: 0,
+    missionsCompleted: 0,
+    missionsPending: 0
   });
   
   // Buscar os dados iniciais
