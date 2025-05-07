@@ -3,7 +3,8 @@ import { User } from 'lucide-react';
 
 interface AvatarProps {
   user: {
-    username: string;
+    username?: string;
+    email?: string;
     avatarUrl?: string;
     level?: number;
   } | null;
@@ -24,7 +25,12 @@ export const Avatar: React.FC<AvatarProps> = ({ user, size = 'medium', showBadge
   }
 
   // Get user initials for the fallback
-  const initials = user.username.substring(0, 2).toUpperCase();
+  let initials = 'US';
+  if (user.username) {
+    initials = user.username.substring(0, 2).toUpperCase();
+  } else if (user.email) {
+    initials = user.email.substring(0, 2).toUpperCase();
+  }
 
   // Avatar size classes
   const sizeClasses = {
@@ -57,7 +63,7 @@ export const Avatar: React.FC<AvatarProps> = ({ user, size = 'medium', showBadge
         {user.avatarUrl ? (
           <img 
             src={user.avatarUrl} 
-            alt={user.username} 
+            alt={user.username || user.email || 'Avatar do usuário'} 
             className="w-full h-full object-cover" 
           />
         ) : (
