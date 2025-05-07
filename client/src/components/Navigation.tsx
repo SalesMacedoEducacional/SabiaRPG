@@ -161,7 +161,7 @@ const Navigation: React.FC = () => {
                   <Avatar>
                     <AvatarImage src={user.avatarUrl} alt={user.username} />
                     <AvatarFallback className="bg-primary text-parchment">
-                      {user.username.substring(0, 2).toUpperCase()}
+                      {user.username ? user.username.substring(0, 2).toUpperCase() : user.email ? user.email.substring(0, 2).toUpperCase() : 'US'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -195,7 +195,7 @@ const Navigation: React.FC = () => {
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatarUrl} alt={user.username} />
                       <AvatarFallback className="bg-primary text-parchment">
-                        {user.username.substring(0, 2).toUpperCase()}
+                        {user.username ? user.username.substring(0, 2).toUpperCase() : user.email ? user.email.substring(0, 2).toUpperCase() : 'US'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="ml-3">
