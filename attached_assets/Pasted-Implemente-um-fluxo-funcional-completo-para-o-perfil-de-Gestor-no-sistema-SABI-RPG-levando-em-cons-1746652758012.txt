@@ -1,0 +1,119 @@
+Implemente um fluxo funcional completo para o perfil de Gestor no sistema SABIÁ RPG, levando em consideração o comportamento real, a estrutura do banco de dados, as restrições RLS, e o layout do dashboard apresentado nas imagens de referência. Siga todas as diretrizes abaixo sem omitir nenhuma.
+
+1. Login e Validação
+
+Ao realizar login, identifique se o usuário possui o papel gestor (auth.role() = 'gestor').
+
+Verifique se há algum registro na tabela perfis_gestor associado ao auth.uid().
+
+Caso não haja vinculação com escola, redirecione automaticamente o gestor para o formulário de cadastro de escola (/cadastrar-escola).
+
+Caso haja vinculação, redirecione para o Dashboard do Gestor (/gestor/dashboard).
+
+2. Cadastro da Escola (Exclusivo para Gestores)
+
+Exiba o formulário para preenchimento dos seguintes campos:
+
+Nome da Escola
+
+Código INEP ou identificador
+
+Cidade/Estado
+
+Etapas de ensino
+
+Outras informações necessárias para identificação
+
+Ao salvar:
+
+Crie o registro na tabela escolas
+
+Imediatamente crie o vínculo na tabela perfis_gestor com o usuario_id = auth.uid() e escola_id correspondente
+
+Redirecione o gestor ao seu dashboard já com a escola vinculada
+
+3. Dashboard do Gestor (Visão Geral)
+
+Preencher os cards com dados reais do banco:
+
+Total de Escolas Vinculadas (do gestor)
+
+Total de Professores na(s) escola(s)
+
+Total de Alunos
+
+Total de Turmas Ativas
+
+Alunos Ativos nos últimos 7/30 dias (baseado na tabela progresso_aluno ou logins)
+
+Alerta de Evasão Potencial (alunos com mais de 10 dias sem acesso)
+
+Nível de Engajamento (baseado em tempo de uso e missões completadas)
+
+Missões (em andamento, concluídas, pendentes)
+
+4. Escolas com Maior Engajamento
+
+Listar escolas com maior taxa de participação (baseado em número de alunos ativos / total de alunos)
+
+Mostrar percentual de engajamento com barra de progresso
+
+5. Atividade Recente
+
+Exibir registros de eventos recentes da escola (cadastro de usuários, relatórios, alertas)
+
+Buscar dados da tabela de logs ou notificações relacionadas às escolas do gestor
+
+6. Relatórios
+
+Implementar filtro por:
+
+Tipo de relatório (por turma, escola, geral)
+
+Escola
+
+Turma
+
+Período (Bimestral, Trimestral, Anual)
+
+Métricas: Desempenho, Missões, Trilhas, Engajamento
+
+Exportações suportadas: PDF, XLSX, ODS, CSV
+
+Registrar a geração na tabela de relatórios e exibir na área de "Relatórios Recentes"
+
+7. Configurações do Gestor
+
+Gerenciamento de Escolas: Exibir escolas vinculadas com opção de editar dados
+
+Gerenciamento de Usuários: Listar todos os usuários da escola (professores, alunos)
+
+Permissões e Temas Prioritários: Salvar informações em tabela própria
+
+Cronograma de Missões: Configurar datas e frequências por escola (armazenar em tabela cronograma ou configurações)
+
+8. Perfil do Gestor
+
+Permitir edição de dados pessoais e senha
+
+Mostrar registros de acesso (logins recentes)
+
+Permissões do perfil (visuais e reais, baseadas no banco)
+
+9. Identidade Visual
+
+A logomarca do SABIÁ RPG deve estar visível em todos os níveis de acesso (Gestor, Professor, Aluno)
+
+Posicionar no topo esquerdo com espaçamento responsivo
+
+Não interferir na usabilidade nem ocupar espaço excessivo
+
+10. Comportamento Geral
+
+Todos os dados exibidos no dashboard devem ser provenientes do banco real (sem dados fictícios)
+
+A navegação deve refletir o papel do usuário logado
+
+O fluxo de cadastro é obrigatório caso o gestor ainda não esteja vinculado a uma escola
+
+Esse prompt deve ser interpretado integralmente e executado como roteiro de implementação funcional. Não deixar campos ou etapas incompletas. Priorizar segurança e consistência de dados com base nas RLS já implementadas no Supabase.
