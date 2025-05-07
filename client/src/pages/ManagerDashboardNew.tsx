@@ -42,12 +42,46 @@ interface UserData {
  * Dashboard principal para o perfil Gestor - versão com design medieval
  */
 export default function ManagerDashboard() {
+  console.log("DASHBOARD GESTOR NOVO CARREGADO!");
+  
   const { toast } = useToast();
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [schools, setSchools] = useState<SchoolData[]>([]);
   const [reports, setReports] = useState<ReportData[]>([]);
+  
+  // Força uso do componente correto
+  useEffect(() => {
+    // Verificar se estamos na rota do gestor
+    if (window.location.pathname === '/manager') {
+      console.log("Na página do gestor - Verificando usuário:", user);
+      
+      // Se não tem usuário ou não é gestor, redirecionar
+      if (!user) {
+        console.error("Usuário não autenticado no dashboard de gestor");
+        setLocation('/auth');
+        return;
+      }
+      
+      if (user.role !== 'manager') {
+        console.error("Usuário não é gestor, mas está no dashboard de gestor:", user.role);
+        setLocation('/');
+        return;
+      }
+      
+      console.log("Usuário gestor confirmado:", user.role);
+      
+      // Se chegou aqui, é um gestor válido na página correta
+      const forceManagerDashboard = localStorage.getItem('force_manager_dashboard');
+      
+      if (forceManagerDashboard === 'true') {
+        console.log("Forçando carregamento do dashboard de gestor");
+        localStorage.removeItem('force_manager_dashboard');
+        // Permanece na página
+      }
+    }
+  }, [user, setLocation]);
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState({
     schools: false,

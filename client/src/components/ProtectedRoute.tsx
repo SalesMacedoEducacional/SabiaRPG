@@ -99,6 +99,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Verificação especial para triagem diagnóstica
   // Alunos precisam passar pela triagem, professores e gestores vão diretamente para seus painéis
   if (user && path === '/') {
+    console.log('ProtectedRoute - role:', user.role);
+    
     // Se for aluno, verifica se precisa fazer triagem diagnóstica
     if (user.role === 'student') {
       const needsDiagnostic = localStorage.getItem('diagnostic_completed') !== 'true';
@@ -112,6 +114,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     } 
     // Se for professor, redireciona para dashboard de professor
     else if (user.role === 'teacher') {
+      console.log('Redirecionando professor para /teacher');
       return (
         <Route path={path}>
           <Redirect to="/teacher" />
@@ -120,6 +123,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
     // Se for gestor, redireciona para dashboard de gestor
     else if (user.role === 'manager') {
+      console.log('Redirecionando gestor para /manager');
+      localStorage.setItem('force_manager_dashboard', 'true');
       return (
         <Route path={path}>
           <Redirect to="/manager" />
