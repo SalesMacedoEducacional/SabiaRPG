@@ -133,19 +133,83 @@ export function registerManagerRoutes(
             console.error('Erro ao contar turmas:', classError);
           }
           
+          // Buscar dados reais de engajamento
+          let activeStudents7Days = 0;
+          let activeStudents30Days = 0;
+          let missionsInProgress = 0;
+          let missionsCompleted = 0; 
+          let missionsPending = 0;
+          
+          try {
+            // Buscar alunos ativos nos últimos 7 dias
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
+            const { count: active7Days } = await supabase
+              .from('acessos_usuarios')
+              .select('*', { count: 'exact', head: true })
+              .eq('escola_id', schoolId)
+              .eq('papel', 'aluno')
+              .gte('data_acesso', sevenDaysAgo.toISOString());
+              
+            activeStudents7Days = active7Days || 0;
+            
+            // Buscar alunos ativos nos últimos 30 dias
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const { count: active30Days } = await supabase
+              .from('acessos_usuarios')
+              .select('*', { count: 'exact', head: true })
+              .eq('escola_id', schoolId)
+              .eq('papel', 'aluno')
+              .gte('data_acesso', thirtyDaysAgo.toISOString());
+              
+            activeStudents30Days = active30Days || 0;
+            
+            // Buscar progresso de missões
+            const { data: missionData } = await supabase
+              .from('progresso_missoes')
+              .select('status, count')
+              .eq('escola_id', schoolId)
+              .group('status');
+              
+            if (missionData) {
+              for (const item of missionData) {
+                if (item.status === 'em_andamento') missionsInProgress = item.count || 0;
+                if (item.status === 'concluida') missionsCompleted = item.count || 0;
+                if (item.status === 'pendente') missionsPending = item.count || 0;
+              }
+            }
+          } catch (error) {
+            console.error('Erro ao buscar dados de engajamento:', error);
+            // Não faremos fallback para dados simulados - mantemos zeros
+          }
+          
+          // Calcular taxa de engajamento com base em dados reais
+          // Se não tivermos dados suficientes, definimos como 0
+          const engagementLevel = studentCount > 0 
+            ? Math.round((activeStudents7Days / studentCount) * 100) 
+            : 0;
+            
+          // Identificar possível evasão: alunos que não acessaram em 30 dias
+          const potentialEvasion = studentCount > activeStudents30Days 
+            ? (studentCount - activeStudents30Days) 
+            : 0;
+            
           // Construir estatísticas baseadas em dados reais
           const stats = {
             totalSchools: 1, // O gestor gerencia uma escola específica
             totalTeachers: teacherCount || 0,
             totalStudents: studentCount || 0,
             activeClasses: classCount || 0,
-            activeStudents7Days: Math.floor((studentCount || 0) * 0.75), // Estimativa para demonstração
-            activeStudents30Days: Math.floor((studentCount || 0) * 0.9), // Estimativa para demonstração
-            potentialEvasion: Math.floor((studentCount || 0) * 0.05), // Estimativa para demonstração
-            engagementLevel: 72, // Valor padrão para demonstração
-            missionsInProgress: 149, // Valor padrão para demonstração
-            missionsCompleted: 263, // Valor padrão para demonstração
-            missionsPending: 92 // Valor padrão para demonstração
+            activeStudents7Days,
+            activeStudents30Days,
+            potentialEvasion,
+            engagementLevel,
+            missionsInProgress,
+            missionsCompleted,
+            missionsPending
           };
           
           // Obter lista de escolas para demonstração (no caso, apenas a escola do gestor)
@@ -383,30 +447,69 @@ export function registerManagerRoutes(
   // Rota para obter relatórios
   app.get("/api/reports", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
     try {
-      // Retornar lista de relatórios disponíveis
-      return res.status(200).json([
-        {
-          id: "rel1",
-          title: "Relatório Bimestral - Escola Municipal Pedro II",
-          type: "school",
-          date: "2025-04-02T10:15:00Z",
-          downloadUrl: "#"
-        },
-        {
-          id: "rel2",
-          title: "Relatório de Progresso - Turma 8º Ano A",
-          type: "class",
-          date: "2025-04-10T09:30:00Z",
-          downloadUrl: "#"
-        },
-        {
-          id: "rel3",
-          title: "Análise de Desempenho - Escola Estadual Santos Dumont",
-          type: "school",
-          date: "2025-03-28T14:45:00Z",
-          downloadUrl: "#"
+      const userId = req.session.userId;
+      let schoolId = null;
+      
+      // Buscar escola do gestor
+      try {
+        // Verificar primeiro em perfis_gestor
+        const { data: perfilData, error: perfilError } = await supabase
+          .from('perfis_gestor')
+          .select('escola_id')
+          .eq('usuario_id', userId)
+          .maybeSingle();
+          
+        if (!perfilError && perfilData && perfilData.escola_id) {
+          schoolId = perfilData.escola_id;
+        } else {
+          // Se não encontrou, verificar em escolas.gestor_id
+          const { data: escolaData, error: escolaError } = await supabase
+            .from('escolas')
+            .select('id')
+            .eq('gestor_id', userId)
+            .maybeSingle();
+            
+          if (!escolaError && escolaData) {
+            schoolId = escolaData.id;
+          }
         }
-      ]);
+      } catch (findError) {
+        console.error('Erro ao buscar escola do gestor:', findError);
+      }
+      
+      if (!schoolId) {
+        // Se não encontrou escola, retornar array vazio
+        return res.status(200).json([]);
+      }
+      
+      // Buscar relatórios reais da escola
+      const { data: reports, error: reportsError } = await supabase
+        .from('relatorios')
+        .select('*')
+        .eq('escola_id', schoolId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+        
+      if (reportsError) {
+        console.error('Erro ao buscar relatórios:', reportsError);
+        return res.status(200).json([]); // Retornar vazio em caso de erro
+      }
+      
+      if (reports && reports.length > 0) {
+        // Formatar os relatórios para o formato esperado pelo frontend
+        const formattedReports = reports.map(report => ({
+          id: report.id,
+          title: report.titulo || `Relatório ${report.tipo || 'school'} - ${new Date(report.created_at).toISOString().substring(0, 10)}`,
+          type: report.tipo || 'school',
+          date: report.created_at,
+          downloadUrl: report.url_download || '#'
+        }));
+        
+        return res.status(200).json(formattedReports);
+      }
+      
+      // Se não há relatórios cadastrados, retornar array vazio
+      return res.status(200).json([]);
     } catch (error) {
       console.error("Error fetching reports:", error);
       res.status(500).json({ message: "Error fetching reports" });
@@ -416,29 +519,68 @@ export function registerManagerRoutes(
   // Rota para obter integrações
   app.get("/api/integrations", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
     try {
-      // Retornar lista de integrações disponíveis
-      return res.status(200).json([
-        {
-          id: "int1",
-          name: "Google Classroom",
-          type: "LMS",
-          status: "active",
-          lastSync: "2025-05-06T08:30:00Z"
-        },
-        {
-          id: "int2",
-          name: "Sistema de Gestão Escolar XYZ",
-          type: "SIS",
-          status: "error",
-          lastSync: "2025-05-01T10:15:00Z"
-        },
-        {
-          id: "int3",
-          name: "API do Portal do Aluno",
-          type: "API",
-          status: "inactive"
+      const userId = req.session.userId;
+      let schoolId = null;
+      
+      // Buscar escola do gestor
+      try {
+        // Verificar primeiro em perfis_gestor
+        const { data: perfilData, error: perfilError } = await supabase
+          .from('perfis_gestor')
+          .select('escola_id')
+          .eq('usuario_id', userId)
+          .maybeSingle();
+          
+        if (!perfilError && perfilData && perfilData.escola_id) {
+          schoolId = perfilData.escola_id;
+        } else {
+          // Se não encontrou, verificar em escolas.gestor_id
+          const { data: escolaData, error: escolaError } = await supabase
+            .from('escolas')
+            .select('id')
+            .eq('gestor_id', userId)
+            .maybeSingle();
+            
+          if (!escolaError && escolaData) {
+            schoolId = escolaData.id;
+          }
         }
-      ]);
+      } catch (findError) {
+        console.error('Erro ao buscar escola do gestor:', findError);
+      }
+      
+      if (!schoolId) {
+        // Se não encontrou escola, retornar array vazio
+        return res.status(200).json([]);
+      }
+      
+      // Buscar integrações reais da escola
+      const { data: integrations, error: integrationsError } = await supabase
+        .from('integracoes')
+        .select('*')
+        .eq('escola_id', schoolId)
+        .order('created_at', { ascending: false });
+        
+      if (integrationsError) {
+        console.error('Erro ao buscar integrações:', integrationsError);
+        return res.status(200).json([]); // Retornar vazio em caso de erro
+      }
+      
+      if (integrations && integrations.length > 0) {
+        // Formatar as integrações para o formato esperado pelo frontend
+        const formattedIntegrations = integrations.map(integration => ({
+          id: integration.id,
+          name: integration.nome,
+          type: integration.tipo || 'API',
+          status: integration.status || 'inactive',
+          lastSync: integration.ultima_sincronizacao || null
+        }));
+        
+        return res.status(200).json(formattedIntegrations);
+      }
+      
+      // Se não há integrações cadastradas, retornar array vazio
+      return res.status(200).json([]);
     } catch (error) {
       console.error("Error fetching integrations:", error);
       res.status(500).json({ message: "Error fetching integrations" });
