@@ -16,6 +16,7 @@ import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
 import UserProfile from "@/pages/UserProfile";
 import TestUpload from "@/pages/TestUpload";
+import LoginTest from "@/pages/login-test";
 import { GameProvider } from "./context/GameContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -25,6 +26,7 @@ function Router() {
     <Switch>
       {/* Rotas públicas */}
       <Route path="/auth" component={Login} />
+      <Route path="/auth-test" component={LoginTest} />
       <Route path="/acesso-negado" component={AccessDenied} />
       <Route path="/teste-upload" component={TestUpload} />
       

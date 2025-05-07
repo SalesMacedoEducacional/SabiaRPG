@@ -207,9 +207,9 @@ const Login: React.FC = () => {
           <AlertTitle className="text-accent font-medieval">Usuários de Teste</AlertTitle>
           <AlertDescription>
             <div className="mt-2 text-sm space-y-1">
-              <p><strong>Aluno:</strong> aluno@exemplo.com / Senha123!</p>
-              <p><strong>Professor:</strong> professor@exemplo.com / Senha123!</p>
-              <p><strong>Gestor:</strong> gestor@exemplo.com / Senha123!</p>
+              <p><strong>Aluno:</strong> aluno@sabiarpg.edu.br / Senha@123</p>
+              <p><strong>Professor:</strong> professor@sabiarpg.edu.br / Senha@123</p>
+              <p><strong>Gestor:</strong> gestor@sabiarpg.edu.br / Senha@123</p>
             </div>
           </AlertDescription>
         </Alert>
