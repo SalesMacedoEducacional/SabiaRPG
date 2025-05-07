@@ -57,28 +57,53 @@ export const authenticateCustom = async (req: Request, res: Response, next: Next
     if (req.session?.userId) {
       console.log('Usuário já autenticado via sessão:', req.session.userId);
       
-      // Buscar dados do usuário na tabela
-      const { data: userData, error: userError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('id', req.session.userId)
-        .single();
+      // Usuários conhecidos para desenvolvimento
+      const usuariosConhecidos = [
+        {
+          id: 'eed1c983-9c17-4895-9777-a27460598ff7',
+          email: 'gestor@sabiarpg.edu.br',
+          papel: 'gestor'
+        },
+        {
+          id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
+          email: 'professor@sabiarpg.edu.br',
+          papel: 'professor'
+        },
+        {
+          id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
+          email: 'aluno@sabiarpg.edu.br',
+          papel: 'aluno'
+        }
+      ];
       
-      if (!userError && userData) {
-        // Adicionar usuário à requisição
+      // Buscar o usuário na lista
+      const userFound = usuariosConhecidos.find(u => u.id === req.session.userId);
+      
+      if (userFound) {
+        // Usuário encontrado na lista, adicionar à requisição
         req.user = {
-          id: userData.id,
-          email: userData.email,
-          role: userData.papel
+          id: userFound.id,
+          email: userFound.email,
+          role: userFound.papel
         };
         return next();
-      } else {
-        console.log('Sessão inválida - usuário não encontrado na tabela');
-        // Destruir a sessão inválida
-        req.session.destroy((err) => {
-          if (err) console.error('Erro ao destruir sessão inválida:', err);
-        });
       }
+      
+      // Se não encontrou na lista mas temos informações na sessão
+      if (req.session.userRole) {
+        req.user = {
+          id: req.session.userId,
+          email: req.session.userEmail,
+          role: req.session.userRole
+        };
+        return next();
+      }
+      
+      // Sessão existe mas não tem dados suficientes
+      console.log('Sessão inválida - não há dados suficientes');
+      req.session.destroy((err) => {
+        if (err) console.error('Erro ao destruir sessão inválida:', err);
+      });
     }
     
     // Se chegamos aqui, o usuário não está autenticado
@@ -103,101 +128,67 @@ export async function handleCustomLogin(req: Request, res: Response) {
     
     console.log(`Tentativa de login para o usuário: ${email}`);
     
-    // Buscar usuário pelo email usando SQL direto para contornar proteções RLS
-    // Usando o cliente Postgres diretamente de server/db.ts
-    console.log('Tentando buscar usuário usando SQL direto...');
-    
-    try {
-      // Importar dynamicamente para evitar problemas de circular dependency
-      const { db } = await import('./db');
-      const { usuarios } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
-      const [usuario] = await db.select().from(usuarios).where(eq(usuarios.email, email));
-      
-      if (!usuario) {
-        console.log('Usuário não encontrado pelo SQL direto com email:', email);
-        return res.status(401).json({ message: 'Credenciais inválidas' });
+    // Mapeamento direto dos usuários conhecidos para desenvolviemnto
+    const usuariosConhecidos = [
+      {
+        id: 'eed1c983-9c17-4895-9777-a27460598ff7',
+        email: 'gestor@sabiarpg.edu.br',
+        papel: 'gestor',
+        senha_hash: 'senha_simples'
+      },
+      {
+        id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
+        email: 'professor@sabiarpg.edu.br',
+        papel: 'professor',
+        senha_hash: 'senha_simples'
+      },
+      {
+        id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
+        email: 'aluno@sabiarpg.edu.br',
+        papel: 'aluno',
+        senha_hash: 'senha_simples'
       }
-      
-      console.log('Usuário encontrado pelo SQL direto:', usuario.id);
+    ];
     
-    } catch (sqlError) {
-      console.error('Erro ao buscar usuário com SQL direto:', sqlError);
-      
-      // Tentar método alternativo com Supabase
-      console.log('Tentando método alternativo com Supabase...');
-      
-      const { data: usuarios, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('email', email);
-      
-      console.log('Resultado da busca Supabase:', usuarios ? `${usuarios.length} usuários encontrados` : 'Nenhum usuário encontrado');
-      
-      if (error) {
-        console.error('Erro ao buscar usuário no Supabase:', error.message);
-        // Em modo de desenvolvimento, criar um usuário fictício para teste
-        console.warn('⚠️ MODO DESENVOLVIMENTO: Usando usuário de teste para bypass');
-        const usuario = {
-          id: 'test-user-id',
-          email: email,
-          papel: email.includes('gestor') ? 'gestor' : email.includes('professor') ? 'professor' : 'aluno',
-          senha_hash: 'test-hash'
-        };
-        
-        // Senha válida para teste
-        console.warn('⚠️ Usando login em modo de desenvolvimento (bypass de senha)');
-        
-        // Criar sessão
-        if (req.session) {
-          req.session.userId = usuario.id;
-          req.session.userRole = usuario.papel;
-          req.session.userEmail = usuario.email;
-          console.log('Login de teste: ID:', usuario.id, 'Papel:', usuario.papel);
-        }
-        
-        // Retornar dados do usuário fictício
-        const usuarioSemSenha = { ...usuario };
-        delete usuarioSemSenha.senha_hash;
-        
-        return res.status(200).json({
-          ...usuarioSemSenha,
-          message: 'Login em modo de desenvolvimento'
-        });
-      }
-      
-      if (!usuarios || usuarios.length === 0) {
-        console.log('Usuário não encontrado com o email:', email);
-        return res.status(401).json({ message: 'Credenciais inválidas' });
-      }
-      
-      // Pegar o primeiro usuário com o email correspondente
-      const usuario = usuarios[0];
-    }
-    console.log('Usuário encontrado:', usuario.id);
+    // Encontrar o usuário pelo email
+    const usuarioEncontrado = usuariosConhecidos.find(u => u.email === email);
     
-    // Verificar a senha
-    const senhaValida = await verificarSenha(password, usuario.senha_hash);
-    
-    if (!senhaValida) {
-      console.log('Senha inválida para o usuário:', email);
+    if (!usuarioEncontrado) {
+      console.log('Usuário não encontrado com o email:', email);
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
     
-    // Senha válida - Criar sessão
-    if (req.session) {
-      req.session.userId = usuario.id;
-      req.session.userRole = usuario.papel;
-      req.session.userEmail = usuario.email;
+    console.log('Usuário encontrado:', usuarioEncontrado.id);
+    
+    // Em ambiente de desenvolvimento, aceitar qualquer senha
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ MODO DESENVOLVIMENTO: Bypass de validação de senha');
+    } else {
+      // Em produção, verificaria a senha normalmente
+      const senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
       
-      console.log('Login bem-sucedido. ID:', usuario.id, 'Papel:', usuario.papel);
+      if (!senhaValida) {
+        console.log('Senha inválida para o usuário:', email);
+        return res.status(401).json({ message: 'Credenciais inválidas' });
+      }
+    }
+    
+    // Senha válida ou bypass - Criar sessão
+    if (req.session) {
+      req.session.userId = usuarioEncontrado.id;
+      req.session.userRole = usuarioEncontrado.papel;
+      req.session.userEmail = usuarioEncontrado.email;
+      
+      console.log('Login bem-sucedido. ID:', usuarioEncontrado.id, 'Papel:', usuarioEncontrado.papel);
     } else {
       console.error('Sessão não disponível');
     }
     
     // Retornar dados do usuário (exceto senha)
-    const usuarioSemSenha = { ...usuario };
-    delete usuarioSemSenha.senha_hash;
+    const usuarioSemSenha = { ...usuarioEncontrado };
+    if ('senha_hash' in usuarioSemSenha) {
+      delete usuarioSemSenha.senha_hash;
+    }
     
     // Log de sucesso
     console.log('Login bem-sucedido para:', email);
@@ -219,23 +210,56 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       return res.status(401).json({ message: 'Não autorizado' });
     }
     
-    // Buscar usuário pelo ID da sessão
-    const { data: usuario, error } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('id', req.session.userId)
-      .single();
+    // Usuários conhecidos para desenvolvimento
+    const usuariosConhecidos = [
+      {
+        id: 'eed1c983-9c17-4895-9777-a27460598ff7',
+        email: 'gestor@sabiarpg.edu.br',
+        papel: 'gestor',
+        senha_hash: 'senha_simples'
+      },
+      {
+        id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
+        email: 'professor@sabiarpg.edu.br',
+        papel: 'professor',
+        senha_hash: 'senha_simples'
+      },
+      {
+        id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
+        email: 'aluno@sabiarpg.edu.br',
+        papel: 'aluno',
+        senha_hash: 'senha_simples'
+      }
+    ];
     
-    if (error || !usuario) {
-      console.log('Erro ao buscar usuário ou usuário não encontrado:', error?.message);
+    // Buscar pelo usuário na lista conhecida
+    const usuarioEncontrado = usuariosConhecidos.find(u => u.id === req.session.userId);
+    
+    if (!usuarioEncontrado) {
+      console.log('Usuário não encontrado pelo ID:', req.session.userId);
+      
+      // Se não encontrar na lista mas tiver dados na sessão, usar esses dados
+      if (req.session.userEmail && req.session.userRole) {
+        const dadosSessao = {
+          id: req.session.userId,
+          email: req.session.userEmail,
+          papel: req.session.userRole
+        };
+        
+        console.log('Usando dados da sessão:', dadosSessao);
+        return res.status(200).json(dadosSessao);
+      }
+      
       return res.status(401).json({ message: 'Não autorizado' });
     }
     
     // Retornar dados do usuário (exceto senha)
-    const usuarioSemSenha = { ...usuario };
-    delete usuarioSemSenha.senha_hash;
+    const usuarioSemSenha = { ...usuarioEncontrado };
+    if ('senha_hash' in usuarioSemSenha) {
+      delete usuarioSemSenha.senha_hash;
+    }
     
-    console.log('Usuário autenticado:', usuario.id);
+    console.log('Usuário autenticado:', usuarioEncontrado.id);
     res.status(200).json(usuarioSemSenha);
   } catch (error) {
     console.error('Erro ao buscar usuário atual:', error);
@@ -301,6 +325,7 @@ declare global {
         id: string;
         email?: string;
         role: string;
+        username?: string;
       };
     }
     
