@@ -125,3 +125,48 @@ CREATE TABLE logs_auditoria (
   detalhes    text,
   criado_em   timestamp DEFAULT now()
 );
+
+CREATE TABLE perfis_gestor (
+  id             uuid      PRIMARY KEY DEFAULT uuid_generate_v4(),
+  usuario_id     uuid      REFERENCES usuarios(id) ON DELETE CASCADE,
+  escola_id      uuid      REFERENCES escolas(id) ON DELETE RESTRICT,
+  cargo          text      NOT NULL DEFAULT 'Gestor',
+  nivel_acesso   text      NOT NULL DEFAULT 'completo',
+  data_vinculo   timestamp DEFAULT now()
+);
+
+CREATE TABLE relatorios (
+  id                uuid      PRIMARY KEY DEFAULT uuid_generate_v4(),
+  titulo            text      NOT NULL,
+  tipo              text      NOT NULL,
+  escola_id         uuid      REFERENCES escolas(id) ON DELETE CASCADE,
+  turma_id          uuid      NULL,
+  periodo           text      NOT NULL,
+  metricas          text[]    NOT NULL,
+  formato           text      NOT NULL,
+  usuario_id        uuid      REFERENCES usuarios(id),
+  url_arquivo       text      NULL,
+  data_geracao      timestamp DEFAULT now()
+);
+
+CREATE TABLE cronogramas (
+  id             uuid      PRIMARY KEY DEFAULT uuid_generate_v4(),
+  escola_id      uuid      REFERENCES escolas(id) ON DELETE CASCADE,
+  titulo         text      NOT NULL,
+  descricao      text,
+  data_inicio    timestamp NOT NULL,
+  data_fim       timestamp NOT NULL,
+  recorrencia    text,
+  tipo           text      NOT NULL,
+  criado_por     uuid      REFERENCES usuarios(id),
+  criado_em      timestamp DEFAULT now()
+);
+
+CREATE TABLE configuracoes_escola (
+  id             uuid      PRIMARY KEY DEFAULT uuid_generate_v4(),
+  escola_id      uuid      REFERENCES escolas(id) ON DELETE CASCADE,
+  chave          text      NOT NULL,
+  valor          text      NOT NULL,
+  atualizado_por uuid      REFERENCES usuarios(id),
+  atualizado_em  timestamp DEFAULT now()
+);
