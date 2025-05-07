@@ -6,7 +6,10 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
-import ManagerDashboard from "@/pages/ManagerDashboardNew";
+// Importando o dashboard do gestor
+import ManagerDashboardComponent from "@/pages/ManagerDashboardNew";
+// Definimos um alias para o componente
+const ManagerDashboard = ManagerDashboardComponent;
 import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistration from "@/pages/UserRegistration";
 import ClassRegistration from "@/pages/ClassRegistration";
@@ -74,7 +77,7 @@ function Router() {
       {/* Rotas apenas para gestores */}
       <ProtectedRoute 
         path="/manager" 
-        component={ManagerDashboard}
+        component={ManagerDashboardComponent}
         permissions={[
           PERMISSIONS.REPORT_SCHOOL_VIEW.id,
           PERMISSIONS.SCHOOL_CONFIG.id
