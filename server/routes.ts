@@ -793,10 +793,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/logout", async (req, res) => {
     try {
-      // Fazer logout no Supabase Auth se tiver token
-      if (req.session.authToken) {
-        supabase.auth.setAuth(req.session.authToken);
-        await supabase.auth.signOut();
+      // Fazer logout no Supabase Auth
+      // Na nova versão do Supabase, não precisamos do token para fazer logout
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Erro ao fazer logout no Supabase:", error.message);
       }
       
       // Destruir a sessão no servidor
@@ -815,26 +817,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/auth/me", async (req, res) => {
     try {
-      console.log("Verificando sessão em /api/auth/me:", req.session);
+      console.log("Verificando autenticação do usuário em /api/auth/me");
       
-      // Verificar se o usuário está autenticado na sessão
-      if (!req.session.userId) {
-        console.log("Usuário não autenticado na sessão");
-        return res.status(401).json({ message: "Não autorizado" });
+      // Verificar se temos um token JWT nos cabeçalhos
+      const authHeader = req.headers.authorization;
+      let supabaseUser = null;
+      
+      if (authHeader) {
+        const token = authHeader.replace('Bearer ', '');
+        
+        // Obter usuário atual usando o token
+        const { data, error } = await supabase.auth.getUser(token);
+        
+        if (!error && data.user) {
+          supabaseUser = data.user;
+          console.log("Usuário autenticado via token JWT:", supabaseUser.id);
+        } else if (error) {
+          console.log("Erro ao verificar token JWT:", error.message);
+        }
       }
       
-      console.log("ID do usuário na sessão:", req.session.userId);
+      // Se não encontrou por token, verificar sessão
+      if (!supabaseUser && req.session?.userId) {
+        console.log("Verificando pela sessão, userId:", req.session.userId);
+      }
       
-      // Verificar token do Supabase, se existir
-      if (req.session.authToken) {
-        supabase.auth.setAuth(req.session.authToken);
+      // Determinar o ID do usuário a partir do token ou da sessão
+      const userId = supabaseUser?.id || req.session?.userId;
+      
+      if (!userId) {
+        console.log("Usuário não autenticado");
+        console.log("Resposta /api/auth/me:", 401);
+        return res.status(401).json({ message: "Não autorizado" });
       }
       
       // Obter dados do usuário diretamente do Supabase
       const { data: userData, error: userError } = await supabase
         .from('usuarios')
         .select('*')
-        .eq('id', req.session.userId)
+        .eq('id', userId)
         .single();
         
       if (userError) {
@@ -848,6 +869,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log("Usuário encontrado no Supabase:", userData.email);
+      
+      // Atualizar sessão se necessário
+      if (req.session && !req.session.userId) {
+        req.session.userId = userId;
+        req.session.userRole = userData.papel;
+      }
       
       // Converter papel do usuário para formato da aplicação
       let role = "student";
@@ -866,6 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: userData.criado_em || new Date()
       };
       
+      console.log("Resposta /api/auth/me:", 200);
       res.status(200).json(userResponse);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);

@@ -1,11 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get the Supabase URL and Anon Key from environment variables
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
+// Get the Supabase URL and Key from environment variables
+// Usando import.meta.env em vez de process.env para Vite
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || '';
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Log para debug (remover em produção)
+console.log('Inicializando cliente Supabase com URL:', supabaseUrl ? 'URL definida' : 'URL não definida');
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('AVISO: VITE_SUPABASE_URL e VITE_SUPABASE_KEY devem estar definidos nas variáveis de ambiente');
+}
+
+// Create Supabase client with options
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Auth functions
 export const signUp = async (email: string, password: string, userData: any) => {
