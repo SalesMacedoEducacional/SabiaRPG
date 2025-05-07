@@ -1,0 +1,89 @@
+PROMPT IMPERATIVO PARA REPLIT — IMPLEMENTAÇÃO DO DASHBOARD REAL DO GESTOR
+
+Implemente imediatamente um Dashboard exclusivo para o perfil de GESTOR, com base nos seguintes requisitos funcionais obrigatórios:
+
+1. LOGIN E VERIFICAÇÃO DE ESCOLA VINCULADA
+Após o login, verifique se o campo papel do usuário autenticado (na tabela usuarios) é igual a "gestor".
+
+Se for gestor, consulte a tabela perfis_gestor para verificar se há vínculo com alguma escola (campo escola_id).
+
+Se o vínculo existir, redirecione o gestor ao seu dashboard com dados reais do banco.
+
+Se não existir vínculo com escola, redirecione o gestor automaticamente para o formulário de cadastro de escola (exclusivo para gestores).
+
+2. CADASTRO DE ESCOLA
+Exiba formulário exclusivo de cadastro de escola com os seguintes campos: nome, codigo, status, cidade, uf, quantidade_alunos, quantidade_professores.
+
+Ao enviar:
+
+Insira a escola na tabela escolas.
+
+Crie imediatamente o vínculo entre o gestor e a escola na tabela perfis_gestor (usando o auth.uid() e o escola_id recém-criado).
+
+Após o cadastro e vínculo, redirecione automaticamente o gestor para o dashboard real com dados atualizados.
+
+3. DASHBOARD REAL COM DADOS DO BANCO
+Monte um dashboard exclusivo, sem reutilizar o do professor.
+
+Os dados devem ser consultados em tempo real das tabelas reais, com filtros baseados nas escolas onde o gestor está vinculado.
+
+Exiba as seguintes informações:
+
+Total de escolas vinculadas (ativas)
+
+Total de professores (relacionados às escolas do gestor)
+
+Total de alunos
+
+Total de turmas ativas
+
+Alunos ativos nos últimos 7 e 30 dias
+
+Nível de engajamento geral (baseado em missões e uso)
+
+Missões (em andamento, concluídas, pendentes)
+
+Alerta de evasão (alunos com +10 dias sem acesso)
+
+Escolas com maior engajamento (baseado em % de participação)
+
+Atividade recente (relatórios gerados, novos cadastros, alertas)
+
+4. FUNCIONALIDADES EXCLUSIVAS DO GESTOR
+Cadastrar novo usuário (via API): formulário para cadastrar professores, alunos ou outros gestores. Integre com a API REST /criar-usuario.
+
+Cadastrar nova escola (ver item 2)
+
+Gerenciar turmas: listar, criar, editar, excluir turmas.
+
+Definir componentes curriculares: associar professores aos componentes de cada turma.
+
+Gerar relatórios personalizados (por escola, por turma, bimestral, etc.), com exportação .pdf, .csv, .xlsx.
+
+Configurar sistema: ajustar preferências da escola, cronograma de missões e triagens.
+
+Gerenciar permissões de alunos e professores da escola vinculada.
+
+5. IDENTIDADE VISUAL
+Inclua a logomarca do projeto Sabiá RPG visível em todos os acessos (gestor, professor, aluno).
+
+A identidade visual deve ser discreta, no canto superior ou como cabeçalho, sem comprometer a usabilidade.
+
+6. REGRAS DE SEGURANÇA E AUTORIZAÇÃO
+Todas as informações exibidas devem estar limitadas às escolas onde o gestor está vinculado (perfis_gestor).
+
+Use auth.uid() em todas as consultas para garantir segurança e controle de acesso.
+
+Dados genéricos, simulados ou mockados não devem ser carregados em nenhuma parte do sistema após o vínculo ser estabelecido.
+
+7. API DE CRIAÇÃO DE USUÁRIO (BACKEND)
+Utilize a API REST criada anteriormente no Replit para criar usuários autenticáveis:
+
+Endpoint: POST /criar-usuario
+
+Body: { email, senha, papel }
+
+Após criar o usuário no Supabase Auth, insira o mesmo na tabela usuarios.
+
+Implemente agora todo o fluxo do painel do GESTOR, desde login, verificação, vínculo, cadastro, redirecionamento e exibição de dados reais conforme descrito acima. Não copie estrutura do painel do professor — use os prints como inspiração, mas crie um painel fiel ao papel do gestor.
+
