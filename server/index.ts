@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({
   secret: 'sabia-rpg-session-secret',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,  // Alterado para true para criar sessão para todos os visitantes
   cookie: {
     secure: false, // Em produção deveria ser true (HTTPS)
     httpOnly: true,
