@@ -1,0 +1,60 @@
+ATENÇÃO: Pare de usar dados fictícios. Substitua completamente os dados simulados por dados reais armazenados no Supabase.
+
+Autenticação e Identificação do Gestor:
+
+Use supabase.auth.getUser() para recuperar o auth.uid() real do usuário gestor logado.
+
+Armazene esse uid em sessão e use como chave de identificação para todas as interações com o banco.
+
+Cadastro de Escola:
+
+Quando o gestor preencher e submeter o formulário de cadastro de escola:
+
+Salve os dados diretamente na tabela escolas.
+
+Use o auth.uid() como valor de gestor_id.
+
+Após inserir a escola, crie uma entrada em perfis_gestor com usuario_id = auth.uid() e escola_id = id retornado pela inserção na tabela escolas.
+
+Validação Pós-Cadastro:
+
+Após salvar a escola:
+
+Redirecione automaticamente o gestor para o dashboard real, vinculado à escola recém-criada.
+
+Exiba dados reais do banco (turmas, alunos, professores) vinculados à escola via escola_id.
+
+Dashboard do Gestor:
+
+O dashboard deve carregar apenas dados reais do Supabase, filtrando pelo escola_id vinculado ao auth.uid() do gestor.
+
+Remova qualquer tipo de dado estático, simulado ou temporário do frontend.
+
+Condições de Fluxo:
+
+Se o gestor logado ainda não estiver vinculado a uma escola, redirecione para o formulário de cadastro de escola.
+
+Se ele já estiver vinculado, carregue o dashboard com os dados da escola, turmas e usuários relacionados.
+
+Banco de Dados e RLS:
+
+Garanta que a inserção esteja usando insert() do Supabase com retorno do id real.
+
+Não utilize IDs temporários como s123456. Use auth.uid() para os campos usuario_id e gestor_id.
+
+Respeite as políticas RLS (Row Level Security) aplicadas no Supabase. Utilize auth.uid() como referência nos filtros WHERE e nas políticas.
+
+Identidade Visual:
+
+A logomarca do SABIÁ RPG deve estar presente em todas as telas de acesso (gestor, professor, aluno), mas com layout fluido e que não interfira na usabilidade.
+
+Exija que:
+
+O formulário de cadastro da escola salve de fato no banco (sem mock).
+
+O gestor seja vinculado corretamente na tabela perfis_gestor.
+
+O dashboard só mostre dados reais e atualizados do Supabase.
+
+Os dados de alunos, professores e turmas também reflitam o vínculo com escola_id.
+

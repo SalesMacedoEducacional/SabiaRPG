@@ -565,184 +565,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      console.log("Login attempt:", { email });
+      console.log("Tentativa de login para o usuário:", email);
       
       if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
       }
       
-      // Debug usuarios de teste
-      if (email === 'aluno@exemplo.com' && password === 'Senha123!') {
-        // Criar um usuário simulado para testes
-        const testUser = {
-          id: 1001,
-          email: 'aluno@exemplo.com',
-          username: 'aluno_teste',
-          fullName: 'Aluno de Teste',
-          role: 'student',
-          level: 1,
-          xp: 0,
-          createdAt: new Date()
-        };
-        
-        // Set session
-        req.session.userId = testUser.id;
-        req.session.userRole = testUser.role;
-        
-        console.log("Login successful for test user (student):", testUser.email);
-        console.log("Session:", req.session);
-        
-        return res.status(200).json(testUser);
+      // Autenticar usando Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (authError) {
+        console.error("Erro de autenticação no Supabase:", authError.message);
+        return res.status(401).json({ message: "Credenciais inválidas" });
       }
       
-      if (email === 'professor@exemplo.com' && password === 'Senha123!') {
-        // Criar um usuário simulado para testes
-        const testUser = {
-          id: 1002,
-          email: 'professor@exemplo.com',
-          username: 'professor_teste',
-          fullName: 'Professor de Teste',
-          role: 'teacher',
-          level: 5,
-          xp: 500,
-          createdAt: new Date()
-        };
-        
-        // Set session
-        req.session.userId = testUser.id;
-        req.session.userRole = testUser.role;
-        
-        console.log("Login successful for test user (teacher):", testUser.email);
-        console.log("Session:", req.session);
-        
-        return res.status(200).json(testUser);
+      if (!authData || !authData.user) {
+        console.error("Usuário não encontrado após autenticação");
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
       
-      if ((email === 'gestor@exemplo.com' || email === 'gestor@teste.com') && password === 'Senha123!') {
-        // Vamos usar um usuário persistido no banco para testes
-        const testUser = {
-          id: "", // Vamos preencher depois de verificar/criar no banco
-          email: email, // Usar o email informado
-          username: 'gestor_teste',
-          fullName: 'Gestor de Teste',
-          role: 'manager',
-          level: 10,
-          xp: 1000,
-          createdAt: new Date()
-        };
+      console.log("Usuário autenticado no Supabase. ID:", authData.user.id);
+      
+      // Obter dados completos do usuário no Supabase
+      const { data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+      
+      let usuarioDb = null;
+      
+      if (userError || !userData) {
+        console.log("Perfil de usuário não encontrado, criando novo perfil...");
         
-        // Não configuramos a sessão ainda porque precisamos obter o ID real do banco primeiro
-        console.log("Preparando login para usuário gestor de teste:", email);
+        // Determinar papel do usuário com base no email (temporário)
+        let papel = "aluno";
+        if (email.includes('professor')) papel = "professor";
+        if (email.includes('gestor')) papel = "gestor";
         
-        // Persistir o usuário no banco antes de retornar
-        try {
-          // Verificar se já existe um usuário com este e-mail no banco
-          const existingUsers = await db
-            .select()
-            .from(usuarios)
-            .where(eq(usuarios.email, email))
-            .limit(1);
-            
-          if (existingUsers && existingUsers.length > 0) {
-            // Se existir, usar o ID existente
-            req.session.userId = existingUsers[0].id;
-            testUser.id = existingUsers[0].id;
-            console.log("Usando ID existente do banco:", existingUsers[0].id);
-          } else {
-            // Se não existir, criar novo usuário no PostgreSQL com Drizzle
-            const hashedPassword = await bcrypt.hash(password, 10);
-            
-            const inserted = await db.insert(usuarios).values({
-              email: email,
-              senhaHash: hashedPassword,
-              papel: "gestor"
-            }).returning();
-            
-            if (inserted && inserted.length > 0) {
-              console.log("Usuário gestor persistido no banco com UUID:", inserted[0].id);
-              
-              // Atualizar a sessão com o ID obtido
-              req.session.userId = inserted[0].id;
-              req.session.userRole = "manager";
-              
-              // Atualizar o objeto de resposta
-              testUser.id = inserted[0].id;
-              
-              // Log da sessão atualizada
-              console.log("Sessão atualizada com ID do banco:", req.session);
-            }
-          }
-        } catch (dbError) {
-          console.error("Erro ao persistir usuário gestor:", dbError);
-          // Continuar mesmo com erro para não bloquear login
+        // Inserir usuário no banco
+        const { data: newUser, error: insertError } = await supabase
+          .from('usuarios')
+          .insert({
+            id: authData.user.id,
+            email: email,
+            papel: papel,
+            senha_hash: "autenticado_pelo_supabase"
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error("Erro ao criar perfil de usuário:", insertError.message);
+          return res.status(500).json({ message: "Erro ao criar perfil de usuário" });
         }
         
-        return res.status(200).json(testUser);
+        usuarioDb = newUser;
+      } else {
+        usuarioDb = userData;
       }
       
-      // Verificar se é o gestor criado manualmente no Supabase (bypass de validação de senha)
-      // Isso é útil para teste quando a senha foi inserida diretamente no banco
-      if (email === 'gestor@teste.com' && password === 'Senha123!') {
-        try {
-          // Tentar buscar do Supabase diretamente
-          const { data: userData, error: userError } = await supabase
-            .from('usuarios')
-            .select('*')
-            .eq('email', email)
-            .single();
-            
-          if (!userError && userData) {
-            // Criar sessão com os dados do usuário
-            const testUser = {
-              id: userData.id,
-              email: userData.email,
-              username: userData.username || 'gestor_supabase',
-              fullName: userData.nome_completo || 'Gestor Supabase',
-              role: userData.papel || 'manager',
-              createdAt: userData.criado_em || new Date()
-            };
-            
-            // Set session
-            req.session.userId = testUser.id;
-            req.session.userRole = testUser.role;
-            
-            console.log("Login successful for Supabase user:", testUser.email);
-            console.log("Session:", req.session);
-            
-            return res.status(200).json(testUser);
-          }
-        } catch (supabaseError) {
-          console.error("Erro ao verificar usuário no Supabase:", supabaseError);
-        }
-      }
+      // Armazenar dados na sessão
+      req.session.userId = authData.user.id;
+      req.session.userRole = usuarioDb.papel;
+      req.session.authToken = authData.session.access_token;
       
-      // Find user from database (para usuários normais)
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        console.log("User not found:", email);
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
+      console.log("Login bem-sucedido para:", email);
+      console.log("ID do usuário autenticado (auth.uid):", authData.user.id);
+      console.log("Papel do usuário:", usuarioDb.papel);
       
-      // Verify password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        console.log("Invalid password for user:", email);
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
+      // Converter papel do usuário para formato da aplicação
+      let role = "student";
+      if (usuarioDb.papel === "professor") role = "teacher";
+      if (usuarioDb.papel === "gestor") role = "manager";
       
-      // Set session
-      req.session.userId = user.id;
-      req.session.userRole = user.role;
+      // Construir resposta de usuário
+      const userResponse = {
+        id: authData.user.id,
+        email: usuarioDb.email,
+        username: usuarioDb.username || email.split('@')[0],
+        fullName: usuarioDb.nome_completo || "Usuário",
+        role: role,
+        level: usuarioDb.nivel || 1,
+        xp: usuarioDb.xp || 0,
+        createdAt: usuarioDb.criado_em || new Date(),
+        token: authData.session.access_token
+      };
       
-      console.log("Login successful for user:", user.email);
-      console.log("Session:", req.session);
-      
-      // Return user without password
-      const { password: _, ...userWithoutPassword } = user;
-      res.status(200).json(userWithoutPassword);
+      return res.status(200).json(userResponse);
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Server error during login" });
+      console.error("Erro durante o login:", error);
+      res.status(500).json({ message: "Erro no servidor durante o login" });
     }
   });
 
@@ -757,67 +673,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/auth/me", async (req, res) => {
     try {
-      console.log("Session check on /api/auth/me:", req.session);
+      console.log("Verificando sessão em /api/auth/me:", req.session);
       
-      // Check if the user is authenticated
+      // Verificar se o usuário está autenticado na sessão
       if (!req.session.userId) {
-        return res.status(401).json({ message: "Unauthorized" });
+        console.log("Usuário não autenticado na sessão");
+        return res.status(401).json({ message: "Não autorizado" });
       }
       
-      // Handle test users
-      if (req.session.userId === 1001) {
-        // Aluno de teste
-        return res.status(200).json({
-          id: 1001,
-          email: 'aluno@exemplo.com',
-          username: 'aluno_teste',
-          fullName: 'Aluno de Teste',
-          role: 'student',
-          level: 1,
-          xp: 0,
-          createdAt: new Date()
-        });
+      console.log("ID do usuário na sessão:", req.session.userId);
+      
+      // Verificar token do Supabase, se existir
+      if (req.session.authToken) {
+        supabase.auth.setAuth(req.session.authToken);
       }
       
-      if (req.session.userId === 1002) {
-        // Professor de teste
-        return res.status(200).json({
-          id: 1002,
-          email: 'professor@exemplo.com',
-          username: 'professor_teste',
-          fullName: 'Professor de Teste',
-          role: 'teacher',
-          level: 5,
-          xp: 500,
-          createdAt: new Date()
-        });
+      // Obter dados do usuário diretamente do Supabase
+      const { data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', req.session.userId)
+        .single();
+        
+      if (userError) {
+        console.error("Erro ao buscar usuário no Supabase:", userError.message);
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
       
-      if (req.session.userId === 1003) {
-        // Gestor de teste
-        return res.status(200).json({
-          id: 1003,
-          email: 'gestor@exemplo.com',
-          username: 'gestor_teste',
-          fullName: 'Gestor de Teste',
-          role: 'manager',
-          level: 10,
-          xp: 1000,
-          createdAt: new Date()
-        });
+      if (!userData) {
+        console.error("Usuário não encontrado no banco de dados");
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
       
-      // Get user from database for regular users
-      const user = await storage.getUser(req.session.userId!);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      console.log("Usuário encontrado no Supabase:", userData.email);
       
-      const { password, ...userWithoutPassword } = user;
-      res.status(200).json(userWithoutPassword);
+      // Converter papel do usuário para formato da aplicação
+      let role = "student";
+      if (userData.papel === "professor") role = "teacher";
+      if (userData.papel === "gestor") role = "manager";
+      
+      // Construir resposta do usuário
+      const userResponse = {
+        id: userData.id,
+        email: userData.email,
+        username: userData.username || userData.email.split('@')[0],
+        fullName: userData.nome_completo || "Usuário",
+        role: role,
+        level: userData.nivel || 1,
+        xp: userData.xp || 0,
+        createdAt: userData.criado_em || new Date()
+      };
+      
+      res.status(200).json(userResponse);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Server error fetching user" });
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({ message: "Erro no servidor ao buscar usuário" });
     }
   });
 
