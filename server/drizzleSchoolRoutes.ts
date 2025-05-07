@@ -172,21 +172,39 @@ export function registerDrizzleSchoolRoutes(
             
             // Criar vínculo na tabela perfis_gestor
             try {
-              const perfilResult = await db.insert(perfilGestor).values({
-                usuarioId: String(userId),
-                escolaId: schoolId,
-                cargo: 'Gestor Escolar',
-                permissoesEspeciais: {},
-                ativo: true
-              }).returning();
+              console.log(`Criando vínculo entre usuário ${userId} e escola ${schoolId}`);
               
-              if (perfilResult && perfilResult.length > 0) {
-                console.log('Perfil de gestor criado com sucesso. ID:', perfilResult[0].id);
+              // Verificar se o perfil já existe para evitar duplicação
+              const perfilExistente = await db.select().from(perfilGestor)
+                .where(
+                  and(
+                    eq(perfilGestor.usuarioId, String(userId)),
+                    eq(perfilGestor.escolaId, schoolId)
+                  )
+                ).limit(1);
+                
+              if (perfilExistente && perfilExistente.length > 0) {
+                console.log('Perfil de gestor já existe. ID:', perfilExistente[0].id);
               } else {
-                console.error('Perfil de gestor não retornado após inserção');
+                // Inserir o novo perfil
+                const perfilResult = await db.insert(perfilGestor).values({
+                  usuarioId: String(userId),
+                  escolaId: schoolId,
+                  cargo: 'Gestor Escolar',
+                  permissoesEspeciais: {},
+                  ativo: true
+                }).returning();
+                
+                if (perfilResult && perfilResult.length > 0) {
+                  console.log('Perfil de gestor criado com sucesso. ID:', perfilResult[0].id);
+                } else {
+                  console.error('Perfil de gestor não retornado após inserção');
+                }
               }
             } catch (perfilError) {
               console.error('Erro ao criar perfil do gestor:', perfilError);
+              // Analisar detalhes do erro
+              console.error('Detalhes do erro:', JSON.stringify(perfilError));
               // Continuar mesmo com erro no perfil, pois a escola já foi criada
             }
             

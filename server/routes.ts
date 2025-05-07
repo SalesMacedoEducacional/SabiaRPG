@@ -619,11 +619,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if ((email === 'gestor@exemplo.com' || email === 'gestor@teste.com') && password === 'Senha123!') {
-        // Criar um usuário com UUID real para testes
-        const uuid = crypto.randomUUID(); // Gerar UUID real
-        
+        // Vamos usar um usuário persistido no banco para testes
         const testUser = {
-          id: uuid, // UUID real para garantir persistência
+          id: "", // Vamos preencher depois de verificar/criar no banco
           email: email, // Usar o email informado
           username: 'gestor_teste',
           fullName: 'Gestor de Teste',
@@ -633,12 +631,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: new Date()
         };
         
-        // Set session
-        req.session.userId = testUser.id;
-        req.session.userRole = testUser.role;
-        
-        console.log("Login successful for test user (manager) with UUID:", testUser.id);
-        console.log("Session:", req.session);
+        // Não configuramos a sessão ainda porque precisamos obter o ID real do banco primeiro
+        console.log("Preparando login para usuário gestor de teste:", email);
         
         // Persistir o usuário no banco antes de retornar
         try {
@@ -659,16 +653,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const hashedPassword = await bcrypt.hash(password, 10);
             
             const inserted = await db.insert(usuarios).values({
-              id: uuid,
               email: email,
-              username: 'gestor_teste',
-              fullName: 'Gestor de Teste',
-              role: 'manager',
-              password: hashedPassword
+              senhaHash: hashedPassword,
+              papel: "gestor"
             }).returning();
             
             if (inserted && inserted.length > 0) {
               console.log("Usuário gestor persistido no banco com UUID:", inserted[0].id);
+              
+              // Atualizar a sessão com o ID obtido
+              req.session.userId = inserted[0].id;
+              req.session.userRole = "manager";
+              
+              // Atualizar o objeto de resposta
+              testUser.id = inserted[0].id;
+              
+              // Log da sessão atualizada
+              console.log("Sessão atualizada com ID do banco:", req.session);
             }
           }
         } catch (dbError) {
