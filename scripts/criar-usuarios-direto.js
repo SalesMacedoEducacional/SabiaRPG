@@ -84,18 +84,12 @@ async function criarUsuarioDireto(params) {
     const senhaHash = await hashPassword(senha);
     console.log('🔐 Hash da senha gerado com sucesso');
     
-    // Preparar dados para inserção
+    // Preparar dados para inserção - usando apenas as colunas que realmente existem na tabela
     const dadosUsuario = {
       id: userId,
       email,
       papel,
-      username: username || email.split('@')[0],
-      nome_completo: nome_completo || '',
       senha_hash: senhaHash,
-      // Remover campos que não existem na tabela:
-      // nivel: 1,
-      // xp: 0,
-      // Usar timestamp atual para criado_em
       criado_em: new Date().toISOString()
     };
     
