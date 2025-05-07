@@ -1,5 +1,18 @@
 import { Express, Request, Response } from "express";
 import { storage } from "./storage";
+import { supabase } from "../db/supabase.js";
+import { z } from "zod";
+import './types';
+
+// Esquema para validação dos parâmetros de geração de relatório
+const reportRequestSchema = z.object({
+  tipo: z.enum(["turma", "escola", "geral"]),
+  escola_id: z.string().optional(),
+  turma_id: z.string().optional(),
+  periodo: z.enum(["bimestral", "trimestral", "semestral", "anual"]),
+  metricas: z.array(z.enum(["desempenho", "missoes", "trilhas", "engajamento"])),
+  formato: z.enum(["pdf", "xlsx", "ods", "csv"])
+});
 
 /**
  * Registra todas as rotas específicas para o perfil de Gestor Escolar
@@ -12,6 +25,175 @@ export function registerManagerRoutes(
   authenticate: (req: Request, res: Response, next: Function) => void,
   requireRole: (roles: string[]) => (req: Request, res: Response, next: Function) => Promise<void>
 ) {
+  // Rota para obter as estatísticas do Dashboard do Gestor
+  app.get(
+    '/api/manager/dashboard-stats',
+    authenticate,
+    requireRole(['manager']),
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.session.userId;
+        const schoolId = req.session.escola_id;
+        
+        console.log(`Obtendo estatísticas para o gestor ${userId}, escola ${schoolId}`);
+        
+        // Verificar se o gestor tem uma escola vinculada
+        if (!schoolId) {
+          return res.status(404).json({ message: 'Nenhuma escola vinculada a este gestor' });
+        }
+        
+        // Obter estatísticas da escola
+        // Estrutura para o retorno
+        type SchoolStats = {
+          totalSchools: number;          // Total de escolas vinculadas ao gestor
+          totalTeachers: number;         // Total de professores na escola
+          totalStudents: number;         // Total de alunos matriculados
+          activeClasses: number;         // Total de turmas ativas
+          activeStudents7Days: number;   // Alunos ativos nos últimos 7 dias
+          activeStudents30Days: number;  // Alunos ativos nos últimos 30 dias
+          potentialEvasion: number;      // Alunos com mais de 10 dias sem acesso
+          engagementLevel: number;       // Nível de engajamento geral (%)
+          missionsInProgress: number;    // Missões em andamento
+          missionsCompleted: number;     // Missões concluídas
+          missionsPending: number;       // Missões pendentes
+        };
+        
+        // Para ambiente de teste ou desenvolvimento com usuário de teste
+        if (String(userId) === '1003') { // ID do usuário gestor de teste
+          const mockStats: SchoolStats = {
+            totalSchools: 3,
+            totalTeachers: 105,
+            totalStudents: 1990,
+            activeClasses: 24,
+            activeStudents7Days: 487,
+            activeStudents30Days: 1248,
+            potentialEvasion: 38,
+            engagementLevel: 72,
+            missionsInProgress: 149,
+            missionsCompleted: 263,
+            missionsPending: 92
+          };
+          
+          // Top escolas com maior engajamento
+          const topSchools = [
+            {
+              id: 's1',
+              name: 'Escola Municipal Pedro II',
+              teachers: 35,
+              students: 630,
+              engagementRate: 74
+            },
+            {
+              id: 's2',
+              name: 'Escola Estadual Dom Pedro I',
+              teachers: 42,
+              students: 820,
+              engagementRate: 63
+            },
+            {
+              id: 's3',
+              name: 'CETI Zacarias de Góis',
+              teachers: 28,
+              students: 540,
+              engagementRate: 58
+            }
+          ];
+          
+          // Atividades recentes
+          const recentActivities = [
+            {
+              id: 'act1',
+              type: 'report',
+              title: 'Novo relatório gerado',
+              description: 'Relatório bimestral da Escola Municipal Pedro II',
+              date: new Date(Date.now() - 3600000).toISOString(), // 1 hora atrás
+              user: 'Gestor de Teste'
+            },
+            {
+              id: 'act2',
+              type: 'user',
+              title: 'Novos usuários cadastrados',
+              description: '12 alunos adicionados à plataforma',
+              date: new Date(Date.now() - 21600000).toISOString(), // 6 horas atrás
+              user: 'Coordenador Silva'
+            },
+            {
+              id: 'act3',
+              type: 'class',
+              title: 'Nova turma criada',
+              description: 'Turma 9º ano C adicionada',
+              date: new Date(Date.now() - 86400000).toISOString(), // 1 dia atrás
+              user: 'Gestor de Teste'
+            }
+          ];
+          
+          return res.status(200).json({
+            stats: mockStats,
+            topSchools,
+            recentActivities
+          });
+        }
+        
+        // Consultar dados reais no Supabase
+        try {
+          // Tentar obter escola do gestor
+          const { data: schoolData, error: schoolError } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('id', schoolId)
+            .single();
+            
+          if (schoolError) {
+            console.error('Erro ao obter dados da escola:', schoolError);
+            throw schoolError;
+          }
+          
+          // Contar professores da escola
+          const { count: teacherCount, error: teacherError } = await supabase
+            .from('usuarios')
+            .select('*', { count: 'exact', head: true })
+            .eq('escola_id', schoolId)
+            .eq('papel', 'professor');
+            
+          // Contar alunos da escola
+          const { count: studentCount, error: studentError } = await supabase
+            .from('usuarios')
+            .select('*', { count: 'exact', head: true })
+            .eq('escola_id', schoolId)
+            .eq('papel', 'aluno');
+          
+          // Montar objeto de resposta
+          const stats: Partial<SchoolStats> = {
+            totalSchools: 1, // Gestor está associado a uma escola
+            totalTeachers: teacherCount || 0,
+            totalStudents: studentCount || 0,
+            activeClasses: 0, // Será implementado quando a tabela de turmas estiver disponível
+            activeStudents7Days: 0, // Será preenchido com dados reais quando disponíveis
+            activeStudents30Days: 0,
+            potentialEvasion: 0,
+            engagementLevel: 0,
+            missionsInProgress: 0,
+            missionsCompleted: 0,
+            missionsPending: 0
+          };
+          
+          return res.status(200).json({
+            stats,
+            topSchools: [],
+            recentActivities: []
+          });
+          
+        } catch (dbError) {
+          console.error('Erro ao consultar dados reais:', dbError);
+          return res.status(500).json({ message: 'Erro ao consultar dados da escola' });
+        }
+        
+      } catch (error) {
+        console.error('Erro ao obter estatísticas do dashboard:', error);
+        return res.status(500).json({ message: 'Erro ao obter estatísticas do dashboard' });
+      }
+    }
+  );
   // Obter lista de todas as escolas
   app.get("/api/schools", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
     try {
@@ -181,77 +363,219 @@ export function registerManagerRoutes(
   });
   
   // Obter relatórios para gestores
-  app.get("/api/reports", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
-    try {
-      const reportType = req.query.type as string;
-      const timeframe = req.query.timeframe as string;
-      
-      // Simular dados de relatórios (na implementação real, isto viria do banco de dados)
-      const reports = [
-        { 
-          id: 'r1', 
-          title: 'Desempenho Escolar 2023', 
-          type: 'school', 
-          date: '20/04/2023',
-          downloadUrl: '#' 
-        },
-        { 
-          id: 'r2', 
-          title: 'Progresso Regional', 
-          type: 'region', 
-          date: '15/03/2023',
-          downloadUrl: '#'  
-        },
-        { 
-          id: 'r3', 
-          title: 'Estatísticas de Uso', 
-          type: 'school', 
-          date: '10/05/2023',
-          downloadUrl: '#'  
-        },
-      ];
-      
-      // Filtrar por tipo se especificado
-      const filteredReports = reportType 
-        ? reports.filter(report => report.type === reportType)
-        : reports;
-      
-      res.status(200).json(filteredReports);
-    } catch (error) {
-      console.error("Error fetching reports:", error);
-      res.status(500).json({ message: "Error fetching reports" });
+  app.get(
+    "/api/reports", 
+    authenticate, 
+    requireRole(["manager", "admin"]), 
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.session.userId;
+        const schoolId = req.session.escola_id;
+        const reportType = req.query.type as string;
+        
+        // Para o usuário de teste, simular relatórios
+        if (String(userId) === '1003') {
+          const mockReports = [
+            { 
+              id: 'r1', 
+              title: 'Desempenho Escolar 2023', 
+              type: 'school', 
+              date: '20/04/2023',
+              downloadUrl: '#',
+              escola_id: schoolId
+            },
+            { 
+              id: 'r2', 
+              title: 'Relatório de Turmas - 1º Bimestre', 
+              type: 'class', 
+              date: '15/03/2023',
+              downloadUrl: '#',
+              escola_id: schoolId
+            },
+            { 
+              id: 'r3', 
+              title: 'Engajamento de Alunos', 
+              type: 'school', 
+              date: '10/05/2023',
+              downloadUrl: '#',
+              escola_id: schoolId
+            },
+          ];
+          
+          // Filtrar por tipo se especificado
+          const filteredReports = reportType 
+            ? mockReports.filter(report => report.type === reportType)
+            : mockReports;
+          
+          return res.status(200).json(filteredReports);
+        }
+        
+        // Consultar relatórios no banco de dados
+        try {
+          // Buscar do banco de dados para escola específica
+          const { data: reports, error: reportsError } = await supabase
+            .from('relatorios')
+            .select('*')
+            .eq('escola_id', schoolId)
+            .order('data_geracao', { ascending: false });
+            
+          if (reportsError) {
+            console.error('Erro ao consultar relatórios:', reportsError);
+            return res.status(500).json({ message: 'Erro ao consultar relatórios' });
+          }
+          
+          // Filtrar por tipo se especificado
+          const filteredReports = reportType && reports 
+            ? reports.filter(report => report.tipo === reportType)
+            : reports;
+          
+          return res.status(200).json(filteredReports || []);
+        } catch (dbError) {
+          console.error('Erro ao buscar relatórios:', dbError);
+          return res.status(500).json({ message: 'Erro ao buscar relatórios' });
+        }
+        
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        res.status(500).json({ message: "Error fetching reports" });
+      }
     }
-  });
+  );
   
   // Gerar um novo relatório
-  app.post("/api/reports", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
-    try {
-      const { type, title, parameters } = req.body;
-      
-      // Validação básica
-      if (!type || !title) {
-        return res.status(400).json({ 
-          message: "Report type and title are required" 
-        });
+  app.post(
+    "/api/reports/generate", 
+    authenticate, 
+    requireRole(["manager", "admin"]), 
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.session.userId;
+        const schoolId = req.session.escola_id;
+        
+        // Validar dados da requisição
+        const validationResult = reportRequestSchema.safeParse(req.body);
+        if (!validationResult.success) {
+          return res.status(400).json({ 
+            message: 'Dados inválidos',
+            errors: validationResult.error.format()
+          });
+        }
+        
+        const reportData = validationResult.data;
+        
+        // Verificar se o gestor tem permissão para gerar relatório para esta escola
+        if (reportData.escola_id && reportData.escola_id !== schoolId) {
+          return res.status(403).json({ message: 'Sem permissão para gerar relatório para esta escola' });
+        }
+        
+        // Para o usuário de teste, simular geração de relatório
+        if (String(userId) === '1003') {
+          const newReportId = `r${Date.now()}`;
+          const mockReport = {
+            id: newReportId,
+            titulo: `Relatório de ${reportData.tipo} - ${new Date().toLocaleDateString('pt-BR')}`,
+            tipo: reportData.tipo,
+            escola_id: reportData.escola_id || schoolId,
+            turma_id: reportData.turma_id,
+            periodo: reportData.periodo,
+            metricas: reportData.metricas,
+            formato: reportData.formato,
+            url_arquivo: `https://example.com/reports/${newReportId}.${reportData.formato}`,
+            usuario_id: userId,
+            data_geracao: new Date().toISOString()
+          };
+          
+          return res.status(201).json(mockReport);
+        }
+        
+        // Salvar solicitação de relatório no banco
+        try {
+          const { data: newReport, error: reportError } = await supabase
+            .from('relatorios')
+            .insert({
+              titulo: `Relatório de ${reportData.tipo} - ${new Date().toLocaleDateString('pt-BR')}`,
+              tipo: reportData.tipo,
+              escola_id: reportData.escola_id || schoolId,
+              turma_id: reportData.turma_id,
+              periodo: reportData.periodo,
+              metricas: reportData.metricas,
+              formato: reportData.formato,
+              usuario_id: userId
+            })
+            .select()
+            .single();
+            
+          if (reportError) {
+            console.error('Erro ao salvar solicitação de relatório:', reportError);
+            return res.status(500).json({ message: 'Erro ao gerar relatório' });
+          }
+          
+          return res.status(201).json(newReport);
+        } catch (dbError) {
+          console.error('Erro ao gerar relatório:', dbError);
+          return res.status(500).json({ message: 'Erro ao salvar relatório no banco de dados' });
+        }
+      } catch (error) {
+        console.error("Error generating report:", error);
+        res.status(500).json({ message: "Error generating report" });
       }
-      
-      // Simular geração de relatório (na implementação real, isto geraria um relatório real)
-      const newReport = {
-        id: `r${Date.now()}`,
-        title,
-        type,
-        date: new Date().toLocaleDateString('pt-BR'),
-        downloadUrl: '#',
-        parameters,
-        createdBy: req.session.userId as number
-      };
-      
-      res.status(201).json(newReport);
-    } catch (error) {
-      console.error("Error generating report:", error);
-      res.status(500).json({ message: "Error generating report" });
     }
-  });
+  );
+  
+  // Rota para obter estatísticas de evasão (alunos com mais de 10 dias sem acesso)
+  app.get(
+    '/api/manager/evasion-alert',
+    authenticate,
+    requireRole(['manager']),
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.session.userId;
+        const schoolId = req.session.escola_id;
+        
+        // Verificar se o gestor tem uma escola vinculada
+        if (!schoolId) {
+          return res.status(404).json({ message: 'Nenhuma escola vinculada a este gestor' });
+        }
+        
+        // Para usuário de teste, retornar dados simulados
+        if (String(userId) === '1003') {
+          const mockEvasionData = {
+            totalStudents: 38,
+            percentage: 5.3, // % do total de alunos
+            details: [
+              { id: 'a1', name: 'João Silva', class: '9º A', lastAccess: '2023-11-01', daysInactive: 15 },
+              { id: 'a2', name: 'Maria Oliveira', class: '8º C', lastAccess: '2023-11-03', daysInactive: 13 },
+              { id: 'a3', name: 'Pedro Santos', class: '7º B', lastAccess: '2023-11-05', daysInactive: 11 },
+              { id: 'a4', name: 'Ana Beatriz', class: '9º B', lastAccess: '2023-11-04', daysInactive: 12 },
+              { id: 'a5', name: 'Carlos Eduardo', class: '6º A', lastAccess: '2023-10-28', daysInactive: 19 }
+            ]
+          };
+          
+          return res.status(200).json(mockEvasionData);
+        }
+        
+        // Implementar consulta real quando o banco estiver disponível
+        try {
+          // Na implementação real, seria necessário buscar os últimos acessos
+          // dos alunos da escola e filtrar os que não acessam há mais de 10 dias
+          
+          // Como exemplo, estamos retornando dados vazios
+          return res.status(200).json({
+            totalStudents: 0,
+            percentage: 0,
+            details: []
+          });
+        } catch (dbError) {
+          console.error('Erro ao buscar dados de evasão:', dbError);
+          return res.status(500).json({ message: 'Erro ao buscar dados de evasão' });
+        }
+        
+      } catch (error) {
+        console.error('Erro ao obter dados de alerta de evasão:', error);
+        return res.status(500).json({ message: 'Erro ao obter dados de evasão' });
+      }
+    }
+  );
   
   // Obter integrações externas
   app.get("/api/integrations", authenticate, requireRole(["manager", "admin"]), async (req, res) => {

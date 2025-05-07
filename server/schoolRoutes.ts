@@ -86,6 +86,30 @@ export function registerSchoolRoutes(
         
         // Verificar no banco de dados se o gestor possui escola
         try {
+          // Primeiro, verificar na tabela perfis_gestor (modelo recomendado)
+          const { data: perfilData, error: perfilError } = await supabase
+            .from('perfis_gestor')
+            .select('escola_id, escolas:escola_id(*)')
+            .eq('usuario_id', userId)
+            .order('data_vinculo', { ascending: false })
+            .limit(1);
+            
+          if (!perfilError && perfilData && perfilData.length > 0 && perfilData[0].escolas) {
+            const schoolData = perfilData[0].escolas;
+            console.log(`Escola encontrada via perfil_gestor para gestor ${userId}:`, schoolData.id);
+            
+            // Atualizar a sessão com o ID da escola
+            if (req.session) {
+              req.session.escola_id = schoolData.id;
+            }
+            
+            return res.status(200).json({
+              hasSchool: true,
+              school: schoolData
+            });
+          }
+          
+          // Se não encontrar na tabela perfis_gestor, verificar no campo gestor_id da tabela escolas (modelo legado)
           const { data, error } = await supabase
             .from('escolas')
             .select('*')
@@ -97,11 +121,43 @@ export function registerSchoolRoutes(
             console.error('Erro ao consultar escola do gestor no banco:', error);
           } else if (data && data.length > 0) {
             // Escola encontrada no banco de dados
-            console.log(`Escola encontrada para gestor ${userId}:`, data[0].id);
+            console.log(`Escola encontrada via campo gestor_id para gestor ${userId}:`, data[0].id);
             
             // Atualizar a sessão com o ID da escola
             if (req.session) {
               req.session.escola_id = data[0].id;
+            }
+            
+            // Criar também o vínculo na tabela perfis_gestor se não existir
+            try {
+              // Verificar se já existe um vínculo para evitar duplicação
+              const { data: existingPerfil } = await supabase
+                .from('perfis_gestor')
+                .select('id')
+                .eq('usuario_id', userId)
+                .eq('escola_id', data[0].id)
+                .maybeSingle();
+                
+              if (!existingPerfil) {
+                const { data: newPerfil, error: perfilInsertError } = await supabase
+                  .from('perfis_gestor')
+                  .insert({
+                    usuario_id: userId,
+                    escola_id: data[0].id,
+                    cargo: 'Gestor Escolar',
+                    nivel_acesso: 'completo'
+                  })
+                  .select()
+                  .single();
+                  
+                if (perfilInsertError) {
+                  console.error('Erro ao criar vinculação na tabela perfis_gestor:', perfilInsertError);
+                } else {
+                  console.log('Vinculação gestor-escola criada:', newPerfil?.id);
+                }
+              }
+            } catch (perfilError) {
+              console.error('Erro ao verificar/criar perfil de gestor:', perfilError);
             }
             
             return res.status(200).json({
@@ -227,8 +283,22 @@ export function registerSchoolRoutes(
           });
         }
         
-        // Tenta buscar do Supabase (modo fallback)
+        // Tenta buscar do Supabase (modo completo)
         try {
+          // Primeiro verificar na tabela perfis_gestor
+          const { count: perfilCount, error: perfilError } = await supabase
+            .from('perfis_gestor')
+            .select('*', { count: 'exact', head: true })
+            .eq('usuario_id', req.session.userId);
+            
+          if (!perfilError && perfilCount && perfilCount > 0) {
+            return res.status(200).json({ 
+              hasSchools: true,
+              count: perfilCount
+            });
+          }
+          
+          // Se não encontrar na tabela perfis_gestor, verificar na tabela escolas
           const { count, error } = await supabase
             .from('escolas')
             .select('*', { count: 'exact', head: true })
@@ -572,20 +642,65 @@ export function registerSchoolRoutes(
               }
               
               // Escola recuperada com sucesso após inserção
-              // Usar os dados recuperados
+              const schoolId = fetchedSchool.id;
+              
+              // Criar vínculo na tabela perfis_gestor
+              try {
+                const { data: perfilGestor, error: perfilError } = await supabase
+                  .from('perfis_gestor')
+                  .insert({
+                    usuario_id: userId,
+                    escola_id: schoolId,
+                    cargo: 'Gestor Escolar',
+                    nivel_acesso: 'completo'
+                  })
+                  .select()
+                  .single();
+                  
+                if (perfilError) {
+                  console.error('Erro ao criar perfil do gestor:', perfilError);
+                }
+              } catch (perfilErr) {
+                console.error('Exceção ao criar perfil do gestor:', perfilErr);
+              }
+              
+              // Usar os dados recuperados na sessão
               if (req.session) {
-                req.session.escola_id = fetchedSchool.id;
-                console.log(`Escola ID ${fetchedSchool.id} vinculada ao gestor na sessão`);
+                req.session.escola_id = schoolId;
+                console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
               }
               
               // Retornar a escola recuperada
               return res.status(201).json(fetchedSchool);
             }
             
+            // Criar vínculo na tabela perfis_gestor
+            const schoolId = insertedSchool.id;
+            try {
+              const { data: perfilGestor, error: perfilError } = await supabase
+                .from('perfis_gestor')
+                .insert({
+                  usuario_id: userId,
+                  escola_id: schoolId,
+                  cargo: 'Gestor Escolar',
+                  nivel_acesso: 'completo'
+                })
+                .select()
+                .single();
+                
+              if (perfilError) {
+                console.error('Erro ao criar perfil do gestor:', perfilError);
+              } else {
+                console.log('Perfil de gestor criado com sucesso:', perfilGestor?.id);
+              }
+            } catch (perfilErr) {
+              console.error('Exceção ao criar perfil do gestor:', perfilErr);
+            }
+            
             // Adicionar ID da escola à sessão do usuário
             if (req.session) {
-              req.session.escola_id = insertedSchool.id;
-              console.log(`Escola ID ${insertedSchool.id} vinculada ao gestor na sessão`);
+              req.session.escola_id = schoolId;
+              console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
             }
             
             // Retornar os dados da escola inserida
