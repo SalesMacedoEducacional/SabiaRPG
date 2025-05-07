@@ -17,7 +17,10 @@ import {
   insertForumPostSchema,
   insertForumReplySchema,
   insertDiagnosticQuestionSchema,
-  insertUserDiagnosticSchema
+  insertUserDiagnosticSchema,
+  usuarios,
+  escolas,
+  perfilGestor
 } from "@shared/schema";
 import { 
   generateFeedback, 
@@ -31,6 +34,9 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerSchoolRoutes } from "./schoolRoutes";
 import { registerClassRoutes } from "./classRoutes";
 import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import crypto from "crypto";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -613,9 +619,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if ((email === 'gestor@exemplo.com' || email === 'gestor@teste.com') && password === 'Senha123!') {
-        // Criar um usuário simulado para testes
+        // Criar um usuário com UUID real para testes
+        const uuid = crypto.randomUUID(); // Gerar UUID real
+        
         const testUser = {
-          id: 1003,
+          id: uuid, // UUID real para garantir persistência
           email: email, // Usar o email informado
           username: 'gestor_teste',
           fullName: 'Gestor de Teste',
@@ -629,8 +637,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.session.userId = testUser.id;
         req.session.userRole = testUser.role;
         
-        console.log("Login successful for test user (manager):", testUser.email);
+        console.log("Login successful for test user (manager) with UUID:", testUser.id);
         console.log("Session:", req.session);
+        
+        // Persistir o usuário no banco antes de retornar
+        try {
+          // Verificar se já existe um usuário com este e-mail no banco
+          const existingUsers = await db
+            .select()
+            .from(usuarios)
+            .where(eq(usuarios.email, email))
+            .limit(1);
+            
+          if (existingUsers && existingUsers.length > 0) {
+            // Se existir, usar o ID existente
+            req.session.userId = existingUsers[0].id;
+            testUser.id = existingUsers[0].id;
+            console.log("Usando ID existente do banco:", existingUsers[0].id);
+          } else {
+            // Se não existir, criar novo usuário no PostgreSQL com Drizzle
+            const hashedPassword = await bcrypt.hash(password, 10);
+            
+            const inserted = await db.insert(usuarios).values({
+              id: uuid,
+              email: email,
+              username: 'gestor_teste',
+              fullName: 'Gestor de Teste',
+              role: 'manager',
+              password: hashedPassword
+            }).returning();
+            
+            if (inserted && inserted.length > 0) {
+              console.log("Usuário gestor persistido no banco com UUID:", inserted[0].id);
+            }
+          }
+        } catch (dbError) {
+          console.error("Erro ao persistir usuário gestor:", dbError);
+          // Continuar mesmo com erro para não bloquear login
+        }
         
         return res.status(200).json(testUser);
       }
