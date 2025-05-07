@@ -57,39 +57,28 @@ export const authenticateCustom = async (req: Request, res: Response, next: Next
     if (req.session?.userId) {
       console.log('Usuário já autenticado via sessão:', req.session.userId);
       
-      // Usuários conhecidos para desenvolvimento
-      const usuariosConhecidos = [
-        {
-          id: 'eed1c983-9c17-4895-9777-a27460598ff7',
-          email: 'gestor@sabiarpg.edu.br',
-          papel: 'gestor'
-        },
-        {
-          id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
-          email: 'professor@sabiarpg.edu.br',
-          papel: 'professor'
-        },
-        {
-          id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
-          email: 'aluno@sabiarpg.edu.br',
-          papel: 'aluno'
+      // Buscar usuário no banco de dados
+      try {
+        const { data: usuarioEncontrado, error: userError } = await supabase
+          .from('usuarios')
+          .select('id, email, papel')
+          .eq('id', req.session.userId)
+          .maybeSingle();
+        
+        if (!userError && usuarioEncontrado) {
+          // Usuário encontrado no banco, adicionar à requisição
+          req.user = {
+            id: usuarioEncontrado.id,
+            email: usuarioEncontrado.email,
+            role: usuarioEncontrado.papel
+          };
+          return next();
         }
-      ];
-      
-      // Buscar o usuário na lista
-      const userFound = usuariosConhecidos.find(u => u.id === req.session.userId);
-      
-      if (userFound) {
-        // Usuário encontrado na lista, adicionar à requisição
-        req.user = {
-          id: userFound.id,
-          email: userFound.email,
-          role: userFound.papel
-        };
-        return next();
+      } catch (dbError) {
+        console.error('Erro ao buscar usuário no banco:', dbError);
       }
       
-      // Se não encontrou na lista mas temos informações na sessão
+      // Se não encontrou no banco ou houve erro, mas temos dados na sessão
       if (req.session.userRole) {
         req.user = {
           id: req.session.userId,
@@ -128,30 +117,17 @@ export async function handleCustomLogin(req: Request, res: Response) {
     
     console.log(`Tentativa de login para o usuário: ${email}`);
     
-    // Mapeamento direto dos usuários conhecidos para desenvolvimento
-    const usuariosConhecidos = [
-      {
-        id: 'eed1c983-9c17-4895-9777-a27460598ff7',
-        email: 'gestor@sabiarpg.edu.br',
-        papel: 'manager', // Alterado de 'gestor' para 'manager' para compatibilidade
-        senha_hash: 'senha_simples'
-      },
-      {
-        id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
-        email: 'professor@sabiarpg.edu.br',
-        papel: 'teacher', // Alterado de 'professor' para 'teacher' para compatibilidade
-        senha_hash: 'senha_simples'
-      },
-      {
-        id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
-        email: 'aluno@sabiarpg.edu.br',
-        papel: 'student', // Alterado de 'aluno' para 'student' para compatibilidade
-        senha_hash: 'senha_simples'
-      }
-    ];
+    // Buscar usuário no banco de dados
+    const { data: usuarioEncontrado, error: userError } = await supabase
+      .from('usuarios')
+      .select('id, email, senha_hash, papel, nome_completo')
+      .eq('email', email)
+      .maybeSingle();
     
-    // Encontrar o usuário pelo email
-    const usuarioEncontrado = usuariosConhecidos.find(u => u.email === email);
+    if (userError) {
+      console.error('Erro ao buscar usuário:', userError);
+      return res.status(500).json({ message: 'Erro ao verificar credenciais' });
+    }
     
     if (!usuarioEncontrado) {
       console.log('Usuário não encontrado com o email:', email);
@@ -160,17 +136,20 @@ export async function handleCustomLogin(req: Request, res: Response) {
     
     console.log('Usuário encontrado:', usuarioEncontrado.id);
     
-    // Em ambiente de desenvolvimento, aceitar qualquer senha
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ MODO DESENVOLVIMENTO: Bypass de validação de senha');
+    // Em ambiente de desenvolvimento, permitir login simplificado para testes
+    let senhaValida = false;
+    
+    if (process.env.NODE_ENV === 'development' && password === 'senha_simples') {
+      console.warn('⚠️ MODO DESENVOLVIMENTO: Usando senha de teste padrão');
+      senhaValida = true;
     } else {
-      // Em produção, verificaria a senha normalmente
-      const senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
-      
-      if (!senhaValida) {
-        console.log('Senha inválida para o usuário:', email);
-        return res.status(401).json({ message: 'Credenciais inválidas' });
-      }
+      // Em produção ou com senha real, verificar normalmente
+      senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
+    }
+    
+    if (!senhaValida) {
+      console.log('Senha inválida para o usuário:', email);
+      return res.status(401).json({ message: 'Credenciais inválidas' });
     }
     
     // Senha válida ou bypass - Criar sessão
@@ -210,35 +189,22 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       return res.status(401).json({ message: 'Não autorizado' });
     }
     
-    // Usuários conhecidos para desenvolvimento
-    const usuariosConhecidos = [
-      {
-        id: 'eed1c983-9c17-4895-9777-a27460598ff7',
-        email: 'gestor@sabiarpg.edu.br',
-        papel: 'manager', // Alterado de 'gestor' para 'manager' para compatibilidade
-        senha_hash: 'senha_simples'
-      },
-      {
-        id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
-        email: 'professor@sabiarpg.edu.br',
-        papel: 'teacher', // Alterado de 'professor' para 'teacher' para compatibilidade
-        senha_hash: 'senha_simples'
-      },
-      {
-        id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
-        email: 'aluno@sabiarpg.edu.br',
-        papel: 'student', // Alterado de 'aluno' para 'student' para compatibilidade
-        senha_hash: 'senha_simples'
-      }
-    ];
+    // Buscar usuário no banco de dados
+    const { data: usuarioEncontrado, error: userError } = await supabase
+      .from('usuarios')
+      .select('id, email, papel, nome_completo, criado_em, avatar_url, escola_id')
+      .eq('id', req.session.userId)
+      .maybeSingle();
     
-    // Buscar pelo usuário na lista conhecida
-    const usuarioEncontrado = usuariosConhecidos.find(u => u.id === req.session.userId);
+    if (userError) {
+      console.error('Erro ao buscar usuário pelo ID:', userError);
+      return res.status(500).json({ message: 'Erro ao buscar dados do usuário' });
+    }
     
     if (!usuarioEncontrado) {
       console.log('Usuário não encontrado pelo ID:', req.session.userId);
       
-      // Se não encontrar na lista mas tiver dados na sessão, usar esses dados
+      // Se não encontrar no banco mas tiver dados na sessão, usar esses dados
       if (req.session.userEmail && req.session.userRole) {
         const dadosSessao = {
           id: req.session.userId,
@@ -253,14 +219,19 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       return res.status(401).json({ message: 'Não autorizado' });
     }
     
-    // Retornar dados do usuário (exceto senha)
-    const usuarioSemSenha = { ...usuarioEncontrado };
-    if ('senha_hash' in usuarioSemSenha) {
-      delete usuarioSemSenha.senha_hash;
-    }
+    // Converter os nomes dos campos para o formato esperado pelo frontend
+    const dadosFormatados = {
+      id: usuarioEncontrado.id,
+      email: usuarioEncontrado.email,
+      role: usuarioEncontrado.papel,
+      fullName: usuarioEncontrado.nome_completo,
+      createdAt: usuarioEncontrado.criado_em,
+      avatarUrl: usuarioEncontrado.avatar_url,
+      escola_id: usuarioEncontrado.escola_id
+    };
     
     console.log('Usuário autenticado:', usuarioEncontrado.id);
-    res.status(200).json(usuarioSemSenha);
+    res.status(200).json(dadosFormatados);
   } catch (error) {
     console.error('Erro ao buscar usuário atual:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
