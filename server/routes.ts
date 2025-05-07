@@ -37,6 +37,13 @@ import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { 
+  authenticateCustom, 
+  requireRole, 
+  handleCustomLogin, 
+  handleGetCurrentUser, 
+  handleLogout 
+} from "./customAuth";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -464,33 +471,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Middleware de autenticação usando Supabase
-  const authenticate = async (req: Request, res: Response, next: Function) => {
-    try {
-      // Verificar se o usuário está autenticado na sessão
-      if (!req.session.userId) {
-        console.log("Usuário não autenticado na sessão");
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-      
-      // Se tivermos um token JWT na sessão, configurar o Supabase
-      if (req.session.authToken) {
-        supabase.auth.setAuth(req.session.authToken);
-      }
-      
-      next();
-    } catch (error) {
-      console.error("Erro no middleware de autenticação:", error);
-      return res.status(500).json({ message: "Erro no servidor durante autenticação" });
-    }
-  };
+  // Usar o middleware de autenticação personalizado
+  const authenticate = authenticateCustom;
 
-  // Middleware de autorização de papel usando Supabase
-  const requireRole = (roles: string[]) => {
+  // Usar o middleware de autorização personalizado
+  // const requireRole = requireRole importado diretamente de customAuth.ts
+
+  // Verificação de papel simplificada mantida para compatibilidade
+  const requireRoleCompatibility = (roles: string[]) => {
     return async (req: Request, res: Response, next: Function) => {
       try {
         // Verificar se o usuário está autenticado
-        if (!req.session.userId) {
+        if (!req.session?.userId) {
           return res.status(401).json({ message: "Não autorizado" });
         }
         
@@ -676,11 +668,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
+  // Rotas para autenticação personalizada
+  app.post("/api/auth/login", handleCustomLogin);
+  app.get("/api/auth/me", handleGetCurrentUser);
+  app.post("/api/auth/logout", handleLogout);
+  
+  // Manter a rota original para compatibilidade
+  app.post("/api/auth/login-supabase", async (req, res) => {
     try {
       const { email, password } = req.body;
       
-      console.log("Tentativa de login para o usuário:", email);
+      console.log("Tentativa de login para o usuário (Supabase Auth):", email);
       
       if (!email || !password) {
         return res.status(400).json({ message: "Email e senha são obrigatórios" });
