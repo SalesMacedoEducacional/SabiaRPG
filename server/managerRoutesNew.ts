@@ -586,4 +586,71 @@ export function registerManagerRoutes(
       res.status(500).json({ message: "Error fetching integrations" });
     }
   });
+  
+  // Rota para obter usuários da escola do gestor
+  app.get("/api/users", authenticate, requireRole(["manager", "admin"]), async (req, res) => {
+    try {
+      const userId = req.session.userId;
+      let schoolId = null;
+      
+      // Buscar escola do gestor
+      try {
+        // Verificar primeiro em perfis_gestor
+        const { data: perfilData, error: perfilError } = await supabase
+          .from('perfis_gestor')
+          .select('escola_id')
+          .eq('usuario_id', userId)
+          .maybeSingle();
+          
+        if (!perfilError && perfilData && perfilData.escola_id) {
+          schoolId = perfilData.escola_id;
+        } else {
+          // Se não encontrou, verificar em escolas.gestor_id
+          const { data: escolaData, error: escolaError } = await supabase
+            .from('escolas')
+            .select('id')
+            .eq('gestor_id', userId)
+            .maybeSingle();
+            
+          if (!escolaError && escolaData) {
+            schoolId = escolaData.id;
+          }
+        }
+      } catch (findError) {
+        console.error('Erro ao buscar escola do gestor:', findError);
+      }
+      
+      if (!schoolId) {
+        // Se não encontrou escola, retornar array vazio
+        return res.status(200).json([]);
+      }
+      
+      // Buscar usuários vinculados à escola
+      const { data: users, error: usersError } = await supabase
+        .from('usuarios')
+        .select('id, email, nome_completo, papel, username, ativo, ultimo_acesso')
+        .eq('escola_id', schoolId)
+        .order('nome_completo');
+        
+      if (usersError) {
+        console.error('Erro ao buscar usuários da escola:', usersError);
+        return res.status(500).json({ message: 'Erro ao buscar usuários da escola' });
+      }
+      
+      // Formatar os dados para o formato esperado pelo frontend
+      const formattedUsers = users ? users.map(user => ({
+        id: user.id,
+        name: user.nome_completo || user.username || 'Sem nome',
+        email: user.email,
+        profile: user.papel || 'aluno',
+        status: user.ativo === false ? 'inactive' : 'active',
+        lastAccess: user.ultimo_acesso
+      })) : [];
+      
+      return res.status(200).json(formattedUsers);
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      res.status(500).json({ message: "Erro ao buscar usuários" });
+    }
+  });
 }
