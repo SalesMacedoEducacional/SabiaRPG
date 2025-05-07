@@ -72,12 +72,16 @@ const CharacterPanel: React.FC = () => {
     { name: 'Artes', area: 'arts' }
   ];
 
+  // Valor padrão caso level ou xp ainda não estejam carregados
+  const level = user.level || 1;
+  const xp = user.xp || 0;
+
   // Calculate XP needed for next level (simple formula)
   const xpPerLevel = 1000;
-  const nextLevelXP = user.level * xpPerLevel;
-  const currentLevelXP = (user.level - 1) * xpPerLevel;
-  const xpProgress = ((user.xp - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
-  const xpNeeded = nextLevelXP - user.xp;
+  const nextLevelXP = level * xpPerLevel;
+  const currentLevelXP = (level - 1) * xpPerLevel;
+  const xpProgress = ((xp - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
+  const xpNeeded = nextLevelXP - xp;
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -88,11 +92,11 @@ const CharacterPanel: React.FC = () => {
             <Avatar size="large" user={user} />
           </div>
           <span className="absolute -top-2 -right-2 bg-accent text-dark text-xs font-bold px-2 py-1 rounded-full">
-            Nv. {user.level}
+            Nv. {level}
           </span>
         </div>
         
-        <h2 className="mt-4 font-medieval text-xl">{user.username}</h2>
+        <h2 className="mt-4 font-medieval text-xl">{user.username || user.email || 'Estudante'}</h2>
         <p className="text-parchment-dark text-sm">Aprendiz de Sabedoria</p>
       </div>
       
@@ -130,8 +134,8 @@ const CharacterPanel: React.FC = () => {
       <Card className="bg-dark border-none shadow-none mt-auto">
         <CardContent className="p-4">
           <div className="flex justify-between mb-1">
-            <span className="text-sm font-medium">Nível {user.level}</span>
-            <span className="text-sm">{user.xp}/{nextLevelXP} XP</span>
+            <span className="text-sm font-medium">Nível {level}</span>
+            <span className="text-sm">{xp}/{nextLevelXP} XP</span>
           </div>
           <Progress value={xpProgress} className="h-3 bg-dark-dark mb-1">
             <div className="bg-accent h-full rounded-full" />
