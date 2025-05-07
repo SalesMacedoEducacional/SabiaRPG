@@ -207,14 +207,8 @@ export default function SchoolRegistration() {
         // Continuaremos o fluxo mesmo em caso de erro
       }
       
-      // Salvar informações da escola no sessionStorage para persistência local
-      sessionStorage.setItem('saved_school_id', result.id);
-      sessionStorage.setItem('saved_school_name', data.nome);
-      sessionStorage.setItem('saved_school_code', data.codigo_escola || '');
-      sessionStorage.setItem('saved_school_city', data.cidade);
-      sessionStorage.setItem('saved_school_state', data.estado);
-      
-      console.log('Dados da escola salvos no sessionStorage:', {
+      // Registrar dados salvos apenas para fins de log
+      console.log('Dados da escola salvos no banco de dados:', {
         id: result.id,
         nome: data.nome
       });
