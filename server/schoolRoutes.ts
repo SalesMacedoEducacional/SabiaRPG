@@ -1,7 +1,9 @@
 import { Express, Request, Response } from 'express';
 import { z } from 'zod';
-import { supabase } from '../db/supabase.js';
 import './types'; // Importa as extensões de tipo para express-session
+import { db } from './db';
+import { escolas, perfilGestor } from '@shared/schema';
+import { eq, and } from 'drizzle-orm';
 
 // Função auxiliar para comparar valores que podem ser string ou number
 function isTestUser(userId: string | number | undefined): boolean {
@@ -682,77 +684,54 @@ export function registerSchoolRoutes(
           
           console.log('Inserindo escola com dados:', escolaInsert);
           
-          // Salvar a escola no banco de dados
-          const { data: insertedSchool, error } = await supabase
-            .from('escolas')
-            .insert(escolaInsert)
-            .select()
-            .single();
-          
-          if (error) {
-            console.error('Erro ao inserir escola no Supabase:', error);
-            // Enviar a mensagem de erro para diagnóstico
-            return res.status(500).json({ 
-              message: 'Erro ao cadastrar escola no banco de dados', 
-              error: error.message,
-              details: error.details,
-              hint: error.hint,
-              code: error.code 
-            });
-          }
-          
-          if (!insertedSchool || !insertedSchool.id) {
-            console.error('Escola inserida, mas ID não retornado');
-            return res.status(500).json({ 
-              message: 'Falha ao obter ID da escola cadastrada'
-            });
-          }
-          
-          // Escola salva com sucesso
-          const schoolId = insertedSchool.id;
-          console.log(`Escola cadastrada com sucesso. ID: ${schoolId}`);
-          
-          // Criar vínculo na tabela perfis_gestor
-          const perfilInsert = {
-            usuario_id: userId,
-            escola_id: schoolId,
-            cargo: 'Gestor Escolar',
-            nivel_acesso: 'completo',
-            data_vinculo: new Date().toISOString()
-          };
-          
-          const { data: perfilGestor, error: perfilError } = await supabase
-            .from('perfis_gestor')
-            .insert(perfilInsert)
-            .select()
-            .single();
-          
-          if (perfilError) {
-            console.error('Erro ao criar perfil do gestor:', perfilError);
-            // Continuar mesmo com erro no perfil, pois a escola já foi criada
-          } else {
-            console.log('Perfil de gestor criado com sucesso. ID:', perfilGestor?.id);
-          }
-          
-          // Adicionar ID da escola à sessão do usuário
-          req.session.escola_id = schoolId;
-          console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
-          
-          // Agora, buscar a escola completa para garantir que temos todos os campos
-          const { data: escolaCompleta, error: errorFetch } = await supabase
-            .from('escolas')
-            .select('*')
-            .eq('id', schoolId)
-            .single();
+          try {
+            // Salvar a escola no banco de dados usando Drizzle ORM
+            const insertedSchools = await db.insert(escolas).values({
+              nome: escolaInsert.nome,
+              codigoEscola: escolaInsert.codigo_escola,
+              endereco: escolaInsert.endereco_completo,
+              telefone: escolaInsert.telefone,
+            }).returning();
             
-          if (errorFetch) {
-            console.error('Erro ao recuperar escola recém-criada:', errorFetch);
-            // Retornar os dados inseridos mesmo assim, pois sabemos que a escola foi criada
-            return res.status(201).json(insertedSchool);
-          }
+            if (!insertedSchools || insertedSchools.length === 0) {
+              console.error('Escola inserida, mas não retornada');
+              return res.status(500).json({ 
+                message: 'Falha ao obter dados da escola cadastrada'
+              });
+            }
+            
+            const insertedSchool = insertedSchools[0];
+            
+            // Escola salva com sucesso
+            const schoolId = insertedSchool.id;
+            console.log(`Escola cadastrada com sucesso. ID: ${schoolId}`);
+            
+            // Criar vínculo na tabela perfis_gestor
+            const perfilGestorResult = await db.insert(perfilGestor).values({
+              usuarioId: userId,
+              escolaId: schoolId,
+              cargo: 'Gestor Escolar',
+              permissoesEspeciais: {},
+            }).returning();
+            
+            if (!perfilGestorResult || perfilGestorResult.length === 0) {
+              console.error('Erro ao criar perfil do gestor');
+              // Continuar mesmo com erro no perfil, pois a escola já foi criada
+            } else {
+              const perfilGestorEntry = perfilGestorResult[0];
+              console.log('Perfil de gestor criado com sucesso. ID:', perfilGestorEntry?.id);
+            }
           
-          // Retornar os dados completos da escola inserida
-          return res.status(201).json(escolaCompleta);
+            // Adicionar ID da escola à sessão do usuário
+            req.session.escola_id = schoolId;
+            console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
+            
+            // Retornar os dados da escola inserida
+            return res.status(201).json(insertedSchool);
+          } catch (error) {
+            console.error('Erro ao cadastrar escola:', error);
+            return res.status(500).json({ message: 'Erro ao cadastrar escola' });
+          }
         }
         
         // Para administradores

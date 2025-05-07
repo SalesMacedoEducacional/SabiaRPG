@@ -1,5 +1,5 @@
-import { db, pool } from '../server/db.js';
-import * as schema from '../shared/schema.js';
+import { db, pool } from '../server/db.ts';
+import * as schema from '../shared/schema.ts';
 import { sql } from 'drizzle-orm';
 
 async function createTables() {
