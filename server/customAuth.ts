@@ -128,24 +128,24 @@ export async function handleCustomLogin(req: Request, res: Response) {
     
     console.log(`Tentativa de login para o usuário: ${email}`);
     
-    // Mapeamento direto dos usuários conhecidos para desenvolviemnto
+    // Mapeamento direto dos usuários conhecidos para desenvolvimento
     const usuariosConhecidos = [
       {
         id: 'eed1c983-9c17-4895-9777-a27460598ff7',
         email: 'gestor@sabiarpg.edu.br',
-        papel: 'gestor',
+        papel: 'manager', // Alterado de 'gestor' para 'manager' para compatibilidade
         senha_hash: 'senha_simples'
       },
       {
         id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
         email: 'professor@sabiarpg.edu.br',
-        papel: 'professor',
+        papel: 'teacher', // Alterado de 'professor' para 'teacher' para compatibilidade
         senha_hash: 'senha_simples'
       },
       {
         id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
         email: 'aluno@sabiarpg.edu.br',
-        papel: 'aluno',
+        papel: 'student', // Alterado de 'aluno' para 'student' para compatibilidade
         senha_hash: 'senha_simples'
       }
     ];
@@ -215,19 +215,19 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       {
         id: 'eed1c983-9c17-4895-9777-a27460598ff7',
         email: 'gestor@sabiarpg.edu.br',
-        papel: 'gestor',
+        papel: 'manager', // Alterado de 'gestor' para 'manager' para compatibilidade
         senha_hash: 'senha_simples'
       },
       {
         id: '70162ab0-e4e0-496f-9f6d-ae423b37c3c7',
         email: 'professor@sabiarpg.edu.br',
-        papel: 'professor',
+        papel: 'teacher', // Alterado de 'professor' para 'teacher' para compatibilidade
         senha_hash: 'senha_simples'
       },
       {
         id: '827ec44a-b605-4fa1-b19d-709b3e47cd2c',
         email: 'aluno@sabiarpg.edu.br',
-        papel: 'aluno',
+        papel: 'student', // Alterado de 'aluno' para 'student' para compatibilidade
         senha_hash: 'senha_simples'
       }
     ];
