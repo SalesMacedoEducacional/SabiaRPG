@@ -29,7 +29,7 @@ import {
 } from "./openai";
 import OpenAI from "openai";
 import { initializeDatabase } from "../db/supabase";
-import { registerManagerRoutes } from "./managerRoutes";
+import { registerManagerRoutes } from "./managerRoutesNew";
 import { registerUserRoutes } from "./userRoutes";
 import { registerSchoolRoutes } from "./schoolRoutes";
 import { registerClassRoutes } from "./classRoutes";

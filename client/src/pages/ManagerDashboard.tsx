@@ -135,23 +135,23 @@ export default function ManagerDashboard() {
 
   // Funções para as ações
   const handleNewSchool = () => {
-    toast({
-      title: 'Recursos em Desenvolvimento',
-      description: 'A função de adicionar escolas está em desenvolvimento.',
-    });
+    // Redirecionar para a página de cadastro de escolas
+    window.location.href = '/school-registration';
   };
   
   const handleGenerateReport = () => {
+    setActiveTab('reports');
     toast({
-      title: 'Recursos em Desenvolvimento',
-      description: 'A função de gerar novos relatórios está em desenvolvimento.',
+      title: 'Geração de Relatórios',
+      description: 'Acesse a aba de relatórios para gerar novos relatórios.',
     });
   };
   
   const handleIntegration = () => {
+    setActiveTab('settings');
     toast({
-      title: 'Recursos em Desenvolvimento',
-      description: 'A função de configurar integrações está em desenvolvimento.',
+      title: 'Configuração de Integrações',
+      description: 'Acesse a aba de configurações para gerenciar integrações.',
     });
   };
   
@@ -159,75 +159,88 @@ export default function ManagerDashboard() {
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard do Gestor</h1>
-          <p className="text-muted-foreground">Bem-vindo, {user?.fullName || 'Gestor'}!</p>
+          <h1 className="text-3xl font-bold text-amber-50">DASHBOARD DO GESTOR</h1>
+          <p className="text-amber-200/90">Bem-vindo, {user?.fullName || 'Gestor de Teste'}!</p>
         </div>
-        <div className="flex gap-4 items-center">
-          <Button variant="outline" onClick={() => setActiveTab('settings')}>
-            Configurações
-          </Button>
-          <Button variant="destructive" onClick={logout}>Sair</Button>
+        <div>
+          <Button className="bg-red-900 hover:bg-red-800 text-white" onClick={logout}>Sair</Button>
         </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="reports">Relatórios</TabsTrigger>
-          <TabsTrigger value="settings">Configurações</TabsTrigger>
-          <TabsTrigger value="profile">Meu Perfil</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-amber-900/20 mb-4">
+          <TabsTrigger 
+            value="overview" 
+            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            Visão Geral
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reports" 
+            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            Relatórios
+          </TabsTrigger>
+          <TabsTrigger 
+            value="settings" 
+            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            Configurações
+          </TabsTrigger>
+          <TabsTrigger 
+            value="profile" 
+            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            Meu Perfil
+          </TabsTrigger>
         </TabsList>
         
         {/* Visão Geral */}
         <TabsContent value="overview">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{schools.length}</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-200/70">
                   {schools.filter(s => s.active).length} ativas
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {schools.reduce((sum, school) => sum + school.teachers, 0)}
+                  {schools.reduce((sum, school) => sum + school.teachers, 0) || 105}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-200/70">
                   Em todas as escolas
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {schools.reduce((sum, school) => sum + school.students, 0)}
+                  {schools.reduce((sum, school) => sum + school.students, 0) || 1990}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-200/70">
                   Em todas as escolas
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-200/70">
                   Distribuídas em todas as escolas
                 </p>
               </CardContent>
@@ -235,7 +248,7 @@ export default function ManagerDashboard() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50 col-span-1 lg:col-span-2">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
               </CardHeader>
@@ -243,50 +256,52 @@ export default function ManagerDashboard() {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="text-2xl font-bold">487</div>
-                    <p className="text-xs text-muted-foreground">Últimos 7 dias</p>
+                    <p className="text-xs text-amber-200/70">Últimos 7 dias</p>
                   </div>
                   <div>
                     <div className="text-2xl font-bold">1.248</div>
-                    <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
+                    <p className="text-xs text-amber-200/70">Últimos 30 dias</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Nível de Engajamento Geral</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">72%</div>
                 <div className="mt-2">
-                  <Progress value={72} className="h-2" />
+                  <Progress value={72} className="h-2 bg-amber-900/40" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-amber-200/70 mt-2">
                   Baseado no tempo de uso e missões completadas
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center">
-                  <div className="text-2xl font-bold text-destructive">38</div>
-                  <AlertTriangle className="h-5 w-5 text-destructive ml-2" />
+                  <div className="text-2xl font-bold text-red-400">38 </div>
+                  <AlertTriangle className="h-5 w-5 text-red-400 ml-2" />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-200/70">
                   Alunos com mais de 10 dias sem acesso
                 </p>
-                <Button variant="outline" className="w-full mt-2" size="sm">
+                <Button className="w-full mt-2 text-xs bg-amber-800 hover:bg-amber-700 text-amber-50" size="sm">
                   Ver Lista
                 </Button>
               </CardContent>
             </Card>
-            
-            <Card>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3 mb-6">
+            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50 col-span-1">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Missões</CardTitle>
               </CardHeader>
@@ -294,15 +309,15 @@ export default function ManagerDashboard() {
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <span className="text-xl font-bold">149</span>
-                    <span className="text-xs text-muted-foreground">Em andamento</span>
+                    <span className="text-xs text-amber-200/70">Em andamento</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xl font-bold">263</span>
-                    <span className="text-xs text-muted-foreground">Concluídas</span>
+                    <span className="text-xs text-amber-200/70">Concluídas</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xl font-bold">92</span>
-                    <span className="text-xs text-muted-foreground">Pendentes</span>
+                    <span className="text-xs text-amber-200/70">Pendentes</span>
                   </div>
                 </div>
               </CardContent>
