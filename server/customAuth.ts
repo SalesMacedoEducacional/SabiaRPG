@@ -120,7 +120,7 @@ export async function handleCustomLogin(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, senha_hash, papel')
+      .select('id, email, senha_hash, papel, nome_completo, escola_id, criado_em')
       .eq('email', email)
       .maybeSingle();
     
@@ -164,16 +164,25 @@ export async function handleCustomLogin(req: Request, res: Response) {
       console.error('Sessão não disponível');
     }
     
-    // Retornar dados do usuário (exceto senha)
-    const usuarioSemSenha = { ...usuarioEncontrado };
-    if ('senha_hash' in usuarioSemSenha) {
-      delete usuarioSemSenha.senha_hash;
-    }
+    // Adaptar o formato retornado para corresponder ao que o frontend espera
+    // Esse é um ponto crítico onde a API precisa retornar no formato correto
+    const dadosFormatados = {
+      id: usuarioEncontrado.id,
+      email: usuarioEncontrado.email,
+      role: usuarioEncontrado.papel,
+      username: usuarioEncontrado.email?.split('@')[0] || 'user',
+      fullName: usuarioEncontrado.nome_completo || usuarioEncontrado.email?.split('@')[0] || 'Usuário',
+      level: 1,
+      xp: 0,
+      createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
+      escola_id: usuarioEncontrado.escola_id
+    };
     
     // Log de sucesso
     console.log('Login bem-sucedido para:', email);
+    console.log('Dados adaptados para o frontend:', dadosFormatados);
     
-    res.status(200).json(usuarioSemSenha);
+    res.status(200).json(dadosFormatados);
   } catch (error) {
     console.error('Erro ao processar login customizado:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
@@ -193,7 +202,7 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, papel, escola_id')
+      .select('id, email, papel, escola_id, nome_completo, criado_em')
       .eq('id', req.session.userId)
       .maybeSingle();
     
@@ -225,6 +234,11 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       id: usuarioEncontrado.id,
       email: usuarioEncontrado.email,
       role: usuarioEncontrado.papel,
+      username: usuarioEncontrado.email?.split('@')[0] || 'user',
+      fullName: usuarioEncontrado.nome_completo || usuarioEncontrado.email?.split('@')[0] || 'Usuário',
+      level: 1,
+      xp: 0,
+      createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
       escola_id: usuarioEncontrado.escola_id
     };
     
