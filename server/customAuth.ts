@@ -139,11 +139,12 @@ export async function handleCustomLogin(req: Request, res: Response) {
     // Em ambiente de desenvolvimento, permitir login simplificado para testes
     let senhaValida = false;
     
-    if (process.env.NODE_ENV === 'development' && password === 'senha_simples') {
-      console.warn('⚠️ MODO DESENVOLVIMENTO: Usando senha de teste padrão');
+    // Em ambiente de desenvolvimento, aceitar QUALQUER senha
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ MODO DESENVOLVIMENTO: Aceitando qualquer senha para testes');
       senhaValida = true;
     } else {
-      // Em produção ou com senha real, verificar normalmente
+      // Em produção, verificar normalmente
       senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
     }
     
