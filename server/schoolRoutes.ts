@@ -169,76 +169,117 @@ export function registerSchoolRoutes(
           console.error('Exceção ao consultar escola do gestor:', error);
         }
         
-        // Se não encontrou no banco nem na sessão, verificar se é usuário de teste
-        // Solução temporária para contornar políticas RLS
+        // Verificar se o gestor já tem alguma escola cadastrada mas não vinculada
+        console.log(`Tentando buscar escolas diretamente para o gestor ${userId}`);
         
-        // Para o usuário de teste, simular uma escola
-        if (String(userId) === '1003') {
-          console.log('Usando escola simulada para usuário gestor de teste');
-          
-          const mockSchool = {
-            id: 'school-test-1003',
-            nome: 'Escola Simulada SABIÁ',
-            codigo_escola: 'SABIA001',
-            tipo: 'estadual',
-            modalidade_ensino: 'Fundamental e Médio',
-            cidade: 'Teresina',
-            estado: 'PI',
-            zona_geografica: 'urbana',
-            endereco_completo: 'Av. Teste, 123, Centro',
-            telefone: '(86) 99999-9999',
-            email_institucional: 'escola.simulada@sabia.gov.br',
-            gestor_id: userId,
-            criado_em: new Date().toISOString()
-          };
-          
-          // Salvar na sessão para próximas requisições
-          if (req.session) {
-            req.session.escola_id = mockSchool.id;
-          }
-          
-          return res.status(200).json({
-            hasSchool: true,
-            school: mockSchool
-          });
-        }
-        
-        // Se não encontrou no banco, verificar se há escola_id na sessão
-        if (req.session?.escola_id) {
-          console.log(`Escola encontrada apenas na sessão: ${req.session.escola_id}`);
-          
-          // Tentar recuperar do banco de dados novamente usando o ID da sessão
-          const { data: sessionSchool, error: sessionError } = await supabase
+        // Tentativa final: verificar se há escolas com o gestor_id no banco
+        try {
+          const { data: directSchools, error: directError } = await supabase
             .from('escolas')
             .select('*')
-            .eq('id', req.session.escola_id)
-            .single();
-            
-          if (!sessionError && sessionSchool) {
-            return res.status(200).json({
-              hasSchool: true,
-              school: sessionSchool
-            });
-          }
-        }
-        
-        // Fallback para modo de desenvolvimento - usuário gestor de teste
-        if (String(userId) === '1003') { // ID do gestor de teste
-          console.log("Gestor de teste detectado: verificando escolas no banco de dados");
-          
-          // Tentar novamente com busca específica para o gestor de teste
-          const { data: testUserSchools, error: testUserError } = await supabase
-            .from('escolas')
-            .select('*')
-            .eq('gestor_id', 1003)
+            .eq('gestor_id', userId)
             .limit(1);
             
-          if (!testUserError && testUserSchools && testUserSchools.length > 0) {
-            // Escola encontrada para o gestor de teste
+          if (directError) {
+            console.error('Erro ao buscar escolas diretamente pelo gestor_id:', directError);
+          } else if (directSchools && directSchools.length > 0) {
+            console.log(`Escola encontrada diretamente pelo gestor_id: ${directSchools[0].id}`);
+            
+            // Atualizar a sessão
+            if (req.session) {
+              req.session.escola_id = directSchools[0].id;
+            }
+            
+            // Criar vínculo na tabela perfis_gestor se não existir
+            await criarVinculoGestorEscola(userId, directSchools[0].id);
+            
             return res.status(200).json({
               hasSchool: true,
-              school: testUserSchools[0]
+              school: directSchools[0]
             });
+          }
+        } catch (directError) {
+          console.error('Erro ao buscar escolas diretamente:', directError);
+        }
+        
+        // Tratamento para usuário de teste - verificar se tem escolas reais antes
+        if (String(userId) === '1003') {
+          console.log("Gestor de teste detectado: verificando se já existe escola real associada");
+          
+          try {
+            // Verificar pelo ID
+            const { data: testSchools, error: testError } = await supabase
+              .from('escolas')
+              .select('*')
+              .eq('gestor_id', 1003)
+              .limit(1);
+              
+            if (!testError && testSchools && testSchools.length > 0) {
+              const realSchool = testSchools[0];
+              console.log(`Escola real encontrada para usuário de teste: ${realSchool.id}`);
+              
+              // Atualizar sessão
+              if (req.session) {
+                req.session.escola_id = realSchool.id;
+              }
+              
+              // Criar vínculo na tabela perfis_gestor
+              await criarVinculoGestorEscola(userId, realSchool.id);
+              
+              return res.status(200).json({
+                hasSchool: true,
+                school: realSchool
+              });
+            }
+          } catch (testSchoolError) {
+            console.error('Erro ao verificar escola real para usuário de teste:', testSchoolError);
+          }
+        }
+        
+        // Função auxiliar para criar vínculo gestor-escola
+        async function criarVinculoGestorEscola(userId, escolaId) {
+          try {
+            // Verificar se já existe vínculo
+            const { data: existingVinculo, error: checkError } = await supabase
+              .from('perfis_gestor')
+              .select('id')
+              .eq('usuario_id', userId)
+              .eq('escola_id', escolaId)
+              .maybeSingle();
+              
+            if (checkError) {
+              console.error('Erro ao verificar vínculo existente:', checkError);
+              return false;
+            }
+            
+            if (existingVinculo) {
+              console.log('Vínculo já existe:', existingVinculo.id);
+              return true;
+            }
+            
+            // Criar novo vínculo
+            const { data: novoVinculo, error: insertError } = await supabase
+              .from('perfis_gestor')
+              .insert({
+                usuario_id: userId,
+                escola_id: escolaId,
+                cargo: 'Gestor Escolar',
+                nivel_acesso: 'completo',
+                data_vinculo: new Date().toISOString()
+              })
+              .select()
+              .single();
+              
+            if (insertError) {
+              console.error('Erro ao criar vínculo gestor-escola:', insertError);
+              return false;
+            }
+            
+            console.log('Vínculo gestor-escola criado com sucesso:', novoVinculo.id);
+            return true;
+          } catch (vinculoError) {
+            console.error('Erro ao criar vínculo gestor-escola:', vinculoError);
+            return false;
           }
         }
         
@@ -274,13 +315,40 @@ export function registerSchoolRoutes(
           });
         }
         
-        // Para usuário de teste específico
+        // Verificar se o usuário de teste tem dados reais
         if (String(req.session.userId) === '1003') {
-          // Verificar se há algum dado de escola salvo para este usuário
-          return res.status(200).json({ 
-            hasSchools: true,
-            count: 1
-          });
+          console.log('Verificando se o usuário de teste possui escolas reais');
+          try {
+            // Verificar na tabela perfis_gestor
+            const { count: perfilCount, error: perfilTestError } = await supabase
+              .from('perfis_gestor')
+              .select('*', { count: 'exact', head: true })
+              .eq('usuario_id', 1003);
+              
+            if (!perfilTestError && perfilCount && perfilCount > 0) {
+              console.log(`Encontrados ${perfilCount} vínculos para usuário de teste`);
+              return res.status(200).json({ 
+                hasSchools: true,
+                count: perfilCount
+              });
+            }
+            
+            // Verificar na tabela escolas
+            const { count: escolaCount, error: escolaTestError } = await supabase
+              .from('escolas')
+              .select('*', { count: 'exact', head: true })
+              .eq('gestor_id', 1003);
+              
+            if (!escolaTestError && escolaCount && escolaCount > 0) {
+              console.log(`Encontradas ${escolaCount} escolas para usuário de teste`);
+              return res.status(200).json({ 
+                hasSchools: true,
+                count: escolaCount
+              });
+            }
+          } catch (testError) {
+            console.error('Erro ao verificar escolas para usuário de teste:', testError);
+          }
         }
         
         // Tenta buscar do Supabase (modo completo)
@@ -344,29 +412,30 @@ export function registerSchoolRoutes(
       try {
         // Verificar se o usuário é um gestor
         if (req.session.userRole === 'manager') {
-          // Para o usuário de teste, simular uma lista de escolas
+          // Para o usuário de teste, verificar se tem dados reais primeiro
           if (isTestUser(req.session.userId)) {
-            console.log('Usando lista de escolas simulada para gestor de teste');
+            console.log('Verificando escolas reais para gestor de teste');
             
-            // Verificar se existe ID da escola na sessão
-            if (req.session?.escola_id) {
-              const mockSchool = {
-                id: req.session.escola_id,
-                nome: 'Escola Simulada SABIÁ',
-                codigo_escola: 'SABIA001',
-                tipo: 'estadual',
-                modalidade_ensino: 'Fundamental e Médio',
-                cidade: 'Teresina',
-                estado: 'PI',
-                zona_geografica: 'urbana',
-                endereco_completo: 'Av. Teste, 123, Centro',
-                telefone: '(86) 99999-9999',
-                email_institucional: 'escola.simulada@sabia.gov.br',
-                gestor_id: req.session.userId,
-                criado_em: new Date().toISOString()
-              };
-              
-              return res.status(200).json([mockSchool]);
+            // Verificar primeiro na tabela perfis_gestor
+            try {
+              const { data: perfilData, error: perfilError } = await supabase
+                .from('perfis_gestor')
+                .select('escola_id, escolas:escola_id(*)')
+                .eq('usuario_id', 1003);
+                
+              if (!perfilError && perfilData && perfilData.length > 0) {
+                // Extrair as escolas dos perfis
+                const escolasVinculadas = perfilData
+                  .filter(perfil => perfil.escolas)
+                  .map(perfil => perfil.escolas);
+                  
+                if (escolasVinculadas.length > 0) {
+                  console.log(`Encontradas ${escolasVinculadas.length} escolas reais via perfis para usuário de teste`);
+                  return res.status(200).json(escolasVinculadas);
+                }
+              }
+            } catch (perfilError) {
+              console.error('Erro ao buscar perfis para usuário de teste:', perfilError);
             }
           }
           
@@ -379,30 +448,35 @@ export function registerSchoolRoutes(
           if (error) {
             console.error('Erro ao buscar escolas do gestor:', error);
             
-            // Se for gestor de teste e ocorrer erro, retornar lista simulada
+            // Se for gestor de teste e ocorrer erro, tentar buscar via perfil
             if (isTestUser(req.session.userId)) {
-              const mockSchool = {
-                id: 'school-test-1003',
-                nome: 'Escola Simulada SABIÁ',
-                codigo_escola: 'SABIA001',
-                tipo: 'estadual',
-                modalidade_ensino: 'Fundamental e Médio',
-                cidade: 'Teresina',
-                estado: 'PI',
-                zona_geografica: 'urbana',
-                endereco_completo: 'Av. Teste, 123, Centro',
-                telefone: '(86) 99999-9999',
-                email_institucional: 'escola.simulada@sabia.gov.br',
-                gestor_id: req.session.userId,
-                criado_em: new Date().toISOString()
-              };
+              console.log('Erro na busca direta. Tentando buscar via perfis para usuário de teste');
               
-              // Salvar na sessão para próximas requisições
-              if (req.session) {
-                req.session.escola_id = mockSchool.id;
+              try {
+                // Tentar via perfis
+                const { data: perfilData, error: perfilTestError } = await supabase
+                  .from('perfis_gestor')
+                  .select('escola_id, escolas:escola_id(*)')
+                  .eq('usuario_id', 1003)
+                  .limit(10);
+                  
+                if (!perfilTestError && perfilData && perfilData.length > 0) {
+                  // Extrair escolas
+                  const escolas = perfilData
+                    .filter(p => p.escolas)
+                    .map(p => p.escolas);
+                    
+                  if (escolas.length > 0) {
+                    console.log(`Encontradas ${escolas.length} escolas via perfis para usuário de teste`);
+                    return res.status(200).json(escolas);
+                  }
+                }
+              } catch (testError) {
+                console.error('Erro ao buscar via perfis para usuário de teste:', testError);
               }
               
-              return res.status(200).json([mockSchool]);
+              // Se falhou, retornar array vazio em vez de dados simulados
+              return res.status(200).json([]);
             }
             
             throw error;
@@ -410,28 +484,31 @@ export function registerSchoolRoutes(
           
           // Se não encontrou nenhuma escola no banco e é usuário de teste
           if ((!data || data.length === 0) && isTestUser(req.session.userId)) {
-            const mockSchool = {
-              id: 'school-test-1003',
-              nome: 'Escola Simulada SABIÁ',
-              codigo_escola: 'SABIA001',
-              tipo: 'estadual',
-              modalidade_ensino: 'Fundamental e Médio',
-              cidade: 'Teresina',
-              estado: 'PI',
-              zona_geografica: 'urbana',
-              endereco_completo: 'Av. Teste, 123, Centro',
-              telefone: '(86) 99999-9999',
-              email_institucional: 'escola.simulada@sabia.gov.br',
-              gestor_id: req.session.userId,
-              criado_em: new Date().toISOString()
-            };
+            console.log('Nenhuma escola encontrada para o usuário de teste via gestor_id');
             
-            // Salvar na sessão para próximas requisições
-            if (req.session) {
-              req.session.escola_id = mockSchool.id;
+            // Verificar na tabela de perfis
+            try {
+              const { data: perfilData, error: perfilError } = await supabase
+                .from('perfis_gestor')
+                .select('escola_id, escolas:escola_id(*)')
+                .eq('usuario_id', 1003);
+                
+              if (!perfilError && perfilData && perfilData.length > 0) {
+                const escolasVinculadas = perfilData
+                  .filter(p => p.escolas)
+                  .map(p => p.escolas);
+                  
+                if (escolasVinculadas.length > 0) {
+                  console.log(`Encontradas ${escolasVinculadas.length} escolas via perfis para usuário de teste`);
+                  return res.status(200).json(escolasVinculadas);
+                }
+              }
+            } catch (perfilTestError) {
+              console.error('Erro ao buscar perfis para usuário de teste:', perfilTestError);
             }
             
-            return res.status(200).json([mockSchool]);
+            // Se não encontrou nada, retornar array vazio
+            return res.status(200).json([]);
           }
           
           return res.status(200).json(data || []);
@@ -466,29 +543,26 @@ export function registerSchoolRoutes(
         
         // Verificar se o usuário é um gestor
         if (req.session.userRole === 'manager') {
-          // Para usuários de teste, verificar se o ID solicitado é o ID da escola simulada
-          if (isTestUser(req.session.userId) && 
-              (schoolId === 'school-test-1003' || schoolId === req.session?.escola_id)) {
+          // Para usuários de teste, buscar escola real pelo ID
+          if (isTestUser(req.session.userId)) {
+            console.log(`Buscando escola real com ID ${schoolId} para usuário de teste`);
             
-            console.log('Retornando dados de escola simulada para gestor de teste');
-            
-            const mockSchool = {
-              id: schoolId,
-              nome: 'Escola Simulada SABIÁ',
-              codigo_escola: 'SABIA001',
-              tipo: 'estadual',
-              modalidade_ensino: 'Fundamental e Médio',
-              cidade: 'Teresina',
-              estado: 'PI',
-              zona_geografica: 'urbana',
-              endereco_completo: 'Av. Teste, 123, Centro',
-              telefone: '(86) 99999-9999',
-              email_institucional: 'escola.simulada@sabia.gov.br',
-              gestor_id: req.session.userId,
-              criado_em: new Date().toISOString()
-            };
-            
-            return res.status(200).json(mockSchool);
+            // Primeiro verificar acesso via perfil_gestor
+            try {
+              const { data: perfilData, error: perfilError } = await supabase
+                .from('perfis_gestor')
+                .select('escola_id, escolas:escola_id(*)')
+                .eq('usuario_id', 1003)
+                .eq('escola_id', schoolId)
+                .maybeSingle();
+                
+              if (!perfilError && perfilData && perfilData.escolas) {
+                console.log(`Escola encontrada via perfil para usuário de teste: ${perfilData.escolas.id}`);
+                return res.status(200).json(perfilData.escolas);
+              }
+            } catch (perfilError) {
+              console.error('Erro ao verificar perfil do gestor de teste:', perfilError);
+            }
           }
           
           // Garantir que o gestor só acesse escolas vinculadas a ele
@@ -511,26 +585,29 @@ export function registerSchoolRoutes(
           } catch (error) {
             console.error('Erro ao buscar escola específica:', error);
             
-            // Se for gestor de teste e ocorrer erro, tentar verificar se ID está na sessão
-            if (isTestUser(req.session.userId) && 
-                req.session?.escola_id === schoolId) {
-              const mockSchool = {
-                id: schoolId,
-                nome: 'Escola Simulada SABIÁ',
-                codigo_escola: 'SABIA001',
-                tipo: 'estadual',
-                modalidade_ensino: 'Fundamental e Médio',
-                cidade: 'Teresina',
-                estado: 'PI',
-                zona_geografica: 'urbana',
-                endereco_completo: 'Av. Teste, 123, Centro',
-                telefone: '(86) 99999-9999',
-                email_institucional: 'escola.simulada@sabia.gov.br',
-                gestor_id: req.session.userId,
-                criado_em: new Date().toISOString()
-              };
+            // Se for gestor de teste e ocorrer erro, tentar usando perfis
+            if (isTestUser(req.session.userId)) {
+              console.log('Erro ao buscar escola diretamente. Tentando via perfis para gestor de teste');
               
-              return res.status(200).json(mockSchool);
+              try {
+                // Tentar via perfis
+                const { data: perfilData, error: perfilError } = await supabase
+                  .from('perfis_gestor')
+                  .select('escola_id, escolas:escola_id(*)')
+                  .eq('usuario_id', 1003)
+                  .eq('escola_id', schoolId)
+                  .maybeSingle();
+                  
+                if (!perfilError && perfilData && perfilData.escolas) {
+                  console.log(`Escola encontrada via perfil após falha inicial: ${perfilData.escolas.id}`);
+                  return res.status(200).json(perfilData.escolas);
+                }
+              } catch (perfilError) {
+                console.error('Erro ao verificar perfil secundário:', perfilError);
+              }
+              
+              // Se todas as tentativas falharem
+              return res.status(404).json({ message: 'Escola não encontrada' });
             }
             
             throw error;
@@ -587,160 +664,133 @@ export function registerSchoolRoutes(
           
           console.log(`Registrando escola para gestor ID: ${userId}`);
           
-          try {
-            // Salvar a escola no banco de dados
-            const { data: insertedSchool, error } = await supabase
-              .from('escolas')
-              .insert({
-                nome: schoolData.nome,
-                codigo_escola: schoolData.codigo_escola || '',
-                tipo: schoolData.tipo,
-                modalidade_ensino: schoolData.modalidade_ensino,
-                cidade: schoolData.cidade,
-                estado: schoolData.estado,
-                zona_geografica: schoolData.zona_geografica,
-                endereco_completo: schoolData.endereco_completo,
-                telefone: schoolData.telefone,
-                email_institucional: schoolData.email_institucional || null,
-                gestor_id: userId
-              })
-              .select()
-              .single();
-              
-            if (error) {
-              console.error('Erro ao inserir escola no Supabase:', error);
-              return res.status(500).json({ message: 'Erro ao cadastrar escola: ' + error.message });
-            }
-            
-            if (!insertedSchool || !insertedSchool.id) {
-              console.error('Erro: Escola inserida, mas dados não retornados');
-              
-              // Tente recuperar a escola recém-inserida
-              const { data: fetchedSchool, error: fetchError } = await supabase
-                .from('escolas')
-                .select()
-                .eq('gestor_id', userId)
-                .order('criado_em', { ascending: false })
-                .limit(1)
-                .single();
-                
-              if (fetchError || !fetchedSchool) {
-                console.error('Erro ao recuperar escola inserida:', fetchError);
-                
-                // Se falhar, use UUID temporário para sessão
-                const tempId = `s${Date.now()}`;
-                if (req.session) {
-                  req.session.escola_id = tempId;
-                }
-                
-                // Mesmo sem ID persistente, salvar no sessionStorage
-                return res.status(201).json({
-                  id: tempId,
-                  ...schoolData,
-                  gestor_id: userId
-                });
-              }
-              
-              // Escola recuperada com sucesso após inserção
-              const schoolId = fetchedSchool.id;
-              
-              // Criar vínculo na tabela perfis_gestor
-              try {
-                const { data: perfilGestor, error: perfilError } = await supabase
-                  .from('perfis_gestor')
-                  .insert({
-                    usuario_id: userId,
-                    escola_id: schoolId,
-                    cargo: 'Gestor Escolar',
-                    nivel_acesso: 'completo'
-                  })
-                  .select()
-                  .single();
-                  
-                if (perfilError) {
-                  console.error('Erro ao criar perfil do gestor:', perfilError);
-                }
-              } catch (perfilErr) {
-                console.error('Exceção ao criar perfil do gestor:', perfilErr);
-              }
-              
-              // Usar os dados recuperados na sessão
-              if (req.session) {
-                req.session.escola_id = schoolId;
-                console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
-              }
-              
-              // Retornar a escola recuperada
-              return res.status(201).json(fetchedSchool);
-            }
-            
-            // Criar vínculo na tabela perfis_gestor
-            const schoolId = insertedSchool.id;
-            try {
-              const { data: perfilGestor, error: perfilError } = await supabase
-                .from('perfis_gestor')
-                .insert({
-                  usuario_id: userId,
-                  escola_id: schoolId,
-                  cargo: 'Gestor Escolar',
-                  nivel_acesso: 'completo'
-                })
-                .select()
-                .single();
-                
-              if (perfilError) {
-                console.error('Erro ao criar perfil do gestor:', perfilError);
-              } else {
-                console.log('Perfil de gestor criado com sucesso:', perfilGestor?.id);
-              }
-            } catch (perfilErr) {
-              console.error('Exceção ao criar perfil do gestor:', perfilErr);
-            }
-            
-            // Adicionar ID da escola à sessão do usuário
-            if (req.session) {
-              req.session.escola_id = schoolId;
-              console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
-            }
-            
-            // Retornar os dados da escola inserida
-            return res.status(201).json(insertedSchool);
-            
-          } catch (dbError) {
-            console.error('Exceção ao inserir escola:', dbError);
-            
-            // Fallback para o método anterior como alternativa
-            const schoolId = `s${Date.now()}`;
-            const newSchool = {
-              ...schoolData,
-              id: schoolId,
-              gestor_id: userId,
-              criado_em: new Date().toISOString()
-            };
-            
-            // Adicionar ID da escola à sessão do usuário
-            if (req.session) {
-              req.session.escola_id = schoolId;
-            }
-            
-            // Retornar com sucesso, mesmo como fallback
-            return res.status(201).json(newSchool);
+          // Mapear os dados para o schema do Supabase
+          const escolaInsert = {
+            nome: schoolData.nome,
+            codigo_escola: schoolData.codigo_escola || '',
+            tipo: schoolData.tipo,
+            cidade: schoolData.cidade, 
+            estado: schoolData.estado,
+            telefone: schoolData.telefone,
+            gestor_id: userId,
+            // Campos opcionais
+            modalidade_ensino: schoolData.modalidade_ensino || null,
+            zona_geografica: schoolData.zona_geografica || null,
+            endereco_completo: schoolData.endereco_completo || null,
+            email_institucional: schoolData.email_institucional || null
+          };
+          
+          console.log('Inserindo escola com dados:', escolaInsert);
+          
+          // Salvar a escola no banco de dados
+          const { data: insertedSchool, error } = await supabase
+            .from('escolas')
+            .insert(escolaInsert)
+            .select()
+            .single();
+          
+          if (error) {
+            console.error('Erro ao inserir escola no Supabase:', error);
+            // Enviar a mensagem de erro para diagnóstico
+            return res.status(500).json({ 
+              message: 'Erro ao cadastrar escola no banco de dados', 
+              error: error.message,
+              details: error.details,
+              hint: error.hint,
+              code: error.code 
+            });
           }
+          
+          if (!insertedSchool || !insertedSchool.id) {
+            console.error('Escola inserida, mas ID não retornado');
+            return res.status(500).json({ 
+              message: 'Falha ao obter ID da escola cadastrada'
+            });
+          }
+          
+          // Escola salva com sucesso
+          const schoolId = insertedSchool.id;
+          console.log(`Escola cadastrada com sucesso. ID: ${schoolId}`);
+          
+          // Criar vínculo na tabela perfis_gestor
+          const perfilInsert = {
+            usuario_id: userId,
+            escola_id: schoolId,
+            cargo: 'Gestor Escolar',
+            nivel_acesso: 'completo',
+            data_vinculo: new Date().toISOString()
+          };
+          
+          const { data: perfilGestor, error: perfilError } = await supabase
+            .from('perfis_gestor')
+            .insert(perfilInsert)
+            .select()
+            .single();
+          
+          if (perfilError) {
+            console.error('Erro ao criar perfil do gestor:', perfilError);
+            // Continuar mesmo com erro no perfil, pois a escola já foi criada
+          } else {
+            console.log('Perfil de gestor criado com sucesso. ID:', perfilGestor?.id);
+          }
+          
+          // Adicionar ID da escola à sessão do usuário
+          req.session.escola_id = schoolId;
+          console.log(`Escola ID ${schoolId} vinculada ao gestor na sessão`);
+          
+          // Agora, buscar a escola completa para garantir que temos todos os campos
+          const { data: escolaCompleta, error: errorFetch } = await supabase
+            .from('escolas')
+            .select('*')
+            .eq('id', schoolId)
+            .single();
+            
+          if (errorFetch) {
+            console.error('Erro ao recuperar escola recém-criada:', errorFetch);
+            // Retornar os dados inseridos mesmo assim, pois sabemos que a escola foi criada
+            return res.status(201).json(insertedSchool);
+          }
+          
+          // Retornar os dados completos da escola inserida
+          return res.status(201).json(escolaCompleta);
         }
         
-        // Para outros perfis ou em produção:
-        // Gerar ID temporário para fins de desenvolvimento
-        const mockSchoolData = {
-          ...schoolData,
-          id: `s${Date.now()}`,
-          createdAt: new Date().toISOString()
-        };
+        // Para administradores
+        if (req.session.userRole === 'admin') {
+          // Processar a criação da escola pelo administrador
+          const { data: insertedSchool, error } = await supabase
+            .from('escolas')
+            .insert({
+              nome: schoolData.nome,
+              codigo_escola: schoolData.codigo_escola || '',
+              tipo: schoolData.tipo,
+              modalidade_ensino: schoolData.modalidade_ensino,
+              cidade: schoolData.cidade,
+              estado: schoolData.estado,
+              zona_geografica: schoolData.zona_geografica,
+              endereco_completo: schoolData.endereco_completo,
+              telefone: schoolData.telefone,
+              email_institucional: schoolData.email_institucional || null
+            })
+            .select()
+            .single();
+            
+          if (error) {
+            console.error('Erro ao inserir escola como administrador:', error);
+            return res.status(500).json({ message: 'Erro ao cadastrar escola: ' + error.message });
+          }
+          
+          return res.status(201).json(insertedSchool);
+        }
         
-        console.log('Escola mock criada:', mockSchoolData);
-        return res.status(201).json(mockSchoolData);
+        // Para perfis não autorizados
+        return res.status(403).json({ message: 'Perfil não autorizado a criar escolas' });
       } catch (error) {
         console.error('Erro ao cadastrar nova escola:', error);
-        return res.status(500).json({ message: 'Erro ao cadastrar nova escola' });
+        return res.status(500).json({ 
+          message: 'Erro ao cadastrar nova escola',
+          details: error.message || 'Erro desconhecido'
+        });
       }
     }
   );
