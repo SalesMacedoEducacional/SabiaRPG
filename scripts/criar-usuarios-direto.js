@@ -2,14 +2,21 @@ import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { createHash, randomBytes } from 'crypto';
 import dotenv from 'dotenv';
+import pg from 'pg';
+const { Pool } = pg;
 
 // Carregar variáveis de ambiente
 dotenv.config();
 
-// Cliente Supabase com chave de serviço (bypassa RLS)
-const adminSupabase = createClient(
+// Cliente PostgreSQL direto (bypassa RLS completamente)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+// Cliente Supabase para Auth
+const supabase = createClient(
   process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_KEY || ''
+  process.env.SUPABASE_KEY || ''
 );
 
 /**
@@ -36,123 +43,117 @@ async function criarUsuarioDireto(email, cpf, papel, nomeCompleto = null) {
     const userId = randomUUID();
     const nome = nomeCompleto || email.split('@')[0];
     
-    console.log('Iniciando criação de usuário:', { userId, email, papel, nome });
+    console.log('Iniciando criação de usuário diretamente via pool:', { email, papel, nome });
     
     // 1. Gerar hash da senha (CPF)
     console.log('\n1. Gerando hash do CPF para senha...');
     const senha_hash = await hashPassword(cpf);
     console.log('Hash gerado (primeiros 20 caracteres):', senha_hash.substring(0, 20) + '...');
     
-    // 2. Inserir usuário diretamente na tabela 'usuarios'
-    console.log('\n2. Inserindo usuário na tabela usuarios...');
+    // 2. Inserir o usuário diretamente via cliente PostgreSQL
+    console.log('\n2. Inserindo usuário diretamente...');
     
-    const { data: newUser, error: insertError } = await adminSupabase
-      .from('usuarios')
-      .insert({
-        id: userId,
-        email,
-        senha_hash,
-        papel,
-        cpf,
-        criado_em: new Date().toISOString()
-      })
-      .select('id, email, papel, cpf')
-      .single();
-      
-    if (insertError) {
-      console.error('Erro ao inserir usuário na tabela:', insertError);
-      
-      // Se o erro for sobre CPF, tentar uma abordagem diferente para professores
-      if (papel === 'professor' && insertError.message.includes('CPF não encontrado')) {
-        console.log('\nDetectado erro de CPF para professor. Tentando solução alternativa...');
-        
-        // 2.1 Tenta inserir primeiro na tabela perfis_professor
-        const { error: perfilError } = await adminSupabase
-          .from('perfis_professor')
-          .insert({
-            usuario_id: userId,
-            cpf,
-            disciplinas: ['Todas'],
-            turmas: ['Todas']
-          });
-          
-        if (perfilError) {
-          console.error('Erro ao criar perfil de professor:', perfilError);
-          return null;
-        }
-        
-        // 2.2 Tenta novamente inserir o usuário agora que o perfil existe
-        const { data: retryUser, error: retryError } = await adminSupabase
-          .from('usuarios')
-          .insert({
-            id: userId,
-            email,
-            senha_hash,
-            papel,
-            cpf,
-            criado_em: new Date().toISOString()
-          })
-          .select('id, email, papel, cpf')
-          .single();
-          
-        if (retryError) {
-          console.error('Erro ao inserir usuário após criar perfil de professor:', retryError);
-          return null;
-        }
-        
-        console.log('✅ Usuário professor criado com sucesso após criar perfil!');
-        return retryUser;
-      }
-      
+    const insertQuery = {
+      text: `
+        INSERT INTO usuarios (id, email, senha_hash, papel, cpf, criado_em)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        RETURNING id, email, papel, cpf
+      `,
+      values: [userId, email, senha_hash, papel, cpf]
+    };
+    
+    const result = await pool.query(insertQuery);
+    
+    if (result.rows.length === 0) {
+      console.error('Erro: Nenhum usuário inserido');
       return null;
     }
     
-    console.log('✅ Usuário inserido na tabela com sucesso!');
-    console.log('Dados na tabela:', newUser);
+    console.log('✅ Usuário inserido com sucesso!');
+    console.log('Dados retornados:', result.rows[0]);
     
     // 3. Para certos papéis, criar também entradas nas tabelas de perfil
     if (papel === 'gestor') {
       console.log('\n3. Criando perfil de gestor...');
-      const { error: perfilError } = await adminSupabase
-        .from('perfis_gestor')
-        .insert({
-          usuario_id: userId,
-          cargo: 'Gestor Escolar',
-          ativo: true
-        });
-        
-      if (perfilError) {
-        console.error('Erro ao criar perfil de gestor:', perfilError);
-      } else {
+      
+      const perfilQuery = {
+        text: `
+          INSERT INTO perfis_gestor (id, usuario_id, cargo, ativo, criado_em)
+          VALUES ($1, $2, $3, $4, NOW())
+        `,
+        values: [randomUUID(), userId, 'Gestor Escolar', true]
+      };
+      
+      try {
+        await pool.query(perfilQuery);
         console.log('✅ Perfil de gestor criado com sucesso!');
+      } catch (perfilError) {
+        console.error('Erro ao criar perfil de gestor:', perfilError);
+        
+        // Se a tabela não existir, tentar criá-la
+        if (perfilError.code === '42P01') { // relação não existe
+          console.log('⚠️ Tabela perfis_gestor não existe, tentando criar...');
+          await pool.query(`
+            CREATE TABLE IF NOT EXISTS perfis_gestor (
+              id UUID PRIMARY KEY,
+              usuario_id UUID NOT NULL REFERENCES usuarios(id),
+              cargo TEXT,
+              ativo BOOLEAN DEFAULT TRUE,
+              criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            );
+          `);
+          
+          // Tentar inserir novamente
+          await pool.query(perfilQuery);
+          console.log('✅ Tabela criada e perfil de gestor inserido!');
+        }
       }
     }
     
     if (papel === 'professor') {
       console.log('\n3. Criando perfil de professor...');
-      const { error: perfilError } = await adminSupabase
-        .from('perfis_professor')
-        .insert({
-          usuario_id: userId,
-          cpf,
-          disciplinas: ['Todas'],
-          turmas: ['Todas'],
-          ativo: true
-        });
-        
-      if (perfilError) {
-        console.error('Erro ao criar perfil de professor:', perfilError);
-      } else {
+      
+      const perfilQuery = {
+        text: `
+          INSERT INTO perfis_professor (id, usuario_id, disciplinas, turmas, ativo, criado_em)
+          VALUES ($1, $2, $3, $4, $5, NOW())
+        `,
+        values: [randomUUID(), userId, ['Todas'], ['Todas'], true]
+      };
+      
+      try {
+        await pool.query(perfilQuery);
         console.log('✅ Perfil de professor criado com sucesso!');
+      } catch (perfilError) {
+        console.error('Erro ao criar perfil de professor:', perfilError);
+        
+        // Se a tabela não existir, tentar criá-la
+        if (perfilError.code === '42P01') { // relação não existe
+          console.log('⚠️ Tabela perfis_professor não existe, tentando criar...');
+          await pool.query(`
+            CREATE TABLE IF NOT EXISTS perfis_professor (
+              id UUID PRIMARY KEY,
+              usuario_id UUID NOT NULL REFERENCES usuarios(id),
+              disciplinas TEXT[],
+              turmas TEXT[],
+              ativo BOOLEAN DEFAULT TRUE,
+              criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            );
+          `);
+          
+          // Tentar inserir novamente
+          await pool.query(perfilQuery);
+          console.log('✅ Tabela criada e perfil de professor inserido!');
+        }
       }
     }
     
     console.log('\n✅ Processo concluído com sucesso! ✅');
     console.log(`Um novo usuário foi criado com email ${email} e CPF ${cpf} como senha temporária.`);
     
-    return newUser;
+    return { id: userId, email, papel, cpf };
   } catch (error) {
-    console.error('Erro inesperado durante a criação:', error);
+    console.error('Erro inesperado durante a criação direta:', error);
     return null;
   }
 }
@@ -169,7 +170,7 @@ async function main() {
       { email: 'aluno@sabiarpg.com.br', cpf: '11122233344', papel: 'aluno', nome: 'Aluno SABIÁ RPG' }
     ];
     
-    console.log('Iniciando criação de usuários de teste...\n');
+    console.log('Iniciando criação de usuários direto no banco...\n');
     
     for (const usuario of usuarios) {
       console.log(`\n=== Criando usuário: ${usuario.email} (${usuario.papel}) ===\n`);
@@ -188,6 +189,8 @@ async function main() {
   } catch (error) {
     console.error('Erro ao executar script:', error);
   } finally {
+    // Fechar a conexão com o pool
+    await pool.end();
     process.exit(0);
   }
 }
