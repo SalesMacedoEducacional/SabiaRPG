@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
 import { supabase } from '../db/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { hash } from 'bcryptjs';
+
+// Cliente Supabase com chave de serviço (bypassa RLS)
+const adminSupabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_KEY || ''
+);
 
 /**
  * Middleware de criação de usuário com CPF como senha temporária
@@ -24,7 +31,7 @@ export async function createUserWithCpf(req: Request, res: Response) {
 
     try {
       // 1. Cria usuário no Auth
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      const { data: authUser, error: authError } = await adminSupabase.auth.admin.createUser({
         email,
         password: cpf, // CPF como senha padrão
         email_confirm: true
@@ -41,7 +48,7 @@ export async function createUserWithCpf(req: Request, res: Response) {
       console.log(`Usuário criado no Auth com ID: ${authUser.user.id}`);
 
       // 2. Insere na tabela usuarios
-      const { data: userData, error: userError } = await supabase
+      const { data: userData, error: userError } = await adminSupabase
         .from('usuarios')
         .insert({
           id: authUser.user.id,
@@ -58,7 +65,7 @@ export async function createUserWithCpf(req: Request, res: Response) {
         console.error('Erro ao inserir na tabela usuarios:', userError);
         
         // Limpar usuário criado no Auth para manter consistência
-        await supabase.auth.admin.deleteUser(authUser.user.id);
+        await adminSupabase.auth.admin.deleteUser(authUser.user.id);
         
         return res.status(500).json({
           erro: true,
@@ -68,7 +75,7 @@ export async function createUserWithCpf(req: Request, res: Response) {
 
       // 3. Se for gestor ou professor, criar entrada nas tabelas de perfil
       if (papel === 'gestor') {
-        const { error: perfilError } = await supabase
+        const { error: perfilError } = await adminSupabase
           .from('perfis_gestor')
           .insert({
             usuario_id: authUser.user.id,
@@ -82,7 +89,7 @@ export async function createUserWithCpf(req: Request, res: Response) {
           // Continuamos mesmo com erro no perfil, só logamos o aviso
         }
       } else if (papel === 'professor') {
-        const { error: perfilError } = await supabase
+        const { error: perfilError } = await adminSupabase
           .from('perfis_professor')
           .insert({
             usuario_id: authUser.user.id,
