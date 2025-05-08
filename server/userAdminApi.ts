@@ -1,6 +1,13 @@
 import { Request, Response, Router } from 'express';
 import { supabase } from '../db/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { createHash, randomBytes } from 'crypto';
+
+// Cliente Supabase com chave de serviço (bypassa RLS)
+const adminSupabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_KEY || ''
+);
 
 /**
  * Gera um hash seguro para a senha usando SCRYPT
@@ -42,7 +49,7 @@ export function getUserAdminRoutes() {
       console.log('Iniciando criação de usuário:', { email, papel });
 
       // Verificar se o usuário já existe
-      const { data: existingUser } = await supabase
+      const { data: existingUser } = await adminSupabase
         .from('usuarios')
         .select('id')
         .eq('email', email)
@@ -58,8 +65,8 @@ export function getUserAdminRoutes() {
       // Gerar hash da senha
       const senhaHash = await hashPassword(senha);
 
-      // Inserir usuário na tabela usuarios
-      const { data: newUser, error: dbError } = await supabase
+      // Inserir usuário na tabela usuarios usando adminSupabase (bypassa RLS)
+      const { data: newUser, error: dbError } = await adminSupabase
         .from('usuarios')
         .insert({
           email,
@@ -105,7 +112,7 @@ export function getUserAdminRoutes() {
       const start = (page - 1) * limit;
       const end = start + limit - 1;
 
-      const { data: usuarios, error, count } = await supabase
+      const { data: usuarios, error, count } = await adminSupabase
         .from('usuarios')
         .select('id, email, papel, criado_em', { count: 'exact' })
         .range(start, end)
