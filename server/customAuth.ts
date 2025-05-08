@@ -105,7 +105,7 @@ export const authenticateCustom = async (req: Request, res: Response, next: Next
 };
 
 /**
- * Rota de login personalizada que verifica a senha diretamente contra o hash armazenado
+ * Rota de login personalizada que verifica via Supabase Auth e atualiza sessão
  */
 export async function handleCustomLogin(req: Request, res: Response) {
   try {
@@ -117,72 +117,151 @@ export async function handleCustomLogin(req: Request, res: Response) {
     
     console.log(`Tentativa de login para o usuário: ${email}`);
     
-    // Buscar usuário no banco de dados
-    const { data: usuarioEncontrado, error: userError } = await supabase
-      .from('usuarios')
-      .select('id, email, senha_hash, papel, criado_em')
-      .eq('email', email)
-      .maybeSingle();
-    
-    if (userError) {
-      console.error('Erro ao buscar usuário:', userError);
-      return res.status(500).json({ message: 'Erro ao verificar credenciais' });
-    }
-    
-    if (!usuarioEncontrado) {
-      console.log('Usuário não encontrado com o email:', email);
-      return res.status(401).json({ message: 'Credenciais inválidas' });
-    }
-    
-    console.log('Usuário encontrado:', usuarioEncontrado.id);
-    
-    // Em ambiente de desenvolvimento, permitir login simplificado para testes
-    let senhaValida = false;
-    
-    // Em ambiente de desenvolvimento, aceitar QUALQUER senha
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ MODO DESENVOLVIMENTO: Aceitando qualquer senha para testes');
-      senhaValida = true;
-    } else {
-      // Em produção, verificar normalmente
-      senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
-    }
-    
-    if (!senhaValida) {
-      console.log('Senha inválida para o usuário:', email);
-      return res.status(401).json({ message: 'Credenciais inválidas' });
-    }
-    
-    // Senha válida ou bypass - Criar sessão
-    if (req.session) {
-      req.session.userId = usuarioEncontrado.id;
-      req.session.userRole = usuarioEncontrado.papel;
-      req.session.userEmail = usuarioEncontrado.email;
+    try {
+      // 1. Tentar autenticar via Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
       
-      console.log('Login bem-sucedido. ID:', usuarioEncontrado.id, 'Papel:', usuarioEncontrado.papel);
-    } else {
-      console.error('Sessão não disponível');
+      if (authError) {
+        // Se falhar, tentar a autenticação direta do banco (como backup)
+        console.log('Auth falhou, tentando verificação direta:', authError.message);
+        
+        // Buscar usuário no banco de dados
+        const { data: usuarioEncontrado, error: userError } = await supabase
+          .from('usuarios')
+          .select('id, email, senha_hash, papel, criado_em, cpf')
+          .eq('email', email)
+          .maybeSingle();
+        
+        if (userError) {
+          console.error('Erro ao buscar usuário:', userError);
+          return res.status(500).json({ message: 'Erro ao verificar credenciais' });
+        }
+        
+        if (!usuarioEncontrado) {
+          console.log('Usuário não encontrado com o email:', email);
+          return res.status(401).json({ message: 'Credenciais inválidas' });
+        }
+        
+        console.log('Usuário encontrado na tabela usuarios:', usuarioEncontrado.id);
+        
+        // Em ambiente de desenvolvimento, permitir login simplificado para testes
+        let senhaValida = false;
+        
+        // Verificar se a senha corresponde ao CPF (caso seja a senha temporária)
+        if (usuarioEncontrado.cpf === password) {
+          console.log('Login com CPF (senha temporária) válido');
+          senhaValida = true;
+        } 
+        // Em ambiente de desenvolvimento, aceitar QUALQUER senha
+        else if (process.env.NODE_ENV === 'development') {
+          console.warn('⚠️ MODO DESENVOLVIMENTO: Aceitando qualquer senha para testes');
+          senhaValida = true;
+        } else {
+          // Em produção, verificar normalmente
+          senhaValida = await verificarSenha(password, usuarioEncontrado.senha_hash);
+        }
+        
+        if (!senhaValida) {
+          console.log('Senha inválida para o usuário:', email);
+          return res.status(401).json({ message: 'Credenciais inválidas' });
+        }
+        
+        // Senha válida ou bypass - Criar sessão
+        if (req.session) {
+          req.session.userId = usuarioEncontrado.id;
+          req.session.userRole = usuarioEncontrado.papel;
+          req.session.userEmail = usuarioEncontrado.email;
+          
+          console.log('Login bem-sucedido. ID:', usuarioEncontrado.id, 'Papel:', usuarioEncontrado.papel);
+        } else {
+          console.error('Sessão não disponível');
+        }
+        
+        // Adaptar o formato retornado para corresponder ao que o frontend espera
+        const dadosFormatados = {
+          id: usuarioEncontrado.id,
+          email: usuarioEncontrado.email,
+          role: usuarioEncontrado.papel,
+          username: usuarioEncontrado.email?.split('@')[0] || 'user',
+          fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
+          level: 1,
+          xp: 0,
+          createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
+          escola_id: null // Campo necessário para o frontend
+        };
+        
+        // Log de sucesso
+        console.log('Login bem-sucedido (verificação direta) para:', email);
+        
+        return res.status(200).json(dadosFormatados);
+      }
+      
+      // Se chegou aqui, a autenticação via Auth foi bem-sucedida
+      console.log('Login via Supabase Auth bem-sucedido:', authData.user?.id);
+      
+      // Buscar dados completos do usuário na tabela usuarios
+      const { data: usuarioCompleto, error: dbError } = await supabase
+        .from('usuarios')
+        .select('id, email, papel, criado_em, cpf')
+        .eq('id', authData.user?.id)
+        .maybeSingle();
+      
+      if (dbError || !usuarioCompleto) {
+        console.error('Erro ao buscar dados completos do usuário:', dbError);
+        
+        // Mesmo sem dados completos, vamos criar uma sessão com o que temos
+        if (req.session) {
+          req.session.userId = authData.user?.id;
+          req.session.userEmail = authData.user?.email;
+          req.session.userRole = 'usuario'; // Papel padrão se não encontrar
+        }
+        
+        // Retornar dados básicos
+        return res.status(200).json({
+          id: authData.user?.id,
+          email: authData.user?.email,
+          role: 'usuario',
+          username: authData.user?.email?.split('@')[0] || 'user',
+          fullName: authData.user?.email?.split('@')[0] || 'Usuário',
+          level: 1,
+          xp: 0,
+          createdAt: new Date().toISOString(),
+          escola_id: null
+        });
+      }
+      
+      // Criar sessão com dados completos
+      if (req.session) {
+        req.session.userId = usuarioCompleto.id;
+        req.session.userRole = usuarioCompleto.papel;
+        req.session.userEmail = usuarioCompleto.email;
+      }
+      
+      // Adaptar o formato retornado para corresponder ao que o frontend espera
+      const dadosFormatados = {
+        id: usuarioCompleto.id,
+        email: usuarioCompleto.email,
+        role: usuarioCompleto.papel,
+        username: usuarioCompleto.email?.split('@')[0] || 'user',
+        fullName: usuarioCompleto.email?.split('@')[0] || 'Usuário',
+        level: 1,
+        xp: 0,
+        createdAt: usuarioCompleto.criado_em || new Date().toISOString(),
+        escola_id: null // Campo necessário para o frontend
+      };
+      
+      // Log de sucesso
+      console.log('Login bem-sucedido (Auth + DB) para:', email);
+      
+      return res.status(200).json(dadosFormatados);
+      
+    } catch (authError) {
+      console.error('Erro durante processo de autenticação:', authError);
+      return res.status(500).json({ message: 'Erro ao processar autenticação' });
     }
-    
-    // Adaptar o formato retornado para corresponder ao que o frontend espera
-    // Esse é um ponto crítico onde a API precisa retornar no formato correto
-    const dadosFormatados = {
-      id: usuarioEncontrado.id,
-      email: usuarioEncontrado.email,
-      role: usuarioEncontrado.papel,
-      username: usuarioEncontrado.email?.split('@')[0] || 'user',
-      fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
-      level: 1,
-      xp: 0,
-      createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
-      escola_id: null // Campo necessário para o frontend, mas não existe no BD
-    };
-    
-    // Log de sucesso
-    console.log('Login bem-sucedido para:', email);
-    console.log('Dados adaptados para o frontend:', dadosFormatados);
-    
-    res.status(200).json(dadosFormatados);
   } catch (error) {
     console.error('Erro ao processar login customizado:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
@@ -194,15 +273,52 @@ export async function handleCustomLogin(req: Request, res: Response) {
  */
 export async function handleGetCurrentUser(req: Request, res: Response) {
   try {
+    // Verificar primeiro a sessão local
     if (!req.session?.userId) {
-      console.log('Usuário não autenticado');
+      // Se não tiver sessão local, tentar pela sessão do Supabase Auth
+      try {
+        const { data: { session }, error: authError } = await supabase.auth.getSession();
+        
+        if (authError || !session) {
+          console.log('Usuário não autenticado via sessão ou Supabase Auth');
+          return res.status(401).json({ message: 'Não autorizado' });
+        }
+        
+        // Se tiver sessão no Auth, mas não na sessão local, criar a sessão local
+        if (req.session && session.user) {
+          req.session.userId = session.user.id;
+          req.session.userEmail = session.user.email;
+          
+          // Buscar papel do usuário no banco
+          const { data: userRole } = await supabase
+            .from('usuarios')
+            .select('papel')
+            .eq('id', session.user.id)
+            .maybeSingle();
+            
+          req.session.userRole = userRole?.papel || 'usuario';
+          
+          console.log('Sessão criada via Supabase Auth para:', session.user.email);
+        } else {
+          // Sem sessão local e não conseguiu criar
+          return res.status(401).json({ message: 'Não autorizado' });
+        }
+      } catch (authSessionError) {
+        console.error('Erro ao buscar sessão Auth:', authSessionError);
+        return res.status(401).json({ message: 'Não autorizado' });
+      }
+    }
+    
+    // Neste ponto, deve haver uma sessão local válida
+    if (!req.session?.userId) {
+      console.log('Usuário não autenticado após verificação de sessões');
       return res.status(401).json({ message: 'Não autorizado' });
     }
     
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, papel, criado_em')
+      .select('id, email, papel, criado_em, cpf')
       .eq('id', req.session.userId)
       .maybeSingle();
     
@@ -219,7 +335,13 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
         const dadosSessao = {
           id: req.session.userId,
           email: req.session.userEmail,
-          papel: req.session.userRole
+          role: req.session.userRole,
+          username: req.session.userEmail?.split('@')[0] || 'user',
+          fullName: req.session.userEmail?.split('@')[0] || 'Usuário',
+          level: 1,
+          xp: 0,
+          createdAt: new Date().toISOString(),
+          escola_id: null
         };
         
         console.log('Usando dados da sessão:', dadosSessao);
@@ -227,6 +349,25 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       }
       
       return res.status(401).json({ message: 'Não autorizado' });
+    }
+    
+    // Consultar se usuário gestor tem escola vinculada
+    let escolaId = null;
+    if (usuarioEncontrado.papel === 'gestor') {
+      try {
+        const { data: perfilGestor } = await supabase
+          .from('perfis_gestor')
+          .select('escola_id')
+          .eq('usuario_id', usuarioEncontrado.id)
+          .maybeSingle();
+          
+        if (perfilGestor?.escola_id) {
+          escolaId = perfilGestor.escola_id;
+          console.log('Gestor vinculado à escola:', escolaId);
+        }
+      } catch (escolaError) {
+        console.error('Erro ao buscar escola do gestor:', escolaError);
+      }
     }
     
     // Converter os nomes dos campos para o formato esperado pelo frontend
@@ -239,7 +380,8 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       level: 1,
       xp: 0,
       createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
-      escola_id: null // Campo necessário para o frontend, mas não existe no BD
+      escola_id: escolaId, // Incluir escola_id se for um gestor
+      cpf: usuarioEncontrado.cpf // Incluir CPF para possíveis verificações
     };
     
     console.log('Usuário autenticado:', usuarioEncontrado.id);
@@ -255,13 +397,26 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
  */
 export async function handleLogout(req: Request, res: Response) {
   try {
-    // Destruir a sessão
+    // Fazer logout no Supabase Auth
+    try {
+      const { error: authError } = await supabase.auth.signOut();
+      if (authError) {
+        console.error('Erro ao fazer logout no Supabase Auth:', authError);
+      } else {
+        console.log('Logout do Supabase Auth realizado com sucesso');
+      }
+    } catch (authError) {
+      console.error('Erro ao tentar logout do Supabase Auth:', authError);
+    }
+    
+    // Destruir a sessão local
     req.session.destroy((err) => {
       if (err) {
-        console.error('Erro ao fazer logout:', err);
+        console.error('Erro ao fazer logout da sessão local:', err);
         return res.status(500).json({ message: 'Erro ao fazer logout' });
       }
       
+      console.log('Logout da sessão local realizado com sucesso');
       res.status(200).json({ message: 'Logout realizado com sucesso' });
     });
   } catch (error) {
