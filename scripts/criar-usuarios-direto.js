@@ -1,159 +1,196 @@
-// scripts/criar-usuarios-direto.js
-// Este script cria usuários diretamente inserindo nas tabelas do Supabase,
-// sem depender da API de autenticação que está apresentando erros.
-
 import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import dotenv from 'dotenv';
-import crypto from 'crypto';
 
 // Carregar variáveis de ambiente
 dotenv.config();
 
-// Obter as credenciais do Supabase
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  console.error('❌ Variáveis de ambiente SUPABASE_URL e SUPABASE_SERVICE_KEY são necessárias.');
-  process.exit(1);
-}
-
-// Criar cliente Supabase com chave de serviço
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+// Cliente Supabase com chave de serviço (bypassa RLS)
+const adminSupabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_KEY || ''
+);
 
 /**
- * Gera um hash seguro para a senha usando SCRYPT
- * @param {string} senha - Senha em texto puro
- * @returns {Promise<string>} - Hash no formato "hash.salt"
+ * Gera um hash seguro para a senha usando SHA256 simplificado
+ * @param senha Senha em texto puro (CPF neste caso)
+ * @returns Hash no formato "hash.salt"
  */
 async function hashPassword(senha) {
-  return new Promise((resolve, reject) => {
-    // Gerar um salt aleatório
-    const salt = crypto.randomBytes(16).toString('hex');
-    
-    // Usar scrypt para gerar o hash
-    crypto.scrypt(senha, salt, 64, (err, derivedKey) => {
-      if (err) reject(err);
-      resolve(`${derivedKey.toString('hex')}.${salt}`);
-    });
-  });
-}
-
-/**
- * Gera um UUID v4 aleatório
- * @returns {string} - UUID v4
- */
-function gerarUUID() {
-  return crypto.randomUUID();
-}
-
-/**
- * Cria um usuário diretamente na tabela 'usuarios'
- * @param {Object} params - Parâmetros para criação do usuário
- * @returns {Promise<Object|null>} - Dados do usuário criado ou null em caso de erro
- */
-async function criarUsuarioDireto(params) {
-  const { email, senha, papel, nome_completo, username } = params;
+  const salt = randomBytes(16).toString('hex');
   
+  // Método mais simples para criar hash
+  const hash = createHash('sha256')
+              .update(senha + salt)
+              .digest('hex');
+  
+  return `${hash}.${salt}`;
+}
+
+/**
+ * Script para criar um usuário diretamente na tabela 'usuarios'
+ */
+async function criarUsuarioDireto(email, cpf, papel, nomeCompleto = null) {
   try {
-    // Validar campos obrigatórios
-    if (!email || !senha || !papel) {
-      console.error('❌ Erro: email, senha e papel são campos obrigatórios');
-      return null;
-    }
+    const userId = randomUUID();
+    const nome = nomeCompleto || email.split('@')[0];
     
-    console.log(`🔄 Iniciando criação direta do usuário: ${email} (${papel})`);
+    console.log('Iniciando criação de usuário:', { userId, email, papel, nome });
     
-    // Verificar se o usuário já existe na tabela
-    const { data: usuarioExistente, error: checkError } = await supabase
+    // 1. Gerar hash da senha (CPF)
+    console.log('\n1. Gerando hash do CPF para senha...');
+    const senha_hash = await hashPassword(cpf);
+    console.log('Hash gerado (primeiros 20 caracteres):', senha_hash.substring(0, 20) + '...');
+    
+    // 2. Inserir usuário diretamente na tabela 'usuarios'
+    console.log('\n2. Inserindo usuário na tabela usuarios...');
+    
+    const { data: newUser, error: insertError } = await adminSupabase
       .from('usuarios')
-      .select('id')
-      .eq('email', email)
-      .single();
-      
-    if (!checkError && usuarioExistente) {
-      console.log('⚠️ Usuário já existe na tabela com ID:', usuarioExistente.id);
-      return usuarioExistente;
-    }
-    
-    // Gerar um ID UUID v4 para o usuário
-    const userId = gerarUUID();
-    console.log('🆔 ID gerado para o usuário:', userId);
-    
-    // Gerar hash da senha
-    const senhaHash = await hashPassword(senha);
-    console.log('🔐 Hash da senha gerado com sucesso');
-    
-    // Preparar dados para inserção - usando apenas as colunas que realmente existem na tabela
-    const dadosUsuario = {
-      id: userId,
-      email,
-      papel,
-      senha_hash: senhaHash,
-      criado_em: new Date().toISOString()
-    };
-    
-    // Inserir na tabela de usuários
-    console.log('📝 Inserindo usuário na tabela...');
-    const { data: novoUsuario, error: insertError } = await supabase
-      .from('usuarios')
-      .insert(dadosUsuario)
-      .select()
+      .insert({
+        id: userId,
+        email,
+        senha_hash,
+        papel,
+        cpf,
+        criado_em: new Date().toISOString()
+      })
+      .select('id, email, papel, cpf')
       .single();
       
     if (insertError) {
-      console.error('❌ Erro ao inserir usuário:', insertError.message);
-      console.error('   Detalhes completos:', JSON.stringify(insertError));
+      console.error('Erro ao inserir usuário na tabela:', insertError);
+      
+      // Se o erro for sobre CPF, tentar uma abordagem diferente para professores
+      if (papel === 'professor' && insertError.message.includes('CPF não encontrado')) {
+        console.log('\nDetectado erro de CPF para professor. Tentando solução alternativa...');
+        
+        // 2.1 Tenta inserir primeiro na tabela perfis_professor
+        const { error: perfilError } = await adminSupabase
+          .from('perfis_professor')
+          .insert({
+            usuario_id: userId,
+            cpf,
+            disciplinas: ['Todas'],
+            turmas: ['Todas']
+          });
+          
+        if (perfilError) {
+          console.error('Erro ao criar perfil de professor:', perfilError);
+          return null;
+        }
+        
+        // 2.2 Tenta novamente inserir o usuário agora que o perfil existe
+        const { data: retryUser, error: retryError } = await adminSupabase
+          .from('usuarios')
+          .insert({
+            id: userId,
+            email,
+            senha_hash,
+            papel,
+            cpf,
+            criado_em: new Date().toISOString()
+          })
+          .select('id, email, papel, cpf')
+          .single();
+          
+        if (retryError) {
+          console.error('Erro ao inserir usuário após criar perfil de professor:', retryError);
+          return null;
+        }
+        
+        console.log('✅ Usuário professor criado com sucesso após criar perfil!');
+        return retryUser;
+      }
+      
       return null;
     }
     
-    console.log('✅ Usuário criado com sucesso!');
-    console.log('📋 Dados do usuário:');
-    console.log(novoUsuario);
+    console.log('✅ Usuário inserido na tabela com sucesso!');
+    console.log('Dados na tabela:', newUser);
     
-    return novoUsuario;
+    // 3. Para certos papéis, criar também entradas nas tabelas de perfil
+    if (papel === 'gestor') {
+      console.log('\n3. Criando perfil de gestor...');
+      const { error: perfilError } = await adminSupabase
+        .from('perfis_gestor')
+        .insert({
+          usuario_id: userId,
+          cargo: 'Gestor Escolar',
+          ativo: true
+        });
+        
+      if (perfilError) {
+        console.error('Erro ao criar perfil de gestor:', perfilError);
+      } else {
+        console.log('✅ Perfil de gestor criado com sucesso!');
+      }
+    }
+    
+    if (papel === 'professor') {
+      console.log('\n3. Criando perfil de professor...');
+      const { error: perfilError } = await adminSupabase
+        .from('perfis_professor')
+        .insert({
+          usuario_id: userId,
+          cpf,
+          disciplinas: ['Todas'],
+          turmas: ['Todas'],
+          ativo: true
+        });
+        
+      if (perfilError) {
+        console.error('Erro ao criar perfil de professor:', perfilError);
+      } else {
+        console.log('✅ Perfil de professor criado com sucesso!');
+      }
+    }
+    
+    console.log('\n✅ Processo concluído com sucesso! ✅');
+    console.log(`Um novo usuário foi criado com email ${email} e CPF ${cpf} como senha temporária.`);
+    
+    return newUser;
   } catch (error) {
-    console.error('❌ Erro inesperado:', error.message);
+    console.error('Erro inesperado durante a criação:', error);
     return null;
   }
 }
 
-// Executar o script se chamado diretamente
-if (process.argv[1].includes('criar-usuarios-direto.js')) {
-  // Definir os usuários a serem criados
-  const usuariosParaCriar = [
-    {
-      email: 'gestor@sabiarpg.edu.br',
-      senha: 'Senha@123',
-      papel: 'gestor',
-      nome_completo: 'Gestor Escolar'
-    },
-    {
-      email: 'professor@sabiarpg.edu.br',
-      senha: 'Senha@123',
-      papel: 'professor',
-      nome_completo: 'Professor Demo'
-    },
-    {
-      email: 'aluno@sabiarpg.edu.br',
-      senha: 'Senha@123',
-      papel: 'aluno',
-      nome_completo: 'Aluno Demo'
-    }
-  ];
-  
-  // Criar os usuários em sequência
-  async function criarUsuarios() {
-    for (const usuario of usuariosParaCriar) {
-      console.log(`\n=== Criando usuário: ${usuario.email} ===`);
-      await criarUsuarioDireto(usuario);
-      console.log('=== Fim da criação deste usuário ===\n');
+/**
+ * Função principal para criar múltiplos usuários
+ */
+async function main() {
+  try {
+    // Criar usuários de diferentes papéis
+    const usuarios = [
+      { email: 'gestor@sabiarpg.com.br', cpf: '12345678901', papel: 'gestor', nome: 'Gestor SABIÁ RPG' },
+      { email: 'professor@sabiarpg.com.br', cpf: '98765432109', papel: 'professor', nome: 'Professor SABIÁ RPG' },
+      { email: 'aluno@sabiarpg.com.br', cpf: '11122233344', papel: 'aluno', nome: 'Aluno SABIÁ RPG' }
+    ];
+    
+    console.log('Iniciando criação de usuários de teste...\n');
+    
+    for (const usuario of usuarios) {
+      console.log(`\n=== Criando usuário: ${usuario.email} (${usuario.papel}) ===\n`);
+      const result = await criarUsuarioDireto(usuario.email, usuario.cpf, usuario.papel, usuario.nome);
+      
+      if (result) {
+        console.log(`✅ Usuário ${usuario.email} criado com sucesso!\n`);
+      } else {
+        console.log(`❌ Falha ao criar usuário ${usuario.email}\n`);
+      }
     }
     
-    console.log('🎉 Processo de criação de usuários concluído!');
+    console.log('\n✅ Processo completo! ✅');
+    console.log('Usuários de teste foram criados. Use o CPF como senha para login.');
+    
+  } catch (error) {
+    console.error('Erro ao executar script:', error);
+  } finally {
+    process.exit(0);
   }
-  
-  criarUsuarios();
 }
 
-export { criarUsuarioDireto };
+// Executar o script
+main();
