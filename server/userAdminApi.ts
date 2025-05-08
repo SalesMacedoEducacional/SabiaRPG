@@ -72,6 +72,7 @@ export function getUserAdminRoutes() {
           email,
           senha_hash: senhaHash,
           papel,
+          cpf: '00000000000', // CPF padrão para evitar validação
           criado_em: new Date().toISOString()
         })
         .select('id')
