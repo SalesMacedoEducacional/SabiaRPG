@@ -38,17 +38,17 @@ export function getUserAdminRoutes() {
   router.post('/api/admin/usuarios', async (req: Request, res: Response) => {
     try {
       // Verificar a presença dos campos obrigatórios
-      const { email, senha, papel, nome_completo } = req.body;
+      const { email, cpf, papel, nome_completo } = req.body;
 
-      if (!email || !senha || !papel) {
+      if (!email || !cpf || !papel) {
         return res.status(400).json({ 
-          erro: 'Campos obrigatórios ausentes. Email, senha e papel são obrigatórios.' 
+          erro: 'Campos obrigatórios ausentes. Email, CPF e papel são obrigatórios.' 
         });
       }
 
       console.log('Iniciando criação de usuário:', { email, papel });
 
-      // Verificar se o usuário já existe
+      // Verificar se o usuário já existe no Auth
       const { data: existingUser, error: checkError } = await adminSupabase
         .from('usuarios')
         .select('id')
@@ -70,24 +70,40 @@ export function getUserAdminRoutes() {
         });
       }
 
-      // Gerar hash da senha
-      const senhaHash = await hashPassword(senha);
-      
       try {
-        // Tenta realizar a inserção via chave de serviço com uma transaction
+        // 1. Criar usuário no Supabase Auth
+        const { data: authUser, error: authError } = await adminSupabase.auth.admin.createUser({
+          email,
+          password: cpf, // Usar CPF como senha temporária
+          email_confirm: true
+        });
+
+        if (authError) {
+          console.error('Erro ao criar usuário no Auth:', authError);
+          return res.status(500).json({ 
+            erro: 'Erro ao criar usuário na autenticação', 
+            detalhe: authError.message 
+          });
+        }
+
+        console.log('Usuário criado no Auth com sucesso:', authUser.user.id);
+
+        // 2. Inserir na tabela usuarios com relação ao Auth
         const { data: newUser, error: insertError } = await adminSupabase
           .from('usuarios')
           .insert({
+            id: authUser.user.id,   // Usar o ID gerado pelo Auth
             email,
-            senha_hash: senhaHash,
+            senha_hash: await hashPassword(cpf), // Salvar hash do CPF
             papel,
+            cpf,  // Salvar CPF para referência futura
             criado_em: new Date().toISOString()
           })
-          .select('id, email, papel')
+          .select('id, email, papel, cpf')
           .single();
 
         if (insertError) {
-          console.error('Erro ao inserir usuário:', insertError);
+          console.error('Erro ao inserir usuário na tabela:', insertError);
           
           // Se o erro estiver relacionado com RLS (Row Level Security)
           if (insertError.message.includes('policy') || insertError.message.includes('permission')) {
@@ -102,6 +118,9 @@ export function getUserAdminRoutes() {
             console.log('Políticas encontradas:', policies);
           }
           
+          // Se falhar a inserção na tabela, remover do Auth para manter consistência
+          await adminSupabase.auth.admin.deleteUser(authUser.user.id);
+          
           return res.status(500).json({ 
             erro: 'Erro ao inserir usuário no banco', 
             detalhe: insertError.message 
@@ -114,7 +133,8 @@ export function getUserAdminRoutes() {
           usuario: {
             id: newUser.id,
             email,
-            papel
+            papel,
+            cpf: newUser.cpf
           }
         });
       

@@ -66,6 +66,7 @@ export const usuarios = pgTable("usuarios", {
   email: text("email").notNull().unique(),
   senhaHash: text("senha_hash").notNull(),
   papel: userRoleEnum("papel").notNull(),
+  cpf: text("cpf"), // Adicionado campo CPF para usar como senha temporária
   criadoEm: timestamp("criado_em").defaultNow(),
 });
 
