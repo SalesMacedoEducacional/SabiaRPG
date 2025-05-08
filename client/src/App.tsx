@@ -33,6 +33,7 @@ function Router() {
       <Route path="/auth-test" component={LoginTest} />
       <Route path="/acesso-negado" component={AccessDenied} />
       <Route path="/teste-upload" component={TestUpload} />
+      <Route path="/teste-usuario" component={TesteUsuarioPage} />
       
       {/* Rotas para todos os usuários autenticados */}
       <ProtectedRoute 
