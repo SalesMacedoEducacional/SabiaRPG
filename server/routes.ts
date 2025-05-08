@@ -34,6 +34,7 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerSchoolRoutes } from "./schoolRoutes";
 import { registerClassRoutes } from "./classRoutes";
 import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
+import { getUserAdminRoutes } from "./userAdminApi";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
@@ -1516,6 +1517,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registrar rotas de escolas e turmas
   registerSchoolRoutes(app, authenticate, requireRole);
   registerClassRoutes(app, authenticate, requireRole);
+  
+  // Registrar rotas de administração de usuários
+  app.use(getUserAdminRoutes());
   
   // Registrar novas rotas de escolas com Drizzle ORM
   registerDrizzleSchoolRoutes(app, authenticate, requireRole);
