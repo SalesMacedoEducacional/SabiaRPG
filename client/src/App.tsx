@@ -20,6 +20,7 @@ import RankingPage from "@/pages/RankingPage";
 import UserProfile from "@/pages/UserProfile";
 import TestUpload from "@/pages/TestUpload";
 import LoginTest from "@/pages/login-test";
+import TesteUsuarioPage from "@/pages/teste-criacao-usuario";
 import { GameProvider } from "./context/GameContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";

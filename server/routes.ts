@@ -45,6 +45,7 @@ import {
   handleGetCurrentUser, 
   handleLogout 
 } from "./customAuth";
+import { registerCreateUserWithCpfRoute } from "./createUserWithCpf";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -1517,6 +1518,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registrar rotas de escolas e turmas
   registerSchoolRoutes(app, authenticate, requireRole);
   registerClassRoutes(app, authenticate, requireRole);
+  
+  // Registrar rota para criação de usuário com CPF como senha temporária
+  registerCreateUserWithCpfRoute(app);
   
   // Registrar rotas de administração de usuários
   app.use(getUserAdminRoutes());
