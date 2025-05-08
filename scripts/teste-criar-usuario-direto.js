@@ -49,10 +49,10 @@ async function testarCriacaoUsuario() {
     const senha_hash = await hashPassword(cpf);
     console.log('Hash gerado (primeiros 20 caracteres):', senha_hash.substring(0, 20) + '...');
     
-    // 2. Inserir na tabela 'usuarios'
-    console.log('\n2. Inserindo usuário na tabela usuarios...');
+    // 2. Inserir na tabela 'usuarios' usando adminSupabase para ignorar RLS
+    console.log('\n2. Inserindo usuário na tabela usuarios com chave de serviço...');
     
-    const { data: newUser, error: insertError } = await supabase
+    const { data: newUser, error: insertError } = await adminSupabase
       .from('usuarios')
       .insert({
         id: userId,
@@ -74,9 +74,9 @@ async function testarCriacaoUsuario() {
     console.log('Dados na tabela:', newUser);
     
     // 3. Buscar dados completos do usuário
-    console.log('\n3. Buscando dados completos do usuário na tabela...');
+    console.log('\n3. Buscando dados completos do usuário na tabela com chave de serviço...');
     
-    const { data: completeUser, error: fetchError } = await supabase
+    const { data: completeUser, error: fetchError } = await adminSupabase
       .from('usuarios')
       .select('*')
       .eq('id', userId)
