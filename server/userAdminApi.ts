@@ -31,7 +31,7 @@ export function getUserAdminRoutes() {
   router.post('/api/admin/usuarios', async (req: Request, res: Response) => {
     try {
       // Verificar a presença dos campos obrigatórios
-      const { email, senha, papel, nome_completo, cpf, matricula } = req.body;
+      const { email, senha, papel, nome_completo } = req.body;
 
       if (!email || !senha || !papel) {
         return res.status(400).json({ 
@@ -65,9 +65,6 @@ export function getUserAdminRoutes() {
           email,
           senha_hash: senhaHash,
           papel,
-          cpf: cpf || null,
-          matricula: matricula || null,
-          nome_completo: nome_completo || null,
           criado_em: new Date().toISOString()
         })
         .select('id')
@@ -110,7 +107,7 @@ export function getUserAdminRoutes() {
 
       const { data: usuarios, error, count } = await supabase
         .from('usuarios')
-        .select('id, email, papel, criado_em, nome_completo', { count: 'exact' })
+        .select('id, email, papel, criado_em', { count: 'exact' })
         .range(start, end)
         .order('criado_em', { ascending: false });
 
