@@ -120,7 +120,7 @@ export async function handleCustomLogin(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, senha_hash, papel, nome_completo, escola_id, criado_em')
+      .select('id, email, senha_hash, papel, criado_em')
       .eq('email', email)
       .maybeSingle();
     
@@ -171,11 +171,11 @@ export async function handleCustomLogin(req: Request, res: Response) {
       email: usuarioEncontrado.email,
       role: usuarioEncontrado.papel,
       username: usuarioEncontrado.email?.split('@')[0] || 'user',
-      fullName: usuarioEncontrado.nome_completo || usuarioEncontrado.email?.split('@')[0] || 'Usuário',
+      fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
       level: 1,
       xp: 0,
       createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
-      escola_id: usuarioEncontrado.escola_id
+      escola_id: null // Campo necessário para o frontend, mas não existe no BD
     };
     
     // Log de sucesso
@@ -202,7 +202,7 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
     // Buscar usuário no banco de dados
     const { data: usuarioEncontrado, error: userError } = await supabase
       .from('usuarios')
-      .select('id, email, papel, escola_id, nome_completo, criado_em')
+      .select('id, email, papel, criado_em')
       .eq('id', req.session.userId)
       .maybeSingle();
     
@@ -235,11 +235,11 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       email: usuarioEncontrado.email,
       role: usuarioEncontrado.papel,
       username: usuarioEncontrado.email?.split('@')[0] || 'user',
-      fullName: usuarioEncontrado.nome_completo || usuarioEncontrado.email?.split('@')[0] || 'Usuário',
+      fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
       level: 1,
       xp: 0,
       createdAt: usuarioEncontrado.criado_em || new Date().toISOString(),
-      escola_id: usuarioEncontrado.escola_id
+      escola_id: null // Campo necessário para o frontend, mas não existe no BD
     };
     
     console.log('Usuário autenticado:', usuarioEncontrado.id);
