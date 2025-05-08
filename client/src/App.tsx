@@ -21,6 +21,7 @@ import UserProfile from "@/pages/UserProfile";
 import TestUpload from "@/pages/TestUpload";
 import LoginTest from "@/pages/login-test";
 import TesteUsuarioPage from "@/pages/teste-criacao-usuario";
+import TesteCadastroSimplificado from "@/pages/teste-cadastro-simplificado";
 import { GameProvider } from "./context/GameContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/acesso-negado" component={AccessDenied} />
       <Route path="/teste-upload" component={TestUpload} />
       <Route path="/teste-usuario" component={TesteUsuarioPage} />
+      <Route path="/teste-cadastro" component={TesteCadastroSimplificado} />
       
       {/* Rotas para todos os usuários autenticados */}
       <ProtectedRoute 
