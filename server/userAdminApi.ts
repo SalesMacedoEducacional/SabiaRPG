@@ -49,13 +49,10 @@ export function getUserAdminRoutes() {
       console.log('Iniciando criação de usuário:', { email, papel });
 
       // Verificar se o usuário já existe
-      const { data: existingUser } = await adminSupabase
-        .from('usuarios')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (existingUser) {
+      const checkSql = `SELECT id FROM usuarios WHERE email = '${email}' LIMIT 1`;
+      const existingUsers = await executeSql(checkSql);
+      
+      if (existingUsers && existingUsers.length > 0) {
         return res.status(409).json({ 
           erro: 'Usuário já existe', 
           mensagem: `Já existe um usuário com o email ${email}`
@@ -65,26 +62,33 @@ export function getUserAdminRoutes() {
       // Gerar hash da senha
       const senhaHash = await hashPassword(senha);
 
-      // Inserir usuário na tabela usuarios usando adminSupabase (bypassa RLS)
-      const { data: newUser, error: dbError } = await adminSupabase
-        .from('usuarios')
-        .insert({
-          email,
-          senha_hash: senhaHash,
-          papel,
-          cpf: '00000000000', // CPF padrão para evitar validação
-          criado_em: new Date().toISOString()
-        })
-        .select('id')
-        .single();
-
-      if (dbError) {
-        console.error('Erro ao inserir usuário no banco:', dbError);
+      // Inserir usuário diretamente usando SQL
+      const insertSql = `
+        WITH novo_usuario AS (
+          INSERT INTO usuarios(id, email, senha_hash, papel, criado_em)
+          VALUES (
+            uuid_generate_v4(),
+            '${email}',
+            '${senhaHash}',
+            '${papel}',
+            NOW()
+          )
+          RETURNING id, email, papel
+        )
+        SELECT * FROM novo_usuario;
+      `;
+      
+      const result = await executeSql(insertSql);
+      
+      if (!result || result.length === 0) {
+        console.error('Erro ao inserir usuário no banco: Nenhum resultado retornado');
         return res.status(500).json({ 
           erro: 'Erro ao inserir usuário no banco', 
-          detalhe: dbError.message 
+          detalhe: 'Nenhum resultado retornado pela consulta'
         });
       }
+      
+      const newUser = result[0];
 
       console.log('Usuário criado com sucesso!', { id: newUser.id, email });
       res.status(201).json({ 
