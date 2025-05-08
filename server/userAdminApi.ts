@@ -49,10 +49,21 @@ export function getUserAdminRoutes() {
       console.log('Iniciando criação de usuário:', { email, papel });
 
       // Verificar se o usuário já existe
-      const checkSql = `SELECT id FROM usuarios WHERE email = '${email}' LIMIT 1`;
-      const existingUsers = await executeSql(checkSql);
-      
-      if (existingUsers && existingUsers.length > 0) {
+      const { data: existingUser, error: checkError } = await adminSupabase
+        .from('usuarios')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Erro ao verificar se usuário existe:', checkError);
+        return res.status(500).json({ 
+          erro: 'Erro ao verificar existência do usuário', 
+          detalhe: checkError.message 
+        });
+      }
+
+      if (existingUser) {
         return res.status(409).json({ 
           erro: 'Usuário já existe', 
           mensagem: `Já existe um usuário com o email ${email}`
@@ -61,44 +72,59 @@ export function getUserAdminRoutes() {
 
       // Gerar hash da senha
       const senhaHash = await hashPassword(senha);
+      
+      try {
+        // Tenta realizar a inserção via chave de serviço com uma transaction
+        const { data: newUser, error: insertError } = await adminSupabase
+          .from('usuarios')
+          .insert({
+            email,
+            senha_hash: senhaHash,
+            papel,
+            criado_em: new Date().toISOString()
+          })
+          .select('id, email, papel')
+          .single();
 
-      // Inserir usuário diretamente usando SQL
-      const insertSql = `
-        WITH novo_usuario AS (
-          INSERT INTO usuarios(id, email, senha_hash, papel, criado_em)
-          VALUES (
-            uuid_generate_v4(),
-            '${email}',
-            '${senhaHash}',
-            '${papel}',
-            NOW()
-          )
-          RETURNING id, email, papel
-        )
-        SELECT * FROM novo_usuario;
-      `;
+        if (insertError) {
+          console.error('Erro ao inserir usuário:', insertError);
+          
+          // Se o erro estiver relacionado com RLS (Row Level Security)
+          if (insertError.message.includes('policy') || insertError.message.includes('permission')) {
+            console.log('Erro de política de acesso, tentando outro método...');
+            
+            // Tente verificar as políticas de acesso
+            console.log('Verificando políticas de acesso...');
+            const { data: policies } = await adminSupabase
+              .from('pg_policies')
+              .select('*');
+            
+            console.log('Políticas encontradas:', policies);
+          }
+          
+          return res.status(500).json({ 
+            erro: 'Erro ao inserir usuário no banco', 
+            detalhe: insertError.message 
+          });
+        }
+
+        console.log('Usuário criado com sucesso!', { id: newUser.id, email });
+        res.status(201).json({ 
+          mensagem: 'Usuário criado com sucesso!',
+          usuario: {
+            id: newUser.id,
+            email,
+            papel
+          }
+        });
       
-      const result = await executeSql(insertSql);
-      
-      if (!result || result.length === 0) {
-        console.error('Erro ao inserir usuário no banco: Nenhum resultado retornado');
+      } catch (insertError) {
+        console.error('Erro inesperado ao tentar inserir usuário:', insertError);
         return res.status(500).json({ 
-          erro: 'Erro ao inserir usuário no banco', 
-          detalhe: 'Nenhum resultado retornado pela consulta'
+          erro: 'Erro interno ao inserir usuário', 
+          detalhe: insertError.message 
         });
       }
-      
-      const newUser = result[0];
-
-      console.log('Usuário criado com sucesso!', { id: newUser.id, email });
-      res.status(201).json({ 
-        mensagem: 'Usuário criado com sucesso!',
-        usuario: {
-          id: newUser.id,
-          email,
-          papel
-        }
-      });
       
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
