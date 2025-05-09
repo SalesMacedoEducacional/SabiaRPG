@@ -199,20 +199,20 @@ const ManagerDashboard: React.FC = () => {
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8 grid grid-cols-4 gap-4">
-            <TabsTrigger value="general" className="flex items-center gap-2">
+          <TabsList className="mb-8 grid grid-cols-4 gap-4 bg-dark-light">
+            <TabsTrigger value="general" className="flex items-center gap-2 data-[state=active]:bg-accent data-[state=active]:text-dark font-medieval">
               <Home size={16} />
               Visão Geral
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2">
+            <TabsTrigger value="reports" className="flex items-center gap-2 data-[state=active]:bg-accent data-[state=active]:text-dark font-medieval">
               <FileBarChart2 size={16} />
               Relatórios
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-accent data-[state=active]:text-dark font-medieval">
               <Settings size={16} />
               Configurações
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-accent data-[state=active]:text-dark font-medieval">
               <User size={16} />
               Meu Perfil
             </TabsTrigger>
@@ -222,24 +222,26 @@ const ManagerDashboard: React.FC = () => {
           <TabsContent value="general">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {dashboardStats.map((stat, index) => (
-                <Card key={index} className={`
+                <Card key={index} className={`bg-dark-light border-primary
                   ${stat.status === 'warning' ? 'border-l-4 border-l-yellow-500' : ''}
                   ${stat.status === 'danger' ? 'border-l-4 border-l-red-500' : ''}
                   ${stat.status === 'success' ? 'border-l-4 border-l-green-500' : ''}
                 `}>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                    <CardTitle className="text-sm font-medium font-medieval text-accent">
                       {stat.title}
                     </CardTitle>
-                    {stat.icon}
+                    <div className="text-accent">
+                      {stat.icon}
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <div className="text-2xl font-bold text-parchment">{stat.value}</div>
                     {stat.change && (
                       <p className={`
-                        text-xs mt-1
-                        ${stat.change.startsWith('+') ? 'text-green-600' : ''}
-                        ${stat.change.startsWith('-') ? 'text-red-600' : ''}
+                        text-xs mt-1 font-medieval
+                        ${stat.change.startsWith('+') ? 'text-green-500' : ''}
+                        ${stat.change.startsWith('-') ? 'text-red-500' : ''}
                       `}>
                         {stat.change} desde último mês
                       </p>
@@ -250,44 +252,60 @@ const ManagerDashboard: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <Card>
+              <Card className="bg-dark-light border-primary">
                 <CardHeader>
-                  <CardTitle>Atividades Recentes</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-accent font-medieval">Atividades Recentes</CardTitle>
+                  <CardDescription className="text-parchment-dark">
                     Últimas atividades registradas na plataforma
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <p className="text-gray-500 text-center py-6">
+                    <p className="text-parchment-dark text-center py-6">
                       Nenhuma atividade recente encontrada.
                     </p>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="bg-dark-light border-primary">
                 <CardHeader>
-                  <CardTitle>Ações Rápidas</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-accent font-medieval">Ações Rápidas</CardTitle>
+                  <CardDescription className="text-parchment-dark">
                     Acesso rápido às principais funcionalidades
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
-                    <Button className="w-full" variant="outline" onClick={() => setActiveTab("school-registration")}>
+                    <Button 
+                      className="w-full border-accent text-accent hover:bg-accent hover:text-dark" 
+                      variant="outline" 
+                      onClick={() => setActiveTab("school-registration")}
+                    >
                       <School className="mr-2 h-4 w-4" />
                       Gerenciar Escola
                     </Button>
-                    <Button className="w-full" variant="outline" onClick={() => setActiveTab("user-registration")}>
+                    <Button 
+                      className="w-full border-accent text-accent hover:bg-accent hover:text-dark" 
+                      variant="outline" 
+                      onClick={() => setActiveTab("user-registration")}
+                    >
                       <Users className="mr-2 h-4 w-4" />
                       Gerenciar Usuários
                     </Button>
-                    <Button className="w-full" variant="outline" onClick={() => setActiveTab("class-registration")}>
+                    <Button 
+                      className="w-full border-accent text-accent hover:bg-accent hover:text-dark" 
+                      variant="outline" 
+                      onClick={() => setActiveTab("class-registration")}
+                    >
                       <BookOpen className="mr-2 h-4 w-4" />
                       Gerenciar Turmas
                     </Button>
-                    <Button className="w-full" variant="outline" onClick={() => setActiveTab("components-registration")}>
+                    <Button 
+                      className="w-full border-accent text-accent hover:bg-accent hover:text-dark" 
+                      variant="outline" 
+                      onClick={() => setActiveTab("components-registration")}
+                    >
                       <Book className="mr-2 h-4 w-4" />
                       Gerenciar Componentes
                     </Button>
@@ -299,15 +317,15 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Tab 2: Relatórios */}
           <TabsContent value="reports">
-            <Card>
+            <Card className="bg-dark-light border-primary">
               <CardHeader>
-                <CardTitle>Relatórios</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-accent font-medieval">Relatórios</CardTitle>
+                <CardDescription className="text-parchment-dark">
                   Gere relatórios detalhados sobre o desempenho da escola, turmas e alunos
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-gray-500 py-6 text-center">
+                <p className="text-parchment-dark py-6 text-center">
                   Funcionalidade de relatórios em desenvolvimento.
                 </p>
               </CardContent>
@@ -317,41 +335,65 @@ const ManagerDashboard: React.FC = () => {
           {/* Tab 3: Configurações */}
           <TabsContent value="settings">
             <div className="grid grid-cols-1 gap-6">
-              <Card className="mb-6">
+              <Card className="mb-6 bg-dark-light border-primary">
                 <CardHeader>
-                  <CardTitle>Configurações</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-accent font-medieval">Configurações</CardTitle>
+                  <CardDescription className="text-parchment-dark">
                     Gerenciamento de usuários, turmas, componentes e outras configurações
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" onClick={() => setActiveTab("school-registration")}>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      onClick={() => setActiveTab("school-registration")}
+                    >
                       <School className="h-8 w-8" />
                       <span>Cadastrar Nova Escola</span>
                     </Button>
                     
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" onClick={() => setActiveTab("user-registration")}>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      onClick={() => setActiveTab("user-registration")}
+                    >
                       <Users className="h-8 w-8" />
                       <span>Cadastrar Novo Usuário</span>
                     </Button>
                     
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" onClick={() => setActiveTab("class-registration")}>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      onClick={() => setActiveTab("class-registration")}
+                    >
                       <BookOpen className="h-8 w-8" />
                       <span>Gerenciar Turmas</span>
                     </Button>
                     
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" onClick={() => setActiveTab("components-registration")}>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      onClick={() => setActiveTab("components-registration")}
+                    >
                       <Book className="h-8 w-8" />
                       <span>Gerenciar Componentes</span>
                     </Button>
                     
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" disabled>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent opacity-50" 
+                      disabled
+                    >
                       <FileBarChart2 className="h-8 w-8" />
                       <span>Gerar Relatórios</span>
                     </Button>
                     
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2" disabled>
+                    <Button 
+                      variant="outline" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent opacity-50" 
+                      disabled
+                    >
                       <Settings className="h-8 w-8" />
                       <span>Preferências do Sistema</span>
                     </Button>
@@ -383,15 +425,15 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Espaços reservados para as outras telas - serão implementadas posteriormente */}
           <TabsContent value="user-registration">
-            <Card>
+            <Card className="bg-dark-light border-primary">
               <CardHeader>
-                <CardTitle>Cadastro de Novos Usuários</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-accent font-medieval">Cadastro de Novos Usuários</CardTitle>
+                <CardDescription className="text-parchment-dark">
                   Formulário para cadastro de alunos, professores e gestores
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-500 py-6 text-center">
+                <p className="text-parchment-dark py-6 text-center">
                   Formulário de cadastro de usuários em construção.
                 </p>
               </CardContent>
@@ -399,15 +441,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="class-registration">
-            <Card>
+            <Card className="bg-dark-light border-primary">
               <CardHeader>
-                <CardTitle>Gerenciamento de Turmas</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-accent font-medieval">Gerenciamento de Turmas</CardTitle>
+                <CardDescription className="text-parchment-dark">
                   Cadastro e gestão de turmas da escola
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-500 py-6 text-center">
+                <p className="text-parchment-dark py-6 text-center">
                   Formulário de cadastro de turmas em construção.
                 </p>
               </CardContent>
@@ -415,15 +457,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="components-registration">
-            <Card>
+            <Card className="bg-dark-light border-primary">
               <CardHeader>
-                <CardTitle>Gerenciamento de Componentes Curriculares</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-accent font-medieval">Gerenciamento de Componentes Curriculares</CardTitle>
+                <CardDescription className="text-parchment-dark">
                   Cadastro e gestão de componentes curriculares
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-500 py-6 text-center">
+                <p className="text-parchment-dark py-6 text-center">
                   Formulário de cadastro de componentes em construção.
                 </p>
               </CardContent>
