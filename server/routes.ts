@@ -28,6 +28,7 @@ import {
   generatePersonalizedRecommendations 
 } from "./openai";
 import OpenAI from "openai";
+import { createTestUsersHandler } from "./createTestUsers";
 import { initializeDatabase } from "../db/supabase";
 import { registerManagerRoutes } from "./managerRoutesNew";
 import { registerUserRoutes } from "./userRoutes";
