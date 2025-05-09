@@ -48,6 +48,7 @@ import {
 import { registerCreateUserWithCpfRoute } from "./createUserWithCpf";
 import { registerSimplifiedUserRoutes } from "./simplifiedUserRoutes";
 import managerRoutes from "./managerRoutes";
+import { createTestUsersHandler } from "./createTestUsers";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -1535,6 +1536,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Registrar novas rotas de escolas com Drizzle ORM
   registerDrizzleSchoolRoutes(app, authenticate, requireRole);
+  
+  // Rota para criar usuários de teste (apenas em desenvolvimento)
+  app.post("/api/setup/create-test-users", createTestUsersHandler);
   
   const httpServer = createServer(app);
   return httpServer;
