@@ -1,0 +1,225 @@
+IREMOS AJUSTAR/RECRIAR O PAINEL DASHBOARD DO GESTOR E SUAS FUNCIONALIDADES BÁSICAS.
+
+INTERPRETE E EXECUTE TODAS AS INSTRUÇÕES DETALHADAS A SEGUIR.
+
+FUNCIONALIDADES DO GESTOR (PAINEL CONFIGURAÇÕES)
+Implemente as seguintes funcionalidades disponíveis exclusivamente para o gestor:
+- Cadastrar Novo Usuário (tela de inserção de novos usuários) e integração com API de criação e autenticação (usando UUID do Auth).
+- Cadastrar Nova Escola.
+- Gerenciar Turmas: listar, editar, criar e excluir turmas vinculadas às escolas sob sua gestão.
+- Gerar Relatórios: permitir geração de relatórios por escola/turma, com filtros por período e métrica (PDF, CSV, XLSX).
+- Definir/criar/alterar Componentes Curriculares e Professores: permitir o vínculo entre professor, turma e componente.
+- Gerenciar permissões e preferências do sistema (temas prioritários, configurações de triagem e missão etc.).
+- Visualizar histórico de login e segurança de conta.
+
+
+- Inicialmente após o gestor fazer seu login, instantaneamente deverá haver uma verificação se ele já tem algum vínculo com alguma escola (tabela perfis_gestor -> escola_id), se não houver nenhuma escola ligada a ele, automaticamente deverá carregar o formulário de cadastro de escola.
+- Caso o gestor já tenha ligação com uma escola cadastrada (tabela perfis_gestor -> escola_id), a página inicial/visão geral de informações será carregada.
+
+- A tela inicial do painel com o gestor feito login irá carregar por base uma tela dividida em 4 abas/janelas:
+1 - Visão Geral: nessa aba serão mostradas informações como Total de escolas vinculadas, total de professores, total de alunos, turmas ativas, alunos ativos na plataforma, nível de engajamento geral, alerta de evasão potencial (alunos com mais de 10 dias sem acesso), missões (em andamento, concluídas, pendentes), atividades recentes, menu de opções rápidas (botões: gerenciar usuários, Gerenciar Turmas, Gerar Relatórios, etc)
+2 - Relatórios: Nessa aba o gestor terá acesso a gerar relatórios (pdf, xlsx, ods, csv) de acordo filtros definidos (turma, período, escola, componente, etc) e também métricas como: desempenho, missões, engajamento, trilhas etc. (podendo esses relatórios serem prévisualisados e/ou baixados).
+3 - Configurações: nessa aba basicamente o gestor poderá gerenciar usuários, Gerenciar Turmas, gerenciar componentes, gerenciar trilhas e missões.
+4 - Meu Perfil: nessa aba o gestor terá a possibilidade de alterar seus dados básicos de perfil como nome, e-mail, telefone, senha, foto do perfil. (essas alterações de dados devem estar altamente compatívem e em comunicação com o banco de dados).
+5 - ter um botão sair que faça logout e retorne a pagina de login 
+
+
+
+✅ 1. Prompt: Formulário de Inserção de NOVA ESCOLA  - tabela escolas
+🛠️ Tela de Cadastro de Nova Escola – SABIÁ RPG (Perfil Gestor)
+
+Implemente uma tela de formulário para cadastro de uma nova escola no painel de um gestor da plataforma SABIÁ RPG.
+
+📋 Campos do formulário: (todos obrigatórios)
+- Nome da escola - escolas -> nome
+- Código/INEP da escola (pode ser código INEP ou interno) - escolas -> codigo_escola
+- Tipo de escola (dropdown: Estadual, Municipal, Particular, Federal) - escolas -> tipo 
+- Modalidade de ensino (ex: Médio, Técnico, EJA) - escolas -> modalidade 
+- Cidade - escolas -> cidade 
+- Estado (dropdown com todos os estados do Brasil) - escolas -> estado 
+- Zona geográfica (dropdown: Urbana, Rural) - escolas -> zona_geografica 
+- Endereço completo - escolas -> endereco 
+- Telefone da escola (com máscara de formato) - escolas -> telefone 
+- E-mail institucional - escolas -> email 
+
+
+🔐 Regras e comportamentos:
+- Todos os campos acima são obrigatórios.
+- O formulário deve validar todos os campos antes de permitir o envio.
+- Ao clicar em “Salvar”, os dados devem ser gravados na tabela escolas do banco de dados.
+- A escola deve ser automaticamente vinculada ao gestor_id do usuário logado. (cada escola cadastrada receberá no campo gestor_id' o id do gestor responsável pelo cadastro).
+- automaticamente ao ser cadastrada a escola ela será viculada ao gestor, onde na tabela escolas terá o gestor_id, como também, na tabela perfis gestor terá o campo escola_id que armazenará o id das escolas que o gestor é responsável.
+
+Este cadastro deve ser obrigatoriamente realizado no primeiro acesso do gestor, antes que ele possa prosseguir para qualquer outra funcionalidade do sistema.
+
+Após o cadastro, redirecionar o gestor para a “Visão Geral” da tela inicial do painel/dashboard do gestor.
+
+Criar um botão Sair nessa tela para se o usuário resolver voltar a tela de login.
+
+
+
+✅ 2. Prompt: Formulário de Inserção de NOVOS USUÁRIOS (Aluno, Professor e Gestor) - tabela usuarios
+🧩 Tela de Formulário: Cadastro de Novos Usuários – SABIÁ RPG (Acesso Restrito ao Gestor)
+Crie uma tela de formulário exclusiva para gestores escolares, permitindo o cadastro de novos usuários na plataforma SABIÁ RPG.
+
+
+Crie uma tela de formulário para inserção de novos usuários na plataforma SABIÁ RPG. Esta funcionalidade deve estar disponível apenas para usuários com o perfil "Gestor".
+
+🧾 Campos do formulário: DADOS A SEREM INSERIDOS NA TABELA usuarios
+- Nome completo (obrigatório) - usuarios -> nome
+- CPF (obrigatório) - usuarios -> cpf
+- E-mail (obrigatório)  - usuarios -> email
+- Telefone (obrigatório) - usuarios -> telefone
+- Data de nascimento (obrigatório) - usuarios -> data_nascimento
+- Tipo de usuário (seleção: Aluno, Professor ou Gestor) - usuários -> papel
+- Turma vinculada (obrigatório apenas para alunos, escolha via dropdown com base nas turmas cadastradas) - buscar nas turmas cadastradas se já houver alguma - tabela turmas - nome 
+- Escola (escolha via dropdown com base nas escolas cadastradas) - buscar nas escoas cadastradas se já houver alguma - tabela escolas - nome 
+- Matrícula escolar (obrigatório apenas para alunos) - matriculas - numero_matricula
+- Escolher ou gerar senha (com opção de visualizar senha) - senha definida por padrão inicialmente como cpf
+- Imagem de perfil – opcional (upload de arquivo .jpg ou .png) – poderá ser enviada posteriormente pelo usuário - perfil_foto_url 
+
+🛠️ Regras de Validação e Lógica:
+- Permissão de acesso: somente usuários com perfil Gestor podem acessar e utilizar este formulário.
+- Todos os campos obrigatórios devem ser validados.
+- A matrícula, cpf e e-mail devem ser únicos para cada usuário, condição já a ser verificada pelo banco.
+- O botão "Criar usuário" deve salvar os dados corretamente na tabela usuários de acordo os referidos campos. 
+- Se o tipo de usuário for "Aluno", a matrícula deve ser validada com base na tabela matriculas.
+
+Validação obrigatória:
+- Todos os campos marcados como obrigatórios devem ser preenchidos antes de submeter.
+- A matrícula, cpf e o e-mail devem ser únicos (validar contra o banco de dados).
+
+Usuários tipo Aluno:
+- A matrícula informada deve estar previamente cadastrada na tabela matriculas para validar e vincular corretamente o aluno à turma e a escola.
+- A turma e a escola devem ser selecionada obrigatoriamente via dropdown.
+- A senha padrão do aluno será gerada automaticamente como o CPF informado (com possibilidade de alteração futura).
+
+Usuários tipo Professor:
+- Devem ser vinculados a uma escola previamente já cadastrada, via dropdown automático.
+- A senha padrão do professor será gerada automaticamente como o CPF informado (com possibilidade de alteração futura).
+
+Usuários tipo Gestor:
+- A senha padrão de gestores novos serão gerada automaticamente como o CPF informado (com possibilidade de alteração futura).
+
+Imagem de perfil:
+- O envio é opcional. Caso não seja enviada no momento do cadastro, o professor, aluno e gestor poderão fazer upload posteriormente no próprio perfil.
+
+Armazenamento seguro:
+
+As informações devem ser salvas nas tabelas corretas:
+
+
+💾 Armazenamento:
+- A imagem de perfil (opcional) deve permitir upload de arquivos .jpg ou .png, e ser armazenada com vínculo ao ID do usuário.
+- A imagem, quando enviada, deve ser salva com vínculo direto ao id do usuário correspondente.
+- Senha inicial – gravar automaticamente com base no CPF
+- A senha deve ser armazenada de forma segura (criptografada).
+
+
+🧭 Fluxo do Gestor:
+- Acessa o painel > Aba CONFIGURAÇÕES
+- Clica em “Cadastrar Novo Usuário”
+- Preenche o formulário
+- Clica em “Criar usuário”
+- Sistema valida os dados
+- Salva nas tabelas corretas
+- Exibe mensagem de sucesso ou erro
+
+
+
+✅ 3.Prompt Tela de Cadastro de Matrículas – SABIÁ RPG - todos os campos obrigatórios, exceto e-mail e telefone - armazenados na tabela 'matriculas'
+🧩 Objetivo: Criar uma tela de formulário para que o gestor possa cadastrar uma nova matrícula de aluno na plataforma SABIÁ RPG.
+
+📋 Campos do formulário:
+
+- Nome do aluno - matriculas -> nome_aluno
+- Número da matrícula - matriculas -> numero_matricula
+- Escola vinculada (dropdown com base na escola do gestor logado – escola_id) - matriculas -> escola_id
+- Turma (dropdown baseado na tabela turmas) - matriculas -> turma (ao selecionar, automaticamente levará o id da turma selecionada para o campo de 'matriculas' -> 'turma_id')
+- Data de nascimento (campo de data) - matriculas -> data_nascimento
+- E-mail (opcional) - matriculas -> email_opicional
+- Telefone (opcional) - matriculas -> telefone_opicional
+- Status da matrícula (dropdown: Ativa, Inativa, Transferido, Cancelado, etc.) - matriculas -> status_matricula
+
+📌 Regras:
+- Os campos obrigatórios devem ser validados antes do envio.
+- O campo numero_matricula deve ser único por aluno.
+- A turma/turma_id deve ser selecionada de uma lista com base nas turmas disponíveis na escola.
+- O registro deve ser salvo na tabela matriculas.
+
+💾 Armazenamento:
+- O valor de escola_id e usuario_id deve ser automaticamente preenchido com base no gestor logado (se estiver cadastrando a própria escola/aluno).
+- A data/hora do cadastro deve ser registrada em criado_em.
+
+
+
+✅ 4. Prompt de criação  de tela de cadastro de turmas – SABIÁ RPG - todos os dados obrigatórios exceto descrição - armazenados na tabela 'turmas' 
+🧩 Objetivo: Criar uma tela de formulário para que o gestor possa cadastrar uma nova turma.
+
+📋 Campos do formulário:
+- Nome da turma (ex: 1ºA, 2ºB, Técnico 3A, etc.) - turmas -> nome
+- Ano letivo (ex: 2024) - turmas -> ano_letivo
+- Turno (dropdown: Manhã, Tarde, Noite) - turmas -> turno
+- Modalidade de ensino (dropdown: Maternal, Fundamental I, Fundamental II, Ensino Médio, EJA, Outro) - turmas -> modalidade
+- Série (ex: 1º ano, 2º ano, 3º ano) - turmas -> serie 
+- Descrição (campo opcional para observações da turma) - turmas -> descricao
+
+📌 Regras:
+- Os dados devem ser salvos na tabela turmas.
+- A escola_id deve ser vinculada automaticamente com base no gestor logado.
+- O nome da turma + ano letivo devem ser únicos por escola para evitar duplicações.
+
+💾 Armazenamento:
+- Gravar todos os dados na tabela turmas.
+- Registrar criado_em automaticamente com a data/hora do cadastro.
+
+
+
+✅ 5. Prompt de criação de Tela de Cadastro de Componentes Curriculares – SABIÁ RPG - tabela 'componentes'
+🧩 Tela de Cadastro de Componentes Curriculares – SABIÁ RPG
+Crie uma tela de formulário exclusiva para cadastro de componentes curriculares (disciplinas) na plataforma SABIÁ RPG, vinculados diretamente a uma turma previamente cadastrada.
+
+📝 Campos do formulário:
+- Nome do Componente (ex: Matemática, Lógica de Programação) – obrigatório - componentes -> nome
+- Turma Vinculada – obrigatório (Dropdown dinâmico baseado nas turmas existentes na tabela turmas) - APÓS LISTAGEM E ESCOLHA DA TURMA, O ID da turma selecionada será armazenado em 'componentes' -> turma_id
+
+🔐 Regras e Validações:
+- Apenas usuários com perfil Gestor devem poder cadastrar componentes.
+- O campo nome é obrigatório e deve ser validado (sem duplicações para a mesma turma).
+- A turma vinculada deve obrigatoriamente existir na tabela turmas.
+- O cadastro deve impedir criação de registros com campos em branco ou inválidos.
+
+💾 Armazenamento:
+- Os dados devem ser salvos na tabela componentes com os seguintes campos:
+- id: gerado automaticamente (UUID)
+- nome: nome do componente curricular
+- turma_id: vínculo com a turma selecionada
+
+🔄 Comportamento após envio:
+Ao clicar em "Cadastrar Componente", o sistema deve:
+- Validar os campos
+- Inserir o registro na tabela componentes
+- Exibir uma notificação de sucesso ou erro
+- Redirecionar para a listagem de componentes da turma correspondente
+
+
+
+O PAINEL/DASHBOARD DEVERÁ DINÂMICO COM DADOS REAIS
+Substitua completamente qualquer dashboard fictício por um painel dinâmico com as seguintes informações consultadas diretamente do banco de dados:
+
+- Total de Escolas Vinculadas (ativas)
+- Total de Professores (relacionados às escolas do gestor)
+- Total de Alunos (relacionados às turmas vinculadas às escolas)
+- Turmas Ativas
+- Alunos Ativos nos últimos 7 e 30 dias (baseado em login e uso)
+- Nível de Engajamento (baseado no progresso e missões)
+- Missões (em andamento, concluídas, pendentes)
+- Alertas de evasão (alunos inativos >10 dias)
+- Escolas com maior engajamento (ordenar por % de uso/missões concluídas)
+- Atividade recente (novos usuários, alertas, relatórios)
+
+
+AS CORES PADRÃO DEVERÃO SER MANTIDAS E A LOGOMARCA DEVERÁ SER VESÍVEL TAMBÉM NO PAINEL DO GESTOR.
+
+
+

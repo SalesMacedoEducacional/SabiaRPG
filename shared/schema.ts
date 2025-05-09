@@ -274,6 +274,30 @@ export const logsAuditoria = pgTable("logs_auditoria", {
   criadoEm: timestamp("criado_em").defaultNow(),
 });
 
+// Turmas table
+export const turmas = pgTable("turmas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nome: text("nome").notNull(),
+  anoLetivo: text("ano_letivo").notNull(),
+  turno: text("turno").notNull(),
+  modalidade: text("modalidade").notNull(),
+  serie: text("serie").notNull(),
+  descricao: text("descricao"),
+  escolaId: uuid("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  ativo: boolean("ativo").default(true),
+});
+
+// Componentes Curriculares table
+export const componentes = pgTable("componentes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nome: text("nome").notNull(),
+  turmaId: uuid("turma_id").references(() => turmas.id, { onDelete: "cascade" }),
+  professorId: uuid("professor_id").references(() => usuarios.id),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  ativo: boolean("ativo").default(true),
+});
+
 // Insert schemas para o novo esquema Supabase
 export const insertEscolaSchema = createInsertSchema(escolas).omit({ id: true, criadoEm: true });
 export const insertUsuarioSchema = createInsertSchema(usuarios).omit({ id: true, criadoEm: true });
@@ -298,6 +322,8 @@ export const insertComunicadosSchema = createInsertSchema(comunicados).omit({ id
 export const insertLogsAcessoSchema = createInsertSchema(logsAcesso).omit({ id: true, criadoEm: true });
 export const insertLogsErroSchema = createInsertSchema(logsErro).omit({ id: true, criadoEm: true });
 export const insertLogAuditoriaSchema = createInsertSchema(logsAuditoria).omit({ id: true, criadoEm: true });
+export const insertTurmaSchema = createInsertSchema(turmas).omit({ id: true, criadoEm: true });
+export const insertComponenteSchema = createInsertSchema(componentes).omit({ id: true, criadoEm: true });
 
 // Esquemas de compatibilidade para o código existente
 // Vamos definir schemas compat usando Zod
@@ -472,6 +498,12 @@ export type InsertLogErro = z.infer<typeof insertLogsErroSchema>;
 
 export type LogAuditoria = typeof logsAuditoria.$inferSelect;
 export type InsertLogAuditoria = z.infer<typeof insertLogAuditoriaSchema>;
+
+export type Turma = typeof turmas.$inferSelect;
+export type InsertTurma = z.infer<typeof insertTurmaSchema>;
+
+export type Componente = typeof componentes.$inferSelect;
+export type InsertComponente = z.infer<typeof insertComponenteSchema>;
 
 // Types de compatibilidade para o código existente
 // Esses são tipos temporários que servem para manter a compatibilidade com o código existente
