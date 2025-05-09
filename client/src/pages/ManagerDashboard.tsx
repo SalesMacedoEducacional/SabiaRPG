@@ -173,13 +173,13 @@ const ManagerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-dark">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-dark-light border-b border-primary shadow">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard do Gestor</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold font-medieval text-accent">Dashboard do Gestor</h1>
+            <p className="text-parchment">
               {managerInfo?.hasSchool 
                 ? `Escola: ${managerInfo?.schoolName}` 
                 : 'Nenhuma escola vinculada'}
@@ -187,7 +187,7 @@ const ManagerDashboard: React.FC = () => {
           </div>
           <Button 
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark-dark"
             onClick={handleLogout}
           >
             <LogOut size={16} />
