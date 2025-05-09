@@ -1,46 +1,50 @@
-import { createContext, ReactNode, useContext } from "react";
-import { useQuery, useMutation, UseMutationResult } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "../lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth as useExistingAuth } from './use-auth.ts';
+import { useContext } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "../lib/queryClient";
+import { useToast } from "../hooks/use-toast";
+import { AuthContext } from '../context/AuthContext';
 
-type User = {
-  id: string;
-  email: string;
-  username: string;
-  fullName?: string;
-  role: "student" | "teacher" | "manager";
-  avatarUrl?: string;
-  level?: number;
-  xp?: number;
-  createdAt?: Date;
-};
-
-type AuthContextType = {
+// Interface para a tipagem do contexto de autenticação
+interface AuthContextType {
   user: User | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
-  error: Error | null;
-  loginMutation: UseMutationResult<User, Error, LoginData>;
-  logoutMutation: UseMutationResult<void, Error, void>;
-  registerMutation: UseMutationResult<User, Error, RegisterData>;
-};
+  userPermissions: string[];
+  hasPermission: (permissionId: string) => boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
+}
 
-type LoginData = {
-  email: string;
-  password: string;
-};
-
-type RegisterData = {
-  email: string;
+interface User {
+  id: number;
   username: string;
+  email: string;
+  fullName: string;
+  role: 'student' | 'teacher' | 'manager';
+  avatarUrl?: string;
+  level: number;
+  xp: number;
+  createdAt: string;
+  escola_id?: string;
+}
+
+interface RegisterData {
+  email: string;
   password: string;
-  fullName?: string;
-  role?: "student" | "teacher" | "manager";
-};
+  username: string;
+  fullName: string;
+  role?: 'student' | 'teacher' | 'manager';
+}
 
 export function useAuth() {
-  const existingAuth = useExistingAuth();
+  const existingAuth = useContext(AuthContext);
   const { toast } = useToast();
+  
+  if (!existingAuth) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   
   // Adaptar o uso para o formato esperado pelo ManagerDashboard
   const logoutMutation = useMutation({
