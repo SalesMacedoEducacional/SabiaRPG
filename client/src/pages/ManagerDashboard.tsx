@@ -23,8 +23,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useQuery } from '@tanstack/react-query';
 
 // Importações dos componentes de abas
-import ManagerSchoolRegistration from '@/components/manager/ManagerSchoolRegistration';
-import ManagerProfile from '@/components/manager/ManagerProfile';
+import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
+import ManagerProfile from '../components/manager/ManagerProfile';
 
 interface DashboardStat {
   title: string;
@@ -42,7 +42,7 @@ interface ManagerInfo {
 }
 
 const ManagerDashboard: React.FC = () => {
-  const { user, logoutMutation } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("general");

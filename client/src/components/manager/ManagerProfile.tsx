@@ -28,7 +28,7 @@ interface ManagerProfileProps {
   userId: string;
 }
 
-export function ManagerProfile({ userId }: ManagerProfileProps) {
+export default function ManagerProfile({ userId }: ManagerProfileProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

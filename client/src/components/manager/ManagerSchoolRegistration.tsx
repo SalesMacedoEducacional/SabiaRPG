@@ -40,7 +40,7 @@ interface ManagerSchoolRegistrationProps {
   onSchoolRegistered: (schoolData: any) => void;
 }
 
-export function ManagerSchoolRegistration({ userId, onSchoolRegistered }: ManagerSchoolRegistrationProps) {
+export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }: ManagerSchoolRegistrationProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
