@@ -47,6 +47,7 @@ import {
 } from "./customAuth";
 import { registerCreateUserWithCpfRoute } from "./createUserWithCpf";
 import { registerSimplifiedUserRoutes } from "./simplifiedUserRoutes";
+import managerRoutes from "./managerRoutes";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
