@@ -662,7 +662,7 @@ export function registerSchoolRoutes(
         const schoolData = validationResult.data;
         
         // Garantir que se o usuário for gestor, o gestor_id será o seu próprio ID
-        if (req.session.userRole === 'manager') {
+        if (req.session.userRole === 'manager' || req.session.userRole === 'gestor') {
           const userId = req.session.userId;
           
           console.log(`Registrando escola para gestor ID: ${userId}`);
@@ -757,7 +757,7 @@ export function registerSchoolRoutes(
         }
         
         // Para administradores
-        if (req.session.userRole === 'admin') {
+        if (req.session.userRole === 'admin' || req.session.userRole === 'administrador') {
           // Processar a criação da escola pelo administrador
           const { data: insertedSchool, error } = await supabase
             .from('escolas')
@@ -821,7 +821,7 @@ export function registerSchoolRoutes(
         const schoolData = validationResult.data;
         
         // Se o usuário for gestor, verificar se a escola pertence a ele
-        if (req.session.userRole === 'manager') {
+        if (req.session.userRole === 'manager' || req.session.userRole === 'gestor') {
           const { data, error } = await supabase
             .from('escolas')
             .select('gestor_id')
