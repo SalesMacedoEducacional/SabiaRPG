@@ -441,7 +441,7 @@ export function registerManagerRoutes(
           code: school.codigo_escola || '',
           teachers: 0, // Informação básica apenas
           students: 0, // Informação básica apenas
-          active: school.ativo === undefined ? true : school.ativo
+          active: true // Campo ativo não existe no schema real
         })) : [];
         
         return res.status(200).json(schoolList);
@@ -637,24 +637,25 @@ export function registerManagerRoutes(
       }
       
       // Buscar usuários vinculados à escola
+      // Ajustado para refletir colunas reais no banco de dados
       const { data: users, error: usersError } = await supabase
         .from('usuarios')
-        .select('id, email, nome_completo, papel, username, ativo, ultimo_acesso')
+        .select('id, email, papel, username, ultimo_acesso')
         .eq('escola_id', schoolId)
-        .order('nome_completo');
+        .order('username'); // Nome_completo não existe, usando username
         
       if (usersError) {
         console.error('Erro ao buscar usuários da escola:', usersError);
         return res.status(500).json({ message: 'Erro ao buscar usuários da escola' });
       }
       
-      // Formatar os dados para o formato esperado pelo frontend
+      // Formatar os dados para o formato esperado pelo frontend, tratando colunas inexistentes
       const formattedUsers = users ? users.map(user => ({
         id: user.id,
-        name: user.nome_completo || user.username || 'Sem nome',
+        name: user.username || 'Sem nome', // nome_completo não existe no schema
         email: user.email,
         profile: user.papel || 'aluno',
-        status: user.ativo === false ? 'inactive' : 'active',
+        status: 'active', // ativo não existe no schema
         lastAccess: user.ultimo_acesso
       })) : [];
       
