@@ -22,15 +22,24 @@ import { Textarea } from '@/components/ui/textarea';
 // Schema de validação para o formulário
 const schoolFormSchema = z.object({
   nome: z.string().min(3, { message: 'Nome da escola deve ter pelo menos 3 caracteres' }),
-  endereco: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
+  codigo_escola: z.string().min(1, { message: 'Código/INEP da escola é obrigatório' }),
+  tipo: z.enum(['estadual', 'municipal', 'particular', 'federal'], {
+    required_error: 'Selecione o tipo da escola'
+  }),
+  modalidade: z.enum([
+    'maternal_creche', 'fundamental_i', 'fundamental_ii', 
+    'medio', 'medio_tecnico', 'eja', 'outra'
+  ], { 
+    required_error: 'Selecione a modalidade de ensino' 
+  }),
   cidade: z.string().min(2, { message: 'Cidade é obrigatória' }),
   estado: z.string().length(2, { message: 'Forneça a sigla do estado com 2 letras' }).toUpperCase(),
-  tipo: z.string({ required_error: 'Selecione o tipo da escola' }),
-  nivelEnsino: z.string({ required_error: 'Selecione o nível de ensino' }),
-  telefone: z.string().optional(),
-  email: z.string().email({ message: 'Email institucional inválido' }).optional().or(z.literal('')),
-  cep: z.string().min(8, { message: 'CEP inválido' }).max(9),
-  descricao: z.string().optional(),
+  zona_geografica: z.enum(['urbana', 'rural'], { 
+    required_error: 'Selecione a zona geográfica' 
+  }),
+  endereco: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
+  telefone: z.string().min(10, { message: 'Telefone da escola é obrigatório' }),
+  email: z.string().email({ message: 'Email institucional inválido' }).min(5, { message: 'Email é obrigatório' }),
 });
 
 type SchoolFormValues = z.infer<typeof schoolFormSchema>;
@@ -49,15 +58,15 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
     resolver: zodResolver(schoolFormSchema),
     defaultValues: {
       nome: '',
-      endereco: '',
+      codigo_escola: '',
       cidade: '',
       estado: 'PI',
-      tipo: '',
-      nivelEnsino: '',
+      tipo: undefined,
+      modalidade: undefined,
+      zona_geografica: undefined,
+      endereco: '',
       telefone: '',
       email: '',
-      cep: '',
-      descricao: '',
     },
   });
 
@@ -66,23 +75,35 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
     setIsSubmitting(true);
     
     try {
-      // Adicionar o ID do gestor aos dados
+      // Mapear os dados do formulário para o formato esperado pelo backend
       const submitData = {
-        ...data,
-        gestorId: userId,
+        nome: data.nome,
+        codigo_escola: data.codigo_escola,
+        tipo: data.tipo,
+        modalidade_ensino: data.modalidade,
+        cidade: data.cidade,
+        estado: data.estado,
+        zona_geografica: data.zona_geografica,
+        endereco_completo: data.endereco,
+        telefone: data.telefone,
+        email_institucional: data.email,
+        gestor_id: userId,
       };
       
+      console.log('Enviando dados para cadastro:', submitData);
+      
       // Enviar dados para a API
-      const response = await api.post('/api/manager/escolas/cadastrar', submitData);
+      const response = await api.post('/api/schools', submitData);
       
       // Mostrar toast de sucesso
       toast({
         title: "Escola cadastrada com sucesso!",
         description: "Sua escola foi registrada e vinculada ao seu perfil.",
+        variant: "default",
       });
       
       // Notificar componente pai sobre o sucesso
-      onSchoolRegistered(response.data.escola);
+      onSchoolRegistered(response.data);
     } catch (error: any) {
       console.error('Erro ao cadastrar escola:', error);
       
@@ -98,11 +119,11 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-dark-light border-primary">
       <CardHeader>
-        <CardTitle>Cadastro de Escola</CardTitle>
-        <CardDescription>
-          Preencha os dados abaixo para cadastrar a sua escola. Todos os campos marcados com * são obrigatórios.
+        <CardTitle className="text-accent font-medieval">Cadastro de Escola</CardTitle>
+        <CardDescription className="text-parchment-dark">
+          Preencha os dados abaixo para cadastrar a sua escola. Todos os campos são obrigatórios.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -114,11 +135,33 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="nome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome da Escola *</FormLabel>
+                    <FormLabel className="text-parchment">Nome da Escola</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome completo da escola" {...field} />
+                      <Input 
+                        placeholder="Nome completo da escola" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="codigo_escola"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Código/INEP da Escola</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Código único da escola" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -128,54 +171,79 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="tipo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Escola *</FormLabel>
+                    <FormLabel className="text-parchment">Tipo de Escola</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
                           <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="publica">Pública</SelectItem>
-                        <SelectItem value="privada">Privada</SelectItem>
-                        <SelectItem value="filantrópica">Filantrópica</SelectItem>
+                      <SelectContent className="bg-dark-light border-accent text-parchment">
+                        <SelectItem value="estadual">Estadual</SelectItem>
+                        <SelectItem value="municipal">Municipal</SelectItem>
+                        <SelectItem value="particular">Particular</SelectItem>
+                        <SelectItem value="federal">Federal</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
               
               <FormField
                 control={form.control}
-                name="nivelEnsino"
+                name="modalidade"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nível de Ensino *</FormLabel>
+                    <FormLabel className="text-parchment">Modalidade de Ensino</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o nível" />
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
+                          <SelectValue placeholder="Selecione a modalidade" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="infantil">Educação Infantil</SelectItem>
-                        <SelectItem value="fundamental-i">Fundamental I (1º ao 5º)</SelectItem>
-                        <SelectItem value="fundamental-ii">Fundamental II (6º ao 9º)</SelectItem>
+                      <SelectContent className="bg-dark-light border-accent text-parchment">
+                        <SelectItem value="maternal_creche">Maternal/Creche</SelectItem>
+                        <SelectItem value="fundamental_i">Fundamental I</SelectItem>
+                        <SelectItem value="fundamental_ii">Fundamental II</SelectItem>
                         <SelectItem value="medio">Ensino Médio</SelectItem>
+                        <SelectItem value="medio_tecnico">Médio-Técnico</SelectItem>
                         <SelectItem value="eja">EJA</SelectItem>
-                        <SelectItem value="tecnico">Ensino Técnico</SelectItem>
-                        <SelectItem value="superior">Ensino Superior</SelectItem>
-                        <SelectItem value="multi">Múltiplos Níveis</SelectItem>
+                        <SelectItem value="outra">Outra</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="zona_geografica"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Zona Geográfica</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
+                          <SelectValue placeholder="Selecione a zona" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-dark-light border-accent text-parchment">
+                        <SelectItem value="urbana">Urbana</SelectItem>
+                        <SelectItem value="rural">Rural</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -185,11 +253,16 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Institucional</FormLabel>
+                    <FormLabel className="text-parchment">Email Institucional</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email@escola.edu.br" {...field} />
+                      <Input 
+                        type="email" 
+                        placeholder="email@escola.edu.br" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -199,39 +272,15 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="telefone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefone</FormLabel>
+                    <FormLabel className="text-parchment">Telefone da Escola</FormLabel>
                     <FormControl>
-                      <Input placeholder="(00) 00000-0000" {...field} />
+                      <Input 
+                        placeholder="(00) 00000-0000" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="endereco"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Rua, número, bairro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="cep"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CEP *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="00000-000" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -241,11 +290,15 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="cidade"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cidade *</FormLabel>
+                    <FormLabel className="text-parchment">Cidade</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome da cidade" {...field} />
+                      <Input 
+                        placeholder="Nome da cidade" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -255,17 +308,17 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="estado"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Estado *</FormLabel>
+                    <FormLabel className="text-parchment">Estado</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
                           <SelectValue placeholder="UF" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-dark-light border-accent text-parchment">
                         <SelectItem value="AC">AC</SelectItem>
                         <SelectItem value="AL">AL</SelectItem>
                         <SelectItem value="AP">AP</SelectItem>
@@ -295,7 +348,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         <SelectItem value="TO">TO</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -303,23 +356,27 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
             
             <FormField
               control={form.control}
-              name="descricao"
+              name="endereco"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição/Observações</FormLabel>
+                  <FormLabel className="text-parchment">Endereço Completo</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Informações adicionais sobre a escola" 
-                      className="resize-none"
+                      placeholder="Rua, número, bairro, complemento..." 
+                      className="resize-none bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
             
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              className="w-full bg-accent hover:bg-accent/90 text-dark font-bold hover:text-dark-dark" 
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
