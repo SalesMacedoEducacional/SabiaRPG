@@ -54,13 +54,16 @@ const ManagerDashboard: React.FC = () => {
     queryKey: ['/api/manager/info'], 
     queryFn: async () => {
       try {
+        console.log('Obtendo informações do gestor...');
         const response = await axios.get('/api/manager/info');
+        console.log('Resposta do servidor:', response.data);
         return response.data;
       } catch (error) {
         console.error('Erro ao buscar informações do gestor:', error);
         throw new Error('Não foi possível carregar as informações do gestor.');
       }
-    }
+    },
+    enabled: !!user // Só executar a query quando o usuário estiver autenticado
   });
   
   useEffect(() => {
