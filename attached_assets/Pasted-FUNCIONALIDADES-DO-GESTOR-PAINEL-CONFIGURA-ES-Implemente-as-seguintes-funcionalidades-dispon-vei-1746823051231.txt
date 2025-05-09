@@ -1,0 +1,20 @@
+FUNCIONALIDADES DO GESTOR (PAINEL CONFIGURAÇÕES)
+Implemente as seguintes funcionalidades disponíveis exclusivamente para o gestor:
+- Cadastrar Novo Usuário (tela de inserção de novos usuários) e integração com API de criação e autenticação (usando UUID do Auth).
+- Cadastrar Nova Escola.
+- Gerenciar Turmas: listar, editar, criar e excluir turmas vinculadas às escolas sob sua gestão.
+- Gerar Relatórios: permitir geração de relatórios por escola/turma, com filtros por período e métrica (PDF, CSV, XLSX).
+- Definir/criar/alterar Componentes Curriculares e Professores: permitir o vínculo entre professor, turma e componente.
+- Gerenciar permissões e preferências do sistema (temas prioritários, configurações de triagem e missão etc.).
+- Visualizar histórico de login e segurança de conta.
+
+
+- Inicialmente após o gestor fazer seu login, instantaneamente deverá haver uma verificação se ele já tem algum vínculo com alguma escola (tabela perfis_gestor -> escola_id), se não houver nenhuma escola ligada a ele, automaticamente deverá carregar o formulário de cadastro de escola.
+- Caso o gestor já tenha ligação com uma escola cadastrada (tabela perfis_gestor -> escola_id), a página inicial/visão geral de informações será carregada.
+
+- A tela inicial do painel com o gestor feito login irá carregar por base uma tela dividida em 4 abas/janelas:
+1 - Visão Geral: nessa aba serão mostradas informações como Total de escolas vinculadas, total de professores, total de alunos, turmas ativas, alunos ativos na plataforma, nível de engajamento geral, alerta de evasão potencial (alunos com mais de 10 dias sem acesso), missões (em andamento, concluídas, pendentes), atividades recentes, menu de opções rápidas (botões: gerenciar usuários, Gerenciar Turmas, Gerar Relatórios, etc)
+2 - Relatórios: Nessa aba o gestor terá acesso a gerar relatórios (pdf, xlsx, ods, csv) de acordo filtros definidos (turma, período, escola, componente, etc) e também métricas como: desempenho, missões, engajamento, trilhas etc. (podendo esses relatórios serem prévisualisados e/ou baixados).
+3 - Configurações: nessa aba basicamente o gestor poderá gerenciar usuários, Gerenciar Turmas, gerenciar componentes, gerenciar trilhas e missões.
+4 - Meu Perfil: nessa aba o gestor terá a possibilidade de alterar seus dados básicos de perfil como nome, e-mail, telefone, senha, foto do perfil. (essas alterações de dados devem estar altamente compatívem e em comunicação com o banco de dados).
+5 - ter um botão sair que faça logout e retorne a pagina de login 
