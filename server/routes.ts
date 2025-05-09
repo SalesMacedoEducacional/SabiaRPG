@@ -795,6 +795,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ROTA COMENTADA: Duplicada com a implementação em customAuth.ts
+  // Esta implementação foi comentada porque há uma rota idêntica na linha 680
+  /*
   app.post("/api/auth/logout", async (req, res) => {
     try {
       // Fazer logout no Supabase Auth
@@ -818,7 +821,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro ao fazer logout" });
     }
   });
+  */
 
+  // ROTA COMENTADA: Duplicada com a implementação em customAuth.ts
+  // Esta implementação foi comentada porque há uma rota idêntica na linha 679
+  /*
   app.get("/api/auth/me", async (req, res) => {
     try {
       console.log("Verificando autenticação do usuário em /api/auth/me");
@@ -904,6 +911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro no servidor ao buscar usuário" });
     }
   });
+  */
 
   // User routes
   app.get("/api/users/:id", authenticate, async (req, res) => {
