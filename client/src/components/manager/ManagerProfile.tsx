@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,7 +38,7 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get(`/api/manager/profile/${userId}`);
+        const response = await api.get(`/api/manager/profile/${userId}`);
         setUserProfile(response.data);
         
         // Preencher formulário com dados existentes
@@ -75,7 +75,7 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
     
     try {
       // Enviar dados para a API
-      const response = await axios.put(`/api/manager/profile/${userId}`, data);
+      const response = await api.put(`/api/manager/profile/${userId}`, data);
       
       // Atualizar dados do perfil local
       setUserProfile({

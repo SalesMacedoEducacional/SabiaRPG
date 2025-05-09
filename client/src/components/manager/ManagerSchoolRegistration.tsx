@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,7 +73,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
       };
       
       // Enviar dados para a API
-      const response = await axios.post('/api/manager/escolas/cadastrar', submitData);
+      const response = await api.post('/api/manager/escolas/cadastrar', submitData);
       
       // Mostrar toast de sucesso
       toast({

@@ -55,7 +55,7 @@ const ManagerDashboard: React.FC = () => {
     queryFn: async () => {
       try {
         console.log('Obtendo informações do gestor...');
-        const response = await axios.get('/api/manager/info');
+        const response = await api.get('/api/manager/info');
         console.log('Resposta do servidor:', response.data);
         return response.data;
       } catch (error) {

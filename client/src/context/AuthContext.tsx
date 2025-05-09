@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryFn: async () => {
       try {
         console.log('Verificando autenticação do usuário em /api/auth/me');
-        const response = await fetch('/api/auth/me');
+        const response = await apiRequest('GET', '/api/auth/me');
         
         console.log('Resposta /api/auth/me:', response.status);
         
