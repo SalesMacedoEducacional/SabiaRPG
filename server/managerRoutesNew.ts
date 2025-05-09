@@ -167,20 +167,31 @@ export function registerManagerRoutes(
               
             activeStudents30Days = active30Days || 0;
             
-            // Buscar progresso de missões
-            const { data: missionData } = await supabase
-              .from('progresso_missoes')
-              .select('status, count')
-              .eq('escola_id', schoolId)
-              .group('status');
-              
-            if (missionData) {
-              for (const item of missionData) {
-                if (item.status === 'em_andamento') missionsInProgress = item.count || 0;
-                if (item.status === 'concluida') missionsCompleted = item.count || 0;
-                if (item.status === 'pendente') missionsPending = item.count || 0;
-              }
+            // Buscar progresso de missões - sem usar group que não está disponível
+            let missionData = null;
+            try {
+              // Como não podemos usar group, podemos tentar fazer uma consulta simples
+              // e contar manualmente ou usar uma função SQL agregada diretamente
+              const { data: missionInProgressData } = await supabase
+                .from('progresso_missoes')
+                .select('*', { count: 'exact', head: true })
+                .eq('escola_id', schoolId)
+                .eq('status', 'em_andamento');
+
+              const { data: missionCompletedData } = await supabase
+                .from('progresso_missoes')
+                .select('*', { count: 'exact', head: true })
+                .eq('escola_id', schoolId)
+                .eq('status', 'concluida');
+                
+              missionsInProgress = missionInProgressData?.length || 0;
+              missionsCompleted = missionCompletedData?.length || 0;
+            } catch (error) {
+              console.error('Erro ao buscar dados de progresso de missões:', error);
             }
+              
+            // O código antigo foi substituído pela implementação acima
+            // que busca missões em progresso e concluídas diretamente
           } catch (error) {
             console.error('Erro ao buscar dados de engajamento:', error);
             // Não faremos fallback para dados simulados - mantemos zeros
@@ -305,7 +316,7 @@ export function registerManagerRoutes(
         // Buscar primeiro via perfis_gestor
         const { data: perfilData, error: perfilError } = await supabase
           .from('perfis_gestor')
-          .select('escola_id, escolas:escola_id(id, nome, codigo_escola, tipo, ativo)')
+          .select('escola_id, escolas:escola_id(id, nome, codigo_escola, tipo)')
           .eq('usuario_id', userId);
           
         if (perfilError) {
@@ -323,7 +334,7 @@ export function registerManagerRoutes(
                 code: p.escolas.codigo_escola || '',
                 teachers: 0, // Será atualizado depois
                 students: 0, // Será atualizado depois
-                active: p.escolas.ativo === undefined ? true : p.escolas.ativo
+                active: true // Campo ativo não existe no schema real
               };
             }
             return null;
@@ -376,7 +387,7 @@ export function registerManagerRoutes(
             code: school.codigo_escola || '',
             teachers: 0, // Será atualizado depois
             students: 0, // Será atualizado depois
-            active: school.ativo === undefined ? true : school.ativo
+            active: true // Campo ativo não existe no schema real
           }));
           
           // Para cada escola, buscar quantidade de professores e alunos

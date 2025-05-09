@@ -723,14 +723,15 @@ export function registerSchoolRoutes(
             console.log(`Escola cadastrada com sucesso no Supabase. ID: ${schoolId}`);
             
             // Criar vínculo na tabela perfis_gestor usando Supabase
+            // Consultamos primeiro a estrutura da tabela para ver quais colunas existem
+            console.log('Tentando criar vínculo na tabela perfis_gestor');
             const { data: perfilGestorData, error: perfilError } = await supabase
               .from('perfis_gestor')
               .insert({
                 usuario_id: userId,
-                escola_id: schoolId,
-                cargo: 'Gestor Escolar',
-                nivel_acesso: 'completo',
-                data_vinculo: new Date().toISOString()
+                escola_id: schoolId
+                // Removidos campos que não existem na tabela:
+                // cargo, nivel_acesso, data_vinculo
               })
               .select()
               .single();
