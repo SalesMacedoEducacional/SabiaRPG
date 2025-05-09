@@ -6,7 +6,7 @@ import QuestPanel from '@/components/QuestPanel';
 import MissionDetails from '@/components/MissionDetails';
 import LoginModal from '@/components/LoginModal';
 import DiagnosticModal from '@/components/DiagnosticModal';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useGame } from '@/context/GameContext';
 
 interface DashboardProps {

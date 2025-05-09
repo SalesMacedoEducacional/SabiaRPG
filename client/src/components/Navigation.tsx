@@ -15,7 +15,7 @@ import {
   SheetContent, 
   SheetTrigger 
 } from './ui/sheet';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { 
   MapPin, 
   Sword, 

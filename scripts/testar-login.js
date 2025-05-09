@@ -101,9 +101,19 @@ async function testarLogin(email, senha) {
   }
 }
 
-// Executar teste de login com credenciais de exemplo
-// Substitua com um usuário que você sabe que existe no seu Supabase
-testarLogin('gestor@teste.com', 'senhaSegura123');
+// Obter credenciais da linha de comando
+const args = process.argv.slice(2);
+const email = args[0];
+const senha = args[1];
+
+if (!email || !senha) {
+  console.error('❌ Erro: Email e senha são obrigatórios');
+  console.log('📝 Uso: node scripts/testar-login.js email senha');
+  process.exit(1);
+}
+
+// Executar teste de login com as credenciais fornecidas
+testarLogin(email, senha);
 
 // Exportar função para uso em outros módulos
 export { testarLogin };

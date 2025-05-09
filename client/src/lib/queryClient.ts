@@ -8,6 +8,9 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+import api from './api';
+
+// Função de request API usando axios (que já tem withCredentials configurado)
 export async function apiRequest(
   method: string,
   url: string,
@@ -18,37 +21,61 @@ export async function apiRequest(
   
   try {
     const headers: Record<string, string> = {};
-    let body: any = undefined;
+    let requestData: any = undefined;
     
     if (data) {
       if (isFormData && data instanceof FormData) {
-        // FormData não precisa de Content-Type, o fetch define automaticamente
-        body = data;
+        // FormData não precisa de Content-Type, o axios define automaticamente
+        requestData = data;
       } else {
         headers["Content-Type"] = "application/json";
-        body = JSON.stringify(data);
+        requestData = data;
       }
     }
     
-    const res = await fetch(url, {
+    // Usar a instância configurada do axios
+    const response = await api.request({
       method,
-      headers,
-      body,
-      credentials: "include",
+      url,
+      data: requestData,
+      headers
     });
     
-    console.log(`Resposta ${method} ${url}: status ${res.status}`);
+    console.log(`Resposta ${method} ${url}: status ${response.status}`);
     
-    if (res.ok) {
-      return res;
+    // Converter para um objeto tipo Response para manter compatibilidade
+    const res = new Response(JSON.stringify(response.data), {
+      status: response.status,
+      statusText: response.statusText,
+      headers: new Headers(response.headers as any)
+    });
+    
+    // Adicionar a propriedade ok para compatibilidade com a API fetch
+    Object.defineProperty(res, 'ok', {
+      value: response.status >= 200 && response.status < 300
+    });
+    
+    return res;
+  } catch (error: any) {
+    console.error(`Erro chamando ${method} ${url}:`, error);
+    
+    // Se o erro é do axios com resposta, criar uma Response compatível
+    if (error.response) {
+      const errorResponse = new Response(JSON.stringify(error.response.data), {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        headers: new Headers(error.response.headers as any)
+      });
+      
+      // Adicionar a propriedade ok para compatibilidade
+      Object.defineProperty(errorResponse, 'ok', {
+        value: false
+      });
+      
+      return errorResponse;
     }
     
-    // Se não for 2xx, lança erro
-    const text = (await res.text()) || res.statusText;
-    console.error(`Erro API ${url}: ${res.status} - ${text}`);
-    throw new Error(`${res.status}: ${text}`);
-  } catch (error) {
-    console.error(`Erro chamando ${method} ${url}:`, error);
+    // Se for outro tipo de erro, lançar como exceção
     throw error;
   }
 }
@@ -62,28 +89,29 @@ export const getQueryFn: <T>(options: {
     console.log(`Consultando: ${queryKey[0]}`);
     
     try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include",
-      });
+      // Usar a API configurada com axios para fazer requisição GET
+      const response = await api.get(queryKey[0] as string);
       
-      console.log(`Resposta consulta ${queryKey[0]}: status ${res.status}`);
+      console.log(`Resposta consulta ${queryKey[0]}: status ${response.status}`);
       
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+      // Retornar os dados diretamente
+      console.log(`Dados recebidos de ${queryKey[0]}:`, response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error(`Erro na consulta ${queryKey[0]}:`, error);
+      
+      // Verificar se é um erro de resposta com status 401
+      if (error.response && error.response.status === 401 && unauthorizedBehavior === "returnNull") {
         console.log(`Retornando null para ${queryKey[0]} (401 Unauthorized)`);
         return null;
       }
       
-      if (!res.ok) {
-        const text = (await res.text()) || res.statusText;
-        console.error(`Erro consulta ${queryKey[0]}: ${res.status} - ${text}`);
-        throw new Error(`${res.status}: ${text}`);
+      // Para todos os outros erros, lançar exceção
+      if (error.response) {
+        console.error(`Erro consulta ${queryKey[0]}: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+        throw new Error(`${error.response.status}: ${JSON.stringify(error.response.data)}`);
       }
       
-      const data = await res.json();
-      console.log(`Dados recebidos de ${queryKey[0]}:`, data);
-      return data;
-    } catch (error) {
-      console.error(`Erro na consulta ${queryKey[0]}:`, error);
       throw error;
     }
   };
