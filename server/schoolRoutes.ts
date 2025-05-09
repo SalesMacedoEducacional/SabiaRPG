@@ -701,8 +701,7 @@ export function registerSchoolRoutes(
                 telefone: escolaInsert.telefone,
                 email_institucional: escolaInsert.email_institucional,
                 gestor_id: escolaInsert.gestor_id,
-                criado_em: new Date().toISOString(),
-                ativo: true
+                criado_em: new Date().toISOString()
               })
               .select()
               .single();
@@ -731,8 +730,7 @@ export function registerSchoolRoutes(
                 escola_id: schoolId,
                 cargo: 'Gestor Escolar',
                 nivel_acesso: 'completo',
-                data_vinculo: new Date().toISOString(),
-                ativo: true
+                data_vinculo: new Date().toISOString()
               })
               .select()
               .single();
@@ -771,7 +769,8 @@ export function registerSchoolRoutes(
               zona_geografica: schoolData.zona_geografica,
               endereco_completo: schoolData.endereco_completo,
               telefone: schoolData.telefone,
-              email_institucional: schoolData.email_institucional || null
+              email_institucional: schoolData.email_institucional || null,
+              criado_em: new Date().toISOString()
             })
             .select()
             .single();
