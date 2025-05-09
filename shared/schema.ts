@@ -60,6 +60,12 @@ export const escolas = pgTable("escolas", {
   ativo: boolean("ativo").default(true),
 });
 
+// Relações foram comentadas porque o módulo 'relations' não está disponível
+// export const escolasRelations = relations(escolas, ({ many }) => ({
+//   gestores: many(perfilGestor),
+//   turmas: many(turmas),
+// }));
+
 // Usuarios table
 export const usuarios = pgTable("usuarios", {
   id: uuid("id").primaryKey().defaultRandom(),

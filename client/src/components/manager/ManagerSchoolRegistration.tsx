@@ -37,10 +37,10 @@ type SchoolFormValues = z.infer<typeof schoolFormSchema>;
 
 interface ManagerSchoolRegistrationProps {
   userId: string;
-  onRegistrationComplete: (schoolData: any) => void;
+  onSchoolRegistered: (schoolData: any) => void;
 }
 
-export function ManagerSchoolRegistration({ userId, onRegistrationComplete }: ManagerSchoolRegistrationProps) {
+export function ManagerSchoolRegistration({ userId, onSchoolRegistered }: ManagerSchoolRegistrationProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,7 +82,7 @@ export function ManagerSchoolRegistration({ userId, onRegistrationComplete }: Ma
       });
       
       // Notificar componente pai sobre o sucesso
-      onRegistrationComplete(response.data.escola);
+      onSchoolRegistered(response.data.escola);
     } catch (error: any) {
       console.error('Erro ao cadastrar escola:', error);
       
