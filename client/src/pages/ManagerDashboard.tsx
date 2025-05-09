@@ -66,34 +66,36 @@ const ManagerDashboard: React.FC = () => {
   useEffect(() => {
     // Verificar se o gestor tem escola vinculada
     if (managerData) {
+      console.log('Dados do gestor recebidos:', managerData);
       setManagerInfo(managerData);
       setIsLoading(false);
       
       // Se não tiver escola vinculada, redirecionar para o cadastro de escola
       if (!managerData.hasSchool) {
+        console.log('Gestor não tem escola vinculada, redirecionando para cadastro de escola');
         setActiveTab("school-registration");
+      } else {
+        console.log('Gestor tem escola vinculada:', managerData.schoolName);
       }
     }
   }, [managerData]);
   
-  const handleLogout = () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        toast({
-          title: "Logout realizado com sucesso",
-          description: "Você foi desconectado do sistema.",
-          variant: "default",
-        });
-        navigate("/auth");
-      },
-      onError: (error) => {
-        toast({
-          title: "Erro ao fazer logout",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    });
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logout realizado com sucesso",
+        description: "Você foi desconectado do sistema.",
+        variant: "default",
+      });
+      navigate("/auth");
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer logout",
+        description: error.message || "Ocorreu um erro ao tentar sair do sistema.",
+        variant: "destructive",
+      });
+    }
   };
   
   // Array com estatísticas para a visão geral
