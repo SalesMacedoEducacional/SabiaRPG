@@ -1527,6 +1527,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registrar rota simplificada para criação de usuário (novo formato)
   registerSimplifiedUserRoutes(app);
   
+  // Adicionar rotas do gestor
+  app.use('/api', managerRoutes);
+  
   // Registrar rotas de administração de usuários
   app.use(getUserAdminRoutes());
   

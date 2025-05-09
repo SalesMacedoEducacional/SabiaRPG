@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { eq, and } from 'drizzle-orm';
 import { escolas, perfilGestor, usuarios } from '@shared/schema';
 import dotenv from 'dotenv';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -50,17 +51,21 @@ router.get('/manager/info', isAuthenticated, async (req, res) => {
     // Verificar se existe um perfil de gestor para este usuário
     const gestorPerfil = await db.query.perfilGestor.findFirst({
       where: eq(perfilGestor.usuarioId, req.user!.id),
-      with: {
-        escola: true
-      }
     });
+    
+    // Verificar se tem escola vinculada
+    const escolaInfo = gestorPerfil?.escolaId 
+      ? await db.query.escolas.findFirst({
+          where: eq(escolas.id, gestorPerfil.escolaId),
+        })
+      : null;
     
     // Preparar resposta
     const response = {
       id: req.user!.id,
-      hasSchool: !!gestorPerfil?.escola,
-      schoolId: gestorPerfil?.escola?.id || null,
-      schoolName: gestorPerfil?.escola?.nome || null
+      hasSchool: !!escolaInfo,
+      schoolId: escolaInfo?.id || null,
+      schoolName: escolaInfo?.nome || null
     };
     
     res.json(response);
@@ -90,42 +95,45 @@ router.post('/escolas/cadastrar', isAuthenticated, isManager, async (req, res) =
     // Verificar se o gestor já tem uma escola vinculada
     const gestorExistente = await db.query.perfilGestor.findFirst({
       where: eq(perfilGestor.usuarioId, gestorId),
-      with: {
-        escola: true
-      }
     });
     
-    if (gestorExistente?.escola) {
-      return res.status(400).json({ 
-        message: 'Este gestor já possui uma escola vinculada',
-        escola: gestorExistente.escola
+    let escolaExistente = null;
+    if (gestorExistente?.escolaId) {
+      escolaExistente = await db.query.escolas.findFirst({
+        where: eq(escolas.id, gestorExistente.escolaId),
       });
     }
+    
+    if (escolaExistente) {
+      return res.status(400).json({ 
+        message: 'Este gestor já possui uma escola vinculada',
+        escola: escolaExistente
+      });
+    }
+    
+    // Gerar código único para escola
+    const codigoEscola = `SCH-${uuidv4().substring(0, 8).toUpperCase()}`;
     
     // Inserir nova escola
     const [novaEscola] = await db.insert(escolas).values({
       nome,
+      codigoEscola,
       endereco,
       cidade,
       estado,
-      cep,
-      telefone: telefone || null,
-      email: email || null,
       tipo,
-      nivelEnsino,
-      descricao: descricao || null,
+      modalidadeEnsino: nivelEnsino,
+      zonaGeografica: 'urbana', // valor padrão
+      telefone: telefone || null,
+      emailInstitucional: email || null,
     }).returning();
     
     // Verificar se o gestor já tem um perfil
-    let perfilGestorExistente = await db.query.perfilGestor.findFirst({
-      where: eq(perfilGestor.usuarioId, gestorId)
-    });
-    
-    if (perfilGestorExistente) {
+    if (gestorExistente) {
       // Atualizar o perfil existente com a nova escola
       await db.update(perfilGestor)
         .set({ escolaId: novaEscola.id })
-        .where(eq(perfilGestor.id, perfilGestorExistente.id));
+        .where(eq(perfilGestor.id, gestorExistente.id));
     } else {
       // Criar novo perfil de gestor vinculado à escola
       await db.insert(perfilGestor).values({
@@ -167,13 +175,9 @@ router.get('/profile/:userId', isAuthenticated, async (req, res) => {
     // Retornar dados do perfil
     res.json({
       id: user.id,
-      nome: user.nome,
       email: user.email,
       cpf: user.cpf,
       papel: user.papel,
-      telefone: user.telefone,
-      dataNascimento: user.dataNascimento,
-      perfilFotoUrl: user.perfilFotoUrl,
       criadoEm: user.criadoEm
     });
   } catch (error) {
@@ -193,22 +197,13 @@ router.put('/profile/:userId', isAuthenticated, async (req, res) => {
     }
     
     const { 
-      nome, 
-      email, 
-      telefone, 
-      dataNascimento, 
-      perfilFotoUrl, 
-      bio 
+      email
     } = req.body;
     
     // Atualizar dados do usuário no banco
     const [updatedUser] = await db.update(usuarios)
       .set({
-        nome,
-        email,
-        telefone,
-        dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
-        perfilFotoUrl
+        email
       })
       .where(eq(usuarios.id, userId))
       .returning();
@@ -236,12 +231,9 @@ router.put('/profile/:userId', isAuthenticated, async (req, res) => {
       message: 'Perfil atualizado com sucesso',
       user: {
         id: updatedUser.id,
-        nome: updatedUser.nome,
         email: updatedUser.email,
         papel: updatedUser.papel,
-        telefone: updatedUser.telefone,
-        dataNascimento: updatedUser.dataNascimento,
-        perfilFotoUrl: updatedUser.perfilFotoUrl
+        cpf: updatedUser.cpf
       }
     });
   } catch (error) {
