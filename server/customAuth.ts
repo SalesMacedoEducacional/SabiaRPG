@@ -477,10 +477,19 @@ export const requireRole = (roles: string[]) => {
         return res.status(401).json({ message: 'Não autorizado' });
       }
       
-      const userRole = req.session.userRole;
+      // Papel do usuário na sessão (em português)
+      const userRolePortuguese = req.session.userRole.toLowerCase();
       
-      // Verificar se o papel está na lista de permitidos
-      if (!roles.includes(userRole)) {
+      // Mapear papel do usuário do português para inglês
+      let userRoleEnglish = userRolePortuguese;
+      if (userRolePortuguese === 'gestor') userRoleEnglish = 'manager';
+      if (userRolePortuguese === 'professor') userRoleEnglish = 'teacher';
+      if (userRolePortuguese === 'aluno') userRoleEnglish = 'student';
+      
+      console.log(`Verificando permissão: Papel do usuário (${userRolePortuguese}/${userRoleEnglish}), Papéis permitidos: ${roles.join(', ')}`);
+      
+      // Verificar se o papel está na lista de permitidos (tanto em português quanto em inglês)
+      if (!roles.includes(userRoleEnglish) && !roles.includes(userRolePortuguese)) {
         return res.status(403).json({ 
           message: 'Acesso negado. Seu perfil não tem permissão para acessar este recurso.' 
         });
