@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { 
   Tooltip, 
   TooltipContent, 

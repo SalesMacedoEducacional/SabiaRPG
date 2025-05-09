@@ -6,7 +6,7 @@ import {
 } from './ui/card';
 import { Progress } from './ui/progress';
 import { Separator } from './ui/separator';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useGame } from '@/context/GameContext';
 import Achievements from './Achievements';
 import { Avatar } from './Avatar';

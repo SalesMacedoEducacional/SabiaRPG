@@ -16,7 +16,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Search, Plus, Edit, Download, RefreshCw, AlertTriangle, Users, UserPlus, BookOpen, Award, School, FileText, BarChart3, FilePlus2, Calendar, Settings, Bell, Laptop, Link, User, LogOut, FileCog, BookCopy, Building, UserCog, Lock, Trash2, Upload, Save } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/queryClient';
 import { useForm } from 'react-hook-form';
 

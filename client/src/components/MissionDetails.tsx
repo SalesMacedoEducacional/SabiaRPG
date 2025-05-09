@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { useGame } from '@/context/GameContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { Badge } from './ui/badge';
 import { Link } from 'wouter';
 import { Check, Clock, Star, Lock, Play, HelpCircle } from 'lucide-react';

@@ -311,4 +311,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Função useAuth movida para hooks/use-auth.ts
+// Re-exportando o hook useAuth para manter compatibilidade
+export { useAuth } from '../hooks/use-auth';

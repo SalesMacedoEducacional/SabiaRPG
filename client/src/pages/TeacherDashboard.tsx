@@ -58,7 +58,7 @@ import {
   Legend, 
   ResponsiveContainer
 } from 'recharts';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
