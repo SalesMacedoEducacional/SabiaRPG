@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../db/supabase.js';
+import { supabase } from '../db/supabase';
 import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
@@ -81,9 +81,9 @@ export const authenticateCustom = async (req: Request, res: Response, next: Next
       // Se não encontrou no banco ou houve erro, mas temos dados na sessão
       if (req.session.userRole) {
         req.user = {
-          id: req.session.userId,
+          id: req.session.userId || '',
           email: req.session.userEmail,
-          role: req.session.userRole
+          role: req.session.userRole || ''
         };
         return next();
       }
@@ -181,10 +181,20 @@ export async function handleCustomLogin(req: Request, res: Response) {
         }
         
         // Adaptar o formato retornado para corresponder ao que o frontend espera
+        // Mapeamento de papéis do backend (português) para frontend (inglês)
+        const mapearPapel = (papel: string): string => {
+          switch (papel.toLowerCase()) {
+            case 'gestor': return 'manager';
+            case 'professor': return 'teacher';
+            case 'aluno': return 'student';
+            default: return papel;
+          }
+        };
+        
         const dadosFormatados = {
           id: usuarioEncontrado.id,
           email: usuarioEncontrado.email,
-          role: usuarioEncontrado.papel,
+          role: mapearPapel(usuarioEncontrado.papel),
           username: usuarioEncontrado.email?.split('@')[0] || 'user',
           fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
           level: 1,
@@ -216,14 +226,15 @@ export async function handleCustomLogin(req: Request, res: Response) {
         if (req.session) {
           req.session.userId = authData.user?.id;
           req.session.userEmail = authData.user?.email;
-          req.session.userRole = 'usuario'; // Papel padrão se não encontrar
+          // Mapear para um papel válido para o frontend
+          req.session.userRole = 'student'; // Papel padrão se não encontrar
         }
         
         // Retornar dados básicos
         return res.status(200).json({
           id: authData.user?.id,
           email: authData.user?.email,
-          role: 'usuario',
+          role: 'student', // Papel padrão para o frontend
           username: authData.user?.email?.split('@')[0] || 'user',
           fullName: authData.user?.email?.split('@')[0] || 'Usuário',
           level: 1,
@@ -241,10 +252,20 @@ export async function handleCustomLogin(req: Request, res: Response) {
       }
       
       // Adaptar o formato retornado para corresponder ao que o frontend espera
+      // Mapeamento de papéis do backend (português) para frontend (inglês)
+      const mapearPapel = (papel: string): string => {
+        switch (papel.toLowerCase()) {
+          case 'gestor': return 'manager';
+          case 'professor': return 'teacher';
+          case 'aluno': return 'student';
+          default: return papel;
+        }
+      };
+      
       const dadosFormatados = {
         id: usuarioCompleto.id,
         email: usuarioCompleto.email,
-        role: usuarioCompleto.papel,
+        role: mapearPapel(usuarioCompleto.papel),
         username: usuarioCompleto.email?.split('@')[0] || 'user',
         fullName: usuarioCompleto.email?.split('@')[0] || 'Usuário',
         level: 1,
@@ -332,10 +353,20 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       
       // Se não encontrar no banco mas tiver dados na sessão, usar esses dados
       if (req.session.userEmail && req.session.userRole) {
+        // Mapear papel da sessão também
+        const mapearPapel = (papel: string): string => {
+          switch (papel.toLowerCase()) {
+            case 'gestor': return 'manager';
+            case 'professor': return 'teacher';
+            case 'aluno': return 'student';
+            default: return papel;
+          }
+        };
+        
         const dadosSessao = {
           id: req.session.userId,
           email: req.session.userEmail,
-          role: req.session.userRole,
+          role: mapearPapel(req.session.userRole),
           username: req.session.userEmail?.split('@')[0] || 'user',
           fullName: req.session.userEmail?.split('@')[0] || 'Usuário',
           level: 1,
@@ -370,11 +401,21 @@ export async function handleGetCurrentUser(req: Request, res: Response) {
       }
     }
     
+    // Mapeamento de papéis do backend (português) para frontend (inglês)
+    const mapearPapel = (papel: string): string => {
+      switch (papel.toLowerCase()) {
+        case 'gestor': return 'manager';
+        case 'professor': return 'teacher';
+        case 'aluno': return 'student';
+        default: return papel;
+      }
+    };
+    
     // Converter os nomes dos campos para o formato esperado pelo frontend
     const dadosFormatados = {
       id: usuarioEncontrado.id,
       email: usuarioEncontrado.email,
-      role: usuarioEncontrado.papel,
+      role: mapearPapel(usuarioEncontrado.papel),
       username: usuarioEncontrado.email?.split('@')[0] || 'user',
       fullName: usuarioEncontrado.email?.split('@')[0] || 'Usuário',
       level: 1,
