@@ -22,7 +22,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   permissions = [],
   requireAuth = true
 }) => {
-  const { user, isLoading } = useAuth();
+  // Importante: manter todos os hooks sempre na mesma ordem
+  const auth = useAuth();
+  const { user, isLoading, hasPermission } = auth;
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
@@ -65,6 +67,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
     }
   }, [user, path]);
+  
+  // Calcular se tem todas as permissões necessárias (fazendo aqui para evitar hooks condicionais)
+  const hasAllPermissions = permissions.length === 0 ? true : 
+    permissions.every(permissionId => hasPermission(permissionId));
   
   // Mostra um spinner de carregamento enquanto verifica a autenticação ou escolas
   if (isLoading || checkingSchools) {
@@ -133,27 +139,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  // Se não há permissões específicas requeridas, apenas renderiza o componente
-  if (permissions.length === 0) {
+  // Se não há permissões específicas requeridas ou o usuário tem todas, renderiza o componente
+  if (hasAllPermissions) {
     return <Route path={path} component={Component} />;
   }
 
-  // Verifica se o usuário tem TODAS as permissões requeridas
-  const { hasPermission } = useAuth();
-  const hasAllPermissions = permissions.every(permissionId => 
-    hasPermission(permissionId)
+  // Se não tem as permissões necessárias, redireciona para acesso negado
+  return (
+    <Route path={path}>
+      <Redirect to="/acesso-negado" />
+    </Route>
   );
-
-  if (!hasAllPermissions) {
-    return (
-      <Route path={path}>
-        <Redirect to="/acesso-negado" />
-      </Route>
-    );
-  }
-
-  // Se chegou aqui, o usuário está autenticado e tem todas as permissões necessárias
-  return <Route path={path} component={Component} />;
 };
 
 export default ProtectedRoute;
