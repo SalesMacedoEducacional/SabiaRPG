@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -38,7 +38,10 @@ const schoolFormSchema = z.object({
     required_error: 'Selecione a zona geográfica' 
   }),
   endereco: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
-  telefone: z.string().min(10, { message: 'Telefone da escola é obrigatório' }),
+  telefone: z.string().min(10, { message: 'Telefone da escola é obrigatório' })
+    .refine(val => /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(val), {
+      message: 'Telefone deve estar no formato (XX) XXXXX-XXXX'
+    }),
   email: z.string().email({ message: 'Email institucional inválido' }).min(5, { message: 'Email é obrigatório' }),
 });
 
@@ -49,9 +52,16 @@ interface ManagerSchoolRegistrationProps {
   onSchoolRegistered: (schoolData: any) => void;
 }
 
+// Mapa de estados brasileiros e suas cidades
+type CidadesPorEstado = Record<string, string[]>;
+
 export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }: ManagerSchoolRegistrationProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cidadesPorEstado, setCidadesPorEstado] = useState<CidadesPorEstado>({});
+  const [cidadesDisponiveis, setCidadesDisponiveis] = useState<string[]>([]);
+  const [estadoSelecionado, setEstadoSelecionado] = useState<string>('PI');
+  const [carregandoCidades, setCarregandoCidades] = useState(false);
 
   // Configurar o formulário com valores padrão
   const form = useForm<SchoolFormValues>({
@@ -69,6 +79,117 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
       email: '',
     },
   });
+
+  // Função para formatar o telefone
+  const formatarTelefone = (valor: string) => {
+    // Remove tudo que não for dígito
+    const apenasDigitos = valor.replace(/\D/g, '');
+    
+    // Formata conforme a quantidade de dígitos
+    if (apenasDigitos.length <= 2) {
+      return apenasDigitos;
+    } else if (apenasDigitos.length <= 7) {
+      return `(${apenasDigitos.slice(0, 2)}) ${apenasDigitos.slice(2)}`;
+    } else if (apenasDigitos.length <= 11) {
+      return `(${apenasDigitos.slice(0, 2)}) ${apenasDigitos.slice(2, 7)}-${apenasDigitos.slice(7)}`;
+    } else {
+      return `(${apenasDigitos.slice(0, 2)}) ${apenasDigitos.slice(2, 7)}-${apenasDigitos.slice(7, 11)}`;
+    }
+  };
+
+  // Carregar cidades para o estado de Piauí (PI) - como exemplo
+  // Em um ambiente real, carregaríamos de uma API ou banco de dados
+  useEffect(() => {
+    const carregarCidadesPiaui = () => {
+      setCidadesPorEstado({
+        PI: [
+          'Teresina', 'Parnaíba', 'Picos', 'Piripiri', 'Floriano', 
+          'Campo Maior', 'Barras', 'Pedro II', 'União', 'Altos',
+          'Oeiras', 'São Raimundo Nonato', 'Esperantina', 'José de Freitas', 
+          'Paulistana', 'Batalha', 'Água Branca', 'Amarante', 'Valença do Piauí',
+          'Luís Correia', 'Cocal', 'Uruçuí', 'Regeneração', 'Simplício Mendes',
+          'Corrente', 'Elesbão Veloso', 'Miguel Alves', 'Luzilândia', 'Canto do Buriti',
+          'Bom Jesus', 'Fronteiras', 'Guadalupe', 'Piracuruca', 'Jaicós'
+        ]
+      });
+    };
+
+    const carregarCidadesBrasil = () => {
+      // Este é um conjunto limitado de cidades principais por estado 
+      // Em uma aplicação real, você usaria uma API ou banco de dados com o conjunto completo
+      return {
+        AC: ['Rio Branco', 'Cruzeiro do Sul', 'Sena Madureira', 'Tarauacá', 'Feijó'],
+        AL: ['Maceió', 'Arapiraca', 'Palmeira dos Índios', 'Rio Largo', 'Penedo'],
+        AM: ['Manaus', 'Parintins', 'Itacoatiara', 'Manacapuru', 'Coari'],
+        AP: ['Macapá', 'Santana', 'Laranjal do Jari', 'Oiapoque', 'Mazagão'],
+        BA: ['Salvador', 'Feira de Santana', 'Vitória da Conquista', 'Camaçari', 'Juazeiro'],
+        CE: ['Fortaleza', 'Caucaia', 'Juazeiro do Norte', 'Maracanaú', 'Sobral'],
+        DF: ['Brasília', 'Ceilândia', 'Taguatinga', 'Samambaia', 'Plano Piloto'],
+        ES: ['Vitória', 'Vila Velha', 'Serra', 'Cariacica', 'Cachoeiro de Itapemirim'],
+        GO: ['Goiânia', 'Aparecida de Goiânia', 'Anápolis', 'Rio Verde', 'Luziânia'],
+        MA: ['São Luís', 'Imperatriz', 'Timon', 'Caxias', 'Codó'],
+        MG: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora', 'Betim'],
+        MS: ['Campo Grande', 'Dourados', 'Três Lagoas', 'Corumbá', 'Ponta Porã'],
+        MT: ['Cuiabá', 'Várzea Grande', 'Rondonópolis', 'Sinop', 'Tangará da Serra'],
+        PA: ['Belém', 'Ananindeua', 'Santarém', 'Marabá', 'Castanhal'],
+        PB: ['João Pessoa', 'Campina Grande', 'Santa Rita', 'Patos', 'Bayeux'],
+        PE: ['Recife', 'Jaboatão dos Guararapes', 'Olinda', 'Caruaru', 'Petrolina'],
+        PI: [
+          'Teresina', 'Parnaíba', 'Picos', 'Piripiri', 'Floriano', 
+          'Campo Maior', 'Barras', 'Pedro II', 'União', 'Altos',
+          'Oeiras', 'São Raimundo Nonato', 'Esperantina', 'José de Freitas', 
+          'Paulistana', 'Batalha', 'Água Branca', 'Amarante', 'Valença do Piauí',
+          'Luís Correia', 'Cocal', 'Uruçuí', 'Regeneração', 'Simplício Mendes'
+        ],
+        PR: ['Curitiba', 'Londrina', 'Maringá', 'Ponta Grossa', 'Cascavel'],
+        RJ: ['Rio de Janeiro', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Niterói'],
+        RN: ['Natal', 'Mossoró', 'Parnamirim', 'São Gonçalo do Amarante', 'Macaíba'],
+        RO: ['Porto Velho', 'Ji-Paraná', 'Ariquemes', 'Vilhena', 'Cacoal'],
+        RR: ['Boa Vista', 'Rorainópolis', 'Caracaraí', 'Alto Alegre', 'Mucajaí'],
+        RS: ['Porto Alegre', 'Caxias do Sul', 'Pelotas', 'Canoas', 'Santa Maria'],
+        SC: ['Florianópolis', 'Joinville', 'Blumenau', 'São José', 'Chapecó'],
+        SE: ['Aracaju', 'Nossa Senhora do Socorro', 'Lagarto', 'Itabaiana', 'São Cristóvão'],
+        SP: ['São Paulo', 'Guarulhos', 'Campinas', 'São Bernardo do Campo', 'Santo André'],
+        TO: ['Palmas', 'Araguaína', 'Gurupi', 'Porto Nacional', 'Paraíso do Tocantins']
+      };
+    };
+    
+    setCidadesPorEstado(carregarCidadesBrasil());
+
+    // Inicializar cidades de Piauí (estado padrão)
+    const cidadesPiaui = carregarCidadesBrasil().PI || [];
+    setCidadesDisponiveis(cidadesPiaui);
+  }, []);
+
+  // Atualizar cidades disponíveis quando o estado mudar
+  useEffect(() => {
+    if (estadoSelecionado) {
+      setCarregandoCidades(true);
+      // Simular um pequeno delay para mostrar o carregamento (em produção seria a chamada API)
+      setTimeout(() => {
+        const cidades = cidadesPorEstado[estadoSelecionado] || [];
+        setCidadesDisponiveis(cidades);
+        setCarregandoCidades(false);
+      }, 300);
+    }
+  }, [estadoSelecionado, cidadesPorEstado]);
+
+  // Limpar a cidade selecionada quando o estado mudar
+  useEffect(() => {
+    form.setValue('cidade', '');
+  }, [estadoSelecionado, form]);
+
+  // Monitorar mudanças no campo de estado
+  const handleEstadoChange = (valor: string) => {
+    setEstadoSelecionado(valor);
+    form.setValue('estado', valor);
+  };
+
+  // Função para formatar telefone durante digitação
+  const handleTelefoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const valorFormatado = formatarTelefone(event.target.value);
+    form.setValue('telefone', valorFormatado);
+  };
 
   // Função para submeter o formulário
   const onSubmit = async (data: SchoolFormValues) => {
@@ -225,92 +346,12 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
               
               <FormField
                 control={form.control}
-                name="zona_geografica"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Zona Geográfica</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
-                          <SelectValue placeholder="Selecione a zona" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-dark-light border-accent text-parchment">
-                        <SelectItem value="urbana">Urbana</SelectItem>
-                        <SelectItem value="rural">Rural</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Email Institucional</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="email" 
-                        placeholder="email@escola.edu.br" 
-                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="telefone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Telefone da Escola</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="(00) 00000-0000" 
-                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="cidade"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Cidade</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Nome da cidade" 
-                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
                 name="estado"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-parchment">Estado</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={handleEstadoChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -348,6 +389,106 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         <SelectItem value="TO">TO</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="cidade"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Cidade</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={carregandoCidades || cidadesDisponiveis.length === 0}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
+                          <SelectValue placeholder={
+                            carregandoCidades 
+                              ? "Carregando cidades..." 
+                              : cidadesDisponiveis.length === 0 
+                                ? "Selecione um estado primeiro" 
+                                : "Selecione a cidade"
+                          } />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-dark-light border-accent text-parchment max-h-56 overflow-y-auto">
+                        {cidadesDisponiveis.map((cidade) => (
+                          <SelectItem key={cidade} value={cidade}>
+                            {cidade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="zona_geografica"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Zona Geográfica</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
+                          <SelectValue placeholder="Selecione a zona" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-dark-light border-accent text-parchment">
+                        <SelectItem value="urbana">Urbana</SelectItem>
+                        <SelectItem value="rural">Rural</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="telefone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Telefone da Escola</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="(00) 00000-0000" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        value={field.value}
+                        onChange={(e) => {
+                          handleTelefoneChange(e);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-parchment">Email Institucional</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="email@escola.edu.br" 
+                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        {...field} 
+                      />
+                    </FormControl>
                     <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
