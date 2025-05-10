@@ -20,13 +20,13 @@
   --border: 35 23% 27%;
   --input: 35 23% 27%;
   
-  /* Paleta do Dashboard do Gestor */
-  --gestor-background: #100B09;
-  --gestor-container: #1A110B;
+  /* Paleta do Dashboard do Gestor (atualizada para harmonizar com o dashboard do aluno) */
+  --gestor-background: #1A1A1A;
+  --gestor-container: #262626;
   --gestor-border: #D47C06;
   --gestor-button: #F08B13;
-  --gestor-tab-active: #0D0D0D;
-  --gestor-tab-inactive: #1A110B;
+  --gestor-tab-active: #1A1A1A;
+  --gestor-tab-inactive: #262626;
   --gestor-text: #FFFFFF;
   --gestor-text-aux: #C2C2C2;
   --gestor-input: #2B3A55;
