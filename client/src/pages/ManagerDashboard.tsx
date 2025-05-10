@@ -164,7 +164,7 @@ const ManagerDashboard: React.FC = () => {
   if (managerError) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <AlertCircle size={64} className="text-primary mb-4" />
+        <AlertCircle size={64} className="text-[#d4a76a] mb-4" />
         <h2 className="text-2xl font-bold mb-2">Erro ao carregar dashboard</h2>
         <p className="text-gray-600 mb-4">Não foi possível carregar as informações do gestor.</p>
         <Button onClick={() => navigate("/auth")}>Voltar para Login</Button>
