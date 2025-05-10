@@ -335,10 +335,10 @@ const ManagerDashboard: React.FC = () => {
           {/* Tab 3: Configurações */}
           <TabsContent value="settings">
             <div className="grid grid-cols-1 gap-6">
-              <Card className="mb-6 bg-dark-light border-primary">
+              <Card className="mb-6 bg-[#292524] border-[#a8742a]">
                 <CardHeader>
-                  <CardTitle className="text-accent font-medieval">Configurações</CardTitle>
-                  <CardDescription className="text-parchment-dark">
+                  <CardTitle className="text-[#d4a76a] font-medieval">Configurações</CardTitle>
+                  <CardDescription className="text-[#d0c8be]">
                     Gerenciamento de usuários, turmas, componentes e outras configurações
                   </CardDescription>
                 </CardHeader>
@@ -346,7 +346,7 @@ const ManagerDashboard: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
                       onClick={() => setActiveTab("school-registration")}
                     >
                       <School className="h-8 w-8" />
@@ -355,7 +355,7 @@ const ManagerDashboard: React.FC = () => {
                     
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
                       onClick={() => setActiveTab("user-registration")}
                     >
                       <Users className="h-8 w-8" />
@@ -364,7 +364,7 @@ const ManagerDashboard: React.FC = () => {
                     
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
                       onClick={() => setActiveTab("class-registration")}
                     >
                       <BookOpen className="h-8 w-8" />
@@ -373,7 +373,7 @@ const ManagerDashboard: React.FC = () => {
                     
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent hover:bg-accent hover:text-dark" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
                       onClick={() => setActiveTab("components-registration")}
                     >
                       <Book className="h-8 w-8" />
@@ -382,7 +382,7 @@ const ManagerDashboard: React.FC = () => {
                     
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent opacity-50" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] opacity-50" 
                       disabled
                     >
                       <FileBarChart2 className="h-8 w-8" />
@@ -391,7 +391,7 @@ const ManagerDashboard: React.FC = () => {
                     
                     <Button 
                       variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-accent text-accent opacity-50" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] opacity-50" 
                       disabled
                     >
                       <Settings className="h-8 w-8" />
@@ -425,15 +425,15 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Espaços reservados para as outras telas - serão implementadas posteriormente */}
           <TabsContent value="user-registration">
-            <Card className="bg-dark-light border-primary">
+            <Card className="bg-[#292524] border-[#a8742a]">
               <CardHeader>
-                <CardTitle className="text-accent font-medieval">Cadastro de Novos Usuários</CardTitle>
-                <CardDescription className="text-parchment-dark">
+                <CardTitle className="text-[#d4a76a] font-medieval">Cadastro de Novos Usuários</CardTitle>
+                <CardDescription className="text-[#d0c8be]">
                   Formulário para cadastro de alunos, professores e gestores
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-parchment-dark py-6 text-center">
+                <p className="text-[#d0c8be] py-6 text-center">
                   Formulário de cadastro de usuários em construção.
                 </p>
               </CardContent>
@@ -441,15 +441,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="class-registration">
-            <Card className="bg-dark-light border-primary">
+            <Card className="bg-[#292524] border-[#a8742a]">
               <CardHeader>
-                <CardTitle className="text-accent font-medieval">Gerenciamento de Turmas</CardTitle>
-                <CardDescription className="text-parchment-dark">
+                <CardTitle className="text-[#d4a76a] font-medieval">Gerenciamento de Turmas</CardTitle>
+                <CardDescription className="text-[#d0c8be]">
                   Cadastro e gestão de turmas da escola
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-parchment-dark py-6 text-center">
+                <p className="text-[#d0c8be] py-6 text-center">
                   Formulário de cadastro de turmas em construção.
                 </p>
               </CardContent>
@@ -457,15 +457,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="components-registration">
-            <Card className="bg-dark-light border-primary">
+            <Card className="bg-[#292524] border-[#a8742a]">
               <CardHeader>
-                <CardTitle className="text-accent font-medieval">Gerenciamento de Componentes Curriculares</CardTitle>
-                <CardDescription className="text-parchment-dark">
+                <CardTitle className="text-[#d4a76a] font-medieval">Gerenciamento de Componentes Curriculares</CardTitle>
+                <CardDescription className="text-[#d0c8be]">
                   Cadastro e gestão de componentes curriculares
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-parchment-dark py-6 text-center">
+                <p className="text-[#d0c8be] py-6 text-center">
                   Formulário de cadastro de componentes em construção.
                 </p>
               </CardContent>
