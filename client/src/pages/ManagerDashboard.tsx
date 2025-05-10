@@ -531,7 +531,7 @@ export default function ManagerDashboard() {
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="bg-[#3e2a18] p-4">
+            <div className="bg-[#33261B] p-4">
               <ManagerProfile userId={user?.id ? String(user.id) : ''} />
             </div>
           </TabsContent>

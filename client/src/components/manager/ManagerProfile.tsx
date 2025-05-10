@@ -104,14 +104,14 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-8 bg-[#231f20] text-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#a85f16]" />
+      <div className="flex justify-center items-center p-8 bg-[#1B1B1B] text-white">
+        <Loader2 className="h-8 w-8 animate-spin text-[#A85F16]" />
       </div>
     );
   }
 
   return (
-    <Card className="w-full bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+    <Card className="w-full bg-[#1B1B1B] border border-[#33261B] rounded-sm shadow-none">
       <CardHeader className="px-4 py-3">
         <CardTitle className="text-white text-lg">Meu Perfil</CardTitle>
         <CardDescription className="text-gray-400">
@@ -140,7 +140,7 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
             </div>
           </div>
           
-          <div className="border-t border-[#3e2a18] pt-4 mt-2">
+          <div className="border-t border-[#33261B] pt-4 mt-2">
             <h3 className="text-lg font-medium mb-4 text-white">Editar Informações</h3>
             
             <Form {...form}>
@@ -155,7 +155,7 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
                         <Input 
                           placeholder="seu@email.com" 
                           {...field} 
-                          className="bg-[#3e2a18] border-none text-white placeholder:text-gray-400 focus:ring-1 focus:ring-[#a85f16]"
+                          className="bg-[#33261B] border-none text-white placeholder:text-gray-400 focus:ring-1 focus:ring-[#A85F16]"
                         />
                       </FormControl>
                       <FormMessage className="text-red-400" />
@@ -165,7 +165,7 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-[#a85f16] hover:bg-[#a85f16]/80 text-white border-none" 
+                  className="w-full bg-[#A85F16] hover:bg-[#A85F16]/80 text-white border-none" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
