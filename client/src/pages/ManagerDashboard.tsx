@@ -44,7 +44,7 @@ export default function ManagerDashboard() {
         description: "Você foi desconectado do sistema.",
         variant: "default",
       });
-      navigate("/auth");
+      window.location.href = "/";
     } catch (error: any) {
       toast({
         title: "Erro ao fazer logout",
@@ -55,8 +55,13 @@ export default function ManagerDashboard() {
   };
 
   // Se o gestor não estiver logado, redirecionar para a página de login
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+  
   if (!user) {
-    navigate("/auth");
     return null;
   }
   
