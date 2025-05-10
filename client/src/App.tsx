@@ -7,9 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 // Importando o dashboard do gestor
-import ManagerDashboardComponent from "@/pages/ManagerDashboardNew";
-// Definimos um alias para o componente
-const ManagerDashboard = ManagerDashboardComponent;
+import ManagerDashboard from "@/pages/ManagerDashboard";
 import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistration from "@/pages/UserRegistration";
 import ClassRegistration from "@/pages/ClassRegistration";
@@ -81,7 +79,7 @@ function Router() {
       {/* Rotas apenas para gestores */}
       <ProtectedRoute 
         path="/manager" 
-        component={ManagerDashboardComponent}
+        component={ManagerDashboard}
         permissions={[
           PERMISSIONS.REPORT_SCHOOL_VIEW.id,
           PERMISSIONS.SCHOOL_CONFIG.id
