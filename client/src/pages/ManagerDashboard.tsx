@@ -176,7 +176,7 @@ export default function ManagerDashboard() {
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/school-registration')}
                   >
                     <School className="h-4 w-4 text-white mr-2" />
@@ -184,7 +184,7 @@ export default function ManagerDashboard() {
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/class-registration')}
                   >
                     <BookOpen className="h-4 w-4 text-white mr-2" />
@@ -194,31 +194,31 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Alunos Ativos */}
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Alunos Ativos na Plataforma</div>
                 
                 <div className="flex justify-between items-center mt-3">
                   <div>
                     <div className="text-white text-3xl font-bold">0</div>
-                    <div className="text-gray-400 text-xs">Últimos 7 dias</div>
+                    <div className="text-[#C2C2C2] text-xs">Últimos 7 dias</div>
                   </div>
                   <div>
                     <div className="text-white text-3xl font-bold">0</div>
-                    <div className="text-gray-400 text-xs">Últimos 30 dias</div>
+                    <div className="text-[#C2C2C2] text-xs">Últimos 30 dias</div>
                   </div>
                 </div>
               </div>
               
               {/* Alerta de Evasão */}
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm mb-1">
                   Alerta de Evasão Potencial
                 </div>
-                <div className="text-gray-400 text-xs">Alunos com mais de 30 dias sem acesso</div>
+                <div className="text-[#C2C2C2] text-xs">Alunos com mais de 30 dias sem acesso</div>
                 
                 <div className="text-white text-4xl font-bold text-center my-5">0</div>
                 
-                <button className="w-full bg-[#1B1B1B] hover:bg-[#272727] text-white text-sm py-1.5 transition-colors">
+                <button className="w-full bg-[#0D0D0D] hover:bg-[#272727] text-white text-sm py-1.5 transition-colors">
                   Ver Lista
                 </button>
               </div>
@@ -227,9 +227,9 @@ export default function ManagerDashboard() {
             {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-1 mb-1">
               {/* Escolas com Maior Engajamento */}
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Escolas com Maior Engajamento</div>
-                <div className="text-gray-400 text-xs">Escolas com melhores taxas de participação</div>
+                <div className="text-[#C2C2C2] text-xs">Escolas com melhores taxas de participação</div>
                 
                 <div className="flex items-center justify-center h-40 text-white">
                   Nenhuma escola cadastrada
@@ -237,19 +237,19 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Atividade Recente */}
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Atividade Recente</div>
-                <div className="text-gray-400 text-xs">Últimas ações e eventos no sistema</div>
+                <div className="text-[#C2C2C2] text-xs">Últimas ações e eventos no sistema</div>
                 
                 <div className="space-y-4 mt-4">
                   <div className="flex items-start">
-                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
-                      <FileText className="h-4 w-4 text-[#A85F16]" />
+                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
+                      <FileText className="h-4 w-4 text-[#F08B13]" />
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">Novo relatório gerado</p>
-                      <p className="text-gray-400 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
-                      <p className="text-gray-500 text-xs">Hoje, 09:45</p>
+                      <p className="text-[#C2C2C2] text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                      <p className="text-[#C2C2C2]/70 text-xs">Hoje, 09:45</p>
                     </div>
                   </div>
                   
