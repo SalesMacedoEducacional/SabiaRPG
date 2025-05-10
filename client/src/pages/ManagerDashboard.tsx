@@ -411,10 +411,10 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="bg-[#33261B] p-4">
+            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
               <div className="mb-4">
                 <h3 className="text-white text-lg font-medium mb-2">Configurações</h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-[#C2C2C2] text-sm">
                   Gerencie usuários, turmas, componentes, trilhas e missões
                 </p>
               </div>
@@ -425,52 +425,52 @@ export default function ManagerDashboard() {
                   
                   <div className="space-y-2">
                     <button 
-                      className="w-full bg-[#231f20] text-white text-left p-3 hover:bg-[#2a2526] flex items-center justify-between"
+                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
                       onClick={() => navigate('/user-registration')}
                     >
                       <div className="flex items-center">
-                        <User className="h-5 w-5 mr-2 text-[#a85f16]" />
+                        <User className="h-5 w-5 mr-2 text-[#F08B13]" />
                         <span>Gerenciar Usuários</span>
                       </div>
                       <ChevronRight size={16} />
                     </button>
                     
                     <button 
-                      className="w-full bg-[#231f20] text-white text-left p-3 hover:bg-[#2a2526] flex items-center justify-between"
+                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
                       onClick={() => navigate('/class-registration')}
                     >
                       <div className="flex items-center">
-                        <BookOpen className="h-5 w-5 mr-2 text-[#a85f16]" />
+                        <BookOpen className="h-5 w-5 mr-2 text-[#F08B13]" />
                         <span>Gerenciar Turmas</span>
                       </div>
                       <ChevronRight size={16} />
                     </button>
                     
                     <button 
-                      className="w-full bg-[#231f20] text-white text-left p-3 hover:bg-[#2a2526] flex items-center justify-between"
+                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
                     >
                       <div className="flex items-center">
-                        <Book className="h-5 w-5 mr-2 text-[#a85f16]" />
+                        <Book className="h-5 w-5 mr-2 text-[#F08B13]" />
                         <span>Gerenciar Componentes</span>
                       </div>
                       <ChevronRight size={16} />
                     </button>
                     
                     <button 
-                      className="w-full bg-[#231f20] text-white text-left p-3 hover:bg-[#2a2526] flex items-center justify-between"
+                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
                     >
                       <div className="flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-[#a85f16]" />
+                        <FileText className="h-5 w-5 mr-2 text-[#F08B13]" />
                         <span>Gerenciar Trilhas</span>
                       </div>
                       <ChevronRight size={16} />
                     </button>
                     
                     <button 
-                      className="w-full bg-[#231f20] text-white text-left p-3 hover:bg-[#2a2526] flex items-center justify-between"
+                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
                     >
                       <div className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2 text-[#a85f16]" />
+                        <Clock className="h-5 w-5 mr-2 text-[#F08B13]" />
                         <span>Gerenciar Missões</span>
                       </div>
                       <ChevronRight size={16} />
@@ -478,16 +478,16 @@ export default function ManagerDashboard() {
                   </div>
                 </div>
                 
-                <div className="col-span-2 bg-[#231f20] p-4">
+                <div className="col-span-2 bg-[#0D0D0D] p-4 border border-[#D47C06]">
                   <h4 className="text-white text-sm font-medium mb-3">Configurações do Sistema</h4>
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="text-gray-400 text-xs block mb-1">Escola Principal</label>
-                      <select className="w-full bg-[#2a2526] text-white text-sm p-2 border border-[#4b321c]">
+                      <label className="text-[#C2C2C2] text-xs block mb-1">Escola Principal</label>
+                      <select className="w-full bg-[#1A110B] text-white text-sm p-2 border border-[#D47C06]">
                         <option value="">Selecione a escola principal</option>
                       </select>
-                      <p className="text-xs text-gray-500 mt-1">Escola que será exibida por padrão nos relatórios</p>
+                      <p className="text-xs text-[#C2C2C2]/70 mt-1">Escola que será exibida por padrão nos relatórios</p>
                     </div>
                     
                     <div>
