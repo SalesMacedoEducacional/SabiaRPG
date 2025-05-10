@@ -367,34 +367,18 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                           <SelectValue placeholder="UF" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-dark-light border-accent text-parchment">
-                        <SelectItem value="AC">AC</SelectItem>
-                        <SelectItem value="AL">AL</SelectItem>
-                        <SelectItem value="AP">AP</SelectItem>
-                        <SelectItem value="AM">AM</SelectItem>
-                        <SelectItem value="BA">BA</SelectItem>
-                        <SelectItem value="CE">CE</SelectItem>
-                        <SelectItem value="DF">DF</SelectItem>
-                        <SelectItem value="ES">ES</SelectItem>
-                        <SelectItem value="GO">GO</SelectItem>
-                        <SelectItem value="MA">MA</SelectItem>
-                        <SelectItem value="MT">MT</SelectItem>
-                        <SelectItem value="MS">MS</SelectItem>
-                        <SelectItem value="MG">MG</SelectItem>
-                        <SelectItem value="PA">PA</SelectItem>
-                        <SelectItem value="PB">PB</SelectItem>
-                        <SelectItem value="PR">PR</SelectItem>
-                        <SelectItem value="PE">PE</SelectItem>
-                        <SelectItem value="PI">PI</SelectItem>
-                        <SelectItem value="RJ">RJ</SelectItem>
-                        <SelectItem value="RN">RN</SelectItem>
-                        <SelectItem value="RS">RS</SelectItem>
-                        <SelectItem value="RO">RO</SelectItem>
-                        <SelectItem value="RR">RR</SelectItem>
-                        <SelectItem value="SC">SC</SelectItem>
-                        <SelectItem value="SP">SP</SelectItem>
-                        <SelectItem value="SE">SE</SelectItem>
-                        <SelectItem value="TO">TO</SelectItem>
+                      <SelectContent className="bg-dark-light border-accent text-parchment max-h-56 overflow-y-auto">
+                        {carregandoEstados ? (
+                          <SelectItem value="carregando" disabled>Carregando...</SelectItem>
+                        ) : estados.length > 0 ? (
+                          estados.map((estado) => (
+                            <SelectItem key={estado.id} value={estado.sigla}>
+                              {estado.sigla} - {estado.nome}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="nenhum" disabled>Nenhum estado disponível</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-red-400" />
@@ -425,11 +409,17 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-dark-light border-accent text-parchment max-h-56 overflow-y-auto">
-                        {cidadesDisponiveis.map((cidade) => (
-                          <SelectItem key={cidade} value={cidade}>
-                            {cidade}
-                          </SelectItem>
-                        ))}
+                        {carregandoCidades ? (
+                          <SelectItem value="carregando" disabled>Carregando...</SelectItem>
+                        ) : cidadesDisponiveis.length > 0 ? (
+                          cidadesDisponiveis.map((cidade) => (
+                            <SelectItem key={cidade.id} value={cidade.nome}>
+                              {cidade.nome}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="nenhuma" disabled>Nenhuma cidade disponível</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-red-400" />
