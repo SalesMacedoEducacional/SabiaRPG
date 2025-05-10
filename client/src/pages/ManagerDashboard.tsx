@@ -106,12 +106,12 @@ const ManagerDashboard: React.FC = () => {
     { 
       title: 'Escolas', 
       value: managerInfo?.hasSchool ? 1 : 0, 
-      icon: <School size={24} className="text-blue-500" /> 
+      icon: <School size={24} className="text-accent" /> 
     },
     { 
       title: 'Professores', 
       value: 0, 
-      icon: <Users size={24} className="text-green-500" /> 
+      icon: <Users size={24} className="text-secondary" /> 
     },
     { 
       title: 'Alunos', 

@@ -70,7 +70,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [estados, setEstados] = useState<Estado[]>([]);
   const [cidadesDisponiveis, setCidadesDisponiveis] = useState<Cidade[]>([]);
-  const [estadoSelecionado, setEstadoSelecionado] = useState<string>('PI');
+  const [estadoSelecionado, setEstadoSelecionado] = useState<string>('');
   const [carregandoCidades, setCarregandoCidades] = useState(false);
   const [carregandoEstados, setCarregandoEstados] = useState(true);
 
@@ -81,7 +81,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
       nome: '',
       codigo_escola: '',
       cidade: '',
-      estado: 'PI',
+      estado: '',
       tipo: undefined,
       modalidade: undefined,
       zona_geografica: undefined,
@@ -116,13 +116,6 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
         const response = await api.get('/api/estados');
         if (response.data && Array.isArray(response.data)) {
           setEstados(response.data);
-          
-          // Encontrar o estado do Piauí e selecionar por padrão
-          const estadoPiaui = response.data.find(estado => estado.id === 'PI');
-          if (estadoPiaui) {
-            setEstadoSelecionado(estadoPiaui.id);
-            form.setValue('estado', estadoPiaui.id);
-          }
         } else {
           console.error('Formato de resposta inválido para estados:', response.data);
           toast({
