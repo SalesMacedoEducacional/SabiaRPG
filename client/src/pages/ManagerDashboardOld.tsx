@@ -159,34 +159,34 @@ export default function ManagerDashboard() {
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-amber-50">DASHBOARD DO GESTOR</h1>
-          <p className="text-amber-200/90">Bem-vindo, {user?.fullName || 'Gestor de Teste'}!</p>
+          <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
+          <p className="text-gray-300">Bem-vindo, gestor!</p>
         </div>
         <div>
-          <Button className="bg-red-900 hover:bg-red-800 text-white" onClick={logout}>Sair</Button>
+          <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={logout}>Sair</Button>
         </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 bg-amber-900/20 mb-4">
+        <TabsList className="grid w-full grid-cols-4 gap-1 bg-[#231f20] mb-4">
           <TabsTrigger 
             value="overview" 
-            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            className="bg-[#3e2a18] text-gray-200 hover:text-white data-[state=active]:bg-[#a85f16] data-[state=active]:text-white py-2">
             Visão Geral
           </TabsTrigger>
           <TabsTrigger 
             value="reports" 
-            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            className="bg-[#3e2a18] text-gray-200 hover:text-white data-[state=active]:bg-[#a85f16] data-[state=active]:text-white py-2">
             Relatórios
           </TabsTrigger>
           <TabsTrigger 
             value="settings" 
-            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            className="bg-[#3e2a18] text-gray-200 hover:text-white data-[state=active]:bg-[#a85f16] data-[state=active]:text-white py-2">
             Configurações
           </TabsTrigger>
           <TabsTrigger 
             value="profile" 
-            className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-50 py-2">
+            className="bg-[#3e2a18] text-gray-200 hover:text-white data-[state=active]:bg-[#a85f16] data-[state=active]:text-white py-2">
             Meu Perfil
           </TabsTrigger>
         </TabsList>
@@ -194,55 +194,51 @@ export default function ManagerDashboard() {
         {/* Visão Geral */}
         <TabsContent value="overview">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
+            <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none text-white">
+              <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-white">
+                  Total de Escolas Vinculadas
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{schools.length}</div>
-                <p className="text-xs text-amber-200/70">
-                  {schools.filter(s => s.active).length} ativas
-                </p>
+              <CardContent className="px-4 py-0">
+                <div className="text-3xl font-bold text-white mb-1">0</div>
+                <p className="text-xs text-gray-300">0 ativas</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
+            <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none text-white">
+              <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-white">
+                  Total de Professores
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {schools.reduce((sum, school) => sum + school.teachers, 0) || 105}
-                </div>
-                <p className="text-xs text-amber-200/70">
-                  Em todas as escolas
-                </p>
+              <CardContent className="px-4 py-0">
+                <div className="text-3xl font-bold text-white mb-1">0</div>
+                <p className="text-xs text-gray-300">Em todas as escolas</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
+            <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none text-white">
+              <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-white">
+                  Total de Alunos
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {schools.reduce((sum, school) => sum + school.students, 0) || 1990}
-                </div>
-                <p className="text-xs text-amber-200/70">
-                  Em todas as escolas
-                </p>
+              <CardContent className="px-4 py-0">
+                <div className="text-3xl font-bold text-white mb-1">0</div>
+                <p className="text-xs text-gray-300">Em todas as escolas</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-amber-900/20 border-amber-900/50 text-amber-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
+            <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none text-white">
+              <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-white">
+                  Turmas Ativas
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-amber-200/70">
-                  Distribuídas em todas as escolas
-                </p>
+              <CardContent className="px-4 py-0">
+                <div className="text-3xl font-bold text-white mb-1">0</div>
+                <p className="text-xs text-gray-300">Distribuídas em todas as escolas</p>
               </CardContent>
             </Card>
           </div>
