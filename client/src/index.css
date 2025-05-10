@@ -82,6 +82,14 @@
 .gestor-button:hover {
   background-color: var(--gestor-border);
 }
+.gestor-button-action {
+  background-color: transparent;
+  color: var(--gestor-text);
+  transition: background-color 0.2s;
+}
+.gestor-button-action:hover {
+  background-color: var(--gestor-background);
+}
 .gestor-text {
   color: var(--gestor-text);
 }

@@ -146,29 +146,29 @@ export default function ManagerDashboard() {
                 <div className="gestor-text-aux text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Total de Alunos</div>
-                <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-[#C2C2C2] text-xs">Em todas as escolas</div>
+              <div className="gestor-container p-4">
+                <div className="gestor-text text-sm">Total de Alunos</div>
+                <div className="gestor-text text-4xl font-bold mt-1">0</div>
+                <div className="gestor-text-aux text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Turmas Ativas</div>
-                <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-[#C2C2C2] text-xs">Distribuídas em todas as escolas</div>
+              <div className="gestor-container p-4">
+                <div className="gestor-text text-sm">Turmas Ativas</div>
+                <div className="gestor-text text-4xl font-bold mt-1">0</div>
+                <div className="gestor-text-aux text-xs">Distribuídas em todas as escolas</div>
               </div>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-1 mb-1">
               {/* Ações Rápidas */}
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Ações Rápidas</div>
-                <div className="text-[#C2C2C2] text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
+              <div className="gestor-container p-4">
+                <div className="gestor-text text-sm">Ações Rápidas</div>
+                <div className="gestor-text-aux text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
                 
                 <div className="flex flex-col gap-1 mt-2">
                   <button 
-                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/user-registration')}
                   >
                     <User className="h-4 w-4 text-[#F08B13] mr-2" />
@@ -176,7 +176,7 @@ export default function ManagerDashboard() {
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/school-registration')}
                   >
                     <School className="h-4 w-4 text-[#F08B13] mr-2" />
@@ -184,7 +184,7 @@ export default function ManagerDashboard() {
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/class-registration')}
                   >
                     <BookOpen className="h-4 w-4 text-[#F08B13] mr-2" />
