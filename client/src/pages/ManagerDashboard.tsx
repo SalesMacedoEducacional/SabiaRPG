@@ -106,42 +106,42 @@ const ManagerDashboard: React.FC = () => {
     { 
       title: 'Escolas', 
       value: managerInfo?.hasSchool ? 1 : 0, 
-      icon: <School size={24} className="text-[#d4a76a]" /> 
+      icon: <School size={24} className="text-white" /> 
     },
     { 
       title: 'Professores', 
       value: 0, 
-      icon: <Users size={24} className="text-[#a8742a]" /> 
+      icon: <Users size={24} className="text-white" /> 
     },
     { 
       title: 'Alunos', 
       value: 0, 
-      icon: <Book size={24} className="text-[#d4a76a]" /> 
+      icon: <Book size={24} className="text-white" /> 
     },
     { 
       title: 'Turmas Ativas', 
       value: 0, 
-      icon: <BookOpen size={24} className="text-[#d4a76a]" /> 
+      icon: <BookOpen size={24} className="text-white" /> 
     },
     { 
       title: 'Alunos Ativos',
       value: 0,
-      icon: <Users size={24} className="text-[#a8742a]" />
+      icon: <Users size={24} className="text-white" />
     },
     { 
       title: 'Missões Pendentes', 
       value: 0, 
-      icon: <Clock size={24} className="text-[#d4a76a]" /> 
+      icon: <Clock size={24} className="text-white" /> 
     },
     { 
       title: 'Notificações', 
       value: 0, 
-      icon: <Bell size={24} className="text-[#a8742a]" /> 
+      icon: <Bell size={24} className="text-white" /> 
     },
     { 
       title: 'Alertas de Evasão', 
       value: 0, 
-      icon: <AlertCircle size={24} className="text-[#d4a76a]" />,
+      icon: <AlertCircle size={24} className="text-white" />,
       status: 'warning'
     }
   ];
@@ -154,8 +154,8 @@ const ManagerDashboard: React.FC = () => {
   
   if (isLoading || isManagerLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center h-screen bg-[#231f20] text-white">
+        <div className="w-16 h-16 border-4 border-[#a85f16] border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-lg">Carregando dashboard...</p>
       </div>
     );
@@ -163,11 +163,11 @@ const ManagerDashboard: React.FC = () => {
   
   if (managerError) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <AlertCircle size={64} className="text-[#d4a76a] mb-4" />
+      <div className="flex flex-col items-center justify-center h-screen bg-[#231f20] text-white">
+        <AlertCircle size={64} className="text-[#a85f16] mb-4" />
         <h2 className="text-2xl font-bold mb-2">Erro ao carregar dashboard</h2>
-        <p className="text-gray-600 mb-4">Não foi possível carregar as informações do gestor.</p>
-        <Button onClick={() => navigate("/auth")}>Voltar para Login</Button>
+        <p className="text-gray-400 mb-4">Não foi possível carregar as informações do gestor.</p>
+        <Button onClick={() => navigate("/auth")} className="bg-[#3e2a18] hover:bg-[#a85f16] text-white">Voltar para Login</Button>
       </div>
     );
   }
