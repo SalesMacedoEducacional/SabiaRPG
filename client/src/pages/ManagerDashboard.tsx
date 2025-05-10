@@ -491,34 +491,34 @@ export default function ManagerDashboard() {
                     </div>
                     
                     <div>
-                      <label className="text-gray-400 text-xs block mb-1">Período Letivo</label>
-                      <select className="w-full bg-[#2a2526] text-white text-sm p-2 border border-[#4b321c]">
+                      <label className="text-[#C2C2C2] text-xs block mb-1">Período Letivo</label>
+                      <select className="w-full bg-[#1A110B] text-white text-sm p-2 border border-[#D47C06]">
                         <option value="2025_1">1º Semestre 2025</option>
                         <option value="2025_2">2º Semestre 2025</option>
                       </select>
-                      <p className="text-xs text-gray-500 mt-1">Período letivo atual para cálculos de relatórios</p>
+                      <p className="text-xs text-[#C2C2C2]/70 mt-1">Período letivo atual para cálculos de relatórios</p>
                     </div>
                     
-                    <div className="pt-4 border-t border-[#4b321c]">
+                    <div className="pt-4 border-t border-[#D47C06]">
                       <h5 className="text-white text-sm font-medium mb-3">Configurações de Notificações</h5>
                       
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-gray-300 text-sm">Receber alertas de evasão</label>
-                        <div className="w-10 h-5 bg-[#4b321c] rounded-full relative">
+                        <label className="text-[#C2C2C2] text-sm">Receber alertas de evasão</label>
+                        <div className="w-10 h-5 bg-[#1A110B] rounded-full relative border border-[#D47C06]">
                           <div className="w-4 h-4 absolute bg-white rounded-full left-0.5 top-0.5"></div>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-gray-300 text-sm">Notificações de novos relatórios</label>
-                        <div className="w-10 h-5 bg-[#a85f16] rounded-full relative">
+                        <label className="text-[#C2C2C2] text-sm">Notificações de novos relatórios</label>
+                        <div className="w-10 h-5 bg-[#F08B13] rounded-full relative border border-[#D47C06]">
                           <div className="w-4 h-4 absolute bg-white rounded-full right-0.5 top-0.5"></div>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <label className="text-gray-300 text-sm">Resumo semanal via e-mail</label>
-                        <div className="w-10 h-5 bg-[#a85f16] rounded-full relative">
+                        <label className="text-[#C2C2C2] text-sm">Resumo semanal via e-mail</label>
+                        <div className="w-10 h-5 bg-[#F08B13] rounded-full relative border border-[#D47C06]">
                           <div className="w-4 h-4 absolute bg-white rounded-full right-0.5 top-0.5"></div>
                         </div>
                       </div>
@@ -531,7 +531,7 @@ export default function ManagerDashboard() {
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="bg-[#33261B] p-4">
+            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
               <ManagerProfile userId={user?.id ? String(user.id) : ''} />
             </div>
           </TabsContent>
