@@ -227,27 +227,27 @@ export default function ManagerDashboard() {
     });
   };
   
-  // Estilo personalizado para o tema medieval com cores âmbar/marrom
+  // Estilo personalizado para o tema medieval com cores escuras
   const styles = {
-    container: "min-h-screen bg-[#1E1711] text-amber-50",
+    container: "min-h-screen bg-[#231f20] text-white",
     header: "px-4 py-4 mb-4",
-    heading: "text-3xl font-bold text-amber-50",
-    subheading: "text-amber-200/80",
+    heading: "text-2xl font-bold text-white",
+    subheading: "text-gray-300",
     mainTabs: "px-4",
-    tabsList: "grid grid-cols-4 bg-[#3b2b1a] rounded-md p-[2px] mb-6",
-    tabsTrigger: "py-2 text-center text-amber-50 hover:bg-amber-900/30 rounded-md data-[state=active]:bg-amber-800 data-[state=active]:text-amber-50",
+    tabsList: "grid grid-cols-4 gap-1 bg-[#231f20] mb-6",
+    tabsTrigger: "bg-[#3e2a18] py-2 text-center text-gray-200 hover:text-white rounded-sm data-[state=active]:bg-[#a85f16] data-[state=active]:text-white",
     statsGrid: "grid grid-cols-4 gap-4 mb-6",
-    statsCard: "bg-[#2b1e13] border border-amber-900/50 rounded-md p-4",
-    statTitle: "text-sm text-amber-200 font-medium mb-2",
-    statValue: "text-3xl font-bold",
-    statSubtext: "text-xs text-amber-200/60 mt-1",
+    statsCard: "bg-[#3e2a18] border-none rounded-sm p-4 shadow-none",
+    statTitle: "text-sm font-medium text-white mb-2",
+    statValue: "text-3xl font-bold text-white",
+    statSubtext: "text-xs text-gray-300 mt-1",
     actionGrid: "grid grid-cols-3 gap-4 mb-6",
-    mediumCard: "bg-[#2b1e13] border border-amber-900/50 rounded-md p-4 col-span-1",
-    largeCard: "bg-[#2b1e13] border border-amber-900/50 rounded-md p-4 col-span-2",
-    cardTitle: "text-amber-200 font-medium mb-2",
+    mediumCard: "bg-[#3e2a18] border-none rounded-sm p-4 col-span-1 shadow-none",
+    largeCard: "bg-[#3e2a18] border-none rounded-sm p-4 col-span-2 shadow-none",
+    cardTitle: "text-white font-medium mb-2",
     cardContent: "mt-2",
-    actionButton: "bg-amber-800 hover:bg-amber-700 text-amber-50 mt-2 w-full py-4 flex items-center justify-center gap-2",
-    iconWrapper: "bg-amber-900/40 p-3 rounded-md",
+    actionButton: "bg-[#3e2a18] hover:bg-[#a85f16] text-white border-none mt-2 w-full py-4 flex items-center justify-center gap-2",
+    iconWrapper: "bg-[#3e2a18]/40 p-3 rounded-md",
     detailsGrid: "grid grid-cols-2 gap-4 mb-6",
     schoolsList: "space-y-4",
     schoolItem: "border-b border-amber-900/30 pb-4 last:border-b-0",
@@ -277,9 +277,13 @@ export default function ManagerDashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className={styles.heading}>DASHBOARD DO GESTOR</h1>
-            <p className={styles.subheading}>Bem-vindo, {user?.fullName || 'Gestor de Teste'}!</p>
+            <p className={styles.subheading}>Bem-vindo, gestor!</p>
           </div>
-          <Button className="bg-red-800 hover:bg-red-700 text-white" onClick={logout}>
+          <Button 
+            variant="destructive"
+            className="flex items-center gap-2 bg-red-600 text-white hover:bg-red-700"
+            onClick={logout}
+          >
             Sair
           </Button>
         </div>
@@ -305,29 +309,29 @@ export default function ManagerDashboard() {
           
           {/* Conteúdo da aba Visão Geral */}
           <TabsContent value="overview">
-            {/* Cards de estatísticas gerais */}
+            {/* Cards de estatísticas gerais - exatamente como na imagem */}
             <div className={styles.statsGrid}>
               <div className={styles.statsCard}>
                 <div className={styles.statTitle}>Total de Escolas Vinculadas</div>
-                <div className={styles.statValue}>{stats.totalSchools}</div>
-                <div className={styles.statSubtext}>{stats.activeSchools} ativas</div>
+                <div className={styles.statValue}>0</div>
+                <div className={styles.statSubtext}>0 ativas</div>
               </div>
               
               <div className={styles.statsCard}>
                 <div className={styles.statTitle}>Total de Professores</div>
-                <div className={styles.statValue}>{stats.totalTeachers}</div>
+                <div className={styles.statValue}>0</div>
                 <div className={styles.statSubtext}>Em todas as escolas</div>
               </div>
               
               <div className={styles.statsCard}>
                 <div className={styles.statTitle}>Total de Alunos</div>
-                <div className={styles.statValue}>{stats.totalStudents}</div>
+                <div className={styles.statValue}>0</div>
                 <div className={styles.statSubtext}>Em todas as escolas</div>
               </div>
               
               <div className={styles.statsCard}>
                 <div className={styles.statTitle}>Turmas Ativas</div>
-                <div className={styles.statValue}>{stats.activeClasses}</div>
+                <div className={styles.statValue}>0</div>
                 <div className={styles.statSubtext}>Distribuídas em todas as escolas</div>
               </div>
             </div>
@@ -339,36 +343,31 @@ export default function ManagerDashboard() {
                 <div className={styles.cardTitle}>Ações Rápidas</div>
                 <div className={styles.statSubtext}>Acesso direto às principais tarefas administrativas</div>
                 
-                <div className="grid grid-cols-2 gap-2 mt-3">
+                <div className="mt-3">
                   <Button
                     variant="outline"
                     onClick={handleNewUser}
-                    className="bg-amber-900/30 hover:bg-amber-800 text-amber-50 flex flex-col items-center p-4 h-auto"
+                    className="w-full mb-2 bg-[#3e2a18] hover:bg-[#a85f16] text-white flex items-center justify-center gap-2 py-3"
                   >
-                    <div className="mb-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-200">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <line x1="19" x2="19" y1="8" y2="14" />
-                        <line x1="22" x2="16" y1="11" y2="11" />
-                      </svg>
-                    </div>
-                    <span className="text-xs">Cadastrar Novo Usuário</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <line x1="19" x2="19" y1="8" y2="14" />
+                      <line x1="22" x2="16" y1="11" y2="11" />
+                    </svg>
+                    <span>Cadastrar Novo Usuário</span>
                   </Button>
                   
                   <Button
                     variant="outline"
                     onClick={handleNewSchool}
-                    className="bg-amber-900/30 hover:bg-amber-800 text-amber-50 flex flex-col items-center p-4 h-auto"
+                    className="w-full mb-2 bg-[#3e2a18] hover:bg-[#a85f16] text-white flex items-center justify-center gap-2 py-3"
                   >
-                    <div className="mb-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-200">
-                        <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
-                        <path d="m19 5-5 5" />
-                        <path d="m16 8 3-3" />
-                      </svg>
-                    </div>
-                    <span className="text-xs">Cadastrar Nova Escola</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Cadastrar Nova Escola</span>
                   </Button>
                   
                   <Button
