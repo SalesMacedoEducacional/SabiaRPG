@@ -51,20 +51,28 @@ export function registerLocationRoutes(app: Express) {
       
       // Se o id fornecido não é uma sigla de estado de 2 caracteres, tratamos como erro
       if (estadoId.length !== 2) {
-        // Verificamos se existe um estado com esse ID
-        const { data: estadoExiste, error: estadoErro } = await supabase
-          .from('estados')
-          .select('id')
-          .eq('id', estadoId.toUpperCase())
-          .maybeSingle();
-          
-        if (estadoErro || !estadoExiste) {
-          return res.status(400).json({ message: 'ID de estado inválido ou não encontrado' });
-        }
+        return res.status(400).json({ message: 'ID de estado inválido - deve ser a sigla de 2 caracteres' });
       }
       
       // Converter para maiúsculo para garantir consistência
       estadoId = estadoId.toUpperCase();
+      
+      // Verificar se o estado existe
+      const { data: estado, error: estadoError } = await supabase
+        .from('estados')
+        .select('id')
+        .eq('id', estadoId)
+        .maybeSingle();
+      
+      if (estadoError) {
+        console.error('Erro ao buscar estado:', estadoError);
+        return res.status(500).json({ message: 'Erro ao buscar estado', error: estadoError.message });
+      }
+      
+      if (!estado) {
+        console.log(`Estado com sigla ${estadoId} não encontrado`);
+        return res.status(404).json({ message: 'Estado não encontrado' });
+      }
       
       // Buscar cidades do estado ordenadas por nome
       const { data: cidades, error: cidadesError } = await supabase
@@ -78,6 +86,7 @@ export function registerLocationRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesError.message });
       }
       
+      console.log(`Encontradas ${cidades?.length || 0} cidades para o estado ${estadoId}`);
       return res.status(200).json(cidades);
     } catch (error) {
       console.error('Erro ao processar requisição de cidades:', error);
@@ -106,8 +115,13 @@ export function registerLocationRoutes(app: Express) {
         .eq('id', estadoId)
         .maybeSingle();
       
-      if (estadoError || !estado) {
-        console.error('Erro ao buscar estado por sigla:', estadoError || 'Estado não encontrado');
+      if (estadoError) {
+        console.error('Erro ao buscar estado por sigla:', estadoError);
+        return res.status(500).json({ message: 'Erro ao buscar estado', error: estadoError.message });
+      }
+      
+      if (!estado) {
+        console.log(`Estado com sigla ${estadoId} não encontrado`);
         return res.status(404).json({ message: 'Estado não encontrado' });
       }
       
@@ -123,6 +137,7 @@ export function registerLocationRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesError.message });
       }
       
+      console.log(`Encontradas ${cidades?.length || 0} cidades para o estado ${estadoId}`);
       return res.status(200).json(cidades);
     } catch (error) {
       console.error('Erro ao processar requisição de cidades por sigla:', error);
