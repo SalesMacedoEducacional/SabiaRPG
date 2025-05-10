@@ -241,10 +241,10 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
   };
 
   return (
-    <Card className="w-full bg-dark-light border-primary">
-      <CardHeader>
-        <CardTitle className="text-accent font-medieval">Cadastro de Escola</CardTitle>
-        <CardDescription className="text-parchment-dark">
+    <Card className="w-full bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+      <CardHeader className="px-4 py-3">
+        <CardTitle className="text-white text-lg">Cadastro de Escola</CardTitle>
+        <CardDescription className="text-gray-400">
           Preencha os dados abaixo para cadastrar a sua escola. Todos os campos são obrigatórios.
         </CardDescription>
       </CardHeader>
@@ -257,11 +257,11 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="nome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-parchment">Nome da Escola</FormLabel>
+                    <FormLabel className="text-white">Nome da Escola</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Nome completo da escola" 
-                        className="bg-dark-dark border-accent placeholder:text-slate-500 text-parchment"
+                        className="bg-[#3e2a18] border-none text-white placeholder:text-gray-400 focus:ring-1 focus:ring-[#a85f16]"
                         {...field} 
                       />
                     </FormControl>
@@ -293,17 +293,17 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="tipo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-parchment">Tipo de Escola</FormLabel>
+                    <FormLabel className="text-white">Tipo de Escola</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-dark-dark border-accent text-parchment">
+                        <SelectTrigger className="bg-[#3e2a18] border-none text-white">
                           <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-dark-light border-accent text-parchment">
+                      <SelectContent className="bg-[#231f20] border border-[#3e2a18] text-white">
                         <SelectItem value="estadual">Estadual</SelectItem>
                         <SelectItem value="municipal">Municipal</SelectItem>
                         <SelectItem value="particular">Particular</SelectItem>
@@ -506,7 +506,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
             
             <Button 
               type="submit" 
-              className="w-full bg-accent hover:bg-accent/90 text-dark font-bold hover:text-dark-dark" 
+              className="w-full bg-[#a85f16] hover:bg-[#a85f16]/80 text-white border-none" 
               disabled={isSubmitting}
             >
               {isSubmitting ? (
