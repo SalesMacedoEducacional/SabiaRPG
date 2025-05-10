@@ -55,7 +55,7 @@ interface ManagerSchoolRegistrationProps {
 // Mapa de estados brasileiros e suas cidades
 // Interfaces para os dados da API de estados e cidades
 interface Estado {
-  id: number;
+  id: string; // id é a sigla do estado (ex: 'PI')
   sigla: string;
   nome: string;
 }
@@ -118,10 +118,10 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
           setEstados(response.data);
           
           // Encontrar o estado do Piauí e selecionar por padrão
-          const estadoPiaui = response.data.find(estado => estado.sigla === 'PI');
+          const estadoPiaui = response.data.find(estado => estado.id === 'PI');
           if (estadoPiaui) {
-            setEstadoSelecionado(estadoPiaui.sigla);
-            form.setValue('estado', estadoPiaui.sigla);
+            setEstadoSelecionado(estadoPiaui.id);
+            form.setValue('estado', estadoPiaui.id);
           }
         } else {
           console.error('Formato de resposta inválido para estados:', response.data);
@@ -372,7 +372,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                           <SelectItem value="carregando" disabled>Carregando...</SelectItem>
                         ) : estados.length > 0 ? (
                           estados.map((estado) => (
-                            <SelectItem key={estado.id} value={estado.sigla}>
+                            <SelectItem key={estado.id} value={estado.id}>
                               {estado.sigla} - {estado.nome}
                             </SelectItem>
                           ))
