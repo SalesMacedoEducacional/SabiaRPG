@@ -116,27 +116,27 @@ const ManagerDashboard: React.FC = () => {
     { 
       title: 'Alunos', 
       value: 0, 
-      icon: <Book size={24} className="text-yellow-500" /> 
+      icon: <Book size={24} className="text-primary" /> 
     },
     { 
       title: 'Turmas Ativas', 
       value: 0, 
-      icon: <BookOpen size={24} className="text-purple-500" /> 
+      icon: <BookOpen size={24} className="text-tertiary" /> 
     },
     { 
       title: 'Alunos Ativos',
       value: 0,
-      icon: <Users size={24} className="text-indigo-500" />
+      icon: <Users size={24} className="text-secondary" />
     },
     { 
       title: 'Missões Pendentes', 
       value: 0, 
-      icon: <Clock size={24} className="text-orange-500" /> 
+      icon: <Clock size={24} className="text-tertiary" /> 
     },
     { 
       title: 'Notificações', 
       value: 0, 
-      icon: <Bell size={24} className="text-pink-500" /> 
+      icon: <Bell size={24} className="text-primary" /> 
     },
     { 
       title: 'Alertas de Evasão', 
@@ -155,7 +155,7 @@ const ManagerDashboard: React.FC = () => {
   if (isLoading || isManagerLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-lg">Carregando dashboard...</p>
       </div>
     );
