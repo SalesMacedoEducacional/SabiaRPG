@@ -35,6 +35,7 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerSchoolRoutes } from "./schoolRoutes";
 import { registerClassRoutes } from "./classRoutes";
 import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
+import { registerLocationRoutes } from "./locationRoutes";
 import { getUserAdminRoutes } from "./userAdminApi";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
