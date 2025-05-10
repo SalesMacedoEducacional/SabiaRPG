@@ -20,6 +20,17 @@
   --border: 35 23% 27%;
   --input: 35 23% 27%;
   
+  /* Paleta do Dashboard do Gestor */
+  --gestor-background: #100B09;
+  --gestor-container: #1A110B;
+  --gestor-border: #D47C06;
+  --gestor-button: #F08B13;
+  --gestor-tab-active: #0D0D0D;
+  --gestor-tab-inactive: #1A110B;
+  --gestor-text: #FFFFFF;
+  --gestor-text-aux: #C2C2C2;
+  --gestor-input: #2B3A55;
+  
   --primary: 30 45% 37%;
   --primary-light: 30 32% 49%;
   --primary-dark: 30 45% 29%;
@@ -49,6 +60,33 @@
   --dark: 30 10% 16%;
   --dark-light: 30 10% 22%;
   --dark-dark: 30 10% 10%;
+}
+
+/* Classes de utilidade para o Dashboard do Gestor */
+.gestor-bg {
+  background-color: var(--gestor-background);
+}
+.gestor-container {
+  background-color: var(--gestor-container);
+  border: 1px solid var(--gestor-border);
+}
+.gestor-button {
+  background-color: var(--gestor-button);
+  color: var(--gestor-text);
+}
+.gestor-button:hover {
+  background-color: var(--gestor-border);
+}
+.gestor-text {
+  color: var(--gestor-text);
+}
+.gestor-text-aux {
+  color: var(--gestor-text-aux);
+}
+.gestor-input {
+  background-color: var(--gestor-input);
+  color: var(--gestor-text);
+  border: 1px solid var(--gestor-border);
 }
 
 .dark {

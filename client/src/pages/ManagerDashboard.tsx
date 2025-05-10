@@ -67,13 +67,13 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-[#100B09]">
+    <div className="min-h-screen gestor-bg">
       {/* Header */}
-      <header className="bg-[#100B09] border-b border-[#D47C06] shadow-md">
+      <header className="gestor-bg border-b border-[#D47C06] shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
-            <p className="text-[#C2C2C2] text-sm">
+            <h1 className="text-2xl font-bold gestor-text">DASHBOARD DO GESTOR</h1>
+            <p className="gestor-text-aux text-sm">
               Bem-vindo, gestor!
             </p>
           </div>
