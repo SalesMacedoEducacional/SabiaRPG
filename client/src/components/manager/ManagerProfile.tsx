@@ -104,35 +104,35 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex justify-center items-center p-8 bg-[#231f20] text-white">
+        <Loader2 className="h-8 w-8 animate-spin text-[#a85f16]" />
       </div>
     );
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Meu Perfil</CardTitle>
-        <CardDescription>
+    <Card className="w-full bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+      <CardHeader className="px-4 py-3">
+        <CardTitle className="text-white text-lg">Meu Perfil</CardTitle>
+        <CardDescription className="text-gray-400">
           Visualize e edite as informações do seu perfil.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <div className="grid gap-6">
           {/* Informações não editáveis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">CPF</h3>
-              <p className="text-base">{userProfile?.cpf || 'Não informado'}</p>
+              <h3 className="text-sm font-medium text-gray-400">CPF</h3>
+              <p className="text-base text-white">{userProfile?.cpf || 'Não informado'}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Papel no Sistema</h3>
-              <p className="text-base capitalize">{userProfile?.papel || 'Não definido'}</p>
+              <h3 className="text-sm font-medium text-gray-400">Papel no Sistema</h3>
+              <p className="text-base text-white capitalize">{userProfile?.papel || 'Não definido'}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Data de Criação</h3>
-              <p className="text-base">
+              <h3 className="text-sm font-medium text-gray-400">Data de Criação</h3>
+              <p className="text-base text-white">
                 {userProfile?.criadoEm 
                   ? new Date(userProfile.criadoEm).toLocaleDateString('pt-BR') 
                   : 'Não informada'}
@@ -140,8 +140,8 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
             </div>
           </div>
           
-          <div className="border-t pt-4 mt-2">
-            <h3 className="text-lg font-medium mb-4">Editar Informações</h3>
+          <div className="border-t border-[#3e2a18] pt-4 mt-2">
+            <h3 className="text-lg font-medium mb-4 text-white">Editar Informações</h3>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -150,16 +150,24 @@ export default function ManagerProfile({ userId }: ManagerProfileProps) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-white">Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="seu@email.com" {...field} />
+                        <Input 
+                          placeholder="seu@email.com" 
+                          {...field} 
+                          className="bg-[#3e2a18] border-none text-white placeholder:text-gray-400 focus:ring-1 focus:ring-[#a85f16]"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
                 
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#a85f16] hover:bg-[#a85f16]/80 text-white border-none" 
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
