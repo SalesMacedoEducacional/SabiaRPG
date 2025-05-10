@@ -173,21 +173,19 @@ const ManagerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#1c1917]">
+    <div className="min-h-screen bg-[#231f20]">
       {/* Header */}
-      <header className="bg-[#292524] border-b border-[#a8742a] shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+      <header className="bg-[#231f20] border-b border-[#a85f16] shadow">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold font-medieval text-[#d4a76a]">Dashboard do Gestor</h1>
-            <p className="text-[#f5f5dc]">
-              {managerInfo?.hasSchool 
-                ? `Escola: ${managerInfo?.schoolName}` 
-                : 'Nenhuma escola vinculada'}
+            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
+            <p className="text-gray-300">
+              Bem-vindo, gestor!
             </p>
           </div>
           <Button 
-            variant="outline"
-            className="flex items-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]"
+            variant="destructive"
+            className="flex items-center gap-2 bg-red-600 text-white hover:bg-red-700"
             onClick={handleLogout}
           >
             <LogOut size={16} />
@@ -197,22 +195,22 @@ const ManagerDashboard: React.FC = () => {
       </header>
       
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8 grid grid-cols-4 gap-4 bg-[#292524]">
-            <TabsTrigger value="general" className="flex items-center gap-2 data-[state=active]:bg-[#d4a76a] data-[state=active]:text-[#1c1917] font-medieval">
+          <TabsList className="mb-4 grid grid-cols-4 gap-1 bg-[#231f20]">
+            <TabsTrigger value="general" className="flex items-center gap-2 data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-200 hover:text-white bg-[#3e2a18]">
               <Home size={16} />
               Visão Geral
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2 data-[state=active]:bg-[#d4a76a] data-[state=active]:text-[#1c1917] font-medieval">
+            <TabsTrigger value="reports" className="flex items-center gap-2 data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-200 hover:text-white bg-[#3e2a18]">
               <FileBarChart2 size={16} />
               Relatórios
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-[#d4a76a] data-[state=active]:text-[#1c1917] font-medieval">
+            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-200 hover:text-white bg-[#3e2a18]">
               <Settings size={16} />
               Configurações
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-[#d4a76a] data-[state=active]:text-[#1c1917] font-medieval">
+            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-200 hover:text-white bg-[#3e2a18]">
               <User size={16} />
               Meu Perfil
             </TabsTrigger>
@@ -220,112 +218,146 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Tab 1: Visão Geral */}
           <TabsContent value="general">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {dashboardStats.map((stat, index) => (
-                <Card key={index} className={`bg-[#292524] border-[#a8742a]
-                  ${stat.status === 'warning' ? 'border-l-4 border-l-[#d4a76a]' : ''}
-                  ${stat.status === 'danger' ? 'border-l-4 border-l-[#a8742a]' : ''}
-                  ${stat.status === 'success' ? 'border-l-4 border-l-[#d4a76a]' : ''}
-                `}>
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium font-medieval text-[#d4a76a]">
-                      {stat.title}
-                    </CardTitle>
-                    <div className="text-[#d4a76a]">
-                      {stat.icon}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-[#f5f5dc]">{stat.value}</div>
-                    {stat.change && (
-                      <p className={`
-                        text-xs mt-1 font-medieval
-                        ${stat.change.startsWith('+') ? 'text-[#d4a76a]' : ''}
-                        ${stat.change.startsWith('-') ? 'text-[#a8742a]' : ''}
-                      `}>
-                        {stat.change} desde último mês
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <Card className="bg-[#292524] border-[#a8742a]">
-                <CardHeader>
-                  <CardTitle className="text-[#d4a76a] font-medieval">Atividades Recentes</CardTitle>
-                  <CardDescription className="text-[#d0c8be]">
-                    Últimas atividades registradas na plataforma
-                  </CardDescription>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+              <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none">
+                <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Total de Escolas Vinculadas
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <p className="text-[#d0c8be] text-center py-6">
-                      Nenhuma atividade recente encontrada.
-                    </p>
-                  </div>
+                <CardContent className="px-4 py-0">
+                  <div className="text-3xl font-bold text-white mb-1">1</div>
+                  <p className="text-xs text-gray-300">escolas</p>
                 </CardContent>
               </Card>
               
-              <Card className="bg-[#292524] border-[#a8742a]">
-                <CardHeader>
-                  <CardTitle className="text-[#d4a76a] font-medieval">Ações Rápidas</CardTitle>
-                  <CardDescription className="text-[#d0c8be]">
-                    Acesso rápido às principais funcionalidades
-                  </CardDescription>
+              <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none">
+                <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Total de Professores
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button 
-                      className="w-full border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
-                      variant="outline" 
-                      onClick={() => setActiveTab("school-registration")}
-                    >
-                      <School className="mr-2 h-4 w-4" />
-                      Gerenciar Escola
-                    </Button>
-                    <Button 
-                      className="w-full border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
-                      variant="outline" 
-                      onClick={() => setActiveTab("user-registration")}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Gerenciar Usuários
-                    </Button>
-                    <Button 
-                      className="w-full border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
-                      variant="outline" 
-                      onClick={() => setActiveTab("class-registration")}
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Gerenciar Turmas
-                    </Button>
-                    <Button 
-                      className="w-full border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
-                      variant="outline" 
-                      onClick={() => setActiveTab("components-registration")}
-                    >
-                      <Book className="mr-2 h-4 w-4" />
-                      Gerenciar Componentes
-                    </Button>
-                  </div>
+                <CardContent className="px-4 py-0">
+                  <div className="text-3xl font-bold text-white mb-1">0</div>
+                  <p className="text-xs text-gray-300">sem dados no momento</p>
                 </CardContent>
               </Card>
+              
+              <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none">
+                <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Total de Alunos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 py-0">
+                  <div className="text-3xl font-bold text-white mb-1">0</div>
+                  <p className="text-xs text-gray-300">sem dados no momento</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-[#3e2a18] border-none rounded-sm shadow-none">
+                <CardHeader className="px-4 py-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Turmas Ativas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 py-0">
+                  <div className="text-3xl font-bold text-white mb-1">0</div>
+                  <p className="text-xs text-gray-300">sem turmas em atividade</p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+                <CardHeader className="px-4 py-3">
+                  <CardTitle className="text-white text-lg">Ações Rápidas</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Acesso às principais tarefas administrativas
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 grid grid-cols-2 gap-2">
+                  <Button 
+                    className="w-full bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
+                    variant="outline" 
+                    onClick={() => setActiveTab("school-registration")}
+                  >
+                    <School className="mr-2 h-4 w-4" />
+                    Cadastrar Nova Escola
+                  </Button>
+                  <Button 
+                    className="w-full bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
+                    variant="outline" 
+                    onClick={() => setActiveTab("user-registration")}
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    Cadastrar Novo Usuário
+                  </Button>
+                  <Button 
+                    className="w-full bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
+                    variant="outline" 
+                    onClick={() => setActiveTab("class-registration")}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Gerenciar Turmas
+                  </Button>
+                  <Button 
+                    className="w-full bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
+                    variant="outline" 
+                    onClick={() => setActiveTab("components-registration")}
+                  >
+                    <Book className="mr-2 h-4 w-4" />
+                    Gerenciar Componentes
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <div className="space-y-3">
+                <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+                  <CardHeader className="px-4 py-3">
+                    <CardTitle className="text-white text-lg">Alunos Ativos na Plataforma</CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 py-0 pb-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">0</div>
+                      <p className="text-xs text-gray-300">Últimos 7 dias</p>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">0</div>
+                      <p className="text-xs text-gray-300">Últimos 30 dias</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+                  <CardHeader className="px-4 py-3">
+                    <CardTitle className="text-white text-lg flex items-center">
+                      Alerta de Evasão Potencial
+                      <div className="ml-2 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-[10px] text-white">0</div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <p className="text-xs text-gray-300">Alunos com mais de 30 dias sem acesso</p>
+                    <Button className="w-full mt-2 bg-[#a85f16] hover:bg-[#a85f16]/80 text-white border-none">
+                      Ver Lista
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
           
           {/* Tab 2: Relatórios */}
           <TabsContent value="reports">
-            <Card className="bg-[#292524] border-[#a8742a]">
-              <CardHeader>
-                <CardTitle className="text-[#d4a76a] font-medieval">Relatórios</CardTitle>
-                <CardDescription className="text-[#d0c8be]">
+            <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+              <CardHeader className="px-4 py-3">
+                <CardTitle className="text-white text-lg">Relatórios</CardTitle>
+                <CardDescription className="text-gray-400">
                   Gere relatórios detalhados sobre o desempenho da escola, turmas e alunos
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-[#d0c8be] py-6 text-center">
+              <CardContent className="p-4">
+                <p className="text-gray-300 py-6 text-center">
                   Funcionalidade de relatórios em desenvolvimento.
                 </p>
               </CardContent>
@@ -334,19 +366,18 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Tab 3: Configurações */}
           <TabsContent value="settings">
-            <div className="grid grid-cols-1 gap-6">
-              <Card className="mb-6 bg-[#292524] border-[#a8742a]">
-                <CardHeader>
-                  <CardTitle className="text-[#d4a76a] font-medieval">Configurações</CardTitle>
-                  <CardDescription className="text-[#d0c8be]">
+            <div className="grid grid-cols-1 gap-4">
+              <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+                <CardHeader className="px-4 py-3">
+                  <CardTitle className="text-white text-lg">Configurações</CardTitle>
+                  <CardDescription className="text-gray-400">
                     Gerenciamento de usuários, turmas, componentes e outras configurações
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
                       onClick={() => setActiveTab("school-registration")}
                     >
                       <School className="h-8 w-8" />
@@ -354,8 +385,7 @@ const ManagerDashboard: React.FC = () => {
                     </Button>
                     
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
                       onClick={() => setActiveTab("user-registration")}
                     >
                       <Users className="h-8 w-8" />
@@ -363,8 +393,7 @@ const ManagerDashboard: React.FC = () => {
                     </Button>
                     
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
                       onClick={() => setActiveTab("class-registration")}
                     >
                       <BookOpen className="h-8 w-8" />
@@ -372,8 +401,7 @@ const ManagerDashboard: React.FC = () => {
                     </Button>
                     
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] hover:bg-[#d4a76a] hover:text-[#1c1917]" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16]" 
                       onClick={() => setActiveTab("components-registration")}
                     >
                       <Book className="h-8 w-8" />
@@ -381,8 +409,7 @@ const ManagerDashboard: React.FC = () => {
                     </Button>
                     
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] opacity-50" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16] opacity-50" 
                       disabled
                     >
                       <FileBarChart2 className="h-8 w-8" />
@@ -390,8 +417,7 @@ const ManagerDashboard: React.FC = () => {
                     </Button>
                     
                     <Button 
-                      variant="outline" 
-                      className="h-24 flex flex-col items-center justify-center gap-2 border-[#d4a76a] text-[#d4a76a] opacity-50" 
+                      className="h-24 flex flex-col items-center justify-center gap-2 bg-[#3e2a18] border-none text-white hover:bg-[#a85f16] opacity-50" 
                       disabled
                     >
                       <Settings className="h-8 w-8" />
@@ -425,15 +451,15 @@ const ManagerDashboard: React.FC = () => {
           
           {/* Espaços reservados para as outras telas - serão implementadas posteriormente */}
           <TabsContent value="user-registration">
-            <Card className="bg-[#292524] border-[#a8742a]">
-              <CardHeader>
-                <CardTitle className="text-[#d4a76a] font-medieval">Cadastro de Novos Usuários</CardTitle>
-                <CardDescription className="text-[#d0c8be]">
+            <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+              <CardHeader className="px-4 py-3">
+                <CardTitle className="text-white text-lg">Cadastro de Novos Usuários</CardTitle>
+                <CardDescription className="text-gray-400">
                   Formulário para cadastro de alunos, professores e gestores
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-[#d0c8be] py-6 text-center">
+              <CardContent className="p-4">
+                <p className="text-gray-300 py-6 text-center">
                   Formulário de cadastro de usuários em construção.
                 </p>
               </CardContent>
@@ -441,15 +467,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="class-registration">
-            <Card className="bg-[#292524] border-[#a8742a]">
-              <CardHeader>
-                <CardTitle className="text-[#d4a76a] font-medieval">Gerenciamento de Turmas</CardTitle>
-                <CardDescription className="text-[#d0c8be]">
+            <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+              <CardHeader className="px-4 py-3">
+                <CardTitle className="text-white text-lg">Gerenciamento de Turmas</CardTitle>
+                <CardDescription className="text-gray-400">
                   Cadastro e gestão de turmas da escola
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-[#d0c8be] py-6 text-center">
+              <CardContent className="p-4">
+                <p className="text-gray-300 py-6 text-center">
                   Formulário de cadastro de turmas em construção.
                 </p>
               </CardContent>
@@ -457,15 +483,15 @@ const ManagerDashboard: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="components-registration">
-            <Card className="bg-[#292524] border-[#a8742a]">
-              <CardHeader>
-                <CardTitle className="text-[#d4a76a] font-medieval">Gerenciamento de Componentes Curriculares</CardTitle>
-                <CardDescription className="text-[#d0c8be]">
+            <Card className="bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
+              <CardHeader className="px-4 py-3">
+                <CardTitle className="text-white text-lg">Gerenciamento de Componentes Curriculares</CardTitle>
+                <CardDescription className="text-gray-400">
                   Cadastro e gestão de componentes curriculares
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-[#d0c8be] py-6 text-center">
+              <CardContent className="p-4">
+                <p className="text-gray-300 py-6 text-center">
                   Formulário de cadastro de componentes em construção.
                 </p>
               </CardContent>
