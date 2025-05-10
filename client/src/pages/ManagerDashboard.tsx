@@ -134,41 +134,41 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-1 mb-1">
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Total de Escolas Vinculadas</div>
                 <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-gray-400 text-xs">0 ativas</div>
+                <div className="text-[#C2C2C2] text-xs">0 ativas</div>
               </div>
               
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Total de Professores</div>
                 <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-gray-400 text-xs">Em todas as escolas</div>
+                <div className="text-[#C2C2C2] text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Total de Alunos</div>
                 <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-gray-400 text-xs">Em todas as escolas</div>
+                <div className="text-[#C2C2C2] text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Turmas Ativas</div>
                 <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-gray-400 text-xs">Distribuídas em todas as escolas</div>
+                <div className="text-[#C2C2C2] text-xs">Distribuídas em todas as escolas</div>
               </div>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-1 mb-1">
               {/* Ações Rápidas */}
-              <div className="bg-[#33261B] p-4">
+              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
                 <div className="text-white text-sm">Ações Rápidas</div>
-                <div className="text-gray-400 text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
+                <div className="text-[#C2C2C2] text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
                 
                 <div className="flex flex-col gap-1 mt-2">
                   <button 
-                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/user-registration')}
                   >
                     <User className="h-4 w-4 text-white mr-2" />
