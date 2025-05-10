@@ -53,15 +53,26 @@ interface ManagerSchoolRegistrationProps {
 }
 
 // Mapa de estados brasileiros e suas cidades
-type CidadesPorEstado = Record<string, string[]>;
+// Interfaces para os dados da API de estados e cidades
+interface Estado {
+  id: number;
+  sigla: string;
+  nome: string;
+}
+
+interface Cidade {
+  id: number;
+  nome: string;
+}
 
 export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }: ManagerSchoolRegistrationProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cidadesPorEstado, setCidadesPorEstado] = useState<CidadesPorEstado>({});
-  const [cidadesDisponiveis, setCidadesDisponiveis] = useState<string[]>([]);
+  const [estados, setEstados] = useState<Estado[]>([]);
+  const [cidadesDisponiveis, setCidadesDisponiveis] = useState<Cidade[]>([]);
   const [estadoSelecionado, setEstadoSelecionado] = useState<string>('PI');
   const [carregandoCidades, setCarregandoCidades] = useState(false);
+  const [carregandoEstados, setCarregandoEstados] = useState(true);
 
   // Configurar o formulário com valores padrão
   const form = useForm<SchoolFormValues>({
@@ -97,82 +108,79 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
     }
   };
 
-  // Carregar cidades para o estado de Piauí (PI) - como exemplo
-  // Em um ambiente real, carregaríamos de uma API ou banco de dados
+  // Carregar estados do Brasil via API
   useEffect(() => {
-    const carregarCidadesPiaui = () => {
-      setCidadesPorEstado({
-        PI: [
-          'Teresina', 'Parnaíba', 'Picos', 'Piripiri', 'Floriano', 
-          'Campo Maior', 'Barras', 'Pedro II', 'União', 'Altos',
-          'Oeiras', 'São Raimundo Nonato', 'Esperantina', 'José de Freitas', 
-          'Paulistana', 'Batalha', 'Água Branca', 'Amarante', 'Valença do Piauí',
-          'Luís Correia', 'Cocal', 'Uruçuí', 'Regeneração', 'Simplício Mendes',
-          'Corrente', 'Elesbão Veloso', 'Miguel Alves', 'Luzilândia', 'Canto do Buriti',
-          'Bom Jesus', 'Fronteiras', 'Guadalupe', 'Piracuruca', 'Jaicós'
-        ]
-      });
+    const carregarEstados = async () => {
+      try {
+        setCarregandoEstados(true);
+        const response = await api.get('/api/estados');
+        if (response.data && Array.isArray(response.data)) {
+          setEstados(response.data);
+          
+          // Encontrar o estado do Piauí e selecionar por padrão
+          const estadoPiaui = response.data.find(estado => estado.sigla === 'PI');
+          if (estadoPiaui) {
+            setEstadoSelecionado(estadoPiaui.sigla);
+            form.setValue('estado', estadoPiaui.sigla);
+          }
+        } else {
+          console.error('Formato de resposta inválido para estados:', response.data);
+          toast({
+            title: "Erro ao carregar estados",
+            description: "Não foi possível carregar a lista de estados.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar estados:', error);
+        toast({
+          title: "Erro ao carregar estados",
+          description: "Ocorreu um erro ao tentar carregar a lista de estados.",
+          variant: "destructive",
+        });
+      } finally {
+        setCarregandoEstados(false);
+      }
     };
 
-    const carregarCidadesBrasil = () => {
-      // Este é um conjunto limitado de cidades principais por estado 
-      // Em uma aplicação real, você usaria uma API ou banco de dados com o conjunto completo
-      return {
-        AC: ['Rio Branco', 'Cruzeiro do Sul', 'Sena Madureira', 'Tarauacá', 'Feijó'],
-        AL: ['Maceió', 'Arapiraca', 'Palmeira dos Índios', 'Rio Largo', 'Penedo'],
-        AM: ['Manaus', 'Parintins', 'Itacoatiara', 'Manacapuru', 'Coari'],
-        AP: ['Macapá', 'Santana', 'Laranjal do Jari', 'Oiapoque', 'Mazagão'],
-        BA: ['Salvador', 'Feira de Santana', 'Vitória da Conquista', 'Camaçari', 'Juazeiro'],
-        CE: ['Fortaleza', 'Caucaia', 'Juazeiro do Norte', 'Maracanaú', 'Sobral'],
-        DF: ['Brasília', 'Ceilândia', 'Taguatinga', 'Samambaia', 'Plano Piloto'],
-        ES: ['Vitória', 'Vila Velha', 'Serra', 'Cariacica', 'Cachoeiro de Itapemirim'],
-        GO: ['Goiânia', 'Aparecida de Goiânia', 'Anápolis', 'Rio Verde', 'Luziânia'],
-        MA: ['São Luís', 'Imperatriz', 'Timon', 'Caxias', 'Codó'],
-        MG: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora', 'Betim'],
-        MS: ['Campo Grande', 'Dourados', 'Três Lagoas', 'Corumbá', 'Ponta Porã'],
-        MT: ['Cuiabá', 'Várzea Grande', 'Rondonópolis', 'Sinop', 'Tangará da Serra'],
-        PA: ['Belém', 'Ananindeua', 'Santarém', 'Marabá', 'Castanhal'],
-        PB: ['João Pessoa', 'Campina Grande', 'Santa Rita', 'Patos', 'Bayeux'],
-        PE: ['Recife', 'Jaboatão dos Guararapes', 'Olinda', 'Caruaru', 'Petrolina'],
-        PI: [
-          'Teresina', 'Parnaíba', 'Picos', 'Piripiri', 'Floriano', 
-          'Campo Maior', 'Barras', 'Pedro II', 'União', 'Altos',
-          'Oeiras', 'São Raimundo Nonato', 'Esperantina', 'José de Freitas', 
-          'Paulistana', 'Batalha', 'Água Branca', 'Amarante', 'Valença do Piauí',
-          'Luís Correia', 'Cocal', 'Uruçuí', 'Regeneração', 'Simplício Mendes'
-        ],
-        PR: ['Curitiba', 'Londrina', 'Maringá', 'Ponta Grossa', 'Cascavel'],
-        RJ: ['Rio de Janeiro', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Niterói'],
-        RN: ['Natal', 'Mossoró', 'Parnamirim', 'São Gonçalo do Amarante', 'Macaíba'],
-        RO: ['Porto Velho', 'Ji-Paraná', 'Ariquemes', 'Vilhena', 'Cacoal'],
-        RR: ['Boa Vista', 'Rorainópolis', 'Caracaraí', 'Alto Alegre', 'Mucajaí'],
-        RS: ['Porto Alegre', 'Caxias do Sul', 'Pelotas', 'Canoas', 'Santa Maria'],
-        SC: ['Florianópolis', 'Joinville', 'Blumenau', 'São José', 'Chapecó'],
-        SE: ['Aracaju', 'Nossa Senhora do Socorro', 'Lagarto', 'Itabaiana', 'São Cristóvão'],
-        SP: ['São Paulo', 'Guarulhos', 'Campinas', 'São Bernardo do Campo', 'Santo André'],
-        TO: ['Palmas', 'Araguaína', 'Gurupi', 'Porto Nacional', 'Paraíso do Tocantins']
-      };
-    };
-    
-    setCidadesPorEstado(carregarCidadesBrasil());
+    carregarEstados();
+  }, [form, toast]);
 
-    // Inicializar cidades de Piauí (estado padrão)
-    const cidadesPiaui = carregarCidadesBrasil().PI || [];
-    setCidadesDisponiveis(cidadesPiaui);
-  }, []);
-
-  // Atualizar cidades disponíveis quando o estado mudar
+  // Carregar cidades quando o estado mudar
   useEffect(() => {
-    if (estadoSelecionado) {
-      setCarregandoCidades(true);
-      // Simular um pequeno delay para mostrar o carregamento (em produção seria a chamada API)
-      setTimeout(() => {
-        const cidades = cidadesPorEstado[estadoSelecionado] || [];
-        setCidadesDisponiveis(cidades);
+    const carregarCidades = async () => {
+      if (!estadoSelecionado) return;
+      
+      try {
+        setCarregandoCidades(true);
+        const response = await api.get(`/api/estados/${estadoSelecionado}/cidades-por-sigla`);
+        
+        if (response.data && Array.isArray(response.data)) {
+          setCidadesDisponiveis(response.data);
+        } else {
+          console.error('Formato de resposta inválido para cidades:', response.data);
+          setCidadesDisponiveis([]);
+          toast({
+            title: "Erro ao carregar cidades",
+            description: "Não foi possível carregar a lista de cidades.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error(`Erro ao carregar cidades para o estado ${estadoSelecionado}:`, error);
+        setCidadesDisponiveis([]);
+        toast({
+          title: "Erro ao carregar cidades",
+          description: "Ocorreu um erro ao tentar carregar a lista de cidades.",
+          variant: "destructive",
+        });
+      } finally {
         setCarregandoCidades(false);
-      }, 300);
-    }
-  }, [estadoSelecionado, cidadesPorEstado]);
+      }
+    };
+
+    carregarCidades();
+  }, [estadoSelecionado, toast]);
 
   // Limpar a cidade selecionada quando o estado mudar
   useEffect(() => {

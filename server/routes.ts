@@ -1535,6 +1535,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registrar rota para criação de usuário com CPF como senha temporária
   registerCreateUserWithCpfRoute(app);
   
+  // Registrar rotas de localização (estados e cidades)
+  registerLocationRoutes(app);
+  
   // Registrar rota simplificada para criação de usuário (novo formato)
   registerSimplifiedUserRoutes(app);
   
