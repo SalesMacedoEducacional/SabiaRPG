@@ -57,19 +57,20 @@ export default function ManagerDashboard() {
   // Se o gestor não estiver logado, redirecionar para a página de login
   useEffect(() => {
     if (!user) {
-      navigate("/auth");
+      console.log("Redirecionando para login - usuário não autenticado");
+      window.location.href = "/auth";
     }
-  }, [user, navigate]);
+  }, [user]);
   
   if (!user) {
     return null;
   }
   
   return (
-    <div className="min-h-screen bg-[#231f20]">
+    <div className="min-h-screen bg-[#1B1B1B]">
       {/* Header */}
-      <header className="bg-[#231f20] shadow py-3">
-        <div className="container mx-auto px-4 flex justify-between items-center">
+      <header className="bg-[#1B1B1B] border-b border-[#33261B] shadow-md">
+        <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
             <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
             <p className="text-gray-300 text-sm">
@@ -88,42 +89,42 @@ export default function ManagerDashboard() {
       </header>
       
       {/* Main content */}
-      <main className="container mx-auto px-0 py-2">
+      <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0.5 mb-2 bg-[#231f20]">
+          <TabsList className="grid grid-cols-4 gap-0 bg-[#1B1B1B]">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#623b16] py-2"
+              className="flex items-center justify-center data-[state=active]:bg-[#A85F16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#33261B] py-2 rounded-none border-r border-[#1B1B1B]"
             >
               <span className="flex items-center">
-                <Home size={14} className="mr-1" />
+                <Home size={14} className="mr-1.5" />
                 Visão Geral
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#623b16] py-2"
+              className="flex items-center justify-center data-[state=active]:bg-[#A85F16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#33261B] py-2 rounded-none border-r border-[#1B1B1B]"
             >
               <span className="flex items-center">
-                <FileBarChart2 size={14} className="mr-1" />
+                <FileBarChart2 size={14} className="mr-1.5" />
                 Relatórios
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#623b16] py-2"
+              className="flex items-center justify-center data-[state=active]:bg-[#A85F16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#33261B] py-2 rounded-none border-r border-[#1B1B1B]"
             >
               <span className="flex items-center">
-                <Settings size={14} className="mr-1" />
+                <Settings size={14} className="mr-1.5" />
                 Configurações
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center data-[state=active]:bg-[#a85f16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#623b16] py-2"
+              className="flex items-center justify-center data-[state=active]:bg-[#A85F16] data-[state=active]:text-white text-gray-300 hover:text-white bg-[#33261B] py-2 rounded-none"
             >
               <span className="flex items-center">
-                <User size={14} className="mr-1" />
+                <User size={14} className="mr-1.5" />
                 Meu Perfil
               </span>
             </TabsTrigger>
@@ -133,27 +134,27 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-1 mb-1">
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Total de Escolas Vinculadas</div>
-                <div className="text-white text-4xl font-bold">0</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Total de Escolas Vinculadas</div>
+                <div className="text-white text-4xl font-bold mt-1">0</div>
                 <div className="text-gray-400 text-xs">0 ativas</div>
               </div>
               
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Total de Professores</div>
-                <div className="text-white text-4xl font-bold">0</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Total de Professores</div>
+                <div className="text-white text-4xl font-bold mt-1">0</div>
                 <div className="text-gray-400 text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Total de Alunos</div>
-                <div className="text-white text-4xl font-bold">0</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Total de Alunos</div>
+                <div className="text-white text-4xl font-bold mt-1">0</div>
                 <div className="text-gray-400 text-xs">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Turmas Ativas</div>
-                <div className="text-white text-4xl font-bold">0</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Turmas Ativas</div>
+                <div className="text-white text-4xl font-bold mt-1">0</div>
                 <div className="text-gray-400 text-xs">Distribuídas em todas as escolas</div>
               </div>
             </div>
@@ -161,42 +162,42 @@ export default function ManagerDashboard() {
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-1 mb-1">
               {/* Ações Rápidas */}
-              <div className="bg-[#3e2a18] p-4">
-                <div className="text-white text-sm mb-1">Ações Rápidas</div>
-                <div className="text-gray-400 text-xs mb-4">Acesso direto às principais tarefas administrativas</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Ações Rápidas</div>
+                <div className="text-gray-400 text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
                 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1 mt-2">
                   <button 
-                    className="bg-transparent text-white hover:bg-[#4b321c] transition-colors p-2 pl-3 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/user-registration')}
                   >
-                    <User className="h-5 w-5 text-white" />
+                    <User className="h-4 w-4 text-white mr-2" />
                     <span>Cadastrar Novo Usuário</span>
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#4b321c] transition-colors p-2 pl-3 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/school-registration')}
                   >
-                    <School className="h-5 w-5 text-white" />
+                    <School className="h-4 w-4 text-white mr-2" />
                     <span>Cadastrar Nova Escola</span>
                   </button>
                   
                   <button
-                    className="bg-transparent text-white hover:bg-[#4b321c] transition-colors p-2 pl-3 flex items-center justify-start space-x-2 text-sm"
+                    className="bg-transparent text-white hover:bg-[#404040] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/class-registration')}
                   >
-                    <BookOpen className="h-5 w-5 text-white" />
+                    <BookOpen className="h-4 w-4 text-white mr-2" />
                     <span>Gerenciar Turmas</span>
                   </button>
                 </div>
               </div>
               
               {/* Alunos Ativos */}
-              <div className="bg-[#3e2a18] p-4">
-                <div className="text-white text-sm mb-3">Alunos Ativos na Plataforma</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Alunos Ativos na Plataforma</div>
                 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mt-3">
                   <div>
                     <div className="text-white text-3xl font-bold">0</div>
                     <div className="text-gray-400 text-xs">Últimos 7 dias</div>
@@ -206,99 +207,69 @@ export default function ManagerDashboard() {
                     <div className="text-gray-400 text-xs">Últimos 30 dias</div>
                   </div>
                 </div>
-                
-                <div className="mt-6">
-                  <div className="text-white text-sm font-medium mb-2">Nível de Engajamento Geral</div>
-                  <div className="bg-[#231f20] rounded-full h-2 w-full">
-                    <div className="bg-[#a85f16] h-2 rounded-full w-[0%]"></div>
-                  </div>
-                  <div className="text-gray-400 text-xs mt-1">Baseado no tempo de uso e atividades completadas</div>
-                </div>
               </div>
               
               {/* Alerta de Evasão */}
-              <div className="bg-[#3e2a18] p-4">
-                <div className="text-white text-sm mb-1 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1 text-red-500" />
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm mb-1">
                   Alerta de Evasão Potencial
                 </div>
-                <div className="text-gray-400 text-xs mb-3">Alunos com mais de 10 dias sem acesso</div>
+                <div className="text-gray-400 text-xs">Alunos com mais de 30 dias sem acesso</div>
                 
-                <div className="text-white text-4xl font-bold text-center mt-6 mb-8">0</div>
+                <div className="text-white text-4xl font-bold text-center my-5">0</div>
                 
-                <button className="w-full bg-[#231f20] hover:bg-[#323232] text-white text-sm p-2 transition-colors">
+                <button className="w-full bg-[#1B1B1B] hover:bg-[#272727] text-white text-sm py-1.5 transition-colors">
                   Ver Lista
                 </button>
               </div>
             </div>
             
-            {/* Terceira linha: Missões */}
-            <div className="grid grid-cols-3 gap-1 mb-1">
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-2">Missões</div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="text-center">
-                    <div className="text-white text-2xl font-bold">0</div>
-                    <div className="text-gray-400 text-xs">Em andamento</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-white text-2xl font-bold">0</div>
-                    <div className="text-gray-400 text-xs">Concluídas</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-white text-2xl font-bold">0</div>
-                    <div className="text-gray-400 text-xs">Pendentes</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Quarta linha: Escolas com maior engajamento e atividade recente */}
+            {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-1 mb-1">
               {/* Escolas com Maior Engajamento */}
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Escolas com Maior Engajamento</div>
-                <div className="text-gray-400 text-xs mb-4">Escolas com melhores taxas de participação</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Escolas com Maior Engajamento</div>
+                <div className="text-gray-400 text-xs">Escolas com melhores taxas de participação</div>
                 
-                <div className="flex items-center justify-center h-32 text-white">
+                <div className="flex items-center justify-center h-40 text-white">
                   Nenhuma escola cadastrada
                 </div>
               </div>
               
               {/* Atividade Recente */}
-              <div className="bg-[#3e2a18] p-3">
-                <div className="text-white text-sm mb-1">Atividade Recente</div>
-                <div className="text-gray-400 text-xs mb-3">Últimas ações e eventos no sistema</div>
+              <div className="bg-[#33261B] p-4">
+                <div className="text-white text-sm">Atividade Recente</div>
+                <div className="text-gray-400 text-xs">Últimas ações e eventos no sistema</div>
                 
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-[#231f20] p-1.5 rounded-full">
-                      <FileText className="h-4 w-4 text-[#a85f16]" />
+                <div className="space-y-4 mt-4">
+                  <div className="flex items-start">
+                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
+                      <FileText className="h-4 w-4 text-[#A85F16]" />
                     </div>
                     <div>
-                      <p className="text-white text-sm">Novo relatório gerado</p>
+                      <p className="text-white text-sm font-medium">Novo relatório gerado</p>
                       <p className="text-gray-400 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
                       <p className="text-gray-500 text-xs">Hoje, 09:45</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-[#231f20] p-1.5 rounded-full">
-                      <Users className="h-4 w-4 text-[#a85f16]" />
+                  <div className="flex items-start">
+                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
+                      <Users className="h-4 w-4 text-[#A85F16]" />
                     </div>
                     <div>
-                      <p className="text-white text-sm">Novos usuários cadastrados</p>
+                      <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
                       <p className="text-gray-400 text-xs">12 alunos adicionados à plataforma</p>
                       <p className="text-gray-500 text-xs">Ontem, 15:30</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-[#231f20] p-1.5 rounded-full">
-                      <AlertCircle className="h-4 w-4 text-[#a85f16]" />
+                  <div className="flex items-start">
+                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
+                      <AlertCircle className="h-4 w-4 text-[#A85F16]" />
                     </div>
                     <div>
-                      <p className="text-white text-sm">Alerta de engajamento</p>
+                      <p className="text-white text-sm font-medium">Alerta de engajamento</p>
                       <p className="text-gray-400 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
                       <p className="text-gray-500 text-xs">12/05, 13:15</p>
                     </div>
@@ -306,17 +277,11 @@ export default function ManagerDashboard() {
                 </div>
               </div>
             </div>
-            
-            {/* Notificação de erro */}
-            <div className="bg-red-900/60 border border-red-700 text-white p-2 mt-1">
-              <p className="text-sm font-medium mb-1">Erro</p>
-              <p className="text-xs">Não foi possível carregar a lista de escolas.</p>
-            </div>
           </TabsContent>
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="bg-[#3e2a18] p-4">
+            <div className="bg-[#33261B] p-4">
               <div className="mb-4">
                 <h3 className="text-white text-lg font-medium mb-2">Relatórios</h3>
                 <p className="text-gray-400 text-sm">
@@ -446,7 +411,7 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="bg-[#3e2a18] p-4">
+            <div className="bg-[#33261B] p-4">
               <div className="mb-4">
                 <h3 className="text-white text-lg font-medium mb-2">Configurações</h3>
                 <p className="text-gray-400 text-sm">
