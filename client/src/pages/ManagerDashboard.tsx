@@ -171,7 +171,7 @@ export default function ManagerDashboard() {
                     className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/user-registration')}
                   >
-                    <User className="h-4 w-4 text-white mr-2" />
+                    <User className="h-4 w-4 text-[#F08B13] mr-2" />
                     <span>Cadastrar Novo Usuário</span>
                   </button>
                   
@@ -179,7 +179,7 @@ export default function ManagerDashboard() {
                     className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/school-registration')}
                   >
-                    <School className="h-4 w-4 text-white mr-2" />
+                    <School className="h-4 w-4 text-[#F08B13] mr-2" />
                     <span>Cadastrar Nova Escola</span>
                   </button>
                   
@@ -187,7 +187,7 @@ export default function ManagerDashboard() {
                     className="bg-transparent text-white hover:bg-[#0D0D0D] transition-colors p-2 flex items-center justify-start space-x-2 text-sm"
                     onClick={() => navigate('/class-registration')}
                   >
-                    <BookOpen className="h-4 w-4 text-white mr-2" />
+                    <BookOpen className="h-4 w-4 text-[#F08B13] mr-2" />
                     <span>Gerenciar Turmas</span>
                   </button>
                 </div>
