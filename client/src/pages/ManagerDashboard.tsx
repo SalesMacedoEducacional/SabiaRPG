@@ -254,24 +254,24 @@ export default function ManagerDashboard() {
                   </div>
                   
                   <div className="flex items-start">
-                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
-                      <Users className="h-4 w-4 text-[#A85F16]" />
+                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
+                      <Users className="h-4 w-4 text-[#F08B13]" />
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
-                      <p className="text-gray-400 text-xs">12 alunos adicionados à plataforma</p>
-                      <p className="text-gray-500 text-xs">Ontem, 15:30</p>
+                      <p className="text-[#C2C2C2] text-xs">12 alunos adicionados à plataforma</p>
+                      <p className="text-[#C2C2C2]/70 text-xs">Ontem, 15:30</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start">
-                    <div className="bg-[#1B1B1B] p-1.5 rounded-full mr-3 mt-0.5">
-                      <AlertCircle className="h-4 w-4 text-[#A85F16]" />
+                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
+                      <AlertCircle className="h-4 w-4 text-[#F08B13]" />
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">Alerta de engajamento</p>
-                      <p className="text-gray-400 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
-                      <p className="text-gray-500 text-xs">12/05, 13:15</p>
+                      <p className="text-[#C2C2C2] text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                      <p className="text-[#C2C2C2]/70 text-xs">12/05, 13:15</p>
                     </div>
                   </div>
                 </div>
@@ -281,27 +281,27 @@ export default function ManagerDashboard() {
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="bg-[#33261B] p-4">
+            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
               <div className="mb-4">
                 <h3 className="text-white text-lg font-medium mb-2">Relatórios</h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-[#C2C2C2] text-sm">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
                 </p>
               </div>
               
               <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="bg-[#231f20] p-3 flex flex-col items-center justify-center hover:bg-[#2a2526] cursor-pointer">
-                  <FileBarChart2 size={24} className="text-[#a85f16] mb-2" />
+                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
+                  <FileBarChart2 size={24} className="text-[#F08B13] mb-2" />
                   <span className="text-white text-sm font-medium">Desempenho por Turma</span>
                 </div>
                 
-                <div className="bg-[#231f20] p-3 flex flex-col items-center justify-center hover:bg-[#2a2526] cursor-pointer">
-                  <Users size={24} className="text-[#a85f16] mb-2" />
+                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
+                  <Users size={24} className="text-[#F08B13] mb-2" />
                   <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
                 </div>
                 
-                <div className="bg-[#231f20] p-3 flex flex-col items-center justify-center hover:bg-[#2a2526] cursor-pointer">
-                  <Book size={24} className="text-[#a85f16] mb-2" />
+                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
+                  <Book size={24} className="text-[#F08B13] mb-2" />
                   <span className="text-white text-sm font-medium">Missões Completadas</span>
                 </div>
                 
