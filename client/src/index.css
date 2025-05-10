@@ -72,7 +72,8 @@
 }
 .gestor-container {
   background-color: var(--gestor-container);
-  border: 1px solid var(--gestor-border);
+  border: 1px solid var(--gestor-card-border);
+  color: var(--gestor-text);
 }
 .gestor-button {
   background-color: var(--gestor-button);

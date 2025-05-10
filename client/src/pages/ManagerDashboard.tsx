@@ -112,7 +112,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center data-[state=active]:bg-[#0D0D0D] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-[#F08B13] text-[#C2C2C2] hover:text-white bg-[#1A110B] py-2 rounded-none border-r border-[#100B09]"
+              className="gestor-tab"
             >
               <span className="flex items-center">
                 <Settings size={14} className="mr-1.5" />
@@ -121,7 +121,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center data-[state=active]:bg-[#0D0D0D] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-[#F08B13] text-[#C2C2C2] hover:text-white bg-[#1A110B] py-2 rounded-none"
+              className="gestor-tab"
             >
               <span className="flex items-center">
                 <User size={14} className="mr-1.5" />
@@ -134,16 +134,16 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-1 mb-1">
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Total de Escolas Vinculadas</div>
-                <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-[#C2C2C2] text-xs">0 ativas</div>
+              <div className="gestor-container p-4">
+                <div className="text-sm">Total de Escolas Vinculadas</div>
+                <div className="gestor-text text-4xl font-bold mt-1">0</div>
+                <div className="gestor-text-aux text-xs">0 ativas</div>
               </div>
               
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Total de Professores</div>
-                <div className="text-white text-4xl font-bold mt-1">0</div>
-                <div className="text-[#C2C2C2] text-xs">Em todas as escolas</div>
+              <div className="gestor-container p-4">
+                <div className="gestor-text text-sm">Total de Professores</div>
+                <div className="gestor-text text-4xl font-bold mt-1">0</div>
+                <div className="gestor-text-aux text-xs">Em todas as escolas</div>
               </div>
               
               <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
