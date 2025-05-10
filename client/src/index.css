@@ -20,14 +20,14 @@
   --border: 35 23% 27%;
   --input: 35 23% 27%;
   
-  /* Paleta do Dashboard do Gestor - Corrigida conforme imagem de referência */
-  --gestor-background: #1E1E1E;
-  --gestor-container: #262626;
-  --gestor-card-border: #764A25;
-  --gestor-border: #6B4226;
-  --gestor-button: #B84530;
-  --gestor-tab-active: #1E1E1E;
-  --gestor-tab-inactive: #292929;
+  /* Paleta do Dashboard do Gestor - Original */
+  --gestor-background: #100B09;
+  --gestor-container: #1A110B;
+  --gestor-card-border: #D47C06;
+  --gestor-border: #D47C06;
+  --gestor-button: #F08B13;
+  --gestor-tab-active: #0D0D0D;
+  --gestor-tab-inactive: #1A110B;
   --gestor-text: #FFFFFF;
   --gestor-text-aux: #C2C2C2;
   --gestor-input: #2B3A55;
