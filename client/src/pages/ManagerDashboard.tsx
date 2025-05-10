@@ -305,8 +305,8 @@ export default function ManagerDashboard() {
                   <span className="text-white text-sm font-medium">Missões Completadas</span>
                 </div>
                 
-                <div className="bg-[#231f20] p-3 flex flex-col items-center justify-center hover:bg-[#2a2526] cursor-pointer">
-                  <School size={24} className="text-[#a85f16] mb-2" />
+                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
+                  <School size={24} className="text-[#F08B13] mb-2" />
                   <span className="text-white text-sm font-medium">Desempenho por Escola</span>
                 </div>
               </div>
@@ -318,29 +318,29 @@ export default function ManagerDashboard() {
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="text-gray-400 text-xs block mb-1">Escola</label>
-                        <select className="w-full bg-[#231f20] text-white text-sm p-2 border border-[#4b321c]">
+                        <label className="text-[#C2C2C2] text-xs block mb-1">Escola</label>
+                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
                           <option value="">Todas as escolas</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-gray-400 text-xs block mb-1">Turma</label>
-                        <select className="w-full bg-[#231f20] text-white text-sm p-2 border border-[#4b321c]">
+                        <label className="text-[#C2C2C2] text-xs block mb-1">Turma</label>
+                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
                           <option value="">Todas as turmas</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-gray-400 text-xs block mb-1">Componente</label>
-                        <select className="w-full bg-[#231f20] text-white text-sm p-2 border border-[#4b321c]">
+                        <label className="text-[#C2C2C2] text-xs block mb-1">Componente</label>
+                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
                           <option value="">Todos os componentes</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-gray-400 text-xs block mb-1">Período</label>
-                        <select className="w-full bg-[#231f20] text-white text-sm p-2 border border-[#4b321c]">
+                        <label className="text-[#C2C2C2] text-xs block mb-1">Período</label>
+                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
                           <option value="ultimo_mes">Último mês</option>
                           <option value="ultimo_bimestre">Último bimestre</option>
                           <option value="ultimo_semestre">Último semestre</option>
@@ -350,11 +350,11 @@ export default function ManagerDashboard() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <button className="bg-[#a85f16] hover:bg-[#8a4f12] text-white text-sm px-4 py-2">
+                      <button className="bg-[#F08B13] hover:bg-[#D47C06] text-white text-sm px-4 py-2">
                         Gerar Relatório
                       </button>
                       
-                      <select className="bg-[#231f20] text-white text-sm p-2 border border-[#4b321c]">
+                      <select className="bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
                         <option value="pdf">PDF</option>
                         <option value="xlsx">XLSX</option>
                         <option value="ods">ODS</option>
@@ -363,11 +363,11 @@ export default function ManagerDashboard() {
                     </div>
                   </div>
                   
-                  <div className="bg-[#231f20] p-4 flex items-center justify-center h-64">
+                  <div className="bg-[#0D0D0D] p-4 flex items-center justify-center h-64 border border-[#D47C06]">
                     <div className="text-center">
-                      <FileText size={48} className="text-gray-500 mx-auto mb-2" />
+                      <FileText size={48} className="text-[#C2C2C2] mx-auto mb-2" />
                       <p className="text-white text-sm">Selecione os filtros e clique em "Gerar Relatório"</p>
-                      <p className="text-gray-400 text-xs mt-1">A pré-visualização aparecerá aqui</p>
+                      <p className="text-[#C2C2C2] text-xs mt-1">A pré-visualização aparecerá aqui</p>
                     </div>
                   </div>
                 </div>
