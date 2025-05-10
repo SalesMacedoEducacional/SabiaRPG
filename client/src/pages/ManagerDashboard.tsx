@@ -78,9 +78,9 @@ export default function ManagerDashboard() {
             </p>
           </div>
           <Button 
-            variant="destructive"
+            variant="default"
             size="sm"
-            className="flex items-center gap-1 bg-red-600 text-white hover:bg-red-700"
+            className="flex items-center gap-1 bg-[#F08B13] text-white hover:bg-[#D47C06] border border-[#D47C06]"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
