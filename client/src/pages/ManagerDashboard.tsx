@@ -141,7 +141,7 @@ const ManagerDashboard: React.FC = () => {
     { 
       title: 'Alertas de Evasão', 
       value: 0, 
-      icon: <AlertCircle size={24} className="text-red-500" />,
+      icon: <AlertCircle size={24} className="text-primary" />,
       status: 'warning'
     }
   ];
@@ -164,7 +164,7 @@ const ManagerDashboard: React.FC = () => {
   if (managerError) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <AlertCircle size={64} className="text-red-500 mb-4" />
+        <AlertCircle size={64} className="text-primary mb-4" />
         <h2 className="text-2xl font-bold mb-2">Erro ao carregar dashboard</h2>
         <p className="text-gray-600 mb-4">Não foi possível carregar as informações do gestor.</p>
         <Button onClick={() => navigate("/auth")}>Voltar para Login</Button>
@@ -223,9 +223,9 @@ const ManagerDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {dashboardStats.map((stat, index) => (
                 <Card key={index} className={`bg-dark-light border-primary
-                  ${stat.status === 'warning' ? 'border-l-4 border-l-yellow-500' : ''}
-                  ${stat.status === 'danger' ? 'border-l-4 border-l-red-500' : ''}
-                  ${stat.status === 'success' ? 'border-l-4 border-l-green-500' : ''}
+                  ${stat.status === 'warning' ? 'border-l-4 border-l-secondary' : ''}
+                  ${stat.status === 'danger' ? 'border-l-4 border-l-primary' : ''}
+                  ${stat.status === 'success' ? 'border-l-4 border-l-accent' : ''}
                 `}>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium font-medieval text-accent">
@@ -240,8 +240,8 @@ const ManagerDashboard: React.FC = () => {
                     {stat.change && (
                       <p className={`
                         text-xs mt-1 font-medieval
-                        ${stat.change.startsWith('+') ? 'text-green-500' : ''}
-                        ${stat.change.startsWith('-') ? 'text-red-500' : ''}
+                        ${stat.change.startsWith('+') ? 'text-accent' : ''}
+                        ${stat.change.startsWith('-') ? 'text-primary' : ''}
                       `}>
                         {stat.change} desde último mês
                       </p>
