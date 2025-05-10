@@ -67,9 +67,9 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-[#100B09]">
+    <div className="min-h-screen bg-[var(--gestor-background)]">
       {/* Header */}
-      <header className="bg-[#100B09] border-b border-[#D47C06] shadow-md">
+      <header className="bg-[var(--gestor-background)] border-b border-[var(--gestor-border)] shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
             <h1 className="text-2xl font-bold gestor-text">DASHBOARD DO GESTOR</h1>
@@ -80,7 +80,7 @@ export default function ManagerDashboard() {
           <Button 
             variant="default"
             size="sm"
-            className="flex items-center gap-1 bg-[#F08B13] text-white hover:bg-[#D47C06] border border-[#D47C06]"
+            className="flex items-center gap-1 bg-[var(--gestor-button)] text-white hover:bg-[var(--gestor-border)] border border-[var(--gestor-border)]"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
@@ -91,10 +91,10 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[#100B09]">
+          <TabsList className="grid grid-cols-4 gap-0 bg-[var(--gestor-background)]">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center data-[state=active]:bg-[#0D0D0D] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-[#F08B13] text-[#C2C2C2] hover:text-white bg-[#1A110B] py-2 rounded-none border-r border-[#100B09]"
+              className="gestor-tab"
             >
               <span className="flex items-center">
                 <Home size={14} className="mr-1.5" />
@@ -103,7 +103,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center data-[state=active]:bg-[#0D0D0D] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-[#F08B13] text-[#C2C2C2] hover:text-white bg-[#1A110B] py-2 rounded-none border-r border-[#100B09]"
+              className="gestor-tab"
             >
               <span className="flex items-center">
                 <FileBarChart2 size={14} className="mr-1.5" />

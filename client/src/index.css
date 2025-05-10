@@ -20,20 +20,20 @@
   --border: 35 23% 27%;
   --input: 35 23% 27%;
   
-  /* Paleta do Dashboard do Gestor - Original */
-  --gestor-background: #100B09;
-  --gestor-container: #1A110B;
-  --gestor-card-border: #D47C06;
-  --gestor-border: #D47C06;
-  --gestor-button: #F08B13;
-  --gestor-tab-active: #0D0D0D;
-  --gestor-tab-inactive: #1A110B;
+  /* Paleta do Dashboard do Gestor - Tons terrosos e secos */
+  --gestor-background: #2C1E10;
+  --gestor-container: #3E2D1B;
+  --gestor-card-border: #8a5c2e;
+  --gestor-border: #8a5c2e;
+  --gestor-button: #bfa57a;
+  --gestor-tab-active: #2C1E10;
+  --gestor-tab-inactive: #3E2D1B;
   --gestor-text: #FFFFFF;
-  --gestor-text-aux: #C2C2C2;
-  --gestor-input: #2B3A55;
-  --gestor-success: #4CAF50;
-  --gestor-warning: #FF9800;
-  --gestor-danger: #F44336;
+  --gestor-text-aux: #d9b85c;
+  --gestor-input: #7d926b;
+  --gestor-success: #7d926b;
+  --gestor-warning: #d9b85c;
+  --gestor-danger: #8a5c2e;
   
   --primary: 30 45% 37%;
   --primary-light: 30 32% 49%;
@@ -91,6 +91,24 @@
   background-color: var(--gestor-input);
   color: var(--gestor-text);
   border: 1px solid var(--gestor-border);
+}
+
+.gestor-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gestor-tab-inactive);
+  color: var(--gestor-text);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 0;
+  border-right: 1px solid var(--gestor-background);
+}
+
+.gestor-tab[data-state="active"] {
+  background-color: var(--gestor-tab-active);
+  color: var(--gestor-text);
+  border-bottom: 2px solid var(--gestor-button);
 }
 
 .dark {
