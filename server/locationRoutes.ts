@@ -13,10 +13,11 @@ export function registerLocationRoutes(app: Express) {
    */
   app.get('/api/estados', async (req: Request, res: Response) => {
     try {
-      // Usar a API do Supabase diretamente
+      // Usar a API do Supabase diretamente - note que a estrutura da tabela tem apenas id e nome
+      // sendo que o id é a sigla do estado (ex: 'AC', 'SP', etc)
       const { data: estados, error } = await supabase
         .from('estados')
-        .select('id, sigla, nome')
+        .select('id, nome')
         .order('nome');
       
       if (error) {
@@ -24,7 +25,14 @@ export function registerLocationRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro ao buscar estados', error: error.message });
       }
       
-      return res.status(200).json(estados);
+      // Converter para o formato esperado pelo frontend
+      const estadosFormatados = estados.map(estado => ({
+        id: estado.id,
+        sigla: estado.id, // a sigla é o próprio id
+        nome: estado.nome
+      }));
+      
+      return res.status(200).json(estadosFormatados);
     } catch (error) {
       console.error('Erro ao processar requisição de estados:', error);
       return res.status(500).json({ message: 'Erro interno ao processar estados' });
@@ -43,15 +51,18 @@ export function registerLocationRoutes(app: Express) {
       
       if (estado_id.length === 2) {
         // É uma sigla, precisamos buscar o ID correspondente
-        const estadoQuery = `SELECT id FROM estados WHERE sigla = '${estado_id.toUpperCase()}'`;
-        const estadoResult = await executeSql(estadoQuery);
+        const { data: estado, error: estadoError } = await supabase
+          .from('estados')
+          .select('id')
+          .eq('sigla', estado_id.toUpperCase())
+          .single();
         
-        if (!estadoResult.success || !estadoResult.data || estadoResult.data.length === 0) {
-          console.error('Erro ao buscar estado por sigla:', estadoResult.error || 'Estado não encontrado');
+        if (estadoError || !estado) {
+          console.error('Erro ao buscar estado por sigla:', estadoError || 'Estado não encontrado');
           return res.status(404).json({ message: 'Estado não encontrado' });
         }
         
-        estadoId = estadoResult.data[0].id;
+        estadoId = estado.id;
       } else {
         // É um ID numérico
         estadoId = parseInt(estado_id);
@@ -61,15 +72,18 @@ export function registerLocationRoutes(app: Express) {
       }
       
       // Buscar cidades do estado ordenadas por nome
-      const cidadesQuery = `SELECT id, nome FROM cidades WHERE estado_id = ${estadoId} ORDER BY nome`;
-      const cidadesResult = await executeSql(cidadesQuery);
+      const { data: cidades, error: cidadesError } = await supabase
+        .from('cidades')
+        .select('id, nome')
+        .eq('estado_id', estadoId)
+        .order('nome');
       
-      if (!cidadesResult.success) {
-        console.error('Erro ao buscar cidades:', cidadesResult.error);
-        return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesResult.error });
+      if (cidadesError) {
+        console.error('Erro ao buscar cidades:', cidadesError);
+        return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesError.message });
       }
       
-      return res.status(200).json(cidadesResult.data);
+      return res.status(200).json(cidades);
     } catch (error) {
       console.error('Erro ao processar requisição de cidades:', error);
       return res.status(500).json({ message: 'Erro interno ao processar cidades' });
@@ -88,26 +102,32 @@ export function registerLocationRoutes(app: Express) {
     
     try {
       // Buscar o ID do estado pela sigla
-      const estadoQuery = `SELECT id FROM estados WHERE sigla = '${sigla.toUpperCase()}'`;
-      const estadoResult = await executeSql(estadoQuery);
+      const { data: estado, error: estadoError } = await supabase
+        .from('estados')
+        .select('id')
+        .eq('sigla', sigla.toUpperCase())
+        .single();
       
-      if (!estadoResult.success || !estadoResult.data || estadoResult.data.length === 0) {
-        console.error('Erro ao buscar estado por sigla:', estadoResult.error || 'Estado não encontrado');
+      if (estadoError || !estado) {
+        console.error('Erro ao buscar estado por sigla:', estadoError || 'Estado não encontrado');
         return res.status(404).json({ message: 'Estado não encontrado' });
       }
       
-      const estadoId = estadoResult.data[0].id;
+      const estadoId = estado.id;
       
       // Buscar cidades do estado
-      const cidadesQuery = `SELECT id, nome FROM cidades WHERE estado_id = ${estadoId} ORDER BY nome`;
-      const cidadesResult = await executeSql(cidadesQuery);
+      const { data: cidades, error: cidadesError } = await supabase
+        .from('cidades')
+        .select('id, nome')
+        .eq('estado_id', estadoId)
+        .order('nome');
       
-      if (!cidadesResult.success) {
-        console.error('Erro ao buscar cidades:', cidadesResult.error);
-        return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesResult.error });
+      if (cidadesError) {
+        console.error('Erro ao buscar cidades:', cidadesError);
+        return res.status(500).json({ message: 'Erro ao buscar cidades', error: cidadesError.message });
       }
       
-      return res.status(200).json(cidadesResult.data);
+      return res.status(200).json(cidades);
     } catch (error) {
       console.error('Erro ao processar requisição de cidades por sigla:', error);
       return res.status(500).json({ message: 'Erro interno ao processar cidades' });
