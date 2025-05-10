@@ -46,30 +46,25 @@ export function registerLocationRoutes(app: Express) {
     const { estado_id } = req.params;
     
     try {
-      // Verificar se o parâmetro é uma sigla (2 caracteres) ou um ID numérico
-      let estadoId: number;
+      // Na estrutura atual, o id da tabela estados é a própria sigla (ex: 'AC', 'SP')
+      let estadoId = estado_id;
       
-      if (estado_id.length === 2) {
-        // É uma sigla, precisamos buscar o ID correspondente
-        const { data: estado, error: estadoError } = await supabase
+      // Se o id fornecido não é uma sigla de estado de 2 caracteres, tratamos como erro
+      if (estadoId.length !== 2) {
+        // Verificamos se existe um estado com esse ID
+        const { data: estadoExiste, error: estadoErro } = await supabase
           .from('estados')
           .select('id')
-          .eq('sigla', estado_id.toUpperCase())
-          .single();
-        
-        if (estadoError || !estado) {
-          console.error('Erro ao buscar estado por sigla:', estadoError || 'Estado não encontrado');
-          return res.status(404).json({ message: 'Estado não encontrado' });
-        }
-        
-        estadoId = estado.id;
-      } else {
-        // É um ID numérico
-        estadoId = parseInt(estado_id);
-        if (isNaN(estadoId)) {
-          return res.status(400).json({ message: 'ID de estado inválido' });
+          .eq('id', estadoId.toUpperCase())
+          .maybeSingle();
+          
+        if (estadoErro || !estadoExiste) {
+          return res.status(400).json({ message: 'ID de estado inválido ou não encontrado' });
         }
       }
+      
+      // Converter para maiúsculo para garantir consistência
+      estadoId = estadoId.toUpperCase();
       
       // Buscar cidades do estado ordenadas por nome
       const { data: cidades, error: cidadesError } = await supabase
@@ -101,19 +96,20 @@ export function registerLocationRoutes(app: Express) {
     }
     
     try {
-      // Buscar o ID do estado pela sigla
+      // Na estrutura atual, o id da tabela estados é a própria sigla
+      const estadoId = sigla.toUpperCase();
+      
+      // Verificar se o estado existe
       const { data: estado, error: estadoError } = await supabase
         .from('estados')
         .select('id')
-        .eq('sigla', sigla.toUpperCase())
-        .single();
+        .eq('id', estadoId)
+        .maybeSingle();
       
       if (estadoError || !estado) {
         console.error('Erro ao buscar estado por sigla:', estadoError || 'Estado não encontrado');
         return res.status(404).json({ message: 'Estado não encontrado' });
       }
-      
-      const estadoId = estado.id;
       
       // Buscar cidades do estado
       const { data: cidades, error: cidadesError } = await supabase
