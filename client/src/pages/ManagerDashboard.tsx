@@ -281,66 +281,66 @@ export default function ManagerDashboard() {
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
+            <div className="gestor-container p-4">
               <div className="mb-4">
-                <h3 className="text-white text-lg font-medium mb-2">Relatórios</h3>
-                <p className="text-[#C2C2C2] text-sm">
+                <h3 className="gestor-text text-lg font-medium mb-2">Relatórios</h3>
+                <p className="gestor-text-aux text-sm">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
                 </p>
               </div>
               
               <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
-                  <FileBarChart2 size={24} className="text-[#F08B13] mb-2" />
-                  <span className="text-white text-sm font-medium">Desempenho por Turma</span>
+                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
+                  <FileBarChart2 size={24} className="text-[var(--gestor-highlight)] mb-2" />
+                  <span className="gestor-text text-sm font-medium">Desempenho por Turma</span>
                 </div>
                 
-                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
-                  <Users size={24} className="text-[#F08B13] mb-2" />
-                  <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
+                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
+                  <Users size={24} className="text-[var(--gestor-highlight)] mb-2" />
+                  <span className="gestor-text text-sm font-medium">Engajamento de Alunos</span>
                 </div>
                 
-                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
-                  <Book size={24} className="text-[#F08B13] mb-2" />
-                  <span className="text-white text-sm font-medium">Missões Completadas</span>
+                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
+                  <Book size={24} className="text-[var(--gestor-highlight)] mb-2" />
+                  <span className="gestor-text text-sm font-medium">Missões Completadas</span>
                 </div>
                 
-                <div className="bg-[#0D0D0D] p-3 flex flex-col items-center justify-center hover:bg-[#191919] cursor-pointer">
-                  <School size={24} className="text-[#F08B13] mb-2" />
-                  <span className="text-white text-sm font-medium">Desempenho por Escola</span>
+                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
+                  <School size={24} className="text-[var(--gestor-highlight)] mb-2" />
+                  <span className="gestor-text text-sm font-medium">Desempenho por Escola</span>
                 </div>
               </div>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <div className="mb-4">
-                    <h4 className="text-white text-sm font-medium mb-2">Filtros</h4>
+                    <h4 className="gestor-text text-sm font-medium mb-2">Filtros</h4>
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="text-[#C2C2C2] text-xs block mb-1">Escola</label>
-                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
+                        <label className="gestor-text-aux text-xs block mb-1">Escola</label>
+                        <select className="gestor-select text-sm">
                           <option value="">Todas as escolas</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-[#C2C2C2] text-xs block mb-1">Turma</label>
-                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
+                        <label className="gestor-text-aux text-xs block mb-1">Turma</label>
+                        <select className="gestor-select text-sm">
                           <option value="">Todas as turmas</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-[#C2C2C2] text-xs block mb-1">Componente</label>
-                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
+                        <label className="gestor-text-aux text-xs block mb-1">Componente</label>
+                        <select className="gestor-select text-sm">
                           <option value="">Todos os componentes</option>
                         </select>
                       </div>
                       
                       <div>
-                        <label className="text-[#C2C2C2] text-xs block mb-1">Período</label>
-                        <select className="w-full bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
+                        <label className="gestor-text-aux text-xs block mb-1">Período</label>
+                        <select className="gestor-select text-sm">
                           <option value="ultimo_mes">Último mês</option>
                           <option value="ultimo_bimestre">Último bimestre</option>
                           <option value="ultimo_semestre">Último semestre</option>
