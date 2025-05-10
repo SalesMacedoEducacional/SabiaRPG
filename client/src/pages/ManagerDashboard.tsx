@@ -106,42 +106,42 @@ const ManagerDashboard: React.FC = () => {
     { 
       title: 'Escolas', 
       value: managerInfo?.hasSchool ? 1 : 0, 
-      icon: <School size={24} className="text-accent" /> 
+      icon: <School size={24} className="text-[#d4a76a]" /> 
     },
     { 
       title: 'Professores', 
       value: 0, 
-      icon: <Users size={24} className="text-secondary" /> 
+      icon: <Users size={24} className="text-[#a8742a]" /> 
     },
     { 
       title: 'Alunos', 
       value: 0, 
-      icon: <Book size={24} className="text-primary" /> 
+      icon: <Book size={24} className="text-[#d4a76a]" /> 
     },
     { 
       title: 'Turmas Ativas', 
       value: 0, 
-      icon: <BookOpen size={24} className="text-tertiary" /> 
+      icon: <BookOpen size={24} className="text-[#d4a76a]" /> 
     },
     { 
       title: 'Alunos Ativos',
       value: 0,
-      icon: <Users size={24} className="text-secondary" />
+      icon: <Users size={24} className="text-[#a8742a]" />
     },
     { 
       title: 'Missões Pendentes', 
       value: 0, 
-      icon: <Clock size={24} className="text-tertiary" /> 
+      icon: <Clock size={24} className="text-[#d4a76a]" /> 
     },
     { 
       title: 'Notificações', 
       value: 0, 
-      icon: <Bell size={24} className="text-primary" /> 
+      icon: <Bell size={24} className="text-[#a8742a]" /> 
     },
     { 
       title: 'Alertas de Evasão', 
       value: 0, 
-      icon: <AlertCircle size={24} className="text-primary" />,
+      icon: <AlertCircle size={24} className="text-[#d4a76a]" />,
       status: 'warning'
     }
   ];
