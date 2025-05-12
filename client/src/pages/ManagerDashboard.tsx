@@ -25,6 +25,8 @@ import {
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import ManagerProfile from '../components/manager/ManagerProfile';
+import { ManagerButton } from '../components/manager/ManagerButton';
+import { ManagerCard } from '../components/manager/ManagerCard';
 
 /**
  * Dashboard do Gestor
@@ -77,12 +79,13 @@ export default function ManagerDashboard() {
               Bem-vindo, gestor!
             </p>
           </div>
-          <button 
-            className="manager-button flex items-center gap-1"
+          <ManagerButton 
             onClick={handleLogout}
+            className="flex items-center gap-1"
+            icon={<LogOut size={14} className="mr-1" />}
           >
-            <LogOut size={14} /> Sair
-          </button>
+            Sair
+          </ManagerButton>
         </div>
       </header>
       
@@ -132,105 +135,93 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="manager-stats-card">
+              <ManagerCard asStatsCard={true}>
                 <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">0 ativas</div>
-              </div>
+              </ManagerCard>
               
-              <div className="manager-stats-card">
+              <ManagerCard asStatsCard={true}>
                 <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </div>
+              </ManagerCard>
               
-              <div className="manager-stats-card">
+              <ManagerCard asStatsCard={true}>
                 <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </div>
+              </ManagerCard>
               
-              <div className="manager-stats-card">
+              <ManagerCard asStatsCard={true}>
                 <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
-              </div>
+              </ManagerCard>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Ações Rápidas</h3>
-                  <p className="text-xs text-white/70">
-                    Acesso direto às principais tarefas administrativas
-                  </p>
+              <ManagerCard 
+                title="Ações Rápidas"
+                description="Acesso direto às principais tarefas administrativas"
+              >
+                <div className="flex flex-col gap-2">
+                  <ManagerButton 
+                    variant="action"
+                    fullWidth
+                    onClick={() => navigate('/user-registration')}
+                    icon={<User className="h-4 w-4" />}
+                  >
+                    <span className="text-white">Cadastrar Novo Usuário</span>
+                  </ManagerButton>
+                  
+                  <ManagerButton
+                    variant="action"
+                    fullWidth
+                    onClick={() => navigate('/school-registration')}
+                    icon={<School className="h-4 w-4" />}
+                  >
+                    <span className="text-white">Cadastrar Nova Escola</span>
+                  </ManagerButton>
+                  
+                  <ManagerButton
+                    variant="action"
+                    fullWidth
+                    onClick={() => navigate('/class-registration')}
+                    icon={<BookOpen className="h-4 w-4" />}
+                  >
+                    <span className="text-white">Gerenciar Turmas</span>
+                  </ManagerButton>
                 </div>
-                <div className="p-4">
-                  <div className="flex flex-col gap-2">
-                    <button 
-                      className="manager-action-button w-full"
-                      onClick={() => navigate('/user-registration')}
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      <span className="text-white">Cadastrar Novo Usuário</span>
-                    </button>
-                    
-                    <button
-                      className="manager-action-button w-full"
-                      onClick={() => navigate('/school-registration')}
-                    >
-                      <School className="h-4 w-4 mr-2" />
-                      <span className="text-white">Cadastrar Nova Escola</span>
-                    </button>
-                    
-                    <button
-                      className="manager-action-button w-full"
-                      onClick={() => navigate('/class-registration')}
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      <span className="text-white">Gerenciar Turmas</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+              </ManagerCard>
               
               {/* Alunos Ativos */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Alunos Ativos na Plataforma</h3>
-                </div>
-                <div className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-white text-3xl font-bold">0</div>
-                      <div className="text-accent text-xs">Últimos 7 dias</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-3xl font-bold">0</div>
-                      <div className="text-accent text-xs">Últimos 30 dias</div>
-                    </div>
+              <ManagerCard title="Alunos Ativos na Plataforma">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-white text-3xl font-bold">0</div>
+                    <div className="text-accent text-xs">Últimos 7 dias</div>
+                  </div>
+                  <div>
+                    <div className="text-white text-3xl font-bold">0</div>
+                    <div className="text-accent text-xs">Últimos 30 dias</div>
                   </div>
                 </div>
-              </div>
+              </ManagerCard>
               
               {/* Alerta de Evasão */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Alerta de Evasão Potencial</h3>
-                  <p className="text-xs text-white/70">
-                    Alunos com mais de 30 dias sem acesso
-                  </p>
-                </div>
-                <div className="p-4">
-                  <div className="text-white text-4xl font-bold text-center my-4">0</div>
-                  
-                  <button className="manager-button w-full">
-                    Ver Lista
-                  </button>
-                </div>
-              </div>
+              <ManagerCard
+                title="Alerta de Evasão Potencial"
+                description="Alunos com mais de 30 dias sem acesso"
+              >
+                <div className="text-white text-4xl font-bold text-center my-4">0</div>
+                
+                <ManagerButton fullWidth>
+                  Ver Lista
+                </ManagerButton>
+              </ManagerCard>
             </div>
             
             {/* Escolas com maior engajamento e atividade recente */}
