@@ -39,6 +39,11 @@ const isManager = async (req: express.Request, res: express.Response, next: expr
  */
 router.get('/escolas', isAuthenticated, isManager, async (req, res) => {
   try {
+    // Garantir que temos um usuário autenticado após os middlewares
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+    
     // Buscar todas as escolas onde o gestor_id é o ID do usuário logado e ativa = true
     const { data: escolas, error } = await supabase
       .from('escolas')
@@ -68,6 +73,11 @@ router.get('/escolas', isAuthenticated, isManager, async (req, res) => {
  */
 router.get('/professores', isAuthenticated, isManager, async (req, res) => {
   try {
+    // Garantir que temos um usuário autenticado após os middlewares
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+    
     // Primeiro, buscar todas as escolas do gestor
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')
@@ -116,6 +126,11 @@ router.get('/professores', isAuthenticated, isManager, async (req, res) => {
  */
 router.get('/alunos', isAuthenticated, isManager, async (req, res) => {
   try {
+    // Garantir que temos um usuário autenticado após os middlewares
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+    
     // Primeiro, buscar todas as escolas do gestor
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')
@@ -188,6 +203,11 @@ router.get('/alunos', isAuthenticated, isManager, async (req, res) => {
  */
 router.get('/turmas', isAuthenticated, isManager, async (req, res) => {
   try {
+    // Garantir que temos um usuário autenticado após os middlewares
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+    
     // Primeiro, buscar todas as escolas do gestor
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')

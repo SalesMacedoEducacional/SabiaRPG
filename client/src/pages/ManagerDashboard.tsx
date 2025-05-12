@@ -132,29 +132,10 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="manager-stats-card">
-                <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
-                <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-accent mt-1">0 ativas</div>
-              </div>
-              
-              <div className="manager-stats-card">
-                <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
-                <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </div>
-              
-              <div className="manager-stats-card">
-                <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
-                <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </div>
-              
-              <div className="manager-stats-card">
-                <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
-                <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
-              </div>
+              <TotalEscolasCard />
+              <TotalProfessoresCard />
+              <TotalAlunosCard />
+              <TotalTurmasCard />
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}

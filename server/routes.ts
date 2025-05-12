@@ -1545,6 +1545,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas do gestor
   app.use('/api', managerRoutes);
   
+  // Adicionar rotas do dashboard do gestor
+  app.use('/api', gestorDashboardRoutes);
+  
   // Registrar rotas de administração de usuários
   app.use(getUserAdminRoutes());
   
