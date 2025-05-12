@@ -69,15 +69,18 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-dark">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-dark border-b border-accent shadow-md">
+      <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
-          <div>
-            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
-            <p className="text-accent text-sm">
-              Bem-vindo, gestor!
-            </p>
+          <div className="flex items-center gap-3">
+            <img src="/images/logo-sabia-small.png" alt="SABIÁ RPG" className="h-10" />
+            <div>
+              <h1 className="text-2xl font-bold text-white">Dashboard do Gestor</h1>
+              <p className="text-white/80 text-sm">
+                Bem-vindo, gestor!
+              </p>
+            </div>
           </div>
           <ManagerButton 
             onClick={handleLogout}
@@ -92,39 +95,43 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-dark-light border-b border-accent">
+          <TabsList className="grid grid-cols-4 gap-0 bg-white border-b border-gray-200 shadow-sm">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
+                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
                 <Home size={14} className="mr-1.5" />
                 Visão Geral
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
+                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
                 <FileBarChart2 size={14} className="mr-1.5" />
                 Relatórios
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
+                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
                 <Settings size={14} className="mr-1.5" />
                 Configurações
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none 
+                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
                 <User size={14} className="mr-1.5" />
                 Meu Perfil
               </span>
@@ -136,26 +143,26 @@ export default function ManagerDashboard() {
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
               <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
-                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-sm font-medium text-primary mb-2">Total de Escolas Vinculadas</div>
+                <div className="text-4xl font-bold text-gray-800">0</div>
                 <div className="text-xs text-accent mt-1">0 ativas</div>
               </ManagerCard>
               
               <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
-                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-sm font-medium text-primary mb-2">Total de Professores</div>
+                <div className="text-4xl font-bold text-gray-800">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
               </ManagerCard>
               
               <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
-                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-sm font-medium text-primary mb-2">Total de Alunos</div>
+                <div className="text-4xl font-bold text-gray-800">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
               </ManagerCard>
               
               <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
-                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-sm font-medium text-primary mb-2">Turmas Ativas</div>
+                <div className="text-4xl font-bold text-gray-800">0</div>
                 <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
               </ManagerCard>
             </div>
@@ -231,7 +238,7 @@ export default function ManagerDashboard() {
                 title="Escolas com Maior Engajamento"
                 description="Escolas com melhores taxas de participação"
               >
-                <div className="flex items-center justify-center h-40 text-white">
+                <div className="flex items-center justify-center h-40 text-gray-600">
                   Nenhuma escola cadastrada
                 </div>
               </ManagerCard>
