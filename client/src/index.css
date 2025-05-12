@@ -155,7 +155,7 @@
   }
   
   .manager-action-button {
-    @apply flex items-center text-[#D9D6D0] hover:bg-[#3d3a31] p-2 transition-colors rounded;
+    @apply flex items-center text-[#D9D6D0] hover:bg-[#4a4639] p-2 transition-colors rounded;
   }
   
   .manager-action-button > svg {

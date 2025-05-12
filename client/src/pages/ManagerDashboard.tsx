@@ -261,7 +261,7 @@ export default function ManagerDashboard() {
                 <div className="p-4">
                   <div className="space-y-4">
                     <div className="flex items-start">
-                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
                         <FileText className="h-4 w-4 text-accent" />
                       </div>
                       <div>
@@ -272,7 +272,7 @@ export default function ManagerDashboard() {
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
                         <Users className="h-4 w-4 text-accent" />
                       </div>
                       <div>
@@ -283,7 +283,7 @@ export default function ManagerDashboard() {
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
                         <AlertCircle className="h-4 w-4 text-accent" />
                       </div>
                       <div>
