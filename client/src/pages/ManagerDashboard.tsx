@@ -354,7 +354,7 @@ export default function ManagerDashboard() {
                       <div className="grid grid-cols-3 gap-4 mb-4">
                         <div>
                           <label className="text-white/70 text-xs block mb-1">Período</label>
-                          <select className="manager-select">
+                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
                             <option value="7">Últimos 7 dias</option>
                             <option value="30">Últimos 30 dias</option>
                             <option value="90">Últimos 90 dias</option>
@@ -363,15 +363,15 @@ export default function ManagerDashboard() {
                         </div>
                         
                         <div>
-                          <label className="text-muted-foreground text-xs block mb-1">Componente</label>
-                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                          <label className="text-white/70 text-xs block mb-1">Componente</label>
+                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
                             <option value="">Todos os componentes</option>
                           </select>
                         </div>
                         
                         <div>
-                          <label className="text-muted-foreground text-xs block mb-1">Formato</label>
-                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                          <label className="text-white/70 text-xs block mb-1">Formato</label>
+                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
                             <option value="pdf">PDF</option>
                             <option value="xlsx">XLSX</option>
                             <option value="csv">CSV</option>
@@ -379,7 +379,7 @@ export default function ManagerDashboard() {
                         </div>
                       </div>
                       
-                      <Button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors">
+                      <Button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors">
                         Gerar Relatório
                       </Button>
                     </div>

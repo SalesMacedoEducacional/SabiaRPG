@@ -143,7 +143,7 @@
   
   /* Classes específicas para o painel do gestor (para manter compatibilidade) */
   .manager-card {
-    @apply bg-[#4a4639] border border-[#bf7918] rounded-md;
+    @apply bg-[#312e26] border border-[#bf7918] rounded-md;
   }
   
   .manager-card-header {
@@ -163,15 +163,15 @@
   }
   
   .manager-select {
-    @apply bg-[#57533f] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
+    @apply bg-[#4a4639] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
   }
   
   .manager-input {
-    @apply bg-[#57533f] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
+    @apply bg-[#4a4639] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
   }
   
   .manager-stats-card {
-    @apply bg-[#4a4639] border border-[#bf7918] p-4 rounded-md;
+    @apply bg-[#312e26] border border-[#bf7918] p-4 rounded-md;
   }
 }
 
