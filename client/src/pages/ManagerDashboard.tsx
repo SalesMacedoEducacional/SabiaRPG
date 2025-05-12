@@ -441,8 +441,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
-              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
+            <div className="manager-card overflow-hidden mb-4">
+              <div className="manager-card-header">
                 <h3 className="text-lg font-medium text-white">Configurações</h3>
                 <p className="text-sm text-white/70">
                   Gerencie configurações do sistema e preferências do usuário.
@@ -450,8 +450,8 @@ export default function ManagerDashboard() {
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
+                  <div className="manager-card overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="manager-card-header">
                       <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
                       <p className="text-xs text-white/70">
                         Professores, alunos e outros gestores
@@ -464,22 +464,22 @@ export default function ManagerDashboard() {
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
+                  <div className="manager-card overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="manager-card-header">
                       <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
                       <p className="text-xs text-white/70">
                         Adicionar, editar e gerenciar escolas
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="manager-button w-full">
                         Acessar
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
+                  <div className="manager-card overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="manager-card-header">
                       <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
                       <p className="text-xs text-white/70">
                         Adicionar, editar e gerenciar turmas
