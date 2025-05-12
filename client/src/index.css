@@ -4,64 +4,60 @@
 
 @layer base {
   :root {
-    /* Paleta Principal do SABIÁ RPG - Nova versão mais clara e amigável */
-    --color-primary: #2E7D32; /* Verde mais vibrante - cor principal */
-    --color-primary-hover: #388E3C;
-    --color-primary-light: #81C784;
-    
-    --color-accent: #FF9800; /* Laranja mais vibrante */
-    --color-accent-hover: #FFA726;
+    /* Paleta Principal do SABIÁ RPG */
+    --color-accent: #D47C06;
+    --color-accent-hover: #F19029;
     --color-accent-foreground: #ffffff;
     
-    --color-dark: #263238; /* Azul escuro mais suave */
-    --color-dark-light: #455A64;
+    --color-dark: #0E0E0E;
+    --color-dark-light: #1F1F1F;
     
-    --color-background: #ECEFF1; /* Fundo claro mais amigável */
-    --color-foreground: #263238;
+    --color-background: #121212;
+    --color-foreground: #ffffff;
     
-    --color-card-border: #2E7D32;
-    --color-card-background: #FFFFFF;
+    --color-card-border: #D47C06;
+    --color-card-background: #212121;
     
-    --color-button-bg: #2E7D32;
-    --color-button-hover: #388E3C;
-    --color-button-border: #81C784;
+    --color-button-bg: #3E2D1B;
+    --color-button-hover: #2C1E10;
+    --color-button-border: #D47C06;
     
     /* Variáveis do gerenciador/gestor */
     --color-manager-button-bg: var(--color-button-bg);
     --color-manager-button-hover: var(--color-button-hover);
     --color-manager-button-border: var(--color-button-border);
-    --color-manager-card-bg: #FFFFFF;
-    --color-manager-card-border: var(--color-primary);
-    --color-manager-card-header: #E8F5E9;
+    --color-manager-card-bg: #1A1409;
+    --color-manager-card-border: var(--color-button-border);
+    --color-manager-card-header: #3E2D1B;
     
-    /* ShadCN Variables - Cores claras e confortáveis */
-    --background: 200 14% 96%; /* ECEFF1 - Fundo claro */
-    --foreground: 200 32% 18%; /* 263238 - Texto escuro */
+    /* ShadCN Variables */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 100%;
     
-    --card: 0 0% 100%; /* Branco */
-    --card-foreground: 200 32% 18%; /* Texto escuro */
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 100%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 32% 18%;
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 100%;
     
-    --primary: 120 48% 34%; /* 2E7D32 - Verde vibrant */
-    --primary-foreground: 0 0% 100%; /* Branco */
+    --primary: 28 91% 42%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 120 24% 93%; /* E8F5E9 - Verde muito claro */
-    --secondary-foreground: 120 48% 34%; /* Verde vibrant */
+    --secondary: 28 63% 18%;
+    --secondary-foreground: 0 0% 100%;
     
-    --muted: 200 18% 46%;
-    --muted-foreground: 200 38% 16%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 70%;
     
-    --accent: 36 100% 50%; /* FF9800 - Laranja */
-    --accent-foreground: 0 0% 100%; /* Branco */
+    --accent: 28 91% 42%;
+    --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 84% 60%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 120 48% 34%; /* 2E7D32 - Verde vibrant */
-    --input: 0 0% 100%; /* Branco */
-    --ring: 120 48% 34%; /* 2E7D32 - Verde vibrant */
+    --border: 28 91% 42%;
+    --input: 0 0% 13%;
+    --ring: 28 91% 42%;
     
     --radius: 0.5rem;
   }
@@ -80,50 +76,47 @@
 
 /* Estilos Customizados do Sistema */
 @layer components {
-  /* Estilos do Manager/Gestor - Versão clara e moderna */
+  /* Estilos do Manager/Gestor - Versão unificada */
   .manager-button {
     @apply bg-[color:var(--color-manager-button-bg)] 
     border border-[color:var(--color-manager-button-border)] 
     text-white px-4 py-2 rounded 
     hover:bg-[color:var(--color-manager-button-hover)] 
-    hover:border-accent 
-    transition-colors shadow-sm;
+    hover:border-amber-400 
+    transition-colors;
   }
   
   .manager-action-button {
     @apply flex items-center gap-2 
-    bg-[color:var(--color-accent)] 
-    border border-transparent 
+    bg-[color:var(--color-manager-button-bg)] 
+    border border-[color:var(--color-manager-button-border)] 
     text-white px-4 py-2 rounded 
-    hover:bg-[color:var(--color-accent-hover)] 
-    transition-colors shadow-sm;
+    hover:bg-[color:var(--color-manager-button-hover)] 
+    hover:border-amber-400 
+    transition-colors;
   }
   
   .manager-card {
     @apply bg-[color:var(--color-manager-card-bg)] 
     border border-[color:var(--color-manager-card-border)] 
-    rounded-md overflow-hidden shadow-md;
+    rounded-md overflow-hidden;
   }
   
   .manager-stats-card {
     @apply bg-[color:var(--color-manager-card-bg)] 
-    border-l-4 border-l-[color:var(--color-primary)]
-    shadow-md
-    rounded-md p-4 transition-colors;
+    border border-[color:var(--color-manager-card-border)] 
+    rounded-md p-4 transition-colors
+    hover:border-amber-400;
   }
   
   .manager-card-header {
     @apply bg-[color:var(--color-manager-card-header)] 
-    p-3 border-b border-[color:var(--color-manager-card-border)]
-    text-[color:var(--color-primary)];
+    p-3 border-b border-[color:var(--color-manager-card-border)];
   }
   
   .manager-select {
-    @apply w-full bg-white 
-    border border-gray-300 
-    text-gray-800 rounded p-2 text-sm
-    focus:border-[color:var(--color-primary)]
-    focus:ring-1 focus:ring-[color:var(--color-primary)]
-    focus:outline-none;
+    @apply w-full bg-dark 
+    border border-[color:var(--color-manager-card-border)] 
+    text-white rounded p-2 text-sm;
   }
 }

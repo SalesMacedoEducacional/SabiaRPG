@@ -69,69 +69,61 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-dark">
       {/* Header */}
-      <header className="bg-primary text-white shadow-md">
+      <header className="bg-dark border-b border-accent shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
-          <div className="flex items-center gap-3">
-            <img src="/images/logo-sabia-small.png" alt="SABIÁ RPG" className="h-10" />
-            <div>
-              <h1 className="text-2xl font-bold text-white">Dashboard do Gestor</h1>
-              <p className="text-white/80 text-sm">
-                Bem-vindo, gestor!
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
+            <p className="text-accent text-sm">
+              Bem-vindo, gestor!
+            </p>
           </div>
-          <ManagerButton 
+          <button 
+            className="manager-button flex items-center gap-1"
             onClick={handleLogout}
-            className="flex items-center gap-1"
-            icon={<LogOut size={14} className="mr-1" />}
           >
-            Sair
-          </ManagerButton>
+            <LogOut size={14} /> Sair
+          </button>
         </div>
       </header>
       
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-white border-b border-gray-200 shadow-sm">
+          <TabsList className="grid grid-cols-4 gap-0 bg-dark-light border-b border-accent">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
-                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
+              <span className="flex items-center text-white">
                 <Home size={14} className="mr-1.5" />
                 Visão Geral
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
-                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
+              <span className="flex items-center text-white">
                 <FileBarChart2 size={14} className="mr-1.5" />
                 Relatórios
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-gray-200 
-                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
+              <span className="flex items-center text-white">
                 <Settings size={14} className="mr-1.5" />
                 Configurações
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none 
-                data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-b-primary"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-gray-800 data-[state=active]:text-primary">
+              <span className="flex items-center text-white">
                 <User size={14} className="mr-1.5" />
                 Meu Perfil
               </span>
@@ -142,364 +134,392 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-primary mb-2">Total de Escolas Vinculadas</div>
-                <div className="text-4xl font-bold text-gray-800">0</div>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
+                <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">0 ativas</div>
-              </ManagerCard>
+              </div>
               
-              <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-primary mb-2">Total de Professores</div>
-                <div className="text-4xl font-bold text-gray-800">0</div>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
+                <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </ManagerCard>
+              </div>
               
-              <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-primary mb-2">Total de Alunos</div>
-                <div className="text-4xl font-bold text-gray-800">0</div>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
+                <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-              </ManagerCard>
+              </div>
               
-              <ManagerCard asStatsCard={true}>
-                <div className="text-sm font-medium text-primary mb-2">Turmas Ativas</div>
-                <div className="text-4xl font-bold text-gray-800">0</div>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
+                <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
-              </ManagerCard>
+              </div>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <ManagerCard 
-                title="Ações Rápidas"
-                description="Acesso direto às principais tarefas administrativas"
-              >
-                <div className="flex flex-col gap-2">
-                  <ManagerButton 
-                    variant="action"
-                    fullWidth
-                    onClick={() => navigate('/user-registration')}
-                    icon={<User className="h-4 w-4" />}
-                  >
-                    <span className="text-white">Cadastrar Novo Usuário</span>
-                  </ManagerButton>
-                  
-                  <ManagerButton
-                    variant="action"
-                    fullWidth
-                    onClick={() => navigate('/school-registration')}
-                    icon={<School className="h-4 w-4" />}
-                  >
-                    <span className="text-white">Cadastrar Nova Escola</span>
-                  </ManagerButton>
-                  
-                  <ManagerButton
-                    variant="action"
-                    fullWidth
-                    onClick={() => navigate('/class-registration')}
-                    icon={<BookOpen className="h-4 w-4" />}
-                  >
-                    <span className="text-white">Gerenciar Turmas</span>
-                  </ManagerButton>
+              <div className="manager-card overflow-hidden">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Ações Rápidas</h3>
+                  <p className="text-xs text-white/70">
+                    Acesso direto às principais tarefas administrativas
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-4">
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      className="manager-action-button w-full"
+                      onClick={() => navigate('/user-registration')}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      <span className="text-white">Cadastrar Novo Usuário</span>
+                    </button>
+                    
+                    <button
+                      className="manager-action-button w-full"
+                      onClick={() => navigate('/school-registration')}
+                    >
+                      <School className="h-4 w-4 mr-2" />
+                      <span className="text-white">Cadastrar Nova Escola</span>
+                    </button>
+                    
+                    <button
+                      className="manager-action-button w-full"
+                      onClick={() => navigate('/class-registration')}
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      <span className="text-white">Gerenciar Turmas</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
               
               {/* Alunos Ativos */}
-              <ManagerCard title="Alunos Ativos na Plataforma">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-gray-800 text-3xl font-bold">0</div>
-                    <div className="text-accent text-xs">Últimos 7 dias</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-800 text-3xl font-bold">0</div>
-                    <div className="text-accent text-xs">Últimos 30 dias</div>
+              <div className="manager-card overflow-hidden">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Alunos Ativos na Plataforma</h3>
+                </div>
+                <div className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-white text-3xl font-bold">0</div>
+                      <div className="text-accent text-xs">Últimos 7 dias</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-3xl font-bold">0</div>
+                      <div className="text-accent text-xs">Últimos 30 dias</div>
+                    </div>
                   </div>
                 </div>
-              </ManagerCard>
+              </div>
               
               {/* Alerta de Evasão */}
-              <ManagerCard
-                title="Alerta de Evasão Potencial"
-                description="Alunos com mais de 30 dias sem acesso"
-              >
-                <div className="text-gray-800 text-4xl font-bold text-center my-4">0</div>
-                
-                <ManagerButton fullWidth>
-                  Ver Lista
-                </ManagerButton>
-              </ManagerCard>
+              <div className="manager-card overflow-hidden">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Alerta de Evasão Potencial</h3>
+                  <p className="text-xs text-white/70">
+                    Alunos com mais de 30 dias sem acesso
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="text-white text-4xl font-bold text-center my-4">0</div>
+                  
+                  <button className="manager-button w-full">
+                    Ver Lista
+                  </button>
+                </div>
+              </div>
             </div>
             
             {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Escolas com Maior Engajamento */}
-              <ManagerCard
-                title="Escolas com Maior Engajamento"
-                description="Escolas com melhores taxas de participação"
-              >
-                <div className="flex flex-col items-center justify-center h-40 text-gray-600">
-                  <div className="mb-3 text-primary/50">
-                    <School size={32} />
-                  </div>
-                  <p>Nenhuma escola cadastrada</p>
+              <div className="manager-card overflow-hidden">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Escolas com Maior Engajamento</h3>
+                  <p className="text-xs text-white/70">
+                    Escolas com melhores taxas de participação
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-4">
+                  <div className="flex items-center justify-center h-40 text-white">
+                    Nenhuma escola cadastrada
+                  </div>
+                </div>
+              </div>
               
               {/* Atividade Recente */}
-              <ManagerCard
-                title="Atividade Recente"
-                description="Últimas ações e eventos no sistema"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
-                      <FileText className="h-4 w-4 text-primary" />
+              <div className="manager-card overflow-hidden">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Atividade Recente</h3>
+                  <p className="text-xs text-white/70">
+                    Últimas ações e eventos no sistema
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                        <FileText className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">Novo relatório gerado</p>
+                        <p className="text-white/70 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                        <p className="text-accent text-xs">Hoje, 09:45</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-gray-800 text-sm font-medium">Novo relatório gerado</p>
-                      <p className="text-gray-500 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
-                      <p className="text-accent text-xs">Hoje, 09:45</p>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                        <Users className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
+                        <p className="text-white/70 text-xs">12 alunos adicionados à plataforma</p>
+                        <p className="text-accent text-xs">Ontem, 15:30</p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
-                      <Users className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-gray-800 text-sm font-medium">Novos usuários cadastrados</p>
-                      <p className="text-gray-500 text-xs">12 alunos adicionados à plataforma</p>
-                      <p className="text-accent text-xs">Ontem, 15:30</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
-                      <AlertCircle className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-gray-800 text-sm font-medium">Alerta de engajamento</p>
-                      <p className="text-gray-500 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
-                      <p className="text-accent text-xs">12/05, 13:15</p>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
+                        <AlertCircle className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">Alerta de engajamento</p>
+                        <p className="text-white/70 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                        <p className="text-accent text-xs">12/05, 13:15</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </ManagerCard>
+              </div>
             </div>
           </TabsContent>
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <ManagerCard 
-              title="Relatórios"
-              description="Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões."
-              className="mb-4"
-            >
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
-                  <FileBarChart2 size={24} className="text-accent mb-2" />
-                  <span className="text-white text-sm font-medium">Desempenho por Turma</span>
-                </div>
-                
-                <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
-                  <Users size={24} className="text-accent mb-2" />
-                  <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
-                </div>
-                
-                <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
-                  <Book size={24} className="text-accent mb-2" />
-                  <span className="text-white text-sm font-medium">Missões Completadas</span>
-                </div>
-                
-                <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
-                  <School size={24} className="text-accent mb-2" />
-                  <span className="text-white text-sm font-medium">Desempenho por Escola</span>
-                </div>
+            <div className="manager-card overflow-hidden mb-4">
+              <div className="manager-card-header">
+                <h3 className="text-lg font-medium text-white">Relatórios</h3>
+                <p className="text-sm text-white/70">
+                  Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
+                </p>
               </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
-                  <div className="mb-4">
-                    <h4 className="text-white text-sm font-medium mb-2">Filtros</h4>
-                    
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="text-white/70 text-xs block mb-1">Escola</label>
-                        <select className="manager-select">
-                          <option value="">Todas as escolas</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-white/70 text-xs block mb-1">Turma</label>
-                        <select className="manager-select">
-                          <option value="">Todas as turmas</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <label className="text-white/70 text-xs block mb-1">Período</label>
-                        <select className="manager-select">
-                          <option value="7">Últimos 7 dias</option>
-                          <option value="30">Últimos 30 dias</option>
-                          <option value="90">Últimos 90 dias</option>
-                          <option value="year">Este ano</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-white/70 text-xs block mb-1">Componente</label>
-                        <select className="manager-select">
-                          <option value="">Todos os componentes</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-white/70 text-xs block mb-1">Formato</label>
-                        <select className="manager-select">
-                          <option value="pdf">PDF</option>
-                          <option value="xlsx">XLSX</option>
-                          <option value="csv">CSV</option>
-                        </select>
-                      </div>
-                    </div>
+              <div className="p-4">
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                    <FileBarChart2 size={24} className="text-accent mb-2" />
+                    <span className="text-white text-sm font-medium">Desempenho por Turma</span>
+                  </div>
+                  
+                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                    <Users size={24} className="text-accent mb-2" />
+                    <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
+                  </div>
+                  
+                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                    <Book size={24} className="text-accent mb-2" />
+                    <span className="text-white text-sm font-medium">Missões Completadas</span>
+                  </div>
+                  
+                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                    <School size={24} className="text-accent mb-2" />
+                    <span className="text-white text-sm font-medium">Desempenho por Escola</span>
                   </div>
                 </div>
                 
-                <div>
-                  <h4 className="text-white text-sm font-medium mb-2">Ações</h4>
-                  <div className="space-y-2">
-                    <ManagerButton 
-                      className="w-full flex justify-center items-center" 
-                      icon={<FileBarChart2 className="h-4 w-4 mr-1.5" />}
-                    >
-                      Gerar Relatório
-                    </ManagerButton>
-                    
-                    <ManagerButton 
-                      className="w-full flex justify-center items-center" 
-                      icon={<Clock className="h-4 w-4 mr-1.5" />}
-                    >
-                      Agendar Relatório
-                    </ManagerButton>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <div className="mb-4">
+                      <h4 className="text-white text-sm font-medium mb-2">Filtros</h4>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="text-white/70 text-xs block mb-1">Escola</label>
+                          <select className="manager-select">
+                            <option value="">Todas as escolas</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-white/70 text-xs block mb-1">Turma</label>
+                          <select className="manager-select">
+                            <option value="">Todas as turmas</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <label className="text-white/70 text-xs block mb-1">Período</label>
+                          <select className="manager-select">
+                            <option value="7">Últimos 7 dias</option>
+                            <option value="30">Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                            <option value="year">Este ano</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-white/70 text-xs block mb-1">Componente</label>
+                          <select className="manager-select">
+                            <option value="">Todos os componentes</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-white/70 text-xs block mb-1">Formato</label>
+                          <select className="manager-select">
+                            <option value="pdf">PDF</option>
+                            <option value="xlsx">XLSX</option>
+                            <option value="csv">CSV</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-white text-sm font-medium mb-2">Ações</h4>
+                    <div className="space-y-2">
+                      <button className="manager-action-button w-full flex justify-center items-center">
+                        <FileBarChart2 className="h-4 w-4 mr-1.5" />
+                        Gerar Relatório
+                      </button>
+                      
+                      <button className="manager-button w-full flex justify-center items-center">
+                        <Clock className="h-4 w-4 mr-1.5" />
+                        Agendar Relatório
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </ManagerCard>
+            </div>
             
-            <ManagerCard
-              title="Relatórios Recentes"
-              description="Visualize ou baixe os relatórios gerados anteriormente"
-            >
-              <div className="flex flex-col items-center justify-center h-40 text-gray-600">
-                <div className="mb-3 text-primary/50">
-                  <FileBarChart2 size={32} />
-                </div>
-                <p>Nenhum relatório gerado recentemente</p>
+            <div className="manager-card overflow-hidden">
+              <div className="manager-card-header">
+                <h3 className="text-sm font-medium text-white">Relatórios Recentes</h3>
+                <p className="text-xs text-white/70">
+                  Visualize ou baixe os relatórios gerados anteriormente
+                </p>
               </div>
-            </ManagerCard>
+              <div className="p-4">
+                <div className="flex items-center justify-center h-40 text-white">
+                  Nenhum relatório gerado recentemente
+                </div>
+              </div>
+            </div>
           </TabsContent>
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <ManagerCard
-                title="Gerenciar Usuários"
-                description="Adicionar, editar ou remover usuários do sistema"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center" 
-                    icon={<User className="h-4 w-4 mr-1.5" />}
-                  >
-                    Gerenciar Usuários
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
+                  <p className="text-xs text-white/70">
+                    Adicionar, editar ou remover usuários do sistema
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
               
-              <ManagerCard
-                title="Gerenciar Turmas"
-                description="Criar e configurar turmas"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center" 
-                    icon={<Users className="h-4 w-4 mr-1.5" />}
-                  >
-                    Gerenciar Turmas
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
+                  <p className="text-xs text-white/70">
+                    Criar e configurar turmas
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
               
-              <ManagerCard
-                title="Gerenciar Escolas"
-                description="Administrar escolas vinculadas"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center" 
-                    icon={<School className="h-4 w-4 mr-1.5" />}
-                  >
-                    Gerenciar Escolas
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
+                  <p className="text-xs text-white/70">
+                    Administrar escolas vinculadas
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <ManagerCard
-                title="Configurar Componentes"
-                description="Gerenciar componentes curriculares"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center" 
-                    icon={<Book className="h-4 w-4 mr-1.5" />}
-                  >
-                    Configurar Componentes
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Configurar Componentes</h4>
+                  <p className="text-xs text-white/70">
+                    Gerenciar componentes curriculares
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
               
-              <ManagerCard
-                title="Trilhas de Aprendizagem"
-                description="Configurar trilhas e jornadas"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center"
-                  >
-                    Acessar Trilhas
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Trilhas de Aprendizagem</h4>
+                  <p className="text-xs text-white/70">
+                    Configurar trilhas e jornadas
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
               
-              <ManagerCard
-                title="Missões e Desafios"
-                description="Criar e gerenciar missões"
-              >
-                <div className="space-y-2 mt-2">
-                  <ManagerButton 
-                    className="w-full flex justify-center items-center"
-                  >
-                    Gerenciar Missões
-                  </ManagerButton>
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                <div className="p-3 border-b border-[#D47C06]">
+                  <h4 className="text-sm font-medium text-white">Missões e Desafios</h4>
+                  <p className="text-xs text-white/70">
+                    Criar e gerenciar missões
+                  </p>
                 </div>
-              </ManagerCard>
+                <div className="p-3">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                    Acessar
+                  </button>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <ManagerCard
-              title="Meu Perfil"
-              description="Visualize e edite suas informações pessoais."
-            >
-              <ManagerProfile userId={user.id.toString()} />
-            </ManagerCard>
+            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
+                <h3 className="text-lg font-medium text-white">Meu Perfil</h3>
+                <p className="text-sm text-white/70">
+                  Visualize e edite suas informações pessoais.
+                </p>
+              </div>
+              <div className="p-4">
+                <ManagerProfile userId={user.id.toString()} />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
