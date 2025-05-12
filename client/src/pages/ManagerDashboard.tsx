@@ -25,8 +25,6 @@ import {
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import ManagerProfile from '../components/manager/ManagerProfile';
-import { ManagerButton } from '../components/manager/ManagerButton';
-import { ManagerCard } from '../components/manager/ManagerCard';
 
 /**
  * Dashboard do Gestor
@@ -365,52 +363,77 @@ export default function ManagerDashboard() {
                         </div>
                         
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Componente</label>
-                          <select className="manager-select">
+                          <label className="text-muted-foreground text-xs block mb-1">Componente</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
                             <option value="">Todos os componentes</option>
                           </select>
                         </div>
                         
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Formato</label>
-                          <select className="manager-select">
+                          <label className="text-muted-foreground text-xs block mb-1">Formato</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
                             <option value="pdf">PDF</option>
                             <option value="xlsx">XLSX</option>
                             <option value="csv">CSV</option>
                           </select>
                         </div>
                       </div>
+                      
+                      <Button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors">
+                        Gerar Relatório
+                      </Button>
                     </div>
                   </div>
                   
                   <div>
-                    <h4 className="text-white text-sm font-medium mb-2">Ações</h4>
+                    <h4 className="text-foreground text-sm font-medium mb-2">Métricas</h4>
                     <div className="space-y-2">
-                      <button className="manager-action-button w-full flex justify-center items-center">
-                        <FileBarChart2 className="h-4 w-4 mr-1.5" />
-                        Gerar Relatório
-                      </button>
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id="metric1" 
+                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+                        />
+                        <label htmlFor="metric1" className="text-xs">Pontuação média</label>
+                      </div>
                       
-                      <button className="manager-button w-full flex justify-center items-center">
-                        <Clock className="h-4 w-4 mr-1.5" />
-                        Agendar Relatório
-                      </button>
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id="metric2" 
+                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+                        />
+                        <label htmlFor="metric2" className="text-xs">Missões completadas</label>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id="metric3" 
+                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+                        />
+                        <label htmlFor="metric3" className="text-xs">Tempo de atividade</label>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id="metric4" 
+                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+                        />
+                        <label htmlFor="metric4" className="text-xs">Taxa de conclusão</label>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id="metric5" 
+                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+                        />
+                        <label htmlFor="metric5" className="text-xs">Desistências</label>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="manager-card overflow-hidden">
-              <div className="manager-card-header">
-                <h3 className="text-sm font-medium text-white">Relatórios Recentes</h3>
-                <p className="text-xs text-white/70">
-                  Visualize ou baixe os relatórios gerados anteriormente
-                </p>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-center h-40 text-white">
-                  Nenhum relatório gerado recentemente
                 </div>
               </div>
             </div>
@@ -418,90 +441,98 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
-                  <p className="text-xs text-white/70">
-                    Adicionar, editar ou remover usuários do sistema
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
-                </div>
+            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
+                <h3 className="text-lg font-medium text-white">Configurações</h3>
+                <p className="text-sm text-white/70">
+                  Gerencie configurações do sistema e preferências do usuário.
+                </p>
               </div>
-              
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
-                  <p className="text-xs text-white/70">
-                    Criar e configurar turmas
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
-                </div>
-              </div>
-              
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
-                  <p className="text-xs text-white/70">
-                    Administrar escolas vinculadas
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Configurar Componentes</h4>
-                  <p className="text-xs text-white/70">
-                    Gerenciar componentes curriculares
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
-                </div>
-              </div>
-              
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Trilhas de Aprendizagem</h4>
-                  <p className="text-xs text-white/70">
-                    Configurar trilhas e jornadas
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
-                </div>
-              </div>
-              
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                <div className="p-3 border-b border-[#D47C06]">
-                  <h4 className="text-sm font-medium text-white">Missões e Desafios</h4>
-                  <p className="text-xs text-white/70">
-                    Criar e gerenciar missões
-                  </p>
-                </div>
-                <div className="p-3">
-                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
-                    Acessar
-                  </button>
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
+                      <p className="text-xs text-white/70">
+                        Professores, alunos e outros gestores
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
+                      <p className="text-xs text-white/70">
+                        Adicionar, editar e gerenciar escolas
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
+                      <p className="text-xs text-white/70">
+                        Adicionar, editar e gerenciar turmas
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Componentes Curriculares</h4>
+                      <p className="text-xs text-white/70">
+                        Gerenciar disciplinas e componentes
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Trilhas de Aprendizagem</h4>
+                      <p className="text-xs text-white/70">
+                        Configurar trilhas e jornadas
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                    <div className="p-3 border-b border-[#D47C06]">
+                      <h4 className="text-sm font-medium text-white">Missões e Desafios</h4>
+                      <p className="text-xs text-white/70">
+                        Criar e gerenciar missões
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                        Acessar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
