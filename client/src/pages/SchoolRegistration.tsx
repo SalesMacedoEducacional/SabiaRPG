@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, School, ArrowRight, ArrowLeft } from "lucide-react";
+import { Loader2, School, ArrowRight, ArrowLeft, Plus } from "lucide-react";
 
 export default function SchoolRegistration() {
   const { toast } = useToast();
@@ -24,6 +24,32 @@ export default function SchoolRegistration() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasSchool, setHasSchool] = useState(false);
   const [schoolData, setSchoolData] = useState<any>(null);
+  const [showRegistrationForm, setShowRegistrationForm] = useState(true);
+  const [escolasCadastradas, setEscolasCadastradas] = useState<any[]>([]);
+  const [isLoadingEscolas, setIsLoadingEscolas] = useState(false);
+  
+  // Função para buscar escolas do gestor
+  const fetchEscolas = async () => {
+    setIsLoadingEscolas(true);
+    try {
+      const response = await apiRequest("GET", "/api/escolas/gestor");
+      const data = await response.json();
+      
+      if (data && Array.isArray(data)) {
+        setEscolasCadastradas(data);
+        setShowRegistrationForm(data.length === 0);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar escolas do gestor:", error);
+      toast({
+        title: "Erro ao carregar escolas",
+        description: "Não foi possível carregar as escolas cadastradas",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingEscolas(false);
+    }
+  };
   
   // Verificar se o gestor já tem uma escola cadastrada
   useEffect(() => {
@@ -35,6 +61,8 @@ export default function SchoolRegistration() {
         setHasSchool(data.hasSchool);
         if (data.hasSchool) {
           setSchoolData(data.school);
+          // Buscar todas as escolas do gestor
+          fetchEscolas();
         }
       } catch (error) {
         console.error("Erro ao verificar escola do gestor:", error);
@@ -48,7 +76,7 @@ export default function SchoolRegistration() {
     } else {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, toast, fetchEscolas]);
 
   // Renderizar estado de carregamento
   if (isLoading) {
@@ -133,6 +161,15 @@ export default function SchoolRegistration() {
             className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowRegistrationForm(true)}
+            className="bg-[#43341c] border border-[#D47C06] text-white hover:bg-[#5a4828] flex items-center"
+          >
+            <Plus className="h-4 w-4 mr-1" /> CADASTRAR NOVA ESCOLA
           </Button>
           
           <Button 
