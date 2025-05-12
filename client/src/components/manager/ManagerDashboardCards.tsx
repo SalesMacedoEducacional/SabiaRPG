@@ -6,7 +6,8 @@ import {
   Users, 
   GraduationCap, 
   BookOpen, 
-  Search
+  Search,
+  Building
 } from "lucide-react";
 import {
   Dialog,
@@ -26,7 +27,14 @@ interface Escola {
   id: string;
   nome: string;
   cidade: string;
+  ativo?: boolean;
+  estado?: string;
+  endereco?: string;
+  telefone?: string;
+  email?: string;
+  diretor?: string;
   cidades?: { nome: string };
+  estados?: { nome: string; sigla: string };
 }
 
 interface Professor {
