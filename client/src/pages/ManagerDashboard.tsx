@@ -67,20 +67,20 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-[var(--gestor-background)]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-[var(--gestor-background)] border-b border-[var(--gestor-border)] shadow-md">
+      <header className="bg-dark border-b border-border shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
-            <h1 className="text-2xl font-bold gestor-text">DASHBOARD DO GESTOR</h1>
-            <p className="gestor-text-aux text-sm">
+            <h1 className="text-2xl font-bold text-foreground">DASHBOARD DO GESTOR</h1>
+            <p className="text-accent text-sm">
               Bem-vindo, gestor!
             </p>
           </div>
           <Button 
             variant="default"
             size="sm"
-            className="flex items-center gap-1 bg-[var(--gestor-button)] text-white hover:bg-[var(--gestor-border)] border border-[var(--gestor-border)]"
+            className="flex items-center gap-1"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
@@ -91,10 +91,10 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[var(--gestor-background)]">
+          <TabsList className="grid grid-cols-4 gap-0 bg-dark border-b border-border">
             <TabsTrigger 
               value="overview" 
-              className="gestor-tab"
+              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center">
                 <Home size={14} className="mr-1.5" />
@@ -103,7 +103,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="gestor-tab"
+              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center">
                 <FileBarChart2 size={14} className="mr-1.5" />
@@ -112,7 +112,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="gestor-tab"
+              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center">
                 <Settings size={14} className="mr-1.5" />
@@ -121,7 +121,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="gestor-tab"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center">
                 <User size={14} className="mr-1.5" />
