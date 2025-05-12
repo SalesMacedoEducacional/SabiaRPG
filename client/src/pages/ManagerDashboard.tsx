@@ -27,7 +27,7 @@ import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegist
 import ManagerProfile from '../components/manager/ManagerProfile';
 
 /**
- * Dashboard do Gestor - Versão com tema escuro medieval
+ * Dashboard do Gestor
  * Este componente implementa o dashboard baseado na imagem de referência
  */
 export default function ManagerDashboard() {
@@ -133,407 +133,452 @@ export default function ManagerDashboard() {
           {/* Tab de Visão Geral */}
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
-            <div className="grid grid-cols-4 gap-1 mb-1">
-              <div className="gestor-container p-4">
-                <div className="text-sm">Total de Escolas Vinculadas</div>
-                <div className="gestor-text text-4xl font-bold mt-1">0</div>
-                <div className="gestor-text-aux text-xs">0 ativas</div>
-              </div>
+            <div className="grid grid-cols-4 gap-4 mb-4">
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground">0</div>
+                  <div className="text-xs text-accent mt-1">0 ativas</div>
+                </CardContent>
+              </Card>
               
-              <div className="gestor-container p-4">
-                <div className="gestor-text text-sm">Total de Professores</div>
-                <div className="gestor-text text-4xl font-bold mt-1">0</div>
-                <div className="gestor-text-aux text-xs">Em todas as escolas</div>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground">0</div>
+                  <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+                </CardContent>
+              </Card>
               
-              <div className="gestor-container p-4">
-                <div className="gestor-text text-sm">Total de Alunos</div>
-                <div className="gestor-text text-4xl font-bold mt-1">0</div>
-                <div className="gestor-text-aux text-xs">Em todas as escolas</div>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground">0</div>
+                  <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+                </CardContent>
+              </Card>
               
-              <div className="gestor-container p-4">
-                <div className="gestor-text text-sm">Turmas Ativas</div>
-                <div className="gestor-text text-4xl font-bold mt-1">0</div>
-                <div className="gestor-text-aux text-xs">Distribuídas em todas as escolas</div>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground">0</div>
+                  <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
+                </CardContent>
+              </Card>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
-            <div className="grid grid-cols-3 gap-1 mb-1">
+            <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <div className="gestor-container p-4">
-                <div className="gestor-text text-sm">Ações Rápidas</div>
-                <div className="gestor-text-aux text-xs mb-3">Acesso direto às principais tarefas administrativas</div>
-                
-                <div className="flex flex-col gap-1 mt-2">
-                  <button 
-                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
-                    onClick={() => navigate('/user-registration')}
-                  >
-                    <User className="h-4 w-4 text-[#F08B13] mr-2" />
-                    <span>Cadastrar Novo Usuário</span>
-                  </button>
-                  
-                  <button
-                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
-                    onClick={() => navigate('/school-registration')}
-                  >
-                    <School className="h-4 w-4 text-[#F08B13] mr-2" />
-                    <span>Cadastrar Nova Escola</span>
-                  </button>
-                  
-                  <button
-                    className="gestor-button-action p-2 flex items-center justify-start space-x-2 text-sm"
-                    onClick={() => navigate('/class-registration')}
-                  >
-                    <BookOpen className="h-4 w-4 text-[#F08B13] mr-2" />
-                    <span>Gerenciar Turmas</span>
-                  </button>
-                </div>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Ações Rápidas</CardTitle>
+                  <CardDescription className="text-xs">
+                    Acesso direto às principais tarefas administrativas
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-2 mt-2">
+                    <button 
+                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      onClick={() => navigate('/user-registration')}
+                    >
+                      <User className="h-4 w-4 text-accent mr-2" />
+                      <span>Cadastrar Novo Usuário</span>
+                    </button>
+                    
+                    <button
+                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      onClick={() => navigate('/school-registration')}
+                    >
+                      <School className="h-4 w-4 text-accent mr-2" />
+                      <span>Cadastrar Nova Escola</span>
+                    </button>
+                    
+                    <button
+                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      onClick={() => navigate('/class-registration')}
+                    >
+                      <BookOpen className="h-4 w-4 text-accent mr-2" />
+                      <span>Gerenciar Turmas</span>
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
               
               {/* Alunos Ativos */}
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Alunos Ativos na Plataforma</div>
-                
-                <div className="flex justify-between items-center mt-3">
-                  <div>
-                    <div className="text-white text-3xl font-bold">0</div>
-                    <div className="text-[#C2C2C2] text-xs">Últimos 7 dias</div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center mt-3">
+                    <div>
+                      <div className="text-foreground text-3xl font-bold">0</div>
+                      <div className="text-muted-foreground text-xs">Últimos 7 dias</div>
+                    </div>
+                    <div>
+                      <div className="text-foreground text-3xl font-bold">0</div>
+                      <div className="text-muted-foreground text-xs">Últimos 30 dias</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white text-3xl font-bold">0</div>
-                    <div className="text-[#C2C2C2] text-xs">Últimos 30 dias</div>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
               
               {/* Alerta de Evasão */}
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm mb-1">
-                  Alerta de Evasão Potencial
-                </div>
-                <div className="text-[#C2C2C2] text-xs">Alunos com mais de 30 dias sem acesso</div>
-                
-                <div className="text-white text-4xl font-bold text-center my-5">0</div>
-                
-                <button className="w-full bg-[#0D0D0D] hover:bg-[#272727] text-white text-sm py-1.5 transition-colors">
-                  Ver Lista
-                </button>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
+                  <CardDescription className="text-xs">
+                    Alunos com mais de 30 dias sem acesso
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-foreground text-4xl font-bold text-center my-4">0</div>
+                  
+                  <Button variant="outline" size="sm" className="w-full">
+                    Ver Lista
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
             
             {/* Escolas com maior engajamento e atividade recente */}
-            <div className="grid grid-cols-2 gap-1 mb-1">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Escolas com Maior Engajamento */}
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Escolas com Maior Engajamento</div>
-                <div className="text-[#C2C2C2] text-xs">Escolas com melhores taxas de participação</div>
-                
-                <div className="flex items-center justify-center h-40 text-white">
-                  Nenhuma escola cadastrada
-                </div>
-              </div>
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Escolas com Maior Engajamento</CardTitle>
+                  <CardDescription className="text-xs">
+                    Escolas com melhores taxas de participação
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-center h-40 text-foreground">
+                    Nenhuma escola cadastrada
+                  </div>
+                </CardContent>
+              </Card>
               
               {/* Atividade Recente */}
-              <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-                <div className="text-white text-sm">Atividade Recente</div>
-                <div className="text-[#C2C2C2] text-xs">Últimas ações e eventos no sistema</div>
-                
-                <div className="space-y-4 mt-4">
-                  <div className="flex items-start">
-                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
-                      <FileText className="h-4 w-4 text-[#F08B13]" />
+              <Card className="bg-dark border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Atividade Recente</CardTitle>
+                  <CardDescription className="text-xs">
+                    Últimas ações e eventos no sistema
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 mt-2">
+                    <div className="flex items-start">
+                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
+                        <FileText className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-foreground text-sm font-medium">Novo relatório gerado</p>
+                        <p className="text-muted-foreground text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                        <p className="text-muted-foreground/70 text-xs">Hoje, 09:45</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">Novo relatório gerado</p>
-                      <p className="text-[#C2C2C2] text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
-                      <p className="text-[#C2C2C2]/70 text-xs">Hoje, 09:45</p>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
+                        <Users className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-foreground text-sm font-medium">Novos usuários cadastrados</p>
+                        <p className="text-muted-foreground text-xs">12 alunos adicionados à plataforma</p>
+                        <p className="text-muted-foreground/70 text-xs">Ontem, 15:30</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
+                        <AlertCircle className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-foreground text-sm font-medium">Alerta de engajamento</p>
+                        <p className="text-muted-foreground text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                        <p className="text-muted-foreground/70 text-xs">12/05, 13:15</p>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
-                      <Users className="h-4 w-4 text-[#F08B13]" />
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
-                      <p className="text-[#C2C2C2] text-xs">12 alunos adicionados à plataforma</p>
-                      <p className="text-[#C2C2C2]/70 text-xs">Ontem, 15:30</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-[#0D0D0D] p-1.5 rounded-full mr-3 mt-0.5">
-                      <AlertCircle className="h-4 w-4 text-[#F08B13]" />
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">Alerta de engajamento</p>
-                      <p className="text-[#C2C2C2] text-xs">Queda de atividade em 2 turmas do 8º ano</p>
-                      <p className="text-[#C2C2C2]/70 text-xs">12/05, 13:15</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="gestor-container p-4">
-              <div className="mb-4">
-                <h3 className="gestor-text text-lg font-medium mb-2">Relatórios</h3>
-                <p className="gestor-text-aux text-sm">
+            <Card className="bg-dark border-border">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Relatórios</CardTitle>
+                <CardDescription>
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
-                  <FileBarChart2 size={24} className="text-[var(--gestor-highlight)] mb-2" />
-                  <span className="gestor-text text-sm font-medium">Desempenho por Turma</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
+                    <FileBarChart2 size={24} className="text-accent mb-2" />
+                    <span className="text-foreground text-sm font-medium">Desempenho por Turma</span>
+                  </div>
+                  
+                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
+                    <Users size={24} className="text-accent mb-2" />
+                    <span className="text-foreground text-sm font-medium">Engajamento de Alunos</span>
+                  </div>
+                  
+                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
+                    <Book size={24} className="text-accent mb-2" />
+                    <span className="text-foreground text-sm font-medium">Missões Completadas</span>
+                  </div>
+                  
+                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
+                    <School size={24} className="text-accent mb-2" />
+                    <span className="text-foreground text-sm font-medium">Desempenho por Escola</span>
+                  </div>
                 </div>
                 
-                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
-                  <Users size={24} className="text-[var(--gestor-highlight)] mb-2" />
-                  <span className="gestor-text text-sm font-medium">Engajamento de Alunos</span>
-                </div>
-                
-                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
-                  <Book size={24} className="text-[var(--gestor-highlight)] mb-2" />
-                  <span className="gestor-text text-sm font-medium">Missões Completadas</span>
-                </div>
-                
-                <div className="gestor-card p-3 flex flex-col items-center justify-center hover:bg-[var(--gestor-background)] cursor-pointer transition-colors">
-                  <School size={24} className="text-[var(--gestor-highlight)] mb-2" />
-                  <span className="gestor-text text-sm font-medium">Desempenho por Escola</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
-                  <div className="mb-4">
-                    <h4 className="gestor-text text-sm font-medium mb-2">Filtros</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <div className="mb-4">
+                      <h4 className="text-foreground text-sm font-medium mb-2">Filtros</h4>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="text-muted-foreground text-xs block mb-1">Escola</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                            <option value="">Todas as escolas</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-muted-foreground text-xs block mb-1">Turma</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                            <option value="">Todas as turmas</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-muted-foreground text-xs block mb-1">Componente</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                            <option value="">Todos os componentes</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="text-muted-foreground text-xs block mb-1">Período</label>
+                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                            <option value="ultimo_mes">Último mês</option>
+                            <option value="ultimo_bimestre">Último bimestre</option>
+                            <option value="ultimo_semestre">Último semestre</option>
+                            <option value="ano_letivo">Ano letivo atual</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button>
+                          Gerar Relatório
+                        </Button>
+                        
+                        <select className="bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                          <option value="pdf">PDF</option>
+                          <option value="xlsx">XLSX</option>
+                          <option value="ods">ODS</option>
+                          <option value="csv">CSV</option>
+                        </select>
+                      </div>
+                    </div>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="gestor-text-aux text-xs block mb-1">Escola</label>
-                        <select className="gestor-select text-sm">
-                          <option value="">Todas as escolas</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="gestor-text-aux text-xs block mb-1">Turma</label>
-                        <select className="gestor-select text-sm">
-                          <option value="">Todas as turmas</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="gestor-text-aux text-xs block mb-1">Componente</label>
-                        <select className="gestor-select text-sm">
-                          <option value="">Todos os componentes</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="gestor-text-aux text-xs block mb-1">Período</label>
-                        <select className="gestor-select text-sm">
-                          <option value="ultimo_mes">Último mês</option>
-                          <option value="ultimo_bimestre">Último bimestre</option>
-                          <option value="ultimo_semestre">Último semestre</option>
-                          <option value="ano_letivo">Ano letivo atual</option>
-                        </select>
+                    <div className="bg-background p-4 flex items-center justify-center h-64 border border-border rounded-md">
+                      <div className="text-center">
+                        <FileText size={48} className="text-muted-foreground mx-auto mb-2" />
+                        <p className="text-foreground text-sm">Selecione os filtros e clique em "Gerar Relatório"</p>
+                        <p className="text-muted-foreground text-xs mt-1">A pré-visualização aparecerá aqui</p>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-foreground text-sm font-medium mb-2">Relatórios Recentes</h4>
                     
-                    <div className="flex items-center gap-2">
-                      <button className="bg-[#F08B13] hover:bg-[#D47C06] text-white text-sm px-4 py-2">
-                        Gerar Relatório
-                      </button>
+                    <div className="space-y-2">
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Turmas - 8º Ano</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 11/05/2025</p>
+                          </div>
+                        </div>
+                      </div>
                       
-                      <select className="bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06]">
-                        <option value="pdf">PDF</option>
-                        <option value="xlsx">XLSX</option>
-                        <option value="ods">ODS</option>
-                        <option value="csv">CSV</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-[#0D0D0D] p-4 flex items-center justify-center h-64 border border-[#D47C06]">
-                    <div className="text-center">
-                      <FileText size={48} className="text-[#C2C2C2] mx-auto mb-2" />
-                      <p className="text-white text-sm">Selecione os filtros e clique em "Gerar Relatório"</p>
-                      <p className="text-[#C2C2C2] text-xs mt-1">A pré-visualização aparecerá aqui</p>
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Engajamento - Escola Pedro II</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 10/05/2025</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Missões - Maio/2025</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 09/05/2025</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                <div>
-                  <h4 className="text-white text-sm font-medium mb-2">Relatórios Recentes</h4>
-                  
-                  <div className="bg-[#231f20] p-3 mb-2 border-l-2 border-[#a85f16]">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-white text-sm">Desempenho 1º Bimestre</span>
-                      <span className="text-xs text-gray-400">PDF</span>
-                    </div>
-                    <p className="text-xs text-gray-400">8º Ano A - E.M. Augusto dos Anjos</p>
-                    <p className="text-xs text-gray-500">Gerado em: 01/04/2025</p>
-                    <button className="text-[#a85f16] text-xs mt-1 hover:underline">Fazer download</button>
-                  </div>
-                  
-                  <div className="bg-[#231f20] p-3 mb-2 border-l-2 border-[#a85f16]">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-white text-sm">Missões Concluídas</span>
-                      <span className="text-xs text-gray-400">XLSX</span>
-                    </div>
-                    <p className="text-xs text-gray-400">Todas as turmas - CEEP</p>
-                    <p className="text-xs text-gray-500">Gerado em: 15/03/2025</p>
-                    <button className="text-[#a85f16] text-xs mt-1 hover:underline">Fazer download</button>
-                  </div>
-                  
-                  <div className="bg-[#231f20] p-3 border-l-2 border-[#a85f16]">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-white text-sm">Engajamento Anual</span>
-                      <span className="text-xs text-gray-400">PDF</span>
-                    </div>
-                    <p className="text-xs text-gray-400">Todas as escolas</p>
-                    <p className="text-xs text-gray-500">Gerado em: 10/02/2025</p>
-                    <button className="text-[#a85f16] text-xs mt-1 hover:underline">Fazer download</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-              <div className="mb-4">
-                <h3 className="text-white text-lg font-medium mb-2">Configurações</h3>
-                <p className="text-[#C2C2C2] text-sm">
-                  Gerencie usuários, turmas, componentes, trilhas e missões
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-1">
-                  <h4 className="text-white text-sm font-medium mb-3">Opções de Gerenciamento</h4>
+            <Card className="bg-dark border-border">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Configurações</CardTitle>
+                <CardDescription>
+                  Gerencie configurações do sistema e preferências do usuário.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Usuários</CardTitle>
+                      <CardDescription className="text-xs">
+                        Professores, alunos e outros gestores
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Adicione, edite ou remova usuários do sistema.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="space-y-2">
-                    <button 
-                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
-                      onClick={() => navigate('/user-registration')}
-                    >
-                      <div className="flex items-center">
-                        <User className="h-5 w-5 mr-2 text-[#F08B13]" />
-                        <span>Gerenciar Usuários</span>
-                      </div>
-                      <ChevronRight size={16} />
-                    </button>
-                    
-                    <button 
-                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
-                      onClick={() => navigate('/class-registration')}
-                    >
-                      <div className="flex items-center">
-                        <BookOpen className="h-5 w-5 mr-2 text-[#F08B13]" />
-                        <span>Gerenciar Turmas</span>
-                      </div>
-                      <ChevronRight size={16} />
-                    </button>
-                    
-                    <button 
-                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <Book className="h-5 w-5 mr-2 text-[#F08B13]" />
-                        <span>Gerenciar Componentes</span>
-                      </div>
-                      <ChevronRight size={16} />
-                    </button>
-                    
-                    <button 
-                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-[#F08B13]" />
-                        <span>Gerenciar Trilhas</span>
-                      </div>
-                      <ChevronRight size={16} />
-                    </button>
-                    
-                    <button 
-                      className="w-full bg-[#0D0D0D] text-white text-left p-3 hover:bg-[#191919] flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2 text-[#F08B13]" />
-                        <span>Gerenciar Missões</span>
-                      </div>
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="col-span-2 bg-[#0D0D0D] p-4 border border-[#D47C06]">
-                  <h4 className="text-white text-sm font-medium mb-3">Configurações do Sistema</h4>
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Escolas</CardTitle>
+                      <CardDescription className="text-xs">
+                        Cadastro e configuração de escolas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Gerencie informações das escolas cadastradas.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[#C2C2C2] text-xs block mb-1">Escola Principal</label>
-                      <select className="w-full bg-[#1A110B] text-white text-sm p-2 border border-[#D47C06]">
-                        <option value="">Selecione a escola principal</option>
-                      </select>
-                      <p className="text-xs text-[#C2C2C2]/70 mt-1">Escola que será exibida por padrão nos relatórios</p>
-                    </div>
-                    
-                    <div>
-                      <label className="text-[#C2C2C2] text-xs block mb-1">Período Letivo</label>
-                      <select className="w-full bg-[#1A110B] text-white text-sm p-2 border border-[#D47C06]">
-                        <option value="2025_1">1º Semestre 2025</option>
-                        <option value="2025_2">2º Semestre 2025</option>
-                      </select>
-                      <p className="text-xs text-[#C2C2C2]/70 mt-1">Período letivo atual para cálculos de relatórios</p>
-                    </div>
-                    
-                    <div className="pt-4 border-t border-[#D47C06]">
-                      <h5 className="text-white text-sm font-medium mb-3">Configurações de Notificações</h5>
-                      
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-[#C2C2C2] text-sm">Receber alertas de evasão</label>
-                        <div className="w-10 h-5 bg-[#1A110B] rounded-full relative border border-[#D47C06]">
-                          <div className="w-4 h-4 absolute bg-white rounded-full left-0.5 top-0.5"></div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-[#C2C2C2] text-sm">Notificações de novos relatórios</label>
-                        <div className="w-10 h-5 bg-[#F08B13] rounded-full relative border border-[#D47C06]">
-                          <div className="w-4 h-4 absolute bg-white rounded-full right-0.5 top-0.5"></div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <label className="text-[#C2C2C2] text-sm">Resumo semanal via e-mail</label>
-                        <div className="w-10 h-5 bg-[#F08B13] rounded-full relative border border-[#D47C06]">
-                          <div className="w-4 h-4 absolute bg-white rounded-full right-0.5 top-0.5"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Turmas</CardTitle>
+                      <CardDescription className="text-xs">
+                        Turmas e suas configurações
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure turmas, horários e associações.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                  
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Componentes Curriculares</CardTitle>
+                      <CardDescription className="text-xs">
+                        Gestão de disciplinas e conteúdos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure os componentes curriculares do sistema.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                  
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Trilhas de Aprendizagem</CardTitle>
+                      <CardDescription className="text-xs">
+                        Configuração de percursos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Gerencie trilhas e suas missões associadas.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                  
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Missões e Desafios</CardTitle>
+                      <CardDescription className="text-xs">
+                        Atividades interativas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure as missões e desafios do RPG.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Acessar
+                      </Button>
+                    </CardFooter>
+                  </Card>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="bg-[#1A110B] p-4 border border-[#D47C06]">
-              <ManagerProfile userId={user?.id ? String(user.id) : ''} />
-            </div>
+            <Card className="bg-dark border-border">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Meu Perfil</CardTitle>
+                <CardDescription>
+                  Visualize e edite suas informações pessoais.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ManagerProfile userId={user.id} />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
