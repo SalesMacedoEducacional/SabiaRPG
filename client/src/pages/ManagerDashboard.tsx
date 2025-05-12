@@ -78,7 +78,7 @@ export default function ManagerDashboard() {
             </p>
           </div>
           <button 
-            className="manager-button flex items-center gap-1"
+            className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors flex items-center gap-1"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
@@ -132,25 +132,25 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="manager-stats-card">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
                 <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-[#D47C06] mt-1">0 ativas</div>
               </div>
               
-              <div className="manager-stats-card">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
                 <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
               </div>
               
-              <div className="manager-stats-card">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
                 <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
               </div>
               
-              <div className="manager-stats-card">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
                 <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
                 <div className="text-4xl font-bold text-white">0</div>
                 <div className="text-xs text-[#D47C06] mt-1">Distribuídas em todas as escolas</div>
@@ -160,8 +160,8 @@ export default function ManagerDashboard() {
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <div className="manager-card">
-                <div className="manager-card-header">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden">
+                <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                   <h3 className="text-sm font-medium text-white">Ações Rápidas</h3>
                   <p className="text-xs text-white/70">
                     Acesso direto às principais tarefas administrativas
@@ -170,7 +170,7 @@ export default function ManagerDashboard() {
                 <div className="p-4">
                   <div className="flex flex-col gap-2">
                     <button 
-                      className="manager-action-button"
+                      className="flex items-center px-3 py-2 w-full rounded border border-[#3E2D1B] hover:bg-[#3E2D1B] hover:border-[#D47C06] transition-colors"
                       onClick={() => navigate('/user-registration')}
                     >
                       <User className="h-4 w-4 text-[#D47C06] mr-2" />
@@ -178,7 +178,7 @@ export default function ManagerDashboard() {
                     </button>
                     
                     <button
-                      className="manager-action-button"
+                      className="flex items-center px-3 py-2 w-full rounded border border-[#3E2D1B] hover:bg-[#3E2D1B] hover:border-[#D47C06] transition-colors"
                       onClick={() => navigate('/school-registration')}
                     >
                       <School className="h-4 w-4 text-[#D47C06] mr-2" />
@@ -186,7 +186,7 @@ export default function ManagerDashboard() {
                     </button>
                     
                     <button
-                      className="manager-action-button"
+                      className="flex items-center px-3 py-2 w-full rounded border border-[#3E2D1B] hover:bg-[#3E2D1B] hover:border-[#D47C06] transition-colors"
                       onClick={() => navigate('/class-registration')}
                     >
                       <BookOpen className="h-4 w-4 text-[#D47C06] mr-2" />
@@ -197,8 +197,8 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Alunos Ativos */}
-              <div className="manager-card">
-                <div className="manager-card-header">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden">
+                <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                   <h3 className="text-sm font-medium text-white">Alunos Ativos na Plataforma</h3>
                 </div>
                 <div className="p-4">
@@ -216,8 +216,8 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Alerta de Evasão */}
-              <div className="manager-card">
-                <div className="manager-card-header">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden">
+                <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                   <h3 className="text-sm font-medium text-white">Alerta de Evasão Potencial</h3>
                   <p className="text-xs text-white/70">
                     Alunos com mais de 30 dias sem acesso
@@ -226,7 +226,7 @@ export default function ManagerDashboard() {
                 <div className="p-4">
                   <div className="text-white text-4xl font-bold text-center my-4">0</div>
                   
-                  <button className="manager-button w-full">
+                  <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                     Ver Lista
                   </button>
                 </div>
@@ -236,8 +236,8 @@ export default function ManagerDashboard() {
             {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Escolas com Maior Engajamento */}
-              <div className="manager-card">
-                <div className="manager-card-header">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden">
+                <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                   <h3 className="text-sm font-medium text-white">Escolas com Maior Engajamento</h3>
                   <p className="text-xs text-white/70">
                     Escolas com melhores taxas de participação
@@ -251,8 +251,8 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Atividade Recente */}
-              <div className="manager-card">
-                <div className="manager-card-header">
+              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden">
+                <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                   <h3 className="text-sm font-medium text-white">Atividade Recente</h3>
                   <p className="text-xs text-white/70">
                     Últimas ações e eventos no sistema
@@ -300,8 +300,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="manager-card mb-4">
-              <div className="manager-card-header">
+            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Relatórios</h3>
                 <p className="text-sm text-white/70">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
@@ -379,7 +379,7 @@ export default function ManagerDashboard() {
                         </div>
                       </div>
                       
-                      <Button className="manager-button">
+                      <Button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors">
                         Gerar Relatório
                       </Button>
                     </div>
@@ -441,8 +441,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="manager-card mb-4">
-              <div className="manager-card-header">
+            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Configurações</h3>
                 <p className="text-sm text-white/70">
                   Gerencie configurações do sistema e preferências do usuário.
@@ -458,7 +458,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -472,7 +472,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -486,7 +486,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -500,7 +500,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -514,7 +514,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -528,7 +528,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="manager-button w-full">
+                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -540,8 +540,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="manager-card mb-4">
-              <div className="manager-card-header">
+            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Meu Perfil</h3>
                 <p className="text-sm text-white/70">
                   Visualize e edite suas informações pessoais.
