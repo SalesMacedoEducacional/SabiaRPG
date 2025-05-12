@@ -11,6 +11,7 @@ import {
   TotalAlunosCard, 
   TotalTurmasCard 
 } from "@/components/manager/ManagerDashboardCards";
+import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCard";
 import { 
   Home, 
   FileBarChart2, 
@@ -138,7 +139,7 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <TotalEscolasCard />
+              <EscolasVinculadasCard />
               <TotalProfessoresCard />
               <TotalAlunosCard />
               <TotalTurmasCard />
