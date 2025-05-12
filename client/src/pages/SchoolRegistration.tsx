@@ -15,7 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, School, ArrowRight, ArrowLeft, Plus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2, School, ArrowRight, ArrowLeft, Plus, Building2, MapPin, Calendar, Users } from "lucide-react";
 
 export default function SchoolRegistration() {
   const { toast } = useToast();
