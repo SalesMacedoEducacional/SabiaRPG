@@ -21,10 +21,10 @@
   --input: 35 23% 27%;
   
   /* Variáveis específicas para cores do estilo medieval */
-  --manager-bg: #2C1E10;
-  --manager-card: #1A1409;
-  --manager-accent: #D47C06;
-  --manager-hover: #3E2D1B;
+  --manager-bg: 30 25% 15%;
+  --manager-card: 30 15% 7%;
+  --manager-accent: 35 78% 42%;
+  --manager-hover: 30 32% 18%;
   
   --primary: 30 45% 37%;
   --primary-light: 30 32% 49%;
@@ -60,35 +60,35 @@
 /* Classes utilitárias para o painel do gestor baseadas nas imagens de referência */
 @layer components {
   .manager-card {
-    @apply bg-[#1A1409] border border-[#D47C06] rounded-md;
+    @apply bg-dark border border-accent rounded-md;
   }
   
   .manager-card-header {
-    @apply border-b border-[#D47C06] py-2 px-4;
+    @apply border-b border-accent py-2 px-4;
   }
   
   .manager-button {
-    @apply bg-[#D47C06] hover:bg-[#B6680B] text-white py-1.5 px-4 rounded-sm transition-colors;
+    @apply bg-accent hover:bg-accent-dark text-white py-1.5 px-4 rounded-sm transition-colors;
   }
   
   .manager-action-button {
-    @apply flex items-center text-foreground hover:bg-[#3E2D1B] p-2 transition-colors rounded;
+    @apply flex items-center text-foreground hover:bg-dark-light p-2 transition-colors rounded;
   }
   
   .manager-action-button > svg {
-    @apply text-[#D47C06] mr-2 h-4 w-4;
+    @apply text-accent mr-2 h-4 w-4;
   }
   
   .manager-select {
-    @apply bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06] rounded-sm w-full;
+    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
   }
   
   .manager-input {
-    @apply bg-[#0D0D0D] text-white text-sm p-2 border border-[#D47C06] rounded-sm w-full;
+    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
   }
   
   .manager-stats-card {
-    @apply bg-[#1A1409] border border-[#D47C06] p-4 rounded-md;
+    @apply bg-dark border border-accent p-4 rounded-md;
   }
 }
 
