@@ -67,63 +67,61 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#2C1E10]">
       {/* Header */}
-      <header className="bg-dark border-b border-border shadow-md">
+      <header className="bg-[#2C1E10] border-b border-[#D47C06] shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">DASHBOARD DO GESTOR</h1>
-            <p className="text-accent text-sm">
+            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
+            <p className="text-[#D47C06] text-sm">
               Bem-vindo, gestor!
             </p>
           </div>
-          <Button 
-            variant="default"
-            size="sm"
-            className="flex items-center gap-1"
+          <button 
+            className="manager-button flex items-center gap-1"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
-          </Button>
+          </button>
         </div>
       </header>
       
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-dark border-b border-border">
+          <TabsList className="grid grid-cols-4 gap-0 bg-[#3E2D1B] border-b border-[#D47C06]">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
             >
-              <span className="flex items-center">
+              <span className="flex items-center text-white">
                 <Home size={14} className="mr-1.5" />
                 Visão Geral
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
             >
-              <span className="flex items-center">
+              <span className="flex items-center text-white">
                 <FileBarChart2 size={14} className="mr-1.5" />
                 Relatórios
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-border data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
             >
-              <span className="flex items-center">
+              <span className="flex items-center text-white">
                 <Settings size={14} className="mr-1.5" />
                 Configurações
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
             >
-              <span className="flex items-center">
+              <span className="flex items-center text-white">
                 <User size={14} className="mr-1.5" />
                 Meu Perfil
               </span>
@@ -134,45 +132,29 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Escolas Vinculadas</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-foreground">0</div>
-                  <div className="text-xs text-accent mt-1">0 ativas</div>
-                </CardContent>
-              </Card>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
+                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-xs text-[#D47C06] mt-1">0 ativas</div>
+              </div>
               
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Professores</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-foreground">0</div>
-                  <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-                </CardContent>
-              </Card>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
+                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
+              </div>
               
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-foreground">0</div>
-                  <div className="text-xs text-accent mt-1">Em todas as escolas</div>
-                </CardContent>
-              </Card>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
+                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
+              </div>
               
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Turmas Ativas</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-foreground">0</div>
-                  <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
-                </CardContent>
-              </Card>
+              <div className="manager-stats-card">
+                <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
+                <div className="text-4xl font-bold text-white">0</div>
+                <div className="text-xs text-[#D47C06] mt-1">Distribuídas em todas as escolas</div>
+              </div>
             </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
