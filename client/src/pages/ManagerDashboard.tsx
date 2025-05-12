@@ -160,60 +160,60 @@ export default function ManagerDashboard() {
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Ações Rápidas</CardTitle>
-                  <CardDescription className="text-xs">
+              <div className="manager-card">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Ações Rápidas</h3>
+                  <p className="text-xs text-white/70">
                     Acesso direto às principais tarefas administrativas
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-2 mt-2">
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="flex flex-col gap-2">
                     <button 
-                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      className="manager-action-button"
                       onClick={() => navigate('/user-registration')}
                     >
-                      <User className="h-4 w-4 text-accent mr-2" />
-                      <span>Cadastrar Novo Usuário</span>
+                      <User className="h-4 w-4 text-[#D47C06] mr-2" />
+                      <span className="text-white">Cadastrar Novo Usuário</span>
                     </button>
                     
                     <button
-                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      className="manager-action-button"
                       onClick={() => navigate('/school-registration')}
                     >
-                      <School className="h-4 w-4 text-accent mr-2" />
-                      <span>Cadastrar Nova Escola</span>
+                      <School className="h-4 w-4 text-[#D47C06] mr-2" />
+                      <span className="text-white">Cadastrar Nova Escola</span>
                     </button>
                     
                     <button
-                      className="bg-transparent text-foreground hover:bg-background transition-colors p-2 flex items-center justify-start space-x-2 text-sm rounded"
+                      className="manager-action-button"
                       onClick={() => navigate('/class-registration')}
                     >
-                      <BookOpen className="h-4 w-4 text-accent mr-2" />
-                      <span>Gerenciar Turmas</span>
+                      <BookOpen className="h-4 w-4 text-[#D47C06] mr-2" />
+                      <span className="text-white">Gerenciar Turmas</span>
                     </button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
               {/* Alunos Ativos */}
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Alunos Ativos na Plataforma</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mt-3">
+              <div className="manager-card">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Alunos Ativos na Plataforma</h3>
+                </div>
+                <div className="p-4">
+                  <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-foreground text-3xl font-bold">0</div>
-                      <div className="text-muted-foreground text-xs">Últimos 7 dias</div>
+                      <div className="text-white text-3xl font-bold">0</div>
+                      <div className="text-[#D47C06] text-xs">Últimos 7 dias</div>
                     </div>
                     <div>
-                      <div className="text-foreground text-3xl font-bold">0</div>
-                      <div className="text-muted-foreground text-xs">Últimos 30 dias</div>
+                      <div className="text-white text-3xl font-bold">0</div>
+                      <div className="text-[#D47C06] text-xs">Últimos 30 dias</div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
               {/* Alerta de Evasão */}
               <Card className="bg-dark border-border">
