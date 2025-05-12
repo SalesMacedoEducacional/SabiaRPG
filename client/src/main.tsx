@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import "./theme.css"; // Importação do tema baseado em Happy Hues
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { ThemeProvider } from "next-themes";
