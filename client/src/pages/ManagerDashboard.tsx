@@ -450,7 +450,7 @@ export default function ManagerDashboard() {
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
                       <p className="text-xs text-white/70">
@@ -458,13 +458,13 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
                       <p className="text-xs text-white/70">
@@ -472,13 +472,13 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
                       <p className="text-xs text-white/70">
@@ -486,13 +486,13 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Componentes Curriculares</h4>
                       <p className="text-xs text-white/70">
@@ -500,13 +500,13 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Trilhas de Aprendizagem</h4>
                       <p className="text-xs text-white/70">
@@ -514,7 +514,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
@@ -540,8 +540,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
-              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
+            <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#4a4639] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Meu Perfil</h3>
                 <p className="text-sm text-white/70">
                   Visualize e edite suas informações pessoais.
