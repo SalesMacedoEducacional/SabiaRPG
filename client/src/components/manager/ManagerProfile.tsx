@@ -25,7 +25,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 interface ManagerProfileProps {
-  userId: string;
+  userId: string | number;
 }
 
 export default function ManagerProfile({ userId }: ManagerProfileProps) {

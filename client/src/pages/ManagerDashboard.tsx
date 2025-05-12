@@ -67,18 +67,18 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-[#2C1E10]">
+    <div className="min-h-screen bg-dark">
       {/* Header */}
-      <header className="bg-[#2C1E10] border-b border-[#D47C06] shadow-md">
+      <header className="bg-dark border-b border-accent shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
             <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
-            <p className="text-[#D47C06] text-sm">
+            <p className="text-accent text-sm">
               Bem-vindo, gestor!
             </p>
           </div>
           <button 
-            className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors flex items-center gap-1"
+            className="manager-button flex items-center gap-1"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
@@ -89,10 +89,10 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[#3E2D1B] border-b border-[#D47C06]">
+          <TabsList className="grid grid-cols-4 gap-0 bg-dark-light border-b border-accent">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <Home size={14} className="mr-1.5" />
@@ -101,7 +101,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <FileBarChart2 size={14} className="mr-1.5" />
@@ -110,7 +110,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-[#D47C06] data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <Settings size={14} className="mr-1.5" />
@@ -119,7 +119,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-[#2C1E10] data-[state=active]:border-b-2 data-[state=active]:border-b-[#D47C06]"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <User size={14} className="mr-1.5" />
@@ -132,28 +132,28 @@ export default function ManagerDashboard() {
           <TabsContent value="overview">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
+              <div className="manager-stats-card">
                 <div className="text-sm font-medium text-white mb-2">Total de Escolas Vinculadas</div>
                 <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-[#D47C06] mt-1">0 ativas</div>
+                <div className="text-xs text-accent mt-1">0 ativas</div>
               </div>
               
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
+              <div className="manager-stats-card">
                 <div className="text-sm font-medium text-white mb-2">Total de Professores</div>
                 <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
+                <div className="text-xs text-accent mt-1">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
+              <div className="manager-stats-card">
                 <div className="text-sm font-medium text-white mb-2">Total de Alunos</div>
                 <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-[#D47C06] mt-1">Em todas as escolas</div>
+                <div className="text-xs text-accent mt-1">Em todas as escolas</div>
               </div>
               
-              <div className="bg-[#1A1409] border border-[#D47C06] rounded-md p-4">
+              <div className="manager-stats-card">
                 <div className="text-sm font-medium text-white mb-2">Turmas Ativas</div>
                 <div className="text-4xl font-bold text-white">0</div>
-                <div className="text-xs text-[#D47C06] mt-1">Distribuídas em todas as escolas</div>
+                <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
               </div>
             </div>
             
@@ -548,7 +548,7 @@ export default function ManagerDashboard() {
                 </p>
               </div>
               <div className="p-4">
-                <ManagerProfile userId={user.id} />
+                <ManagerProfile userId={user.id.toString()} />
               </div>
             </div>
           </TabsContent>
