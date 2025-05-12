@@ -208,11 +208,11 @@ export default function ManagerDashboard() {
               <ManagerCard title="Alunos Ativos na Plataforma">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-white text-3xl font-bold">0</div>
+                    <div className="text-gray-800 text-3xl font-bold">0</div>
                     <div className="text-accent text-xs">Últimos 7 dias</div>
                   </div>
                   <div>
-                    <div className="text-white text-3xl font-bold">0</div>
+                    <div className="text-gray-800 text-3xl font-bold">0</div>
                     <div className="text-accent text-xs">Últimos 30 dias</div>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function ManagerDashboard() {
                 title="Alerta de Evasão Potencial"
                 description="Alunos com mais de 30 dias sem acesso"
               >
-                <div className="text-white text-4xl font-bold text-center my-4">0</div>
+                <div className="text-gray-800 text-4xl font-bold text-center my-4">0</div>
                 
                 <ManagerButton fullWidth>
                   Ver Lista
@@ -238,8 +238,11 @@ export default function ManagerDashboard() {
                 title="Escolas com Maior Engajamento"
                 description="Escolas com melhores taxas de participação"
               >
-                <div className="flex items-center justify-center h-40 text-gray-600">
-                  Nenhuma escola cadastrada
+                <div className="flex flex-col items-center justify-center h-40 text-gray-600">
+                  <div className="mb-3 text-primary/50">
+                    <School size={32} />
+                  </div>
+                  <p>Nenhuma escola cadastrada</p>
                 </div>
               </ManagerCard>
               
@@ -250,34 +253,34 @@ export default function ManagerDashboard() {
               >
                 <div className="space-y-4">
                   <div className="flex items-start">
-                    <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
-                      <FileText className="h-4 w-4 text-accent" />
+                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
+                      <FileText className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">Novo relatório gerado</p>
-                      <p className="text-white/70 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                      <p className="text-gray-800 text-sm font-medium">Novo relatório gerado</p>
+                      <p className="text-gray-500 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
                       <p className="text-accent text-xs">Hoje, 09:45</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start">
-                    <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
-                      <Users className="h-4 w-4 text-accent" />
+                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
+                      <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
-                      <p className="text-white/70 text-xs">12 alunos adicionados à plataforma</p>
+                      <p className="text-gray-800 text-sm font-medium">Novos usuários cadastrados</p>
+                      <p className="text-gray-500 text-xs">12 alunos adicionados à plataforma</p>
                       <p className="text-accent text-xs">Ontem, 15:30</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start">
-                    <div className="bg-dark-light p-1.5 rounded-full mr-3 mt-0.5">
-                      <AlertCircle className="h-4 w-4 text-accent" />
+                    <div className="bg-primary/10 p-1.5 rounded-full mr-3 mt-0.5">
+                      <AlertCircle className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">Alerta de engajamento</p>
-                      <p className="text-white/70 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                      <p className="text-gray-800 text-sm font-medium">Alerta de engajamento</p>
+                      <p className="text-gray-500 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
                       <p className="text-accent text-xs">12/05, 13:15</p>
                     </div>
                   </div>
@@ -391,8 +394,11 @@ export default function ManagerDashboard() {
               title="Relatórios Recentes"
               description="Visualize ou baixe os relatórios gerados anteriormente"
             >
-              <div className="flex items-center justify-center h-40 text-white">
-                Nenhum relatório gerado recentemente
+              <div className="flex flex-col items-center justify-center h-40 text-gray-600">
+                <div className="mb-3 text-primary/50">
+                  <FileBarChart2 size={32} />
+                </div>
+                <p>Nenhum relatório gerado recentemente</p>
               </div>
             </ManagerCard>
           </TabsContent>
