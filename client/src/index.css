@@ -1,142 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&family=MedievalSharp&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 30 25% 15%;
-  --foreground: 39 42% 87%;
-  
-  --muted: 60 5% 96%;
-  --muted-foreground: 25 5% 45%;
-  
-  --popover: 30 25% 15%;
-  --popover-foreground: 39 42% 87%;
-  
-  --card: 30 25% 15%;
-  --card-foreground: 39 42% 87%;
-  
-  --border: 35 23% 27%;
-  --input: 35 23% 27%;
-  
-  /* Variáveis específicas para cores do estilo medieval */
-  --manager-bg: 30 25% 15%;
-  --manager-card: 30 15% 7%;
-  --manager-accent: 35 78% 42%;
-  --manager-hover: 30 32% 18%;
-  
-  --primary: 30 45% 37%;
-  --primary-light: 30 32% 49%;
-  --primary-dark: 30 45% 29%;
-  --primary-foreground: 39 42% 87%;
-  
-  --secondary: 120 25% 33%;
-  --secondary-light: 120 20% 40%;
-  --secondary-dark: 120 25% 25%;
-  --secondary-foreground: 39 42% 87%;
-  
-  --accent: 35 78% 42%;
-  --accent-light: 35 78% 50%;
-  --accent-dark: 35 78% 34%;
-  --accent-foreground: 30 25% 15%;
-  
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 60 9% 98%;
-  
-  --ring: 30 45% 37%;
-  
-  --radius: 0.5rem;
-  
-  --parchment: 39 42% 87%;
-  --parchment-light: 39 42% 95%;
-  --parchment-dark: 39 32% 77%;
-  
-  --dark: 30 10% 16%;
-  --dark-light: 30 10% 22%;
-  --dark-dark: 30 10% 10%;
-}
-
-/* Classes utilitárias para o painel do gestor baseadas nas imagens de referência */
-@layer components {
-  .manager-card {
-    @apply bg-dark border border-accent rounded-md;
+@layer base {
+  :root {
+    /* Paleta Principal do SABIÁ RPG */
+    --color-accent: #D47C06;
+    --color-accent-hover: #F19029;
+    --color-accent-foreground: #ffffff;
+    
+    --color-dark: #0E0E0E;
+    --color-dark-light: #1F1F1F;
+    
+    --color-background: #121212;
+    --color-foreground: #ffffff;
+    
+    --color-card-border: #D47C06;
+    --color-card-background: #212121;
+    
+    --color-button-bg: #3E2D1B;
+    --color-button-hover: #2C1E10;
+    --color-button-border: #D47C06;
+    
+    /* Variáveis do gerenciador/gestor */
+    --color-manager-button-bg: var(--color-button-bg);
+    --color-manager-button-hover: var(--color-button-hover);
+    --color-manager-button-border: var(--color-button-border);
+    --color-manager-card-bg: #1A1409;
+    --color-manager-card-border: var(--color-button-border);
+    --color-manager-card-header: #3E2D1B;
+    
+    /* ShadCN Variables */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 100%;
+    
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 28 91% 42%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 28 63% 18%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 70%;
+    
+    --accent: 28 91% 42%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 28 91% 42%;
+    --input: 0 0% 13%;
+    --ring: 28 91% 42%;
+    
+    --radius: 0.5rem;
   }
-  
-  .manager-card-header {
-    @apply border-b border-accent py-2 px-4;
-  }
-  
-  .manager-button {
-    @apply bg-accent hover:bg-accent-dark text-white py-1.5 px-4 rounded-sm transition-colors;
-  }
-  
-  .manager-action-button {
-    @apply flex items-center text-foreground hover:bg-dark-light p-2 transition-colors rounded;
-  }
-  
-  .manager-action-button > svg {
-    @apply text-accent mr-2 h-4 w-4;
-  }
-  
-  .manager-select {
-    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
-  }
-  
-  .manager-input {
-    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
-  }
-  
-  .manager-stats-card {
-    @apply bg-dark border border-accent p-4 rounded-md;
-  }
-}
-
-.dark {
-  --background: 30 25% 15%;
-  --foreground: 39 42% 87%;
-  
-  --muted: 30 15% 25%;
-  --muted-foreground: 39 32% 77%;
-  
-  --popover: 30 25% 15%;
-  --popover-foreground: 39 42% 87%;
-  
-  --card: 30 25% 15%;
-  --card-foreground: 39 42% 87%;
-  
-  --border: 35 23% 27%;
-  --input: 35 23% 27%;
-  
-  --primary: 30 45% 37%;
-  --primary-light: 30 32% 49%;
-  --primary-dark: 30 45% 29%;
-  --primary-foreground: 39 42% 87%;
-  
-  --secondary: 120 25% 33%;
-  --secondary-light: 120 20% 40%;
-  --secondary-dark: 120 25% 25%;
-  --secondary-foreground: 39 42% 87%;
-  
-  --accent: 35 78% 42%;
-  --accent-light: 35 78% 50%;
-  --accent-dark: 35 78% 34%;
-  --accent-foreground: 30 25% 15%;
-  
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  
-  --ring: 35 23% 27%;
-  
-  --radius: 0.5rem;
-  
-  --parchment: 39 42% 87%;
-  --parchment-light: 39 42% 95%;
-  --parchment-dark: 39 32% 77%;
-  
-  --dark: 30 10% 16%;
-  --dark-light: 30 10% 22%;
-  --dark-dark: 30 10% 10%;
 }
 
 @layer base {
@@ -145,93 +69,54 @@
   }
   
   body {
-    @apply font-lato antialiased bg-dark text-parchment;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Estilos Customizados do Sistema */
+@layer components {
+  /* Estilos do Manager/Gestor - Versão unificada */
+  .manager-button {
+    @apply bg-[color:var(--color-manager-button-bg)] 
+    border border-[color:var(--color-manager-button-border)] 
+    text-white px-4 py-2 rounded 
+    hover:bg-[color:var(--color-manager-button-hover)] 
+    hover:border-amber-400 
+    transition-colors;
   }
   
-  h1, h2, h3, h4, h5 {
-    @apply font-cinzel;
+  .manager-action-button {
+    @apply flex items-center gap-2 
+    bg-[color:var(--color-manager-button-bg)] 
+    border border-[color:var(--color-manager-button-border)] 
+    text-white px-4 py-2 rounded 
+    hover:bg-[color:var(--color-manager-button-hover)] 
+    hover:border-amber-400 
+    transition-colors;
   }
   
-  .font-medieval {
-    @apply font-medievalSharp;
+  .manager-card {
+    @apply bg-[color:var(--color-manager-card-bg)] 
+    border border-[color:var(--color-manager-card-border)] 
+    rounded-md overflow-hidden;
   }
   
-  .font-title {
-    @apply font-cinzel;
+  .manager-stats-card {
+    @apply bg-[color:var(--color-manager-card-bg)] 
+    border border-[color:var(--color-manager-card-border)] 
+    rounded-md p-4 transition-colors
+    hover:border-amber-400;
   }
   
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 10px;
+  .manager-card-header {
+    @apply bg-[color:var(--color-manager-card-header)] 
+    p-3 border-b border-[color:var(--color-manager-card-border)];
   }
   
-  ::-webkit-scrollbar-track {
-    @apply bg-dark;
+  .manager-select {
+    @apply w-full bg-dark 
+    border border-[color:var(--color-manager-card-border)] 
+    text-white rounded p-2 text-sm;
   }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-primary rounded-md;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-light;
-  }
-  
-  /* Map Interaction Styles */
-  .map-point {
-    @apply transition-all duration-300;
-  }
-  
-  .map-point:hover {
-    @apply transform scale-115 cursor-pointer;
-    filter: drop-shadow(0 0 8px theme('colors.accent.DEFAULT'));
-  }
-  
-  /* Custom Animations */
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-  }
-  
-  .float-animation {
-    animation: float 3s ease-in-out infinite;
-  }
-  
-  /* Progress Path */
-  .progress-path {
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 750;
-    transition: stroke-dashoffset 1.5s ease;
-  }
-  
-  /* Logo Styles */
-  .logo {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    transition: transform 0.3s ease;
-    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
-  }
-  
-  .logo:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 5px theme('colors.accent.DEFAULT'));
-  }
-  
-  .logo-sm {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .logo-md {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .logo-lg {
-    width: 120px;
-    height: 120px;
-  }
-  /* Classes reutilizáveis para todos os perfis */
 }
