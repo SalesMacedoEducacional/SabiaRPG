@@ -233,4 +233,29 @@
     width: 120px;
     height: 120px;
   }
+  
+  /* Estilos específicos para o Dashboard do Gestor */
+  .manager-stats-card {
+    @apply bg-[#1A1409] border border-[#D47C06] rounded-md p-4;
+    background-image: linear-gradient(to bottom, rgba(212, 124, 6, 0.1), transparent);
+  }
+  
+  .manager-card {
+    @apply bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden;
+    background-image: linear-gradient(to bottom, rgba(212, 124, 6, 0.05), transparent);
+  }
+  
+  .manager-card-header {
+    @apply bg-[#3E2D1B] p-3 border-b border-[#D47C06];
+  }
+  
+  .manager-button {
+    @apply bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded;
+    @apply hover:bg-[#2C1E10] hover:border-amber-400 transition-colors;
+  }
+  
+  .manager-action-button {
+    @apply flex items-center px-3 py-2 w-full rounded border border-[#3E2D1B];
+    @apply hover:bg-[#3E2D1B] hover:border-[#D47C06] transition-colors;
+  }
 }

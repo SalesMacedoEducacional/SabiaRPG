@@ -349,18 +349,6 @@ export default function ManagerDashboard() {
                             <option value="">Todas as turmas</option>
                           </select>
                         </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <label className="text-muted-foreground text-xs block mb-1">Período</label>
-                          <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
-                            <option value="7">Últimos 7 dias</option>
-                            <option value="30">Últimos 30 dias</option>
-                            <option value="90">Últimos 90 dias</option>
-                            <option value="year">Este ano</option>
-                          </select>
-                        </div>
                         
                         <div>
                           <label className="text-muted-foreground text-xs block mb-1">Componente</label>
@@ -370,67 +358,71 @@ export default function ManagerDashboard() {
                         </div>
                         
                         <div>
-                          <label className="text-muted-foreground text-xs block mb-1">Formato</label>
+                          <label className="text-muted-foreground text-xs block mb-1">Período</label>
                           <select className="w-full bg-background text-foreground text-sm p-2 border border-border rounded-md">
-                            <option value="pdf">PDF</option>
-                            <option value="xlsx">XLSX</option>
-                            <option value="csv">CSV</option>
+                            <option value="ultimo_mes">Último mês</option>
+                            <option value="ultimo_bimestre">Último bimestre</option>
+                            <option value="ultimo_semestre">Último semestre</option>
+                            <option value="ano_letivo">Ano letivo atual</option>
                           </select>
                         </div>
                       </div>
                       
-                      <Button className="manager-button">
-                        Gerar Relatório
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button>
+                          Gerar Relatório
+                        </Button>
+                        
+                        <select className="bg-background text-foreground text-sm p-2 border border-border rounded-md">
+                          <option value="pdf">PDF</option>
+                          <option value="xlsx">XLSX</option>
+                          <option value="ods">ODS</option>
+                          <option value="csv">CSV</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-background p-4 flex items-center justify-center h-64 border border-border rounded-md">
+                      <div className="text-center">
+                        <FileText size={48} className="text-muted-foreground mx-auto mb-2" />
+                        <p className="text-foreground text-sm">Selecione os filtros e clique em "Gerar Relatório"</p>
+                        <p className="text-muted-foreground text-xs mt-1">A pré-visualização aparecerá aqui</p>
+                      </div>
                     </div>
                   </div>
                   
                   <div>
-                    <h4 className="text-foreground text-sm font-medium mb-2">Métricas</h4>
+                    <h4 className="text-foreground text-sm font-medium mb-2">Relatórios Recentes</h4>
+                    
                     <div className="space-y-2">
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="metric1" 
-                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-                        />
-                        <label htmlFor="metric1" className="text-xs">Pontuação média</label>
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Turmas - 8º Ano</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 11/05/2025</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="metric2" 
-                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-                        />
-                        <label htmlFor="metric2" className="text-xs">Missões completadas</label>
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Engajamento - Escola Pedro II</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 10/05/2025</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="metric3" 
-                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-                        />
-                        <label htmlFor="metric3" className="text-xs">Tempo de atividade</label>
-                      </div>
-                      
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="metric4" 
-                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-                        />
-                        <label htmlFor="metric4" className="text-xs">Taxa de conclusão</label>
-                      </div>
-                      
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="metric5" 
-                          className="mr-2 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-                        />
-                        <label htmlFor="metric5" className="text-xs">Desistências</label>
+                      <div className="bg-background p-3 rounded-md border border-border">
+                        <div className="flex items-start">
+                          <FileText className="h-4 w-4 text-accent mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-foreground text-sm font-medium">Relatório de Missões - Maio/2025</p>
+                            <p className="text-muted-foreground/70 text-xs">Gerado em 09/05/2025</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -450,107 +442,125 @@ export default function ManagerDashboard() {
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Gerenciar Usuários</h4>
-                      <p className="text-xs text-white/70">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Usuários</CardTitle>
+                      <CardDescription className="text-xs">
                         Professores, alunos e outros gestores
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Adicione, edite ou remova usuários do sistema.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Gerenciar Escolas</h4>
-                      <p className="text-xs text-white/70">
-                        Adicionar, editar e gerenciar escolas
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Escolas</CardTitle>
+                      <CardDescription className="text-xs">
+                        Cadastro e configuração de escolas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Gerencie informações das escolas cadastradas.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Gerenciar Turmas</h4>
-                      <p className="text-xs text-white/70">
-                        Adicionar, editar e gerenciar turmas
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Gerenciar Turmas</CardTitle>
+                      <CardDescription className="text-xs">
+                        Turmas e suas configurações
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure turmas, horários e associações.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Componentes Curriculares</h4>
-                      <p className="text-xs text-white/70">
-                        Gerenciar disciplinas e componentes
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Componentes Curriculares</CardTitle>
+                      <CardDescription className="text-xs">
+                        Gestão de disciplinas e conteúdos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure os componentes curriculares do sistema.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Trilhas de Aprendizagem</h4>
-                      <p className="text-xs text-white/70">
-                        Configurar trilhas e jornadas
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Trilhas de Aprendizagem</CardTitle>
+                      <CardDescription className="text-xs">
+                        Configuração de percursos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Gerencie trilhas e suas missões associadas.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
-                    <div className="p-3 border-b border-[#D47C06]">
-                      <h4 className="text-sm font-medium text-white">Missões e Desafios</h4>
-                      <p className="text-xs text-white/70">
-                        Criar e gerenciar missões
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button className="manager-button w-full">
+                  <Card className="bg-background border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Missões e Desafios</CardTitle>
+                      <CardDescription className="text-xs">
+                        Atividades interativas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs text-muted-foreground">
+                      Configure as missões e desafios do RPG.
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
                         Acessar
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           {/* Tab de Perfil */}
           <TabsContent value="profile">
-            <div className="manager-card mb-4">
-              <div className="manager-card-header">
-                <h3 className="text-lg font-medium text-white">Meu Perfil</h3>
-                <p className="text-sm text-white/70">
+            <Card className="bg-dark border-border">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Meu Perfil</CardTitle>
+                <CardDescription>
                   Visualize e edite suas informações pessoais.
-                </p>
-              </div>
-              <div className="p-4">
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <ManagerProfile userId={user.id} />
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
