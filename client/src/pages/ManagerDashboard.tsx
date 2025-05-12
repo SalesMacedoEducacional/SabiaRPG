@@ -67,9 +67,9 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-dark">
+    <div className="min-h-screen bg-[#312e26]">
       {/* Header */}
-      <header className="bg-dark border-b border-accent shadow-md">
+      <header className="bg-[#312e26] border-b border-accent shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
             <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
@@ -89,10 +89,10 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-dark-light border-b border-accent">
+          <TabsList className="grid grid-cols-4 gap-0 bg-[#4a4639] border-b border-accent">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <Home size={14} className="mr-1.5" />
@@ -101,7 +101,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <FileBarChart2 size={14} className="mr-1.5" />
@@ -110,7 +110,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <Settings size={14} className="mr-1.5" />
@@ -119,7 +119,7 @@ export default function ManagerDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-dark data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
               <span className="flex items-center text-white">
                 <User size={14} className="mr-1.5" />
