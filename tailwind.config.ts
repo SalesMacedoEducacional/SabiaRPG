@@ -45,10 +45,10 @@ export default {
           contrast: '#000000'
         },
         background: {
-          base: '#140A02', // dark base: Metallic Bronze 950
-          elevated: '#291A0A',
-          card: '#3B2B16',
-          input: '#43341c',
+          base: '#312e26', // Nova cor de fundo mais escura
+          elevated: '#3d3a31', // Ajustado para ser um pouco mais claro que o base
+          card: '#4a4639', // Ajustado para ser um pouco mais claro que o elevated
+          input: '#57533f', // Ajustado para ser um pouco mais claro que o card
         },
         text: {
           heading: '#F5F4F2', // Zorba 100
@@ -77,9 +77,9 @@ export default {
           dark: "#A19990",
         },
         dark: {
-          DEFAULT: "#291A0A",
-          light: "#3B2B16",
-          dark: "#140A02",
+          DEFAULT: "#312e26",
+          light: "#4a4639",
+          dark: "#262420",
         },
         accent: {
           DEFAULT: "#bf7918",
