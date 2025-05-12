@@ -174,12 +174,13 @@ export default function ClassRegistration() {
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            size="icon"
-            onClick={() => setLocation("/manager-dashboard")}
+            size="sm"
+            onClick={() => setLocation("/manager")}
+            className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
           </Button>
-          <h1 className="text-2xl font-bold">Cadastro de Nova Turma</h1>
+          <h1 className="text-2xl font-bold ml-2">Cadastro de Nova Turma</h1>
         </div>
       </div>
 
