@@ -441,8 +441,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Configurações */}
           <TabsContent value="settings">
-            <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden mb-4">
-              <div className="bg-[#3E2D1B] p-3 border-b border-[#D47C06]">
+            <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#4a4639] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Configurações</h3>
                 <p className="text-sm text-white/70">
                   Gerencie configurações do sistema e preferências do usuário.
