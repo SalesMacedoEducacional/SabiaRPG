@@ -125,6 +125,7 @@ export default function SchoolRegistration() {
       const data = await response.json();
       
       if (data && Array.isArray(data)) {
+        console.log("Escolas recebidas do servidor:", data);
         setEscolasCadastradas(data);
         setShowRegistrationForm(data.length === 0);
       }
@@ -140,32 +141,42 @@ export default function SchoolRegistration() {
     }
   };
 
-  // Verificar se o gestor já tem uma escola cadastrada
+  // Buscar escolas do gestor diretamente
   useEffect(() => {
-    const checkManagerSchool = async () => {
+    const loadManagerSchools = async () => {
       try {
-        const response = await apiRequest("GET", "/api/schools/check-manager-school");
+        setIsLoadingEscolas(true);
+        
+        // Buscar todas as escolas do gestor imediatamente
+        const response = await apiRequest("GET", "/api/escolas/gestor");
         const data = await response.json();
         
-        setHasSchool(data.hasSchool);
-        if (data.hasSchool) {
-          setSchoolData(data.school);
-          // Buscar todas as escolas do gestor
-          fetchEscolas();
+        console.log("Escolas iniciais carregadas:", data);
+        
+        if (data && Array.isArray(data)) {
+          setEscolasCadastradas(data);
+          setShowRegistrationForm(data.length === 0);
+          
+          // Se tivermos escolas, configurar os estados apropriadamente
+          setHasSchool(data.length > 0);
+          if (data.length > 0) {
+            setSchoolData(data[0]);
+          }
         }
       } catch (error) {
-        console.error("Erro ao verificar escola do gestor:", error);
+        console.error("Erro ao carregar escolas do gestor:", error);
       } finally {
         setIsLoading(false);
+        setIsLoadingEscolas(false);
       }
     };
     
     if (user?.role === "manager") {
-      checkManagerSchool();
+      loadManagerSchools();
     } else {
       setIsLoading(false);
     }
-  }, [user, toast, fetchEscolas]);
+  }, [user]);
 
   // Renderizar estado de carregamento
   if (isLoading) {
@@ -177,8 +188,8 @@ export default function SchoolRegistration() {
     );
   }
   
-  // Renderizar grade de escolas se o gestor já tiver uma escola cadastrada
-  if (hasSchool) {
+  // Renderizar grade de escolas sempre - a verificação vai ser feita dentro do componente
+  {
     return (
       <div className="container mx-auto p-4 max-w-4xl min-h-screen">
         <div className="flex justify-between items-center mb-4">
@@ -250,77 +261,5 @@ export default function SchoolRegistration() {
     );
   }
 
-  // Renderizar formulário de cadastro
-  return (
-    <div className="container mx-auto p-4 max-w-4xl min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setLocation("/manager")}
-            className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={logout} 
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Sair
-          </Button>
-        </div>
-        
-        <div className="bg-primary/10 p-3 rounded-full">
-          <School className="h-10 w-10 text-primary" />
-        </div>
-        <div className="w-16"></div> {/* Espaçador para centralizar o ícone */}
-      </div>
-      
-      <ManagerSchoolRegistration 
-        userId={user?.id || ''} 
-        onSchoolRegistered={(result) => {
-          if (result.success) {
-            // Atualizar perfil do gestor com o ID da escola
-            try {
-              // Primeiro atualizar localmente sem depender do servidor
-              console.log('Atualizando contexto local com escola_id:', result.id);
-              updateUser({ escola_id: result.id });
-              
-              // Em seguida, tentar a atualização no servidor de forma não-bloqueante
-              apiRequest("PATCH", "/api/users/update-profile", {
-                escola_id: result.id
-              }).then(response => {
-                if (response.ok) {
-                  console.log('Servidor confirmou atualização do gestor com escola');
-                } else {
-                  console.log('Servidor não atualizou o gestor, mas continuaremos com o fluxo local');
-                }
-              }).catch(err => {
-                console.error('Erro ao atualizar perfil do gestor:', err);
-              });
-              
-              // Feedback ao usuário
-              toast({
-                title: "Escola cadastrada com sucesso!",
-                description: "Sua escola foi cadastrada com sucesso.",
-              });
-              
-              // Redirecionar para o dashboard do gestor
-              setTimeout(() => {
-                fetchEscolas();
-                setShowRegistrationForm(false);
-                setHasSchool(true);
-              }, 1500);
-            } catch (error) {
-              console.error("Erro ao atualizar perfil do gestor:", error);
-            }
-          }
-        }}
-      />
-    </div>
-  );
+
 }

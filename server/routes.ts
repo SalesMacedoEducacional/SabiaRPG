@@ -38,6 +38,7 @@ import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
 import { registerLocationRoutes } from "./locationRoutes";
 import { getUserAdminRoutes } from "./userAdminApi";
 import gestorDashboardRoutes from "./gestorDashboard";
+import { registerGestorEscolasRoutes } from "./gestorEscolasRoutes";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
@@ -1547,6 +1548,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas do dashboard do gestor
   app.use('/api', gestorDashboardRoutes);
+  
+  // Registrar rotas para gestão de escolas do gestor
+  registerGestorEscolasRoutes(app);
   
   // Registrar rotas de administração de usuários
   app.use(getUserAdminRoutes());
