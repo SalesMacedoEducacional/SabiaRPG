@@ -5,151 +5,189 @@
 @tailwind utilities;
 
 :root {
-  --background: 30 25% 15%;
-  --foreground: 39 42% 87%;
+  /* Sistema de cores unificado para Sabiá RPG */
   
-  --muted: 60 5% 96%;
-  --muted-foreground: 25 5% 45%;
+  /* Cores Primárias e de Ação */
+  --primary: #bf7918;
+  --primary-hover: #AD6915;
+  --primary-pressed: #8F510E;
+  --primary-contrast: #FFFFFF;
   
-  --popover: 30 25% 15%;
-  --popover-foreground: 39 42% 87%;
+  --secondary: #3b82f6;
+  --secondary-hover: #306FDB;
+  --secondary-pressed: #2153B8;
+  --secondary-contrast: #FFFFFF;
   
-  --card: 30 25% 15%;
-  --card-foreground: 39 42% 87%;
+  --danger: #ef4444;
+  --danger-hover: #D93636;
+  --danger-contrast: #FFFFFF;
   
-  --border: 35 23% 27%;
-  --input: 35 23% 27%;
+  --success: #3f693f;
+  --success-hover: #335E33;
+  --success-contrast: #FFFFFF;
   
-  /* Variáveis específicas para cores do estilo medieval */
-  --manager-bg: 30 25% 15%;
-  --manager-card: 30 15% 7%;
-  --manager-accent: 35 78% 42%;
-  --manager-hover: 30 32% 18%;
+  --warning: #cb9b43;
+  --warning-hover: #B88637;
+  --warning-contrast: #000000;
   
-  --primary: 30 45% 37%;
-  --primary-light: 30 32% 49%;
-  --primary-dark: 30 45% 29%;
-  --primary-foreground: 39 42% 87%;
+  /* Cores de Fundo */
+  --background-base: #140A02;
+  --background-elevated: #291A0A;
+  --background-card: #3B2B16;
+  --background-input: #43341c;
   
-  --secondary: 120 25% 33%;
-  --secondary-light: 120 20% 40%;
-  --secondary-dark: 120 25% 25%;
-  --secondary-foreground: 39 42% 87%;
+  /* Cores de Texto */
+  --text-heading: #F5F4F2;
+  --text-default: #D9D6D0;
+  --text-muted: #A19990;
+  --text-subtle: #736350;
+  --text-link: #74B4F7;
+  --text-link-hover: #3b82f6;
   
-  --accent: 35 78% 42%;
-  --accent-light: 35 78% 50%;
-  --accent-dark: 35 78% 34%;
-  --accent-foreground: 30 25% 15%;
+  /* Cores de Borda */
+  --border-default: #3B2B16;
+  --border-focus: #bf7918;
+  --border-card: #43341c;
   
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 60 9% 98%;
+  /* Cores de Gráficos */
+  --graph-purple: #a855f7;
+  --graph-red: #ef4444;
+  --graph-blue: #3b82f6;
+  --graph-green: #3f693f;
+  --graph-yellow: #cb9b43;
   
-  --ring: 30 45% 37%;
+  /* Compatibilidade com nomes antigos */
+  --background: 31 90% 4%;   /* #140A02 */
+  --foreground: 36 14% 83%;  /* #D9D6D0 */
+  
+  --muted: 27 18% 45%;       /* #736350 */
+  --muted-foreground: 36 14% 83%; /* #D9D6D0 */
+  
+  --popover: 31 60% 10%;     /* #291A0A */
+  --popover-foreground: 36 14% 83%; /* #D9D6D0 */
+  
+  --card: 36 40% 16%;        /* #3B2B16 */
+  --card-foreground: 36 14% 83%; /* #D9D6D0 */
+  
+  --border: 36 40% 16%;      /* #3B2B16 */
+  --input: 39 37% 19%;       /* #43341C */
+  
+  --primary-foreground: 0 0% 100%;  /* #FFFFFF */
+  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  
+  --accent: 35 75% 42%;      /* #bf7918 */
+  --accent-light: 38 54% 53%; /* #cb9b43 */
+  --accent-dark: 33 80% 31%;  /* #8F510E */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  
+  --destructive: 0 84% 60%;   /* #ef4444 */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  
+  --ring: 35 75% 42%;         /* #bf7918 */
   
   --radius: 0.5rem;
   
-  --parchment: 39 42% 87%;
-  --parchment-light: 39 42% 95%;
-  --parchment-dark: 39 32% 77%;
+  --parchment: 36 14% 83%;    /* #D9D6D0 */
+  --parchment-light: 36 14% 96%; /* #F5F4F2 */
+  --parchment-dark: 27 18% 45%; /* #A19990 */
   
-  --dark: 30 10% 16%;
-  --dark-light: 30 10% 22%;
-  --dark-dark: 30 10% 10%;
+  --dark: 31 60% 10%;         /* #291A0A */
+  --dark-light: 36 40% 16%;   /* #3B2B16 */
+  --dark-dark: 31 90% 4%;     /* #140A02 */
+  
+  /* Variáveis específicas para o dashboard do gestor */
+  --manager-bg: 31 60% 10%;   /* #291A0A */
+  --manager-card: 36 40% 16%; /* #3B2B16 */
+  --manager-accent: 35 75% 42%; /* #bf7918 */
+  --manager-hover: 36 40% 22%; /* #493722 */
 }
 
 /* Classes utilitárias para o painel do gestor baseadas nas imagens de referência */
 @layer components {
+  /* Classes principais do sistema baseadas na nova paleta de cores */
+  .btn-primary {
+    @apply bg-primary hover:bg-[#AD6915] text-white py-2 px-4 rounded transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-[#306FDB] text-white py-2 px-4 rounded transition-colors;
+  }
+  
+  .btn-danger {
+    @apply bg-danger hover:bg-[#D93636] text-white py-2 px-4 rounded transition-colors;
+  }
+  
+  .btn-success {
+    @apply bg-success hover:bg-[#335E33] text-white py-2 px-4 rounded transition-colors;
+  }
+  
+  .btn-warning {
+    @apply bg-warning hover:bg-[#B88637] text-black py-2 px-4 rounded transition-colors;
+  }
+  
+  .card {
+    @apply bg-[#3B2B16] border border-[#3B2B16] p-4 rounded-md text-[#D9D6D0];
+  }
+  
+  .card-header {
+    @apply border-b border-[#43341c] py-3 px-4 mb-4;
+  }
+  
+  .input-field {
+    @apply bg-[#43341c] text-[#D9D6D0] text-sm p-2 border border-[#3B2B16] focus:border-[#bf7918] rounded w-full;
+  }
+  
+  .select-field {
+    @apply bg-[#43341c] text-[#D9D6D0] text-sm p-2 border border-[#3B2B16] focus:border-[#bf7918] rounded w-full;
+  }
+  
+  /* Classes específicas para o painel do gestor (para manter compatibilidade) */
   .manager-card {
-    @apply bg-dark border border-accent rounded-md;
+    @apply bg-[#3B2B16] border border-[#bf7918] rounded-md;
   }
   
   .manager-card-header {
-    @apply border-b border-accent py-2 px-4;
+    @apply border-b border-[#bf7918] py-2 px-4;
   }
   
   .manager-button {
-    @apply bg-accent hover:bg-accent-dark text-white py-1.5 px-4 rounded-sm transition-colors;
+    @apply bg-[#bf7918] hover:bg-[#AD6915] text-white py-1.5 px-4 rounded-sm transition-colors;
   }
   
   .manager-action-button {
-    @apply flex items-center text-foreground hover:bg-dark-light p-2 transition-colors rounded;
+    @apply flex items-center text-[#D9D6D0] hover:bg-[#291A0A] p-2 transition-colors rounded;
   }
   
   .manager-action-button > svg {
-    @apply text-accent mr-2 h-4 w-4;
+    @apply text-[#bf7918] mr-2 h-4 w-4;
   }
   
   .manager-select {
-    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
+    @apply bg-[#43341c] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
   }
   
   .manager-input {
-    @apply bg-dark-dark text-white text-sm p-2 border border-accent rounded-sm w-full;
+    @apply bg-[#43341c] text-white text-sm p-2 border border-[#bf7918] rounded-sm w-full;
   }
   
   .manager-stats-card {
-    @apply bg-dark border border-accent p-4 rounded-md;
+    @apply bg-[#3B2B16] border border-[#bf7918] p-4 rounded-md;
   }
 }
 
-.dark {
-  --background: 30 25% 15%;
-  --foreground: 39 42% 87%;
-  
-  --muted: 30 15% 25%;
-  --muted-foreground: 39 32% 77%;
-  
-  --popover: 30 25% 15%;
-  --popover-foreground: 39 42% 87%;
-  
-  --card: 30 25% 15%;
-  --card-foreground: 39 42% 87%;
-  
-  --border: 35 23% 27%;
-  --input: 35 23% 27%;
-  
-  --primary: 30 45% 37%;
-  --primary-light: 30 32% 49%;
-  --primary-dark: 30 45% 29%;
-  --primary-foreground: 39 42% 87%;
-  
-  --secondary: 120 25% 33%;
-  --secondary-light: 120 20% 40%;
-  --secondary-dark: 120 25% 25%;
-  --secondary-foreground: 39 42% 87%;
-  
-  --accent: 35 78% 42%;
-  --accent-light: 35 78% 50%;
-  --accent-dark: 35 78% 34%;
-  --accent-foreground: 30 25% 15%;
-  
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  
-  --ring: 35 23% 27%;
-  
-  --radius: 0.5rem;
-  
-  --parchment: 39 42% 87%;
-  --parchment-light: 39 42% 95%;
-  --parchment-dark: 39 32% 77%;
-  
-  --dark: 30 10% 16%;
-  --dark-light: 30 10% 22%;
-  --dark-dark: 30 10% 10%;
-}
+/* Estilo escuro já é o padrão */
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-[#3B2B16];
   }
   
   body {
-    @apply font-lato antialiased bg-dark text-parchment;
+    @apply font-lato antialiased bg-[#291A0A] text-[#D9D6D0];
   }
   
   h1, h2, h3, h4, h5 {
-    @apply font-cinzel;
+    @apply font-cinzel text-[#F5F4F2];
   }
   
   .font-medieval {
@@ -166,15 +204,15 @@
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-dark;
+    @apply bg-[#291A0A];
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary rounded-md;
+    @apply bg-[#bf7918] rounded-md;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-light;
+    @apply bg-[#cb9b43];
   }
   
   /* Map Interaction Styles */

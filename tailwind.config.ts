@@ -16,71 +16,91 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        parchment: {
-          DEFAULT: "hsl(var(--parchment))",
-          light: "hsl(var(--parchment-light))",
-          dark: "hsl(var(--parchment-dark))",
-        },
-        dark: {
-          DEFAULT: "hsl(var(--dark))",
-          light: "hsl(var(--dark-light))",
-          dark: "hsl(var(--dark-dark))",
-        },
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
+        // Nova paleta de cores unificada
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          light: "hsl(var(--primary-light))",
-          dark: "hsl(var(--primary-dark))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: '#bf7918', // Brandy Punch 500
+          hover: '#AD6915',
+          pressed: '#8F510E',
+          contrast: '#FFFFFF'
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          light: "hsl(var(--secondary-light))",
-          dark: "hsl(var(--secondary-dark))", 
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: '#3b82f6', // Azure Radiance 500
+          hover: '#306FDB',
+          pressed: '#2153B8',
+          contrast: '#FFFFFF'
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+        danger: {
+          DEFAULT: '#ef4444', // Cinnabar 500
+          hover: '#D93636',
+          contrast: '#FFFFFF'
+        },
+        success: {
+          DEFAULT: '#3f693f', // Killarney 500
+          hover: '#335E33',
+          contrast: '#FFFFFF'
+        },
+        warning: {
+          DEFAULT: '#cb9b43', // Tussock 500
+          hover: '#B88637',
+          contrast: '#000000'
+        },
+        background: {
+          base: '#140A02', // dark base: Metallic Bronze 950
+          elevated: '#291A0A',
+          card: '#3B2B16',
+          input: '#43341c',
+        },
+        text: {
+          heading: '#F5F4F2', // Zorba 100
+          default: '#D9D6D0', // Zorba 300
+          muted: '#A19990',   // Zorba 500
+          subtle: '#736350',  // Zorba 700
+          link: '#74B4F7',
+          link_hover: '#3b82f6',
+        },
+        border: {
+          DEFAULT: '#3B2B16',
+          focus: '#bf7918',
+          card: '#43341c',
+        },
+        graph: {
+          purple: '#a855f7',
+          red: '#ef4444',
+          blue: '#3b82f6',
+          green: '#3f693f',
+          yellow: '#cb9b43',
+        },
+        // Mantendo compatibilidade com a estrutura anterior
+        parchment: {
+          DEFAULT: "#D9D6D0",
+          light: "#F5F4F2",
+          dark: "#A19990",
+        },
+        dark: {
+          DEFAULT: "#291A0A",
+          light: "#3B2B16",
+          dark: "#140A02",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          light: "hsl(var(--accent-light))",
-          dark: "hsl(var(--accent-dark))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#bf7918",
+          light: "#cb9b43",
+          dark: "#8F510E",
+          foreground: "#FFFFFF",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#ef4444",
+          foreground: "#FFFFFF",
         },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        muted: {
+          DEFAULT: "#736350",
+          foreground: "#D9D6D0",
+        },
         chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          "1": "#a855f7",
+          "2": "#ef4444",
+          "3": "#3b82f6",
+          "4": "#3f693f",
+          "5": "#cb9b43",
         },
       },
       keyframes: {
