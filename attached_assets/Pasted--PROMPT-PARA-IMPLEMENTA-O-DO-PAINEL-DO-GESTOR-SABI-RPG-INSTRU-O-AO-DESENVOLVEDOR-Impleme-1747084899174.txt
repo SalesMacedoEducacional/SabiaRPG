@@ -1,0 +1,67 @@
+
+🛠️ PROMPT PARA IMPLEMENTAÇÃO DO PAINEL DO GESTOR (SABIÁ RPG)
+
+INSTRUÇÃO AO DESENVOLVEDOR:
+
+Implemente imediatamente as seguintes funcionalidades no painel do GESTOR da plataforma Sabiá RPG, garantindo total integração com o banco de dados, consistência visual com o novo padrão de cores da UI, e rotas corretas conforme descrito abaixo. A execução deve seguir fielmente os pontos sequenciais:
+
+✅ 1. TOTAL DE ESCOLAS VINCULADAS
+- Consulta: Buscar da tabela escolas todas as escolas onde gestor_id = auth.user_id() e ativa = true.
+- Exibição: Mostrar a quantidade total de escolas ativas vinculadas.
+- Ação Extra: Incluir botão “🔎 Ver Detalhes”, que ao ser clicado abre modal com:
+  - nome da escola
+  - cidade (via relação com tabela cidades)
+- Layout: Aplicar estilo do tema principal (background card, texto branco, bordas douradas conforme tema).
+
+✅ 2. TOTAL DE PROFESSORES
+- Consulta: Buscar na tabela perfis_professor todos os registros onde escola_id pertença a uma das escolas do gestor logado.
+- Exibição: Mostrar o número total de professores.
+- Ação Extra: Incluir botão “🔎 Ver Detalhes”, exibindo modal com:
+  - nome_professor
+  - cpf
+  - telefone
+
+✅ 3. TOTAL DE ALUNOS
+- Consulta:
+  - Buscar em perfis_aluno registros ativos com turma_id vinculada a turmas pertencentes à escola do gestor.
+  - Verificar se há vínculo com matriculas através de matricula_id.
+- Exibição: Mostrar total de alunos ativos.
+- Ação Extra: Botão “🔎 Ver Detalhes” exibe modal com:
+  - nome_aluno (de perfis_aluno)
+  - numero_matricula (de matriculas)
+  - turma.nome (via turma_id)
+  - Ordenação alfabética por turma
+
+✅ 4. TURMAS ATIVAS
+- Consulta: Buscar em turmas todas onde escola_id pertença às escolas do gestor logado.
+- Exibição: Exibir total de turmas encontradas.
+- Ação Extra: Botão “🔎 Ver Detalhes” exibe modal com:
+  - nome, serie, ano_letivo, turno
+  - Contagem de alunos na turma (com base em matriculas.turma_id)
+
+✅ 5. BOTÃO "VOLTAR AO DASHBOARD" NA TELA DE CADASTRAR ESCOLA
+- Ajuste de Rota: Quando o botão de acesso ao cadastro for via “Ações Rápidas > Cadastrar Nova Escola”, exibir botão "← Voltar ao Dashboard".
+- Função: Retornar para /gestor/dashboard.
+
+✅ 6. BOTÃO "VOLTAR AO DASHBOARD" NA TELA DE GERENCIAR TURMAS
+- Ajuste de Rota: Quando a tela for acessada por “Ações Rápidas > Gerenciar Turmas”, exibir botão "← Voltar ao Dashboard".
+- Função: Retornar para /gestor/dashboard.
+
+✅ 7. AJUSTE NO DROPDOWN DE ESTADOS NA TELA DE CADASTRO DE ESCOLA
+- Correção de Fonte: Dropdown deve buscar os estados da tabela estados, ordenando por nome.
+- Código esperado:
+  const { data: estados } = await supabase.from('estados').select('id, nome').order('nome');
+- Apresentar no campo select com:
+  - value = id
+  - label = nome
+- Bloqueio condicional: O dropdown de cidades só será habilitado após a seleção de um estado.
+
+✅ 8. CSS E PALETA DE CORES
+- Aplicar o novo padrão visual da paleta definida em Tailwind:
+  - Botões: bg-primary, hover:bg-primary-hover, text-white
+  - Cards e painéis: bg-background-card, text-default, border-border
+  - Inputs e campos: bg-background-input, focus:border-focus
+  - Títulos e subtítulos: text-heading e text-muted
+- Garantir responsividade e contraste para acessibilidade.
+
+💡 Observação Final: Todas as requisições ao Supabase devem usar filtros baseados no auth.user() para garantir segurança e vinculação apenas aos dados do gestor autenticado. Cada componente deverá lidar com loading, erro e vazio.
