@@ -216,117 +216,117 @@ export default function ManagerDashboard() {
               </div>
               
               {/* Alerta de Evasão */}
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Alerta de Evasão Potencial</CardTitle>
-                  <CardDescription className="text-xs">
+              <div className="manager-card">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Alerta de Evasão Potencial</h3>
+                  <p className="text-xs text-white/70">
                     Alunos com mais de 30 dias sem acesso
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-foreground text-4xl font-bold text-center my-4">0</div>
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="text-white text-4xl font-bold text-center my-4">0</div>
                   
-                  <Button variant="outline" size="sm" className="w-full">
+                  <button className="manager-button w-full">
                     Ver Lista
-                  </Button>
-                </CardContent>
-              </Card>
+                  </button>
+                </div>
+              </div>
             </div>
             
             {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Escolas com Maior Engajamento */}
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Escolas com Maior Engajamento</CardTitle>
-                  <CardDescription className="text-xs">
+              <div className="manager-card">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Escolas com Maior Engajamento</h3>
+                  <p className="text-xs text-white/70">
                     Escolas com melhores taxas de participação
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-40 text-foreground">
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-center h-40 text-white">
                     Nenhuma escola cadastrada
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               
               {/* Atividade Recente */}
-              <Card className="bg-dark border-border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Atividade Recente</CardTitle>
-                  <CardDescription className="text-xs">
+              <div className="manager-card">
+                <div className="manager-card-header">
+                  <h3 className="text-sm font-medium text-white">Atividade Recente</h3>
+                  <p className="text-xs text-white/70">
                     Últimas ações e eventos no sistema
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mt-2">
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div className="space-y-4">
                     <div className="flex items-start">
-                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
-                        <FileText className="h-4 w-4 text-accent" />
+                      <div className="bg-[#3E2D1B] p-1.5 rounded-full mr-3 mt-0.5">
+                        <FileText className="h-4 w-4 text-[#D47C06]" />
                       </div>
                       <div>
-                        <p className="text-foreground text-sm font-medium">Novo relatório gerado</p>
-                        <p className="text-muted-foreground text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
-                        <p className="text-muted-foreground/70 text-xs">Hoje, 09:45</p>
+                        <p className="text-white text-sm font-medium">Novo relatório gerado</p>
+                        <p className="text-white/70 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                        <p className="text-[#D47C06] text-xs">Hoje, 09:45</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
-                        <Users className="h-4 w-4 text-accent" />
+                      <div className="bg-[#3E2D1B] p-1.5 rounded-full mr-3 mt-0.5">
+                        <Users className="h-4 w-4 text-[#D47C06]" />
                       </div>
                       <div>
-                        <p className="text-foreground text-sm font-medium">Novos usuários cadastrados</p>
-                        <p className="text-muted-foreground text-xs">12 alunos adicionados à plataforma</p>
-                        <p className="text-muted-foreground/70 text-xs">Ontem, 15:30</p>
+                        <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
+                        <p className="text-white/70 text-xs">12 alunos adicionados à plataforma</p>
+                        <p className="text-[#D47C06] text-xs">Ontem, 15:30</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-background p-1.5 rounded-full mr-3 mt-0.5">
-                        <AlertCircle className="h-4 w-4 text-accent" />
+                      <div className="bg-[#3E2D1B] p-1.5 rounded-full mr-3 mt-0.5">
+                        <AlertCircle className="h-4 w-4 text-[#D47C06]" />
                       </div>
                       <div>
-                        <p className="text-foreground text-sm font-medium">Alerta de engajamento</p>
-                        <p className="text-muted-foreground text-xs">Queda de atividade em 2 turmas do 8º ano</p>
-                        <p className="text-muted-foreground/70 text-xs">12/05, 13:15</p>
+                        <p className="text-white text-sm font-medium">Alerta de engajamento</p>
+                        <p className="text-white/70 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                        <p className="text-[#D47C06] text-xs">12/05, 13:15</p>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <Card className="bg-dark border-border">
-              <CardHeader>
-                <CardTitle className="text-lg font-medium">Relatórios</CardTitle>
-                <CardDescription>
+            <div className="manager-card mb-4">
+              <div className="manager-card-header">
+                <h3 className="text-lg font-medium text-white">Relatórios</h3>
+                <p className="text-sm text-white/70">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </p>
+              </div>
+              <div className="p-4">
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
-                    <FileBarChart2 size={24} className="text-accent mb-2" />
-                    <span className="text-foreground text-sm font-medium">Desempenho por Turma</span>
+                  <div className="bg-[#1A1409] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#3E2D1B] cursor-pointer transition-colors rounded-md">
+                    <FileBarChart2 size={24} className="text-[#D47C06] mb-2" />
+                    <span className="text-white text-sm font-medium">Desempenho por Turma</span>
                   </div>
                   
-                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
-                    <Users size={24} className="text-accent mb-2" />
-                    <span className="text-foreground text-sm font-medium">Engajamento de Alunos</span>
+                  <div className="bg-[#1A1409] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#3E2D1B] cursor-pointer transition-colors rounded-md">
+                    <Users size={24} className="text-[#D47C06] mb-2" />
+                    <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
                   </div>
                   
-                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
-                    <Book size={24} className="text-accent mb-2" />
-                    <span className="text-foreground text-sm font-medium">Missões Completadas</span>
+                  <div className="bg-[#1A1409] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#3E2D1B] cursor-pointer transition-colors rounded-md">
+                    <Book size={24} className="text-[#D47C06] mb-2" />
+                    <span className="text-white text-sm font-medium">Missões Completadas</span>
                   </div>
                   
-                  <div className="bg-background p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors rounded-md">
-                    <School size={24} className="text-accent mb-2" />
-                    <span className="text-foreground text-sm font-medium">Desempenho por Escola</span>
+                  <div className="bg-[#1A1409] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#3E2D1B] cursor-pointer transition-colors rounded-md">
+                    <School size={24} className="text-[#D47C06] mb-2" />
+                    <span className="text-white text-sm font-medium">Desempenho por Escola</span>
                   </div>
                 </div>
                 
@@ -427,8 +427,8 @@ export default function ManagerDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </TabsContent>
           
           {/* Tab de Configurações */}
