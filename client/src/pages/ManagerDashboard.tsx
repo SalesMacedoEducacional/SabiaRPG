@@ -300,8 +300,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="manager-card overflow-hidden mb-4">
-              <div className="manager-card-header">
+            <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#4a4639] p-3 border-b border-[#D47C06]">
                 <h3 className="text-lg font-medium text-white">Relatórios</h3>
                 <p className="text-sm text-white/70">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
@@ -309,22 +309,22 @@ export default function ManagerDashboard() {
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
                     <FileBarChart2 size={24} className="text-accent mb-2" />
                     <span className="text-white text-sm font-medium">Desempenho por Turma</span>
                   </div>
                   
-                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
                     <Users size={24} className="text-accent mb-2" />
                     <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
                   </div>
                   
-                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
                     <Book size={24} className="text-accent mb-2" />
                     <span className="text-white text-sm font-medium">Missões Completadas</span>
                   </div>
                   
-                  <div className="manager-card p-3 flex flex-col items-center justify-center hover:bg-dark-light cursor-pointer transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
                     <School size={24} className="text-accent mb-2" />
                     <span className="text-white text-sm font-medium">Desempenho por Escola</span>
                   </div>
@@ -338,14 +338,14 @@ export default function ManagerDashboard() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <label className="text-white/70 text-xs block mb-1">Escola</label>
-                          <select className="manager-select">
+                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
                             <option value="">Todas as escolas</option>
                           </select>
                         </div>
                         
                         <div>
                           <label className="text-white/70 text-xs block mb-1">Turma</label>
-                          <select className="manager-select">
+                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
                             <option value="">Todas as turmas</option>
                           </select>
                         </div>
@@ -520,7 +520,7 @@ export default function ManagerDashboard() {
                     </div>
                   </div>
                   
-                  <div className="bg-[#1A1409] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
+                  <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden hover:border-amber-400 transition-colors">
                     <div className="p-3 border-b border-[#D47C06]">
                       <h4 className="text-sm font-medium text-white">Missões e Desafios</h4>
                       <p className="text-xs text-white/70">
@@ -528,7 +528,7 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#3E2D1B] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#2C1E10] hover:border-amber-400 transition-colors w-full">
+                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
                         Acessar
                       </button>
                     </div>
