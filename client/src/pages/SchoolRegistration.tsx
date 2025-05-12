@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, School, ArrowRight } from "lucide-react";
+import { Loader2, School, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function SchoolRegistration() {
   const { toast } = useToast();
@@ -125,14 +125,26 @@ export default function SchoolRegistration() {
   return (
     <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center">
       <div className="flex justify-between items-center mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={logout} 
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Sair
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setLocation("/manager")}
+            className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={logout} 
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Sair
+          </Button>
+        </div>
+        
         <div className="bg-primary/10 p-3 rounded-full">
           <School className="h-10 w-10 text-primary" />
         </div>

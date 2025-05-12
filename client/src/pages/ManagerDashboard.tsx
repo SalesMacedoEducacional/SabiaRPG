@@ -6,6 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { 
+  TotalEscolasCard, 
+  TotalProfessoresCard, 
+  TotalAlunosCard, 
+  TotalTurmasCard 
+} from "@/components/manager/ManagerDashboardCards";
+import { 
   Home, 
   FileBarChart2, 
   Settings, 
