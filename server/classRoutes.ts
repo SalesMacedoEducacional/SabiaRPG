@@ -84,28 +84,39 @@ export function registerClassRoutes(
         // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
         if (req.user && req.user.role === 'manager') {
           // Log para depuração
-          console.log('Buscando escolas para o gestor:', req.user.id, 'Tipo de ID:', typeof req.user.id);
+          console.log('Buscando escolas para o gestor. ID do gestor:', req.user.id);
           
-          // Vamos fazer uma busca mais genérica sem depender do tipo do gestor_id
+          // Se precisamos encontrar escolas vinculadas ao gestor logado,
+          // primeiro tentamos via sessão do servidor
+          let escolaAtual;
+          if (req.session && req.session.managerSchoolId) {
+            console.log('Escola encontrada na sessão do servidor:', req.session.managerSchoolId);
+            escolaAtual = {
+              id: req.session.managerSchoolId
+            };
+          }
+          
+          // Vamos buscar todas as escolas no sistema para garantir
           const { data: escolasGestor, error: escolasError } = await supabase
             .from('escolas')
-            .select('id');
+            .select('id, nome, gestor_id');
             
           if (escolasError) {
             console.error('Erro ao verificar escolas do gestor:', escolasError);
             return res.status(500).json({ message: 'Erro ao verificar escolas do gestor' });
           }
           
-          console.log('Escolas encontradas:', escolasGestor.length, escolasGestor);
+          console.log('Todas as escolas encontradas:', escolasGestor.length);
             
-          // Se foi especificado um escola_id e o gestor não é gestor desta escola, retorna erro
-          if (escola_id && !escolasGestor.some((e: { id: string }) => e.id === escola_id)) {
-            return res.status(403).json({ message: 'Você não tem permissão para acessar turmas desta escola' });
-          }
-            
-          // Se não foi especificado escola_id, usa a primeira escola do gestor
+          // Determinar qual escola_id usar
           let escolaIdConsulta = escola_id as string;
-          if (!escolaIdConsulta && escolasGestor.length > 0) {
+          
+          // Se não foi especificado escola_id na query, tentamos usar o da sessão
+          if (!escolaIdConsulta && req.session && req.session.managerSchoolId) {
+            escolaIdConsulta = req.session.managerSchoolId;
+          } 
+          // Ou então usamos o primeiro da lista
+          else if (!escolaIdConsulta && escolasGestor.length > 0) {
             escolaIdConsulta = escolasGestor[0].id;
           }
           
@@ -122,8 +133,16 @@ export function registerClassRoutes(
             console.error('Erro ao buscar turmas:', error);
             return res.status(500).json({ message: 'Erro ao buscar turmas' });
           }
+          
+          // Mapear os dados da tabela para o formato esperado pelo frontend
+          const turmasFormatadas = turmas?.map(turma => ({
+            ...turma,
+            nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
+          }));
+          
+          console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
             
-          return res.status(200).json(turmas);
+          return res.status(200).json(turmasFormatadas);
         } else {
           // Para administradores, permite filtrar por escola_id opcional
           let query = supabase.from('turmas').select('*');
@@ -139,7 +158,15 @@ export function registerClassRoutes(
             return res.status(500).json({ message: 'Erro ao buscar turmas' });
           }
           
-          return res.status(200).json(turmas);
+          // Mapear os dados da tabela para o formato esperado pelo frontend
+          const turmasFormatadas = turmas?.map(turma => ({
+            ...turma,
+            nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
+          }));
+          
+          console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
+            
+          return res.status(200).json(turmasFormatadas);
         }
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
