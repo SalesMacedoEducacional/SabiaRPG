@@ -446,7 +446,10 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
+                      <button 
+                        className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full"
+                        onClick={() => navigate('/user-registration')}
+                      >
                         Acessar
                       </button>
                     </div>
@@ -460,7 +463,10 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
+                      <button 
+                        className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full"
+                        onClick={() => navigate('/school-registration')}
+                      >
                         Acessar
                       </button>
                     </div>
@@ -474,7 +480,10 @@ export default function ManagerDashboard() {
                       </p>
                     </div>
                     <div className="p-3">
-                      <button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full">
+                      <button 
+                        className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors w-full"
+                        onClick={() => navigate('/turmas')}
+                      >
                         Acessar
                       </button>
                     </div>
