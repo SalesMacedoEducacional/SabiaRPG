@@ -233,7 +233,7 @@ export default function SchoolRegistration() {
         <ScrollArea className="h-[calc(100vh-160px)]">
           {showRegistrationForm ? (
             <ManagerSchoolRegistration 
-              userId={user?.id || ''} 
+              userId={typeof user?.id === 'string' ? user.id : user?.id?.toString() || ''}
               onSchoolRegistered={(result) => {
                 // Atualizar perfil do gestor com o ID da escola se ainda não tiver
                 try {
