@@ -2,7 +2,7 @@
  * Rotas específicas para gestão de escolas pelo perfil Gestor
  */
 import { Express, Request, Response } from "express";
-import { executeSql } from "../db/supabase";
+import { supabase } from "../db/supabase";
 import { authenticateCustom, requireRole } from "./customAuth";
 
 /**
@@ -17,55 +17,66 @@ export function registerGestorEscolasRoutes(app: Express) {
     try {
       console.log("Verificando escola vinculada ao gestor:", req.session?.userId);
       
-      // Consulta todas as escolas vinculadas ao gestor atual
-      const query = `
-        SELECT e.* 
-        FROM escolas e
-        LEFT JOIN perfis_gestor pg ON e.id = pg.escola_id
-        WHERE pg.usuario_id = $1 OR pg.user_id = $1
-        ORDER BY e.nome ASC
-      `;
+      // Primeiro tenta buscar escolas pela vinculação em perfis_gestor
+      let { data: escolasVinculadas, error: errorVinculadas } = await supabase
+        .from('escolas')
+        .select('*')
+        .eq('gestor_id', req.session?.userId)
+        .order('nome');
       
-      const { data: resultado, error } = await executeSql(query, [req.session?.userId || '']);
-      
-      if (error) {
-        console.error("Erro SQL ao buscar escolas do gestor:", error);
-        return res.status(500).json({ message: "Erro ao buscar escolas vinculadas", error: error.message });
+      if (errorVinculadas) {
+        console.error("Erro ao buscar escolas do gestor:", errorVinculadas.message);
+        return res.status(500).json({ 
+          message: "Erro ao buscar escolas vinculadas", 
+          error: errorVinculadas.message 
+        });
       }
       
-      // Se não houver resultados, buscar todas as escolas disponíveis
-      if (!resultado || resultado.length === 0) {
-        console.log("Escola não encontrada via JOIN. Verificando via campo gestor_id...");
-        
-        // Tentar buscar por gestor_id diretamente
-        const { data: escolasGestor, error: errorGestor } = await executeSql(`
-          SELECT * FROM escolas 
-          WHERE gestor_id = $1
-          ORDER BY nome ASC
-        `, [req.session?.userId || '']);
-        
-        if (errorGestor) {
-          console.error("Erro ao buscar escolas pelo gestor_id:", errorGestor);
-        } else if (escolasGestor && escolasGestor.length > 0) {
-          console.log("Escola encontrada via campo gestor_id para gestor", req.session?.userId, ":", escolasGestor[0].id);
-          return res.status(200).json(escolasGestor);
-        } else {
-          console.log("Nenhuma escola encontrada pelo gestor_id. Verificando todas as escolas...");
-          
-          // Se tudo falhar, retornar todas as escolas para testes
-          const { data: todasEscolas } = await executeSql(`
-            SELECT * FROM escolas 
-            ORDER BY nome ASC
-            LIMIT 3
-          `);
-          
-          console.log("Retornando escolas de teste:", todasEscolas?.length || 0);
-          return res.status(200).json(todasEscolas || []);
-        }
-      } else {
-        console.log("Escolas encontradas para o gestor:", resultado.length);
-        return res.status(200).json(resultado);
+      // Se encontrou escolas, retorna-as
+      if (escolasVinculadas && escolasVinculadas.length > 0) {
+        console.log("Encontradas escolas vinculadas ao gestor pela coluna gestor_id:", escolasVinculadas.length);
+        return res.status(200).json(escolasVinculadas);
       }
+      
+      // Se não encontrou por gestor_id, tenta buscar pela relação em perfis_gestor
+      console.log("Nenhuma escola encontrada com gestor_id. Tentando a tabela perfis_gestor...");
+      
+      // Busca pela tabela de perfis_gestor
+      const { data: perfilGestorEscolas, error: errorPerfil } = await supabase
+        .from('perfis_gestor')
+        .select('escolas!inner(*)')
+        .eq('usuario_id', req.session?.userId)
+        .order('created_at');
+      
+      if (errorPerfil) {
+        console.log("Erro ao buscar relação pela tabela perfis_gestor:", errorPerfil.message);
+      } else if (perfilGestorEscolas && perfilGestorEscolas.length > 0) {
+        // Extrai apenas os dados das escolas
+        const escolas = perfilGestorEscolas.map(item => item.escolas);
+        console.log("Encontradas escolas através da tabela perfis_gestor:", escolas.length);
+        return res.status(200).json(escolas);
+      }
+      
+      // Último recurso: buscar todas as escolas para desenvolvimento
+      console.log("Nenhuma escola encontrada via perfis_gestor. Buscando todas as escolas (para desenvolvimento)...");
+      
+      // Obter todas as escolas (apenas para ambiente de desenvolvimento)
+      const { data: todasEscolas, error: errorTodas } = await supabase
+        .from('escolas')
+        .select('*')
+        .order('nome')
+        .limit(3);
+      
+      if (errorTodas) {
+        console.error("Erro ao buscar todas as escolas:", errorTodas.message);
+        return res.status(500).json({
+          message: "Erro ao buscar escolas", 
+          error: errorTodas.message
+        });
+      }
+      
+      console.log("Retornando todas as escolas para desenvolvimento:", todasEscolas?.length || 0);
+      return res.status(200).json(todasEscolas || []);
     } catch (error) {
       console.error("Erro ao buscar escolas do gestor:", error);
       return res.status(500).json({ 
