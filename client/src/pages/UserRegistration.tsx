@@ -255,40 +255,45 @@ export default function UserRegistration() {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl min-h-screen py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Cadastro de Usuários</h1>
+      <div className="mb-8 border-b border-amber-800/40 pb-4">
+        <h1 className="text-3xl font-bold mb-2 text-amber-100">CADASTRO DE USUÁRIOS</h1>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setLocation("/manager")}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setLocation("/manager")}
+            className="border-amber-700 hover:bg-amber-800/20 text-amber-100"
+          >
             Voltar ao Dashboard
           </Button>
         </div>
       </div>
 
-      <Card className="w-full">
-        <CardHeader className="space-y-1">
+      <Card className="w-full border-2 border-amber-800 shadow-md bg-[#312e26]">
+        <CardHeader className="space-y-1 border-b border-amber-800/60 bg-gradient-to-b from-amber-900/30 to-transparent">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <UserPlus className="h-10 w-10 text-primary" />
+            <div className="bg-amber-800/60 p-3 rounded-full border-2 border-amber-700">
+              <UserPlus className="h-10 w-10 text-amber-100" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Cadastrar Novo Usuário</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl text-center text-amber-100">Cadastrar Novo Usuário</CardTitle>
+          <CardDescription className="text-center text-amber-200/80">
             Preencha os dados do novo usuário para cadastrá-lo na plataforma SABIÁ RPG
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pb-4">
+        <CardContent className="pb-4 p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {formStep === 0 && (
                 <div className="space-y-6">
-                  <div className="space-y-4">
+                  <div className="border border-amber-800/60 rounded-md p-4 bg-amber-900/10 shadow-sm space-y-4">
                     <FormField
                       control={form.control}
                       name="papel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Perfil do Usuário</FormLabel>
+                          <FormLabel className="text-amber-200 font-medium">Perfil do Usuário</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -307,20 +312,20 @@ export default function UserRegistration() {
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="border-amber-700 bg-amber-900/20 text-amber-100 focus:ring-amber-600">
                                 <SelectValue placeholder="Selecione o perfil" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="aluno">Aluno</SelectItem>
-                              <SelectItem value="professor">Professor</SelectItem>
-                              <SelectItem value="gestor">Gestor</SelectItem>
+                            <SelectContent className="bg-[#312e26] border border-amber-700 text-amber-100">
+                              <SelectItem value="aluno" className="focus:bg-amber-800/50 focus:text-amber-100">Aluno</SelectItem>
+                              <SelectItem value="professor" className="focus:bg-amber-800/50 focus:text-amber-100">Professor</SelectItem>
+                              <SelectItem value="gestor" className="focus:bg-amber-800/50 focus:text-amber-100">Gestor</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormDescription>
+                          <FormDescription className="text-amber-200/70">
                             O perfil determina as permissões do usuário na plataforma
                           </FormDescription>
-                          <FormMessage />
+                          <FormMessage className="text-red-400" />
                         </FormItem>
                       )}
                     />
