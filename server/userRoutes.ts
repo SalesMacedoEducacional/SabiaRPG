@@ -432,37 +432,8 @@ export function registerUserRoutes(app: Express) {
    * Rota para upload de imagem de perfil
    * POST /api/usuarios/:id/foto
    */
-  // Rota para obter a lista de turmas disponíveis
-  app.get('/api/turmas', (req: any, res: Response) => {
-    console.log('Recebida requisição para obter lista de turmas');
-    
-    // Se o usuário não estiver autenticado, retornar erro
-    if (!req.session || !req.session.userId) {
-      return res.status(401).json({ message: 'Não autorizado' });
-    }
-
-    try {
-      // Para fins de demonstração, retornar lista de turmas
-      const turmas = [
-        { id: "1", nome: "6º Ano A", serie: "6º Ano" },
-        { id: "2", nome: "7º Ano A", serie: "7º Ano" },
-        { id: "3", nome: "8º Ano A", serie: "8º Ano" },
-        { id: "4", nome: "9º Ano A", serie: "9º Ano" },
-        { id: "5", nome: "1º Ano EM A", serie: "1º Ano EM" },
-        { id: "6", nome: "2º Ano EM A", serie: "2º Ano EM" },
-        { id: "7", nome: "3º Ano EM A", serie: "3º Ano EM" }
-      ];
-      
-      // Em uma implementação real, buscar do banco de dados
-      // const result = await pool.query('SELECT id, nome, serie FROM turmas ORDER BY serie, nome');
-      // const turmas = result.rows;
-      
-      return res.status(200).json(turmas);
-    } catch (error) {
-      console.error('Erro ao buscar turmas:', error);
-      return res.status(500).json({ message: 'Erro ao buscar turmas' });
-    }
-  });
+  // A rota para obter a lista de turmas foi movida para classRoutes.ts
+  // Removida daqui para evitar conflitos e dados fictícios
   
   app.post('/api/usuarios/:id/foto', (req: any, res: Response) => {
     // Se o usuário não estiver autenticado, retornar erro
