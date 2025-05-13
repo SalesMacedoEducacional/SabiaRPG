@@ -113,7 +113,7 @@ export default function ClassRegistrationForm({
       // Verificar primeiro se o nome da turma já existe para a mesma escola/ano
       const verificarResponse = await axios.get('/api/turmas/verificar-nome', {
         params: {
-          nome_turma: values.nome,
+          nome: values.nome,
           ano_letivo: values.ano_letivo,
           escola_id: values.escola_id
         }

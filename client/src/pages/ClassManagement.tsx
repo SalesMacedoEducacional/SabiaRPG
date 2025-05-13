@@ -343,7 +343,7 @@ export default function ClassManagement() {
                   <CardHeader className="bg-dark pb-2 border-b border-primary/60">
                     <CardTitle className="text-lg text-parchment flex items-center">
                       <BookOpen className="h-5 w-5 mr-2 text-accent" />
-                      {turma.nome_turma || turma.nome || 'Turma sem nome'}
+                      {turma.nome || turma.nome_turma || 'Turma sem nome'}
                     </CardTitle>
                     <CardDescription className="text-xs text-parchment-dark mt-1">
                       {turma.serie || '—'} - {turma.ano_letivo || '—'}

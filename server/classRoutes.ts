@@ -37,9 +37,9 @@ export function registerClassRoutes(
     requireRole(['manager', 'admin']),
     async (req: Request, res: Response) => {
       try {
-        const { nome_turma, ano_letivo, escola_id } = req.query;
+        const { nome, ano_letivo, escola_id } = req.query;
         
-        if (!nome_turma || !ano_letivo || !escola_id) {
+        if (!nome || !ano_letivo || !escola_id) {
           return res.status(400).json({ 
             message: "Parâmetros insuficientes. Informe nome, ano_letivo e escola_id" 
           });
