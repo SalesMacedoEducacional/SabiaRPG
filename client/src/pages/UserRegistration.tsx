@@ -353,16 +353,16 @@ export default function UserRegistration() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-amber-200 font-medium">E-mail</FormLabel>
+                          <FormLabel className="text-parchment font-medium">E-mail</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
                               placeholder="Ex: maria.silva@exemplo.com"
                               {...field}
-                              className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
+                              className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                             />
                           </FormControl>
-                          <FormMessage className="text-red-400" />
+                          <FormMessage className="text-destructive" />
                         </FormItem>
                       )}
                     />
@@ -372,7 +372,7 @@ export default function UserRegistration() {
                       name="telefone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-amber-200 font-medium">Telefone</FormLabel>
+                          <FormLabel className="text-parchment font-medium">Telefone</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="(99) 99999-9999"
@@ -381,10 +381,10 @@ export default function UserRegistration() {
                                 field.onChange(e);
                                 handlePhoneChange(e);
                               }}
-                              className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
+                              className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                             />
                           </FormControl>
-                          <FormMessage className="text-red-400" />
+                          <FormMessage className="text-destructive" />
                         </FormItem>
                       )}
                     />
@@ -394,24 +394,24 @@ export default function UserRegistration() {
                       name="data_nascimento"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel className="text-amber-200 font-medium">Data de Nascimento</FormLabel>
+                          <FormLabel className="text-parchment font-medium">Data de Nascimento</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
                                   variant="outline"
-                                  className={`w-full pl-3 text-left font-normal border-amber-700 bg-amber-900/20 text-amber-100 hover:bg-amber-800/30 hover:text-amber-50 focus:ring-amber-600 ${!field.value && "text-amber-700"}`}
+                                  className={`w-full pl-3 text-left font-normal border-primary bg-dark text-parchment hover:bg-dark-light hover:text-parchment focus:ring-accent ${!field.value && "text-parchment-dark"}`}
                                 >
                                   {field.value ? (
                                     format(field.value, "dd/MM/yyyy", { locale: ptBR })
                                   ) : (
                                     <span>Selecione a data</span>
                                   )}
-                                  <Calendar className="ml-auto h-4 w-4 text-amber-500" />
+                                  <Calendar className="ml-auto h-4 w-4 text-accent" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-amber-700 bg-[#312e26]" align="start">
+                            <PopoverContent className="w-auto p-0 border-primary bg-dark" align="start">
                               <CalendarComponent
                                 mode="single"
                                 selected={field.value}
@@ -463,7 +463,7 @@ export default function UserRegistration() {
 
               {formStep === 1 && (
                 <div className="space-y-6 mt-1">
-                  <div className="border border-amber-800/60 rounded-md p-4 bg-amber-900/10 shadow-sm space-y-4">
+                  <div className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm space-y-4">
                     {papel === "aluno" && (
                       <>
                         <FormField
@@ -471,25 +471,25 @@ export default function UserRegistration() {
                           name="turma_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-amber-200 font-medium">Turma</FormLabel>
+                              <FormLabel className="text-parchment font-medium">Turma</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
                               >
                                 <FormControl>
-                                  <SelectTrigger className="border-amber-700 bg-amber-900/20 text-amber-100 focus:ring-amber-600">
+                                  <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
                                     <SelectValue placeholder="Selecione a turma" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-[#312e26] border border-amber-700 text-amber-100">
+                                <SelectContent className="bg-dark border border-primary text-parchment">
                                   {turmas.map((turma) => (
-                                    <SelectItem key={turma.id} value={turma.id} className="focus:bg-amber-800/50 focus:text-amber-100">
+                                    <SelectItem key={turma.id} value={turma.id} className="focus:bg-dark-light focus:text-parchment">
                                       {turma.nome} ({turma.serie})
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
-                              <FormMessage className="text-red-400" />
+                              <FormMessage className="text-destructive" />
                             </FormItem>
                           )}
                         />
@@ -499,15 +499,15 @@ export default function UserRegistration() {
                           name="numero_matricula"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-amber-200 font-medium">Número de Matrícula</FormLabel>
+                              <FormLabel className="text-parchment font-medium">Número de Matrícula</FormLabel>
                               <FormControl>
                                 <Input 
                                   placeholder="Ex: 202400123" 
                                   {...field} 
-                                  className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
+                                  className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                                 />
                               </FormControl>
-                              <FormMessage className="text-red-400" />
+                              <FormMessage className="text-destructive" />
                             </FormItem>
                           )}
                         />
