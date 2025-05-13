@@ -76,12 +76,12 @@ interface Turma {
 
 // Esquema para validação do formulário de turma
 const turmaFormSchema = z.object({
-  nome_turma: z.string().min(1, "O nome da turma é obrigatório"),
+  nome: z.string().min(1, "O nome da turma é obrigatório"),
   serie: z.string().min(1, "A série é obrigatória"),
   ano_letivo: z.coerce.number().min(2023, "O ano letivo deve ser 2023 ou posterior"),
   turno: z.string().min(1, "O turno é obrigatório"),
   modalidade: z.string().min(1, "A modalidade é obrigatória"),
-  capacidade: z.coerce.number().min(1, "A capacidade mínima é 1 aluno"),
+  descricao: z.string().optional(),
   escola_id: z.string().min(1, "A escola é obrigatória"),
 });
 
@@ -102,12 +102,12 @@ export default function ClassManagement() {
   const form = useForm<z.infer<typeof turmaFormSchema>>({
     resolver: zodResolver(turmaFormSchema),
     defaultValues: {
-      nome_turma: "",
+      nome: "",
       serie: "",
       ano_letivo: new Date().getFullYear(),
       turno: "",
       modalidade: "",
-      capacidade: 30,
+      descricao: "",
       escola_id: "",
     },
   });
@@ -165,12 +165,12 @@ export default function ClassManagement() {
   // Abrir diálogo para adicionar nova turma
   const handleAddTurma = () => {
     form.reset({
-      nome_turma: "",
+      nome: "",
       serie: "",
       ano_letivo: new Date().getFullYear(),
       turno: "",
       modalidade: "",
-      capacidade: 30,
+      descricao: "",
       escola_id: selectedEscola,
     });
     setEditTurma(null);

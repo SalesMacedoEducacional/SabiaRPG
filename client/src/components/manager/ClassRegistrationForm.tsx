@@ -32,12 +32,12 @@ interface ClassRegistrationFormProps {
 
 // Schema para validação do formulário
 const turmaFormSchema = z.object({
-  nome_turma: z.string().min(1, "Nome da turma é obrigatório"),
+  nome: z.string().min(1, "Nome da turma é obrigatório"),
   serie: z.string().min(1, "Série é obrigatória"),
   turno: z.string().min(1, "Turno é obrigatório"),
   modalidade: z.string().min(1, "Modalidade de ensino é obrigatória"),
   ano_letivo: z.coerce.number().min(2023, "Ano letivo deve ser 2023 ou posterior"),
-  capacidade: z.coerce.number().min(1, "Capacidade deve ser maior que zero"),
+  descricao: z.string().optional(),
   escola_id: z.string().min(1, "Escola é obrigatória"),
 });
 
@@ -56,12 +56,12 @@ export default function ClassRegistrationForm({
   const form = useForm<TurmaFormValues>({
     resolver: zodResolver(turmaFormSchema),
     defaultValues: {
-      nome_turma: "",
+      nome: "",
       serie: "",
       turno: "",
       modalidade: "Ensino Fundamental II",
       ano_letivo: new Date().getFullYear(),
-      capacidade: 30,
+      descricao: "",
       escola_id: escolaId,
     },
   });
@@ -77,12 +77,12 @@ export default function ClassRegistrationForm({
             const turma = response.data;
             // Preencher formulário com valores da turma
             form.reset({
-              nome_turma: turma.nome_turma,
+              nome: turma.nome,
               serie: turma.serie,
               turno: turma.turno,
               modalidade: turma.modalidade,
               ano_letivo: turma.ano_letivo,
-              capacidade: turma.capacidade,
+              descricao: turma.descricao || "",
               escola_id: turma.escola_id,
             });
           }
@@ -113,7 +113,7 @@ export default function ClassRegistrationForm({
       // Verificar primeiro se o nome da turma já existe para a mesma escola/ano
       const verificarResponse = await axios.get('/api/turmas/verificar-nome', {
         params: {
-          nome_turma: values.nome_turma,
+          nome_turma: values.nome,
           ano_letivo: values.ano_letivo,
           escola_id: values.escola_id
         }
@@ -182,7 +182,7 @@ export default function ClassRegistrationForm({
         {/* Nome da Turma */}
         <FormField
           control={form.control}
-          name="nome_turma"
+          name="nome"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-parchment">Nome da Turma</FormLabel>
@@ -245,19 +245,17 @@ export default function ClassRegistrationForm({
             )}
           />
 
-          {/* Capacidade */}
+          {/* Descrição */}
           <FormField
             control={form.control}
-            name="capacidade"
+            name="descricao"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-parchment">Capacidade</FormLabel>
+                <FormLabel className="text-parchment">Descrição/Observações</FormLabel>
                 <FormControl>
                   <Input 
                     {...field} 
-                    type="number" 
-                    min={1} 
-                    max={100} 
+                    placeholder="Observações sobre a turma (opcional)"
                     className="bg-dark-light border-primary text-parchment"
                     disabled={isLoading}
                   />
