@@ -362,9 +362,17 @@ export default function ClassManagement() {
                       <div className="flex items-start">
                         <Users className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
                         <span className="text-parchment">
-                          Alunos: {turma.total_alunos || 0} / {turma.capacidade || '—'}
+                          Alunos: {turma.total_alunos || 0}
                         </span>
                       </div>
+                      {turma.descricao && (
+                        <div className="flex items-start">
+                          <BookOpen className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
+                          <span className="text-parchment">
+                            Obs: {turma.descricao}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-primary/40 bg-dark pt-3 flex justify-between">
