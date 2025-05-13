@@ -255,29 +255,29 @@ export default function UserRegistration() {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl min-h-screen py-10">
-      <div className="mb-8 border-b border-amber-800/40 pb-4">
-        <h1 className="text-3xl font-bold mb-2 text-amber-100">CADASTRO DE USUÁRIOS</h1>
+      <div className="mb-8 border-b border-primary/40 pb-4">
+        <h1 className="text-3xl font-bold mb-2 text-parchment font-medieval">CADASTRO DE USUÁRIOS</h1>
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setLocation("/manager")}
-            className="border-amber-700 hover:bg-amber-800/20 text-amber-100"
+            className="border-primary text-parchment hover:bg-dark-light"
           >
             Voltar ao Dashboard
           </Button>
         </div>
       </div>
 
-      <Card className="w-full border-2 border-amber-800 shadow-md bg-[#312e26]">
-        <CardHeader className="space-y-1 border-b border-amber-800/60 bg-gradient-to-b from-amber-900/30 to-transparent">
+      <Card className="w-full border border-primary shadow-md bg-dark-light">
+        <CardHeader className="space-y-1 border-b border-primary/60 bg-dark">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-amber-800/60 p-3 rounded-full border-2 border-amber-700">
-              <UserPlus className="h-10 w-10 text-amber-100" />
+            <div className="bg-dark p-3 rounded-full border border-accent">
+              <UserPlus className="h-10 w-10 text-accent" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center text-amber-100">Cadastrar Novo Usuário</CardTitle>
-          <CardDescription className="text-center text-amber-200/80">
+          <CardTitle className="text-2xl text-center text-parchment font-medieval">Cadastrar Novo Usuário</CardTitle>
+          <CardDescription className="text-center text-parchment-dark">
             Preencha os dados do novo usuário para cadastrá-lo na plataforma SABIÁ RPG
           </CardDescription>
         </CardHeader>
@@ -287,13 +287,13 @@ export default function UserRegistration() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {formStep === 0 && (
                 <div className="space-y-6">
-                  <div className="border border-amber-800/60 rounded-md p-4 bg-amber-900/10 shadow-sm space-y-4">
+                  <div className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm space-y-4">
                     <FormField
                       control={form.control}
                       name="papel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-amber-200 font-medium">Perfil do Usuário</FormLabel>
+                          <FormLabel className="text-parchment font-medium">Perfil do Usuário</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -312,20 +312,20 @@ export default function UserRegistration() {
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="border-amber-700 bg-amber-900/20 text-amber-100 focus:ring-amber-600">
+                              <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
                                 <SelectValue placeholder="Selecione o perfil" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="bg-[#312e26] border border-amber-700 text-amber-100">
-                              <SelectItem value="aluno" className="focus:bg-amber-800/50 focus:text-amber-100">Aluno</SelectItem>
-                              <SelectItem value="professor" className="focus:bg-amber-800/50 focus:text-amber-100">Professor</SelectItem>
-                              <SelectItem value="gestor" className="focus:bg-amber-800/50 focus:text-amber-100">Gestor</SelectItem>
+                            <SelectContent className="bg-dark border border-primary text-parchment">
+                              <SelectItem value="aluno" className="focus:bg-dark-light focus:text-parchment">Aluno</SelectItem>
+                              <SelectItem value="professor" className="focus:bg-dark-light focus:text-parchment">Professor</SelectItem>
+                              <SelectItem value="gestor" className="focus:bg-dark-light focus:text-parchment">Gestor</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormDescription className="text-amber-200/70">
+                          <FormDescription className="text-parchment-dark">
                             O perfil determina as permissões do usuário na plataforma
                           </FormDescription>
-                          <FormMessage className="text-red-400" />
+                          <FormMessage className="text-destructive" />
                         </FormItem>
                       )}
                     />
@@ -335,15 +335,15 @@ export default function UserRegistration() {
                       name="nome_completo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-amber-200 font-medium">Nome Completo</FormLabel>
+                          <FormLabel className="text-parchment font-medium">Nome Completo</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="Ex: Maria Silva Santos" 
                               {...field} 
-                              className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
+                              className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                             />
                           </FormControl>
-                          <FormMessage className="text-red-400" />
+                          <FormMessage className="text-destructive" />
                         </FormItem>
                       )}
                     />
