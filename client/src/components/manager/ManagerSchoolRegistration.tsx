@@ -241,10 +241,10 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
   };
 
   return (
-    <Card className="w-full bg-[#231f20] border border-[#3e2a18] rounded-sm shadow-none">
-      <CardHeader className="px-4 py-3">
-        <CardTitle className="text-white text-lg">Cadastro de Escola</CardTitle>
-        <CardDescription className="text-gray-400">
+    <Card className="w-full bg-dark-light border border-primary rounded-sm shadow-md">
+      <CardHeader className="px-4 py-3 border-b border-primary/60 bg-dark">
+        <CardTitle className="text-parchment text-lg font-medieval">Cadastro de Escola</CardTitle>
+        <CardDescription className="text-parchment-dark">
           Preencha os dados abaixo para cadastrar a sua escola. Todos os campos são obrigatórios.
         </CardDescription>
       </CardHeader>
@@ -257,15 +257,15 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="nome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Nome da Escola</FormLabel>
+                    <FormLabel className="text-parchment font-medium">Nome da Escola</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Nome completo da escola" 
-                        className="bg-[#3e2a18] border-none text-white placeholder:text-gray-400 focus:ring-1 focus:ring-[#a85f16]"
+                        className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -283,7 +283,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -293,24 +293,24 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                 name="tipo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Tipo de Escola</FormLabel>
+                    <FormLabel className="text-parchment font-medium">Tipo de Escola</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-[#3e2a18] border-none text-white">
+                        <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
                           <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-[#231f20] border border-[#3e2a18] text-white">
+                      <SelectContent className="bg-dark border border-primary text-parchment">
                         <SelectItem value="estadual">Estadual</SelectItem>
                         <SelectItem value="municipal">Municipal</SelectItem>
                         <SelectItem value="particular">Particular</SelectItem>
                         <SelectItem value="federal">Federal</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -340,7 +340,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         <SelectItem value="outra">Outra</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -374,7 +374,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         )}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -415,7 +415,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         )}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -440,7 +440,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         <SelectItem value="rural">Rural</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -461,7 +461,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         }}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -480,7 +480,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -499,7 +499,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage className="text-red-400" />
+                  <FormMessage className="text-destructive" />
                 </FormItem>
               )}
             />
