@@ -217,7 +217,7 @@ export function registerClassRoutes(
           ano_letivo: Number(ano_letivo),
           descricao: descricao || null,
           escola_id,
-          ativo: true,
+          // Removido campo ativo que não existe na tabela
           criado_em: new Date().toISOString()
         };
 
