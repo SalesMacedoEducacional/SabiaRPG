@@ -506,7 +506,7 @@ export default function ManagerSchoolRegistration({ userId, onSchoolRegistered }
             
             <Button 
               type="submit" 
-              className="w-full bg-[#a85f16] hover:bg-[#a85f16]/80 text-white border-none" 
+              className="w-full bg-accent hover:bg-accent-dark text-white border border-primary shadow-md" 
               disabled={isSubmitting}
             >
               {isSubmitting ? (

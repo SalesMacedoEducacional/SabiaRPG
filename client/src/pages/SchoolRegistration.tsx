@@ -37,7 +37,7 @@ export default function SchoolRegistration() {
           <p className="mt-4 text-muted-foreground">Nenhuma escola cadastrada ainda.</p>
           <Button 
             onClick={() => setShowRegistrationForm(true)}
-            className="mt-4 bg-[#43341c] border border-[#D47C06] text-white hover:bg-[#5a4828]"
+            className="mt-4 bg-accent hover:bg-accent-dark text-white border border-primary shadow-md"
           >
             <Plus className="h-4 w-4 mr-2" /> Cadastrar Escola
           </Button>
@@ -52,13 +52,13 @@ export default function SchoolRegistration() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {escolasCadastradas.map((escola) => (
-            <Card key={escola.id} className="bg-[#3B2B16] border-2 border-[#D47C06]/70 overflow-hidden">
-              <CardHeader className="bg-[#43341c] pb-2 border-b border-[#D47C06]/50">
-                <CardTitle className="text-lg text-foreground flex items-center">
-                  <Building2 className="h-5 w-5 mr-2 text-primary" />
+            <Card key={escola.id} className="bg-dark-light border border-primary overflow-hidden">
+              <CardHeader className="bg-dark pb-2 border-b border-primary/60">
+                <CardTitle className="text-lg text-parchment flex items-center">
+                  <Building2 className="h-5 w-5 mr-2 text-accent" />
                   {escola.nome}
                 </CardTitle>
-                <CardDescription className="text-xs text-muted-foreground mt-1">
+                <CardDescription className="text-xs text-parchment-dark mt-1">
                   Código: {escola.codigo_escola || "Não informado"}
                 </CardDescription>
               </CardHeader>
@@ -83,10 +83,10 @@ export default function SchoolRegistration() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="border-t border-[#D47C06]/30 bg-[#3B2B16] pt-3 flex justify-between">
+              <CardFooter className="border-t border-primary/40 bg-dark pt-3 flex justify-between">
                 <Button 
                   size="sm" 
-                  className="text-xs bg-[#312e26] hover:bg-[#3f3a30] border border-[#D47C06]/50"
+                  className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
                   onClick={() => setLocation("/turmas")}
                 >
                   Gerenciar Turmas
@@ -94,7 +94,7 @@ export default function SchoolRegistration() {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="text-xs border-[#D47C06]/50 hover:bg-[#3f3a30]"
+                  className="text-xs border-primary text-parchment hover:bg-dark-light"
                   onClick={() => setLocation(`/escola/${escola.id}/editar`)}
                 >
                   Editar Escola
@@ -198,7 +198,7 @@ export default function SchoolRegistration() {
               variant="outline" 
               size="sm" 
               onClick={() => setLocation("/manager")}
-              className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
+              className="border-primary text-parchment hover:bg-dark-light flex items-center"
             >
               <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
             </Button>
@@ -208,7 +208,7 @@ export default function SchoolRegistration() {
                 variant="outline" 
                 size="sm" 
                 onClick={() => setShowRegistrationForm(true)}
-                className="bg-[#43341c] border border-[#D47C06] text-white hover:bg-[#5a4828] flex items-center"
+                className="bg-accent hover:bg-accent-dark text-white border border-primary flex items-center"
               >
                 <Plus className="h-4 w-4 mr-1" /> CADASTRAR NOVA ESCOLA
               </Button>
