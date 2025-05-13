@@ -464,107 +464,128 @@ export default function UserRegistration() {
               {formStep === 1 && (
                 <div className="space-y-6 mt-1">
                   <div className="border border-amber-800/60 rounded-md p-4 bg-amber-900/10 shadow-sm space-y-4">
-                    {papel === "aluno" && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="turma_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-amber-200 font-medium">Turma</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="border-amber-700 bg-amber-900/20 text-amber-100 focus:ring-amber-600">
-                                    <SelectValue placeholder="Selecione a turma" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-[#312e26] border border-amber-700 text-amber-100">
-                                  {turmas.map((turma) => (
-                                    <SelectItem key={turma.id} value={turma.id} className="focus:bg-amber-800/50 focus:text-amber-100">
-                                      {turma.nome} ({turma.serie})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage className="text-red-400" />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="numero_matricula"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-amber-200 font-medium">Número de Matrícula</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Ex: 202400123" 
-                                  {...field} 
-                                  className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
-                                />
-                              </FormControl>
-                              <FormMessage className="text-red-400" />
-                            </FormItem>
-                          )}
-                        />
-                      </>
-                    )}
-
-                    {papel === "professor" && (
+                  {papel === "aluno" && (
+                    <>
                       <FormField
                         control={form.control}
-                        name="cpf"
+                        name="turma_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-amber-200 font-medium">CPF</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="123.456.789-00" 
-                                value={field.value}
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  handleCpfChange(e);
-                                }}
-                                className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
-                              />
-                            </FormControl>
-                            <FormDescription className="text-amber-200/70">
-                              O CPF será usado como senha temporária inicial
-                            </FormDescription>
-                            <FormMessage className="text-red-400" />
+                            <FormLabel>Turma</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione a turma" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {turmas.map((turma) => (
+                                  <SelectItem key={turma.id} value={turma.id}>
+                                    {turma.nome} ({turma.serie})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
-                    )}
 
-                    <div className="flex gap-2 pt-4 border-t border-amber-800/40 mt-4">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-1/2 border-amber-700 hover:bg-amber-800/20 text-amber-100"
-                        onClick={() => setFormStep(0)}
-                      >
-                        Voltar
-                      </Button>
-                      <Button
-                        type="submit"
-                        className="w-1/2 bg-amber-800 hover:bg-amber-700 text-amber-50 border border-amber-600 shadow-md"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Cadastrando...
-                          </>
-                        ) : (
-                          "Cadastrar Usuário"
+                      <FormField
+                        control={form.control}
+                        name="numero_matricula"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Número de Matrícula</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ex: 202400123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </Button>
-                    </div>
+                      />
+                    </>
+                  )}
+
+                  {papel === "professor" && (
+                    <FormField
+                      control={form.control}
+                      name="cpf"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CPF</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="000.000.000-00"
+                              value={field.value}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleCpfChange(e);
+                              }}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            O CPF será usado como senha inicial do professor
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="imagem_perfil"
+                    render={({ field: { value, onChange, ...fieldProps } }) => (
+                      <FormItem>
+                        <FormLabel>Imagem de Perfil (opcional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept=".jpg,.jpeg,.png"
+                            {...fieldProps}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                onChange(file);
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Formatos aceitos: JPG e PNG. Tamanho máximo: 5MB.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-1/2"
+                      onClick={() => setFormStep(0)}
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="w-1/2"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Cadastrando...
+                        </>
+                      ) : (
+                        "Cadastrar Usuário"
+                      )}
+                    </Button>
                   </div>
                 </div>
               )}
