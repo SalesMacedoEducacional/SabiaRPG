@@ -192,7 +192,7 @@ export function registerClassRoutes(
         const { data: turmasExistentes, error: verificacaoError } = await supabase
           .from('turmas')
           .select('id')
-          .eq('nome', nome_turma)
+          .eq('nome', nome)
           .eq('ano_letivo', ano_letivo)
           .eq('escola_id', escola_id);
           
@@ -210,12 +210,12 @@ export function registerClassRoutes(
         // Inserir a nova turma
         const novaTurma = {
           id: uuidv4(),
-          nome: nome_turma,
+          nome: nome,
           turno,
           serie,
           modalidade,
           ano_letivo: Number(ano_letivo),
-          descricao: observacoes || null,
+          descricao: descricao || null,
           escola_id,
           ativo: true,
           criado_em: new Date().toISOString()
@@ -317,17 +317,16 @@ export function registerClassRoutes(
       try {
         const { id } = req.params;
         const {
-          nome_turma,
+          nome,
           turno,
           serie,
           modalidade,
           ano_letivo,
-          quantidade_maxima_alunos,
-          observacoes
+          descricao
         } = req.body;
 
         // Validação de campos obrigatórios
-        if (!nome_turma || !turno || !serie || !modalidade || !ano_letivo) {
+        if (!nome || !turno || !serie || !modalidade || !ano_letivo) {
           return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
         }
 
@@ -362,13 +361,13 @@ export function registerClassRoutes(
 
         // Verificar se já existe outra turma com o mesmo nome na mesma escola para o mesmo ano letivo
         if (
-          nome_turma !== turmaExistente.nome || 
+          nome !== turmaExistente.nome || 
           Number(ano_letivo) !== Number(turmaExistente.ano_letivo)
         ) {
           const { data: turmasExistentes, error: verificacaoError } = await supabase
             .from('turmas')
             .select('id')
-            .eq('nome', nome_turma)
+            .eq('nome', nome)
             .eq('ano_letivo', ano_letivo)
             .eq('escola_id', turmaExistente.escola_id)
             .neq('id', id);
@@ -387,12 +386,12 @@ export function registerClassRoutes(
 
         // Atualizar a turma
         const turmaAtualizada = {
-          nome: nome_turma,
+          nome: nome,
           turno,
           serie,
           modalidade,
           ano_letivo: Number(ano_letivo),
-          descricao: observacoes || null
+          descricao: descricao || null
         };
 
         const { data, error } = await supabase
