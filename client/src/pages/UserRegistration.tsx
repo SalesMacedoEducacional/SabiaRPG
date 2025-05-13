@@ -435,10 +435,10 @@ export default function UserRegistration() {
                       )}
                     />
 
-                    <div className="pt-4 border-t border-amber-800/40 mt-4">
+                    <div className="pt-4 border-t border-primary/40 mt-4">
                       <Button
                         type="button"
-                        className="w-full bg-amber-800 hover:bg-amber-700 text-amber-50 border border-amber-600 shadow-md"
+                        className="w-full bg-accent hover:bg-accent-dark text-white border border-primary shadow-md"
                         onClick={() => {
                           // Validar os campos da primeira etapa antes de avançar
                           form.trigger(['nome_completo', 'email', 'telefone', 'data_nascimento', 'papel']);
@@ -520,7 +520,7 @@ export default function UserRegistration() {
                         name="cpf"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-amber-200 font-medium">CPF</FormLabel>
+                            <FormLabel className="text-parchment font-medium">CPF</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="123.456.789-00" 
@@ -529,30 +529,30 @@ export default function UserRegistration() {
                                   field.onChange(e);
                                   handleCpfChange(e);
                                 }}
-                                className="border-amber-700 bg-amber-900/20 text-amber-100 placeholder:text-amber-700/60 focus:border-amber-600 focus:ring-amber-600"
+                                className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                               />
                             </FormControl>
-                            <FormDescription className="text-amber-200/70">
+                            <FormDescription className="text-parchment-dark">
                               O CPF será usado como senha temporária inicial
                             </FormDescription>
-                            <FormMessage className="text-red-400" />
+                            <FormMessage className="text-destructive" />
                           </FormItem>
                         )}
                       />
                     )}
 
-                    <div className="flex gap-2 pt-4 border-t border-amber-800/40 mt-4">
+                    <div className="flex gap-2 pt-4 border-t border-primary/40 mt-4">
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-1/2 border-amber-700 hover:bg-amber-800/20 text-amber-100"
+                        className="w-1/2 border-primary text-parchment hover:bg-dark-light"
                         onClick={() => setFormStep(0)}
                       >
                         Voltar
                       </Button>
                       <Button
                         type="submit"
-                        className="w-1/2 bg-amber-800 hover:bg-amber-700 text-amber-50 border border-amber-600 shadow-md"
+                        className="w-1/2 bg-accent hover:bg-accent-dark text-white border border-primary shadow-md"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? (
@@ -571,7 +571,7 @@ export default function UserRegistration() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center text-sm text-amber-200/70 border-t border-amber-800/60 bg-gradient-to-t from-amber-900/30 to-transparent py-4">
+        <CardFooter className="flex justify-center text-sm text-parchment-dark border-t border-primary/40 bg-dark py-4">
           Todos os campos marcados são obrigatórios para o cadastro
         </CardFooter>
       </Card>
