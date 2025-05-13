@@ -109,7 +109,7 @@ export function registerClassRoutes(
             .from('turmas')
             .select('*')
             .eq('escola_id', escolaIdConsulta)
-            .order('nome_turma');
+            .order('nome');
             
           if (error) {
             console.error('Erro ao buscar turmas:', error);
