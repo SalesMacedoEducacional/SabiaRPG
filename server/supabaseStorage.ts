@@ -523,17 +523,25 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de progresso do usuário
   async getUserProgress(userId: number): Promise<UserProgress[]> {
-    const { data, error } = await supabase
-      .from('progresso_missoes')
-      .select(`
-        *,
-        missoes (id, titulo)
-      `)
-      .eq('usuario_id', userId);
-    
-    if (error) throw new Error(`Erro ao buscar progresso do usuário: ${error.message}`);
-    
-    return data.map(this.mapDbProgressoToUserProgress);
+    try {
+      const { data, error } = await supabase
+        .from('progresso_missoes')
+        .select(`
+          *,
+          missoes (id, titulo)
+        `)
+        .eq('usuario_id', userId);
+      
+      if (error) {
+        console.error(`Erro ao buscar progresso do usuário: ${error.message}`);
+        return [];
+      }
+      
+      return data ? data.map(this.mapDbProgressoToUserProgress) : [];
+    } catch (error) {
+      console.error("Erro ao buscar progresso do usuário:", error);
+      return [];
+    }
   }
 
   async getUserProgressByMission(userId: number, missionId: number): Promise<UserProgress | undefined> {
@@ -729,17 +737,25 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getUserAchievements(userId: number): Promise<UserAchievement[]> {
-    const { data, error } = await supabase
-      .from('usuario_conquistas')
-      .select(`
-        *,
-        conquistas (id, titulo, descricao, icone_url)
-      `)
-      .eq('usuario_id', userId);
-    
-    if (error) throw new Error(`Erro ao buscar conquistas do usuário: ${error.message}`);
-    
-    return data.map(this.mapDbUsuarioConquistaToUserAchievement);
+    try {
+      const { data, error } = await supabase
+        .from('usuario_conquistas')
+        .select(`
+          *,
+          conquistas (id, titulo, descricao, icone_url)
+        `)
+        .eq('usuario_id', userId);
+      
+      if (error) {
+        console.error(`Erro ao buscar conquistas do usuário: ${error.message}`);
+        return [];
+      }
+      
+      return data ? data.map(this.mapDbUsuarioConquistaToUserAchievement) : [];
+    } catch (error) {
+      console.error("Erro ao buscar conquistas do usuário:", error);
+      return [];
+    }
   }
 
   async grantUserAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement> {
@@ -978,14 +994,22 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de diagnóstico do usuário
   async getUserDiagnostics(userId: number): Promise<UserDiagnostic[]> {
-    const { data, error } = await supabase
-      .from('usuario_diagnosticos')
-      .select('*')
-      .eq('usuario_id', userId);
-    
-    if (error) throw new Error(`Erro ao buscar diagnósticos do usuário: ${error.message}`);
-    
-    return data.map(this.mapDbDiagnosticoToUserDiagnostic);
+    try {
+      const { data, error } = await supabase
+        .from('usuario_diagnosticos')
+        .select('*')
+        .eq('usuario_id', userId);
+      
+      if (error) {
+        console.error(`Erro ao buscar diagnósticos do usuário: ${error.message}`);
+        return [];
+      }
+      
+      return data ? data.map(this.mapDbDiagnosticoToUserDiagnostic) : [];
+    } catch (error) {
+      console.error("Erro ao buscar diagnósticos do usuário:", error);
+      return [];
+    }
   }
 
   async getUserDiagnosticByArea(userId: number, area: string): Promise<UserDiagnostic | undefined> {
