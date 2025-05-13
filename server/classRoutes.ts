@@ -48,7 +48,7 @@ export function registerClassRoutes(
         const { data, error } = await supabase
           .from('turmas')
           .select('id')
-          .eq('nome', nome_turma)
+          .eq('nome', nome)
           .eq('ano_letivo', ano_letivo)
           .eq('escola_id', escola_id);
 
@@ -151,18 +151,17 @@ export function registerClassRoutes(
     async (req: Request, res: Response) => {
       try {
         const {
-          nome_turma,
+          nome,
           turno,
           serie,
           modalidade,
           ano_letivo,
-          quantidade_maxima_alunos,
-          observacoes,
+          descricao,
           escola_id
         } = req.body;
 
         // Validação de campos obrigatórios
-        if (!nome_turma || !turno || !serie || !modalidade || !ano_letivo || !escola_id) {
+        if (!nome || !turno || !serie || !modalidade || !ano_letivo || !escola_id) {
           return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
         }
 
