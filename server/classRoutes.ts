@@ -209,7 +209,7 @@ export function registerClassRoutes(
 
         // Inserir a nova turma
         const novaTurma = {
-          id: uuidv4(),
+          // Removendo o campo id para que o Supabase gere automaticamente
           nome: nome,
           turno,
           serie,
@@ -217,7 +217,7 @@ export function registerClassRoutes(
           ano_letivo: Number(ano_letivo),
           descricao: descricao || null,
           escola_id,
-
+          ativo: true,
           criado_em: new Date().toISOString()
         };
 
