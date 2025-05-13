@@ -12,6 +12,7 @@ import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistration from "@/pages/UserRegistration";
 import ClassRegistration from "@/pages/ClassRegistration";
 import ClassListPage from "@/pages/ClassListPage";
+import ClassManagement from "@/pages/ClassManagement";
 import MissionPage from "@/pages/MissionPage";
 import Forum from "@/pages/Forum";
 import RankingPage from "@/pages/RankingPage";
@@ -114,6 +115,14 @@ function Router() {
       <ProtectedRoute 
         path="/class-list" 
         component={ClassListPage}
+        permissions={[
+          PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/turmas" 
+        component={ClassManagement}
         permissions={[
           PERMISSIONS.SCHOOL_CONFIG.id
         ]}
