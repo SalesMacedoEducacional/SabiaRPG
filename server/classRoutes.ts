@@ -96,32 +96,22 @@ export function registerClassRoutes(
             };
           }
           
-          // Buscamos escolas usando o campo gestor_uuid que criamos para compatibilidade
+          // Buscamos todas as escolas disponíveis no sistema 
           let { data: escolasGestor, error: escolasError } = await supabase
             .from('escolas')
-            .select('id, nome, gestor_id, gestor_uuid')
-            .eq('gestor_uuid', req.user.id);
+            .select('id, nome, gestor_id');
             
           if (escolasError) {
             console.error('Erro ao verificar escolas do gestor:', escolasError);
             return res.status(500).json({ message: 'Erro ao verificar escolas do gestor' });
           }
           
-          console.log(`Escolas associadas ao gestor ${req.user.id}: ${escolasGestor?.length || 0}`, escolasGestor);
+          console.log(`Total de escolas encontradas: ${escolasGestor?.length || 0}`);
+          console.log('ID do usuário autenticado:', req.user.id);
           
-          // Caso não encontre escolas pela vinculação UUID, busca todas as escolas (para compatibilidade)
-          if (!escolasGestor || escolasGestor.length === 0) {
-            const { data: todasEscolas } = await supabase
-              .from('escolas')
-              .select('id, nome, gestor_id, gestor_uuid');
-            
-            console.log(`Buscando todas as escolas como fallback. Total: ${todasEscolas?.length || 0}`);
-            
-            // Se não houver escolas vinculadas ao gestor, permitimos acesso a todas as escolas
-            if (todasEscolas && todasEscolas.length > 0) {
-              console.log('Usando todas as escolas como fallback');
-              escolasGestor = todasEscolas;
-            }
+          // Para depuração
+          if (escolasGestor && escolasGestor.length > 0) {
+            console.log('Primeira escola encontrada:', escolasGestor[0]);
           }
             
           // Determinar qual escola_id usar
