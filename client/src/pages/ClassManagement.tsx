@@ -62,16 +62,18 @@ interface Escola {
 
 interface Turma {
   id: string;
-  nome_turma?: string;
-  nome?: string; // Compatibilidade com diferentes formatos de API
+  nome?: string;
   serie?: string;
   ano_letivo?: number;
   escola_id?: string;
   modalidade?: string;
   turno?: string;
-  capacidade?: number;
+  descricao?: string;
   total_alunos?: number;
   ativo?: boolean;
+  // Compatibilidade temporária com dados antigos
+  nome_turma?: string;
+  capacidade?: number;
 }
 
 // Esquema para validação do formulário de turma
@@ -180,13 +182,13 @@ export default function ClassManagement() {
   // Abrir diálogo para editar turma existente
   const handleEditTurma = (turma: Turma) => {
     form.reset({
-      nome_turma: turma.nome_turma,
-      serie: turma.serie,
-      ano_letivo: turma.ano_letivo,
-      turno: turma.turno,
-      modalidade: turma.modalidade,
-      capacidade: turma.capacidade,
-      escola_id: turma.escola_id,
+      nome: turma.nome || turma.nome_turma || "",
+      serie: turma.serie || "",
+      ano_letivo: turma.ano_letivo || new Date().getFullYear(),
+      turno: turma.turno || "",
+      modalidade: turma.modalidade || "",
+      descricao: turma.descricao || "",
+      escola_id: turma.escola_id || "",
     });
     setEditTurma(turma);
     setShowAddDialog(true);
@@ -449,7 +451,7 @@ export default function ClassManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="nome_turma"
+                  name="nome"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-parchment">Nome da Turma</FormLabel>
@@ -563,17 +565,15 @@ export default function ClassManagement() {
                 
                 <FormField
                   control={form.control}
-                  name="capacidade"
+                  name="descricao"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-parchment">Capacidade</FormLabel>
+                      <FormLabel className="text-parchment">Descrição/Observações</FormLabel>
                       <FormControl>
                         <Input
-                          type="number"
                           {...field}
+                          placeholder="Observações sobre a turma (opcional)"
                           className="bg-dark-light border-primary text-parchment"
-                          min={1}
-                          max={100}
                         />
                       </FormControl>
                       <FormMessage className="text-red-400" />
