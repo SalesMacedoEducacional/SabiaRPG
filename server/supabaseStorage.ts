@@ -240,41 +240,22 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de missões
   async getMissions(): Promise<Mission[]> {
-    // Verificar se devemos usar dados mockados primeiro
-    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
-    if (this.forceUseFallbackData() && this.mockMissions.size > 0) {
-      console.log(`Usando ${this.mockMissions.size} missões de dados simulados`);
-      return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
-    }
-    
     try {
       const { data, error } = await supabase
         .from('missoes')
         .select('*');
       
       if (error) {
-        console.log("Erro ao buscar missões, usando dados simulados:", error.message);
-        
-        // Se temos dados simulados, usamos eles
-        if (this.mockMissions.size > 0) {
-          console.log(`Retornando ${this.mockMissions.size} missões simuladas`);
-          return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
-        }
-        
-        throw error;
+        console.log("Erro ao buscar missões:", error.message);
+        // Retornar array vazio em caso de erro na consulta
+        return [];
       }
       
-      return data.map(this.mapDbMissaoToMission);
+      // Garantir que haja dados antes de mapear
+      return data ? data.map(this.mapDbMissaoToMission) : [];
     } catch (error) {
-      console.error("Erro completo ao acessar missões:", error);
-      
-      // Se temos dados simulados, usamos eles mesmo em caso de erro
-      if (this.mockMissions.size > 0) {
-        console.log(`Retornando ${this.mockMissions.size} missões simuladas (fallback)`);
-        return Array.from(this.mockMissions.values()).map(this.mapDbMissaoToMission);
-      }
-      
-      // Retornar array vazio em caso de erro
+      console.error("Erro ao acessar missões:", error);
+      // Retornar array vazio em caso de qualquer erro
       return [];
     }
   }
@@ -436,21 +417,15 @@ export class SupabaseStorage implements IStorage {
   // Implementação dos métodos de localização
   async getLocations(): Promise<Location[]> {
     try {
-      // Verificar se a tabela existe primeiro
+      // Verificar se a tabela existe e buscar dados reais
       const { data, error } = await supabase
         .from('locais')
         .select('*');
       
       if (error) {
-        console.log("Erro ao buscar locais, usando dados simulados:", error.message);
+        console.log("Erro ao buscar locais:", error.message);
         
-        // Se temos dados simulados, usamos eles
-        if (this.mockLocations.size > 0) {
-          console.log(`Retornando ${this.mockLocations.size} locais simulados`);
-          return Array.from(this.mockLocations.values()).map(this.mapDbLocalToLocation);
-        }
-        
-        // Tentar criar a tabela
+        // Tentar criar a tabela se ela não existir
         try {
           await supabase.rpc('execute_sql', {
             sql_query: `
@@ -468,7 +443,7 @@ export class SupabaseStorage implements IStorage {
           console.error("Erro ao criar tabela locais:", createError);
         }
         
-        // Retornar array vazio já que acabamos de criar a tabela
+        // Retornar array vazio já que não há dados reais
         return [];
       }
       
@@ -476,14 +451,7 @@ export class SupabaseStorage implements IStorage {
       
       return data.map(this.mapDbLocalToLocation);
     } catch (error) {
-      console.error("Erro completo ao acessar locais:", error);
-      
-      // Se temos dados simulados, usamos eles mesmo em caso de erro
-      if (this.mockLocations.size > 0) {
-        console.log(`Retornando ${this.mockLocations.size} locais simulados (fallback)`);
-        return Array.from(this.mockLocations.values()).map(this.mapDbLocalToLocation);
-      }
-      
+      console.error("Erro ao acessar locais:", error);
       // Retornar array vazio em caso de erro
       return [];
     }
@@ -669,41 +637,22 @@ export class SupabaseStorage implements IStorage {
 
   // Implementação dos métodos de conquistas
   async getAchievements(): Promise<Achievement[]> {
-    // Verificar se devemos usar dados mockados primeiro
-    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
-    if (this.forceUseFallbackData() && this.mockAchievements.size > 0) {
-      console.log(`Usando ${this.mockAchievements.size} conquistas de dados simulados`);
-      return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
-    }
-    
     try {
       const { data, error } = await supabase
         .from('conquistas')
         .select('*');
       
       if (error) {
-        console.log("Erro ao buscar conquistas, usando dados simulados:", error.message);
-        
-        // Se temos dados simulados, usamos eles
-        if (this.mockAchievements.size > 0) {
-          console.log(`Retornando ${this.mockAchievements.size} conquistas simuladas`);
-          return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
-        }
-        
-        throw error;
+        console.log("Erro ao buscar conquistas:", error.message);
+        // Retornar array vazio em caso de erro - sem dados simulados
+        return [];
       }
       
-      return data.map(this.mapDbConquistaToAchievement);
+      // Garantir que haja dados antes de mapear
+      return data ? data.map(this.mapDbConquistaToAchievement) : [];
     } catch (error) {
-      console.error("Erro completo ao acessar conquistas:", error);
-      
-      // Se temos dados simulados, usamos eles mesmo em caso de erro
-      if (this.mockAchievements.size > 0) {
-        console.log(`Retornando ${this.mockAchievements.size} conquistas simuladas (fallback)`);
-        return Array.from(this.mockAchievements.values()).map(this.mapDbConquistaToAchievement);
-      }
-      
-      // Retornar array vazio em caso de erro
+      console.error("Erro ao acessar conquistas:", error);
+      // Retornar array vazio em caso de qualquer erro
       return [];
     }
   }
