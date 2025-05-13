@@ -473,51 +473,56 @@ export class SupabaseStorage implements IStorage {
     try {
       console.log("Tentando criar localização:", location);
     
-      // Vamos tentar usar a tabela locais_temp como uma solução alternativa
+      // Verificar se a tabela locais existe
+      const { data: tableExists } = await supabase.rpc('execute_sql', {
+        sql_query: `
+          SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public'
+            AND table_name = 'locais'
+          );
+        `
+      });
+      
+      // Se a tabela não existe, tentar criá-la
+      if (!tableExists || !tableExists[0]?.exists) {
+        await supabase.rpc('execute_sql', {
+          sql_query: `
+          CREATE TABLE IF NOT EXISTS locais (
+            id          uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+            nome        text        NOT NULL,
+            descricao   text        NOT NULL,
+            coordenada_x integer     NOT NULL,
+            coordenada_y integer     NOT NULL,
+            icone       text        NOT NULL,
+            nivel_req   integer     DEFAULT 1,
+            criado_em   timestamp   DEFAULT CURRENT_TIMESTAMP
+          )`
+        });
+      }
+      
+      // Inserir a localização na tabela
       const { data, error } = await supabase
-        .from('usuarios') // Vamos criar uma tabela temporária baseada na que já sabemos que existe
+        .from('locais')
+        .insert({
+          nome: location.name,
+          descricao: location.description,
+          coordenada_x: location.coordinates.x,
+          coordenada_y: location.coordinates.y,
+          icone: location.icon,
+          nivel_req: location.unlockLevel || 1
+        })
         .select('*')
-        .limit(1);
+        .single();
         
-      // Criar um objeto location simulado para desenvolvimento
-      const mockLocationId = Date.now().toString(); // ID único baseado no timestamp atual
-      const mockLocation = {
-        id: mockLocationId,
-        nome: location.name,
-        descricao: location.description,
-        coordenada_x: location.coordinates.x,
-        coordenada_y: location.coordinates.y,
-        icone: location.icon,
-        nivel_req: location.unlockLevel || 1,
-        criado_em: new Date().toISOString()
-      };
+      if (error) {
+        throw new Error(`Erro ao criar localização no banco: ${error.message}`);
+      }
       
-      // Armazenar na nossa coleção de simulação
-      this.mockLocations.set(mockLocationId, mockLocation);
-      
-      console.log("Criada localização simulada:", mockLocation);
-      console.log(`Localizações simuladas armazenadas: ${this.mockLocations.size}`);
-      
-      return this.mapDbLocalToLocation(mockLocation);
+      return this.mapDbLocalToLocation(data);
     } catch (error) {
-      console.error("Erro completo ao criar localização:", error);
-      // Criar um objeto location simulado para não quebrar o fluxo
-      const mockLocationId = Date.now().toString();
-      const mockLocation = {
-        id: mockLocationId,
-        nome: location.name,
-        descricao: location.description,
-        coordenada_x: location.coordinates.x,
-        coordenada_y: location.coordinates.y,
-        icone: location.icon,
-        nivel_req: location.unlockLevel || 1,
-        criado_em: new Date().toISOString()
-      };
-      
-      // Armazenar mesmo em caso de erro
-      this.mockLocations.set(mockLocationId, mockLocation);
-      
-      return this.mapDbLocalToLocation(mockLocation);
+      console.error("Erro ao criar localização:", error);
+      throw new Error(`Não foi possível criar a localização: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     }
   }
 
