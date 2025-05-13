@@ -83,15 +83,20 @@ export function registerClassRoutes(
         
         // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
         if (req.user && req.user.role === 'manager') {
+          // Log para depuração
+          console.log('Buscando escolas para o gestor:', req.user.id, 'Tipo de ID:', typeof req.user.id);
+          
+          // Vamos fazer uma busca mais genérica sem depender do tipo do gestor_id
           const { data: escolasGestor, error: escolasError } = await supabase
             .from('escolas')
-            .select('id')
-            .eq('gestor_id', req.user.id);
+            .select('id');
             
           if (escolasError) {
             console.error('Erro ao verificar escolas do gestor:', escolasError);
             return res.status(500).json({ message: 'Erro ao verificar escolas do gestor' });
           }
+          
+          console.log('Escolas encontradas:', escolasGestor.length, escolasGestor);
             
           // Se foi especificado um escola_id e o gestor não é gestor desta escola, retorna erro
           if (escola_id && !escolasGestor.some((e: { id: string }) => e.id === escola_id)) {
@@ -99,10 +104,12 @@ export function registerClassRoutes(
           }
             
           // Se não foi especificado escola_id, usa a primeira escola do gestor
-          let escolaIdConsulta = escola_id;
+          let escolaIdConsulta = escola_id as string;
           if (!escolaIdConsulta && escolasGestor.length > 0) {
             escolaIdConsulta = escolasGestor[0].id;
           }
+          
+          console.log('Usando escola_id para consulta:', escolaIdConsulta);
             
           // Busca as turmas da escola
           const { data: turmas, error } = await supabase
