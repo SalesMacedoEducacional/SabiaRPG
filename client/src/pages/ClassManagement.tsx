@@ -62,15 +62,16 @@ interface Escola {
 
 interface Turma {
   id: string;
-  nome_turma: string;
-  serie: string;
-  ano_letivo: number;
-  escola_id: string;
-  modalidade: string;
-  turno: string;
-  capacidade: number;
+  nome_turma?: string;
+  nome?: string; // Compatibilidade com diferentes formatos de API
+  serie?: string;
+  ano_letivo?: number;
+  escola_id?: string;
+  modalidade?: string;
+  turno?: string;
+  capacidade?: number;
   total_alunos?: number;
-  ativo: boolean;
+  ativo?: boolean;
 }
 
 // Esquema para validação do formulário de turma
@@ -143,6 +144,7 @@ export default function ClassManagement() {
         try {
           setLoading(true);
           const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
+          console.log("Turmas retornadas da API:", response.data);
           setTurmas(response.data);
         } catch (error) {
           console.error("Erro ao carregar turmas:", error);
@@ -224,11 +226,20 @@ export default function ClassManagement() {
   };
 
   // Filtrar turmas por termo de busca
-  const filteredTurmas = turmas.filter(turma => 
-    turma.nome_turma.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    turma.serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    turma.modalidade.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTurmas = turmas.filter(turma => {
+    if (!turma) return false;
+    
+    // Verificar se os campos existem antes de tentar acessá-los
+    const nomeTurma = turma.nome_turma || turma.nome || '';
+    const serie = turma.serie || '';
+    const modalidade = turma.modalidade || '';
+    
+    return (
+      nomeTurma.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      modalidade.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   // Encontrar nome da escola selecionada
   const escolaSelecionadaNome = escolas.find(e => e.id === selectedEscola)?.nome || "Selecione uma escola";
@@ -330,26 +341,26 @@ export default function ClassManagement() {
                   <CardHeader className="bg-dark pb-2 border-b border-primary/60">
                     <CardTitle className="text-lg text-parchment flex items-center">
                       <BookOpen className="h-5 w-5 mr-2 text-accent" />
-                      {turma.nome_turma}
+                      {turma.nome_turma || turma.nome || 'Turma sem nome'}
                     </CardTitle>
                     <CardDescription className="text-xs text-parchment-dark mt-1">
-                      {turma.serie} - {turma.ano_letivo}
+                      {turma.serie || '—'} - {turma.ano_letivo || '—'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-4">
                     <div className="space-y-2 text-sm">
                       <div className="flex items-start">
                         <Clock className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                        <span className="text-parchment">Turno: {turma.turno}</span>
+                        <span className="text-parchment">Turno: {turma.turno || '—'}</span>
                       </div>
                       <div className="flex items-start">
                         <BookOpen className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                        <span className="text-parchment">Modalidade: {turma.modalidade}</span>
+                        <span className="text-parchment">Modalidade: {turma.modalidade || '—'}</span>
                       </div>
                       <div className="flex items-start">
                         <Users className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
                         <span className="text-parchment">
-                          Alunos: {turma.total_alunos || 0} / {turma.capacidade}
+                          Alunos: {turma.total_alunos || 0} / {turma.capacidade || '—'}
                         </span>
                       </div>
                     </div>
