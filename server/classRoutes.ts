@@ -41,14 +41,14 @@ export function registerClassRoutes(
         
         if (!nome_turma || !ano_letivo || !escola_id) {
           return res.status(400).json({ 
-            message: "Parâmetros insuficientes. Informe nome_turma, ano_letivo e escola_id" 
+            message: "Parâmetros insuficientes. Informe nome, ano_letivo e escola_id" 
           });
         }
 
         const { data, error } = await supabase
           .from('turmas')
           .select('id')
-          .eq('nome_turma', nome_turma)
+          .eq('nome', nome_turma)
           .eq('ano_letivo', ano_letivo)
           .eq('escola_id', escola_id);
 
@@ -125,7 +125,7 @@ export function registerClassRoutes(
             query = query.eq('escola_id', escola_id);
           }
           
-          const { data: turmas, error } = await query.order('nome_turma');
+          const { data: turmas, error } = await query.order('nome');
           
           if (error) {
             console.error('Erro ao buscar turmas:', error);
@@ -193,7 +193,7 @@ export function registerClassRoutes(
         const { data: turmasExistentes, error: verificacaoError } = await supabase
           .from('turmas')
           .select('id')
-          .eq('nome_turma', nome_turma)
+          .eq('nome', nome_turma)
           .eq('ano_letivo', ano_letivo)
           .eq('escola_id', escola_id);
           
@@ -211,14 +211,14 @@ export function registerClassRoutes(
         // Inserir a nova turma
         const novaTurma = {
           id: uuidv4(),
-          nome_turma,
+          nome: nome_turma,
           turno,
           serie,
           modalidade,
           ano_letivo: Number(ano_letivo),
-          quantidade_maxima_alunos: quantidade_maxima_alunos ? Number(quantidade_maxima_alunos) : null,
-          observacoes: observacoes || null,
+          descricao: observacoes || null,
           escola_id,
+          ativo: true,
           criado_em: new Date().toISOString()
         };
 
@@ -363,13 +363,13 @@ export function registerClassRoutes(
 
         // Verificar se já existe outra turma com o mesmo nome na mesma escola para o mesmo ano letivo
         if (
-          nome_turma !== turmaExistente.nome_turma || 
-          Number(ano_letivo) !== turmaExistente.ano_letivo
+          nome_turma !== turmaExistente.nome || 
+          Number(ano_letivo) !== Number(turmaExistente.ano_letivo)
         ) {
           const { data: turmasExistentes, error: verificacaoError } = await supabase
             .from('turmas')
             .select('id')
-            .eq('nome_turma', nome_turma)
+            .eq('nome', nome_turma)
             .eq('ano_letivo', ano_letivo)
             .eq('escola_id', turmaExistente.escola_id)
             .neq('id', id);
@@ -388,14 +388,12 @@ export function registerClassRoutes(
 
         // Atualizar a turma
         const turmaAtualizada = {
-          nome_turma,
+          nome: nome_turma,
           turno,
           serie,
           modalidade,
           ano_letivo: Number(ano_letivo),
-          quantidade_maxima_alunos: quantidade_maxima_alunos ? Number(quantidade_maxima_alunos) : null,
-          observacoes: observacoes || null,
-          atualizado_em: new Date().toISOString()
+          descricao: observacoes || null
         };
 
         const { data, error } = await supabase
