@@ -30,7 +30,7 @@ export class SupabaseStorage implements IStorage {
   private mockMissions: Map<string, any> = new Map();
   
   // Flag para controlar uso de dados simulados
-  private useFallbackData: boolean = true; // Por padrão, usar dados simulados quando houver erro
+  private useFallbackData: boolean = false; // Desativamos o uso de dados simulados conforme solicitado
   
   // Método utilitário para forçar o uso de dados simulados para todos os métodos
   private forceUseFallbackData() {
@@ -156,41 +156,20 @@ export class SupabaseStorage implements IStorage {
 
   // Métodos de trilhas de aprendizagem
   async getLearningPaths(): Promise<LearningPath[]> {
-    // Verificar se devemos usar dados mockados primeiro
-    // Se houver dados mockados e a flag forceUseFallbackData for true, usá-los diretamente
-    if (this.forceUseFallbackData() && this.mockLearningPaths.size > 0) {
-      console.log(`Usando ${this.mockLearningPaths.size} trilhas de dados simulados`);
-      return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
-    }
-    
     try {
-      // Caso contrário, tente buscar do Supabase
+      // Buscar dados reais do banco de dados
       const { data, error } = await supabase
         .from('trilhas')
         .select('*');
       
       if (error) {
-        console.log("Erro ao buscar trilhas, usando dados simulados:", error.message);
-        
-        // Se temos dados simulados, usamos eles
-        if (this.mockLearningPaths.size > 0) {
-          console.log(`Retornando ${this.mockLearningPaths.size} trilhas simuladas`);
-          return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
-        }
-        
+        console.log("Erro ao buscar trilhas:", error.message);
         throw error;
       }
       
-      return data.map(this.mapDbTrilhaToLearningPath);
+      return data ? data.map(this.mapDbTrilhaToLearningPath) : [];
     } catch (error) {
-      console.error("Erro completo ao acessar trilhas:", error);
-      
-      // Se temos dados simulados, usamos eles mesmo em caso de erro
-      if (this.mockLearningPaths.size > 0) {
-        console.log(`Retornando ${this.mockLearningPaths.size} trilhas simuladas (fallback)`);
-        return Array.from(this.mockLearningPaths.values()).map(this.mapDbTrilhaToLearningPath);
-      }
-      
+      console.error("Erro ao acessar trilhas:", error);
       // Retornar array vazio em caso de erro
       return [];
     }
