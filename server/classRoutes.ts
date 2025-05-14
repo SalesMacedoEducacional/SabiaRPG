@@ -71,8 +71,45 @@ export function registerClassRoutes(
   );
 
   /**
-   * Rota para listar todas as turmas de uma escola
-   * Acessível apenas para gestores
+   * Rota para listar todas as turmas
+   * Acessível para gestores, professores e administradores
+   */
+  app.get('/api/todas-turmas', 
+    authenticate,
+    requireRole(['manager', 'admin', 'teacher']),
+    async (req: Request, res: Response) => {
+    try {
+      console.log('Acessando rota simplificada para buscar TODAS as turmas');
+      
+      // Buscar todas as turmas sem filtros
+      const { data: turmas, error } = await supabase
+        .from('turmas')
+        .select('*');
+        
+      if (error) {
+        console.error('Erro ao buscar todas as turmas:', error);
+        return res.status(500).json({ message: 'Erro ao buscar todas as turmas' });
+      }
+      
+      console.log(`Encontradas ${turmas?.length || 0} turmas no total:`, turmas);
+      
+      // Mapear para o formato esperado pelo frontend
+      const turmasFormatadas = turmas?.map(turma => ({
+        ...turma,
+        nome_turma: turma.nome || 'Turma sem nome',
+        ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
+      }));
+      
+      return res.status(200).json(turmasFormatadas);
+    } catch (error) {
+      console.error('Erro na rota /api/todas-turmas:', error);
+      return res.status(500).json({ message: 'Erro ao buscar turmas' });
+    }
+  });
+
+  /**
+   * Rota para listar turmas de uma escola específica
+   * Acessível para gestores, professores e administradores
    */
   app.get('/api/turmas', 
     authenticate,
