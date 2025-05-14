@@ -168,8 +168,12 @@ export default function ClassListPage() {
           
           return matchesSearch && matchesAnoLetivo && matchesEscola && matchesTurno;
         })
-        // Ordenar por nome da turma
-        .sort((a: Turma, b: Turma) => a.nome_turma.localeCompare(b.nome_turma))
+        // Ordenar por nome da turma (usando nome ou nome_turma, dependendo do que estiver disponível)
+        .sort((a: Turma, b: Turma) => {
+          const nomeA = a.nome || a.nome_turma || '';
+          const nomeB = b.nome || b.nome_turma || '';
+          return nomeA.localeCompare(nomeB);
+        })
     : [];
 
   // Encontrar o nome da escola para cada turma
@@ -369,29 +373,19 @@ export default function ClassListPage() {
                     return (
                       <TableRow key={turma.id}>
                         <TableCell className="font-medium">
-                          {turma.nome_turma}
+                          {turma.nome || turma.nome_turma || "Nome indisponível"}
                         </TableCell>
-                        <TableCell>{turma.serie}</TableCell>
+                        <TableCell>{turma.serie || "-"}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{turma.turno}</Badge>
+                          <Badge variant="outline">{turma.turno || "-"}</Badge>
                         </TableCell>
-                        <TableCell>{turma.ano_letivo}</TableCell>
+                        <TableCell>{turma.ano_letivo || "-"}</TableCell>
                         {escolas && escolas.length > 1 && (
-                          <TableCell>{turmaComEscola.escola_nome}</TableCell>
+                          <TableCell>{turmaComEscola.escola_nome || "-"}</TableCell>
                         )}
                         <TableCell>
-                          {typeof turma.quantidade_atual_alunos === 'number' ? (
-                            <div className="flex items-center">
-                              <span className="mr-2">{turma.quantidade_atual_alunos}</span>
-                              {turma.quantidade_maxima_alunos && (
-                                <span className="text-muted-foreground text-xs">
-                                  / {turma.quantidade_maxima_alunos}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span>-</span>
-                          )}
+                          {/* Informação de alunos não disponível no momento */}
+                          <span>-</span>
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
