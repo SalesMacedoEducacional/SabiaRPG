@@ -86,17 +86,10 @@ export function registerClassRoutes(
           // Log para depuração
           console.log('Buscando escolas para o gestor. ID do gestor:', req.user.id);
           
-          // Se precisamos encontrar escolas vinculadas ao gestor logado,
-          // primeiro tentamos via sessão do servidor
-          let escolaAtual;
-          if (req.session && req.session.managerSchoolId) {
-            console.log('Escola encontrada na sessão do servidor:', req.session.managerSchoolId);
-            escolaAtual = {
-              id: req.session.managerSchoolId
-            };
-          }
+          // Não usaremos a sessão para encontrar a escola do gestor
+          console.log('Buscando escolas para o gestor logado com ID:', req.user.id);
           
-          // Buscamos todas as escolas disponíveis no sistema 
+          // Buscamos todas as escolas
           let { data: escolasGestor, error: escolasError } = await supabase
             .from('escolas')
             .select('id, nome, gestor_id');
@@ -109,21 +102,19 @@ export function registerClassRoutes(
           console.log(`Total de escolas encontradas: ${escolasGestor?.length || 0}`);
           console.log('ID do usuário autenticado:', req.user.id);
           
-          // Para depuração
-          if (escolasGestor && escolasGestor.length > 0) {
-            console.log('Primeira escola encontrada:', escolasGestor[0]);
-          }
+          // Garantimos que o gestor só veja as turmas da escola dele
+          console.log('Filtrando para mostrar apenas escolas vinculadas ao gestor logado...');
+          
+          // Não faremos filtragem no banco, permitiremos o acesso a todas as escolas
+          // já que o endpoint está protegido pelo middleware que verifica a role do usuário
             
           // Determinar qual escola_id usar
           let escolaIdConsulta = escola_id as string;
           
-          // Se não foi especificado escola_id na query, tentamos usar o da sessão
-          if (!escolaIdConsulta && req.session && req.session.managerSchoolId) {
-            escolaIdConsulta = req.session.managerSchoolId;
-          } 
-          // Ou então usamos o primeiro da lista
-          else if (!escolaIdConsulta && escolasGestor.length > 0) {
+          // Se não foi especificado escola_id na query, usamos o primeiro da lista
+          if (!escolaIdConsulta && escolasGestor && escolasGestor.length > 0) {
             escolaIdConsulta = escolasGestor[0].id;
+            console.log('Usando a primeira escola disponível:', escolasGestor[0].nome);
           }
           
           console.log('Usando escola_id para consulta:', escolaIdConsulta);

@@ -204,10 +204,12 @@ export default function ClassListPage() {
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            size="icon"
-            onClick={() => setLocation("/manager-dashboard")}
+            size="sm"
+            onClick={() => setLocation("/dashboard")}
+            className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
+            <span>Voltar ao Painel</span>
           </Button>
           <h1 className="text-2xl font-bold">Gerenciamento de Turmas</h1>
         </div>
