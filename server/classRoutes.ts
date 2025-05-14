@@ -155,17 +155,23 @@ export function registerClassRoutes(
             console.log('ALERTA: Nenhuma turma encontrada para a escola_id:', escolaIdConsulta);
             
             // Se não encontrar turmas para a escola específica, busca todas as turmas
-            const { data: todasTurmas } = await supabase
+            console.log('Buscando todas as turmas disponíveis no sistema como fallback');
+            const { data: todasTurmas, error: erroTodasTurmas } = await supabase
               .from('turmas')
-              .select('*')
-              .order('nome');
-              
+              .select('*');
+            
+            if (erroTodasTurmas) {
+              console.error('Erro ao buscar todas as turmas:', erroTodasTurmas);
+            } else {
+              console.log(`Encontradas ${todasTurmas?.length || 0} turmas no total:`, todasTurmas);
+            }
+            
             if (todasTurmas && todasTurmas.length > 0) {
-              console.log(`Encontradas ${todasTurmas.length} turmas no total, usando como fallback`);
+              console.log(`Usando ${todasTurmas.length} turmas como fallback`);
               
               const todasTurmasFormatadas = todasTurmas.map(turma => ({
                 ...turma,
-                nome_turma: turma.nome,
+                nome_turma: turma.nome || "Turma sem nome",
                 ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
               }));
               
@@ -202,17 +208,23 @@ export function registerClassRoutes(
             console.log('ALERTA: Nenhuma turma encontrada para admin');
             
             // Se não encontrar turmas com os filtros, busca todas as turmas
-            const { data: todasTurmas } = await supabase
+            console.log('Buscando todas as turmas disponíveis no sistema como fallback para admin');
+            const { data: todasTurmas, error: erroTodasTurmas } = await supabase
               .from('turmas')
-              .select('*')
-              .order('nome');
-              
+              .select('*');
+            
+            if (erroTodasTurmas) {
+              console.error('Erro ao buscar todas as turmas (admin):', erroTodasTurmas);
+            } else {
+              console.log(`Encontradas ${todasTurmas?.length || 0} turmas no total (admin):`, todasTurmas);
+            }
+            
             if (todasTurmas && todasTurmas.length > 0) {
-              console.log(`Encontradas ${todasTurmas.length} turmas no total, usando como fallback para admin`);
+              console.log(`Usando ${todasTurmas.length} turmas como fallback para admin`);
               
               const todasTurmasFormatadas = todasTurmas.map(turma => ({
                 ...turma,
-                nome_turma: turma.nome,
+                nome_turma: turma.nome || "Turma sem nome",
                 ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
               }));
               
