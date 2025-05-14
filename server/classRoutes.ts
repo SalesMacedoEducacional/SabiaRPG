@@ -245,9 +245,10 @@ export function registerClassRoutes(
           ano_letivo: Number(ano_letivo),
           descricao: descricao || null,
           escola_id,
-          // Removido campo ativo que não existe na tabela
           criado_em: new Date().toISOString()
         };
+        
+        console.log('Dados da turma a ser cadastrada:', novaTurma);
 
         const { data, error } = await supabase
           .from('turmas')
@@ -256,7 +257,30 @@ export function registerClassRoutes(
 
         if (error) {
           console.error('Erro ao cadastrar turma:', error);
-          return res.status(500).json({ message: 'Erro ao cadastrar turma' });
+          
+          // Se for erro de segurança (RLS), retornar mensagem mais específica
+          if (error.code === '42501') {
+            return res.status(500).json({ 
+              message: 'Erro de permissão ao cadastrar turma. O RLS está bloqueando a operação.',
+              details: 'Execute o SQL no painel do Supabase para desabilitar o RLS',
+              error: error
+            });
+          }
+          
+          // Se for erro de coluna inexistente
+          if (error.message && error.message.includes('column')) {
+            return res.status(500).json({ 
+              message: 'Erro de esquema ao cadastrar turma',
+              details: error.message,
+              error: error
+            });
+          }
+          
+          return res.status(500).json({ 
+            message: 'Erro ao cadastrar turma',
+            details: error.message || 'Erro desconhecido',
+            error: error
+          });
         }
 
         return res.status(201).json(data[0]);

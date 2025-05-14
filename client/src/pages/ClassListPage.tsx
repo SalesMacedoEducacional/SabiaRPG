@@ -59,14 +59,14 @@ import {
 // Interface para representar uma Turma
 interface Turma {
   id: string;
-  nome_turma: string;
+  nome: string; // Nome da turma no banco está como "nome", não "nome_turma"
+  nome_turma?: string; // Manter para compatibilidade com código existente
   turno: string;
   serie: string;
   modalidade: string;
   ano_letivo: number;
-  quantidade_maxima_alunos?: number;
-  quantidade_atual_alunos?: number;
-  observacoes?: string;
+  descricao?: string; // Campo de descrição no banco
+  observacoes?: string; // Compatibilidade com código existente
   escola_id: string;
   escola_nome?: string;
   criado_em: string;
@@ -146,9 +146,10 @@ export default function ClassListPage() {
           // Filtrar por termo de busca
           const matchesSearch = 
             searchTerm === "" || 
-            turma.nome_turma.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            turma.serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            turma.modalidade.toLowerCase().includes(searchTerm.toLowerCase());
+            (turma.nome && turma.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (turma.nome_turma && turma.nome_turma.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (turma.serie && turma.serie.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (turma.modalidade && turma.modalidade.toLowerCase().includes(searchTerm.toLowerCase()));
           
           // Filtrar por ano letivo
           const matchesAnoLetivo = 
