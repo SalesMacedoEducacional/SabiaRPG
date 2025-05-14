@@ -13,12 +13,19 @@ export function registerLocationRoutes(app: Express) {
    */
   app.get('/api/estados', async (req: Request, res: Response) => {
     try {
+      console.log('Iniciando busca de estados no Supabase...');
       // Usar a API do Supabase diretamente - note que a estrutura da tabela tem apenas id e nome
       // sendo que o id é a sigla do estado (ex: 'AC', 'SP', etc)
       const { data: estados, error } = await supabase
         .from('estados')
         .select('id, nome')
         .order('nome');
+      
+      console.log('Resposta do Supabase para estados:', { 
+        sucesso: !error, 
+        totalRegistros: estados?.length || 0,
+        primeirosEstados: estados?.slice(0, 3) || [] 
+      });
       
       if (error) {
         console.error('Erro ao buscar estados:', error);
@@ -32,6 +39,7 @@ export function registerLocationRoutes(app: Express) {
         nome: estado.nome
       }));
       
+      console.log(`Retornando ${estadosFormatados.length} estados para o frontend`);
       return res.status(200).json(estadosFormatados);
     } catch (error) {
       console.error('Erro ao processar requisição de estados:', error);
