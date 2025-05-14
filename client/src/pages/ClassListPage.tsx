@@ -91,9 +91,9 @@ export default function ClassListPage() {
   const nextYear = currentYear + 1;
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Buscar turmas
+  // Buscar todas as turmas pela rota simplificada
   const { data: turmas, isLoading: isLoadingTurmas, refetch: refetchTurmas } = useQuery({
-    queryKey: ['/api/turmas'],
+    queryKey: ['/api/todas-turmas'],
     enabled: !!user && (user.role === 'manager' || user.role === 'admin'),
   });
 
@@ -173,7 +173,7 @@ export default function ClassListPage() {
 
   // Encontrar o nome da escola para cada turma
   const getTurmaComEscolaNome = (turma: Turma): Turma => {
-    if (!escolas) return turma;
+    if (!escolas || !Array.isArray(escolas)) return {...turma, escola_nome: "Escola não encontrada"};
     
     const escola = escolas.find((e: Escola) => e.id === turma.escola_id);
     return {
@@ -194,9 +194,13 @@ export default function ClassListPage() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    setLocation("/dashboard");
+    setLocation("/");
     return null;
   }
+  
+  // Mostrar debug no console para ajudar a identificar problemas
+  console.log('Dados de turmas disponíveis:', turmas);
+  console.log('Dados de escolas disponíveis:', escolas);
 
   return (
     <div className="container mx-auto py-6">
@@ -272,7 +276,7 @@ export default function ClassListPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todas">Todas as escolas</SelectItem>
-                  {escolas?.map((escola: Escola) => (
+                  {Array.isArray(escolas) && escolas.map((escola: Escola) => (
                     <SelectItem key={escola.id} value={escola.id}>
                       {escola.nome}
                     </SelectItem>
@@ -353,7 +357,7 @@ export default function ClassListPage() {
                     <TableHead>Série</TableHead>
                     <TableHead>Turno</TableHead>
                     <TableHead>Ano Letivo</TableHead>
-                    {escolas && escolas.length > 1 && (
+                    {Array.isArray(escolas) && escolas.length > 1 && (
                       <TableHead>Escola</TableHead>
                     )}
                     <TableHead>Alunos</TableHead>
@@ -373,7 +377,7 @@ export default function ClassListPage() {
                           <Badge variant="outline">{turma.turno}</Badge>
                         </TableCell>
                         <TableCell>{turma.ano_letivo}</TableCell>
-                        {escolas && escolas.length > 1 && (
+                        {Array.isArray(escolas) && escolas.length > 1 && (
                           <TableCell>{turmaComEscola.escola_nome}</TableCell>
                         )}
                         <TableCell>
