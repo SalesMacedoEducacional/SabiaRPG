@@ -71,101 +71,8 @@ export function registerClassRoutes(
   );
 
   /**
-   * Rota para listar todas as turmas
-   * Acessível para gestores, professores e administradores
-   */
-  app.get('/api/todas-turmas', 
-    authenticate,
-    requireRole(['manager', 'admin', 'teacher']),
-    async (req: Request, res: Response) => {
-    try {
-      console.log('Acessando rota simplificada para buscar TODAS as turmas');
-      
-      // Buscar todas as turmas sem filtros
-      const { data: turmas, error } = await supabase
-        .from('turmas')
-        .select('*');
-        
-      if (error) {
-        console.error('Erro ao buscar todas as turmas:', error);
-        return res.status(500).json({ message: 'Erro ao buscar todas as turmas' });
-      }
-      
-      console.log(`Encontradas ${turmas?.length || 0} turmas no total:`, turmas);
-      
-      // Mapear para o formato esperado pelo frontend
-      const turmasFormatadas = turmas?.map(turma => ({
-        ...turma,
-        nome_turma: turma.nome || 'Turma sem nome',
-        ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
-      }));
-      
-      return res.status(200).json(turmasFormatadas);
-    } catch (error) {
-      console.error('Erro na rota /api/todas-turmas:', error);
-      return res.status(500).json({ message: 'Erro ao buscar turmas' });
-    }
-  });
-  
-  /**
-   * Rota simplificada de backup para listar TODAS as turmas 
-   * sem nenhuma verificação de filtros
-   */
-  app.get('/api/turmas-teste',
-    authenticate,
-    async (req: Request, res: Response) => {
-    try {
-      console.log('TESTE DE FALLBACK: Buscando TODAS as turmas direto do banco de dados');
-      
-      // Chamar SQL direto para buscar todas as turmas sem filtros
-      console.log('Buscando turmas diretamente via SQL');
-      const { data: todasTurmas, error } = await supabase
-        .from('turmas')
-        .select('*');
-        
-      if (todasTurmas) {
-        console.log('IDs das turmas encontradas:', todasTurmas.map(t => t.id).join(', '));
-      }
-      
-      console.log(`Resposta do banco contém ${todasTurmas?.length || 0} turmas`);
-      
-      if (error) {
-        console.error('Erro buscando turmas diretamente:', error);
-        return res.status(500).json({ message: 'Erro ao buscar turmas' });
-      }
-      
-      if (!todasTurmas || todasTurmas.length === 0) {
-        console.log('ALERTA: Nenhuma turma encontrada na consulta direta');
-        return res.status(200).json([]);
-      }
-      
-      // Mapear campos para o formato esperado pelo frontend
-      const turmasFormatadas = todasTurmas.map(turma => ({
-        id: turma.id,
-        nome_turma: turma.nome || 'Turma sem nome',
-        nome: turma.nome || 'Turma sem nome',
-        turno: turma.turno || 'Não informado',
-        serie: turma.serie || 'Não informada',
-        modalidade: turma.modalidade || 'Não informada',
-        ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
-        quantidade_maxima_alunos: turma.quantidade_maxima_alunos || 0,
-        quantidade_atual_alunos: turma.quantidade_atual_alunos || 0,
-        observacoes: turma.observacoes || '',
-        escola_id: turma.escola_id,
-        criado_em: turma.criado_em
-      }));
-      
-      console.log('Retornando turmas formatadas diretamente do banco:', turmasFormatadas.length);
-      return res.status(200).json(turmasFormatadas);
-    } catch (error) {
-      console.error('Erro na rota de teste de turmas:', error);
-      return res.status(500).json({ message: 'Erro interno ao buscar turmas' });
-    }
-  });
-
-  /**
-   * Rota para listar turmas de uma escola específica
-   * Acessível para gestores, professores e administradores
+   * Rota para listar todas as turmas de uma escola
+   * Acessível apenas para gestores
    */
   app.get('/api/turmas', 
     authenticate,
@@ -222,8 +129,6 @@ export function registerClassRoutes(
           console.log('Usando escola_id para consulta:', escolaIdConsulta);
             
           // Busca as turmas da escola
-          console.log('Buscando turmas para escola_id:', escolaIdConsulta);
-          
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
@@ -239,38 +144,9 @@ export function registerClassRoutes(
           const turmasFormatadas = turmas?.map(turma => ({
             ...turma,
             nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
-            ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(), // Garantir que o campo ano_letivo sempre tenha um valor
           }));
           
           console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
-          
-          if (!turmasFormatadas || turmasFormatadas.length === 0) {
-            console.log('ALERTA: Nenhuma turma encontrada para a escola_id:', escolaIdConsulta);
-            
-            // Se não encontrar turmas para a escola específica, busca todas as turmas
-            console.log('Buscando todas as turmas disponíveis no sistema como fallback');
-            const { data: todasTurmas, error: erroTodasTurmas } = await supabase
-              .from('turmas')
-              .select('*');
-            
-            if (erroTodasTurmas) {
-              console.error('Erro ao buscar todas as turmas:', erroTodasTurmas);
-            } else {
-              console.log(`Encontradas ${todasTurmas?.length || 0} turmas no total:`, todasTurmas);
-            }
-            
-            if (todasTurmas && todasTurmas.length > 0) {
-              console.log(`Usando ${todasTurmas.length} turmas como fallback`);
-              
-              const todasTurmasFormatadas = todasTurmas.map(turma => ({
-                ...turma,
-                nome_turma: turma.nome || "Turma sem nome",
-                ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
-              }));
-              
-              return res.status(200).json(todasTurmasFormatadas);
-            }
-          }
             
           return res.status(200).json(turmasFormatadas);
         } else {
@@ -292,38 +168,9 @@ export function registerClassRoutes(
           const turmasFormatadas = turmas?.map(turma => ({
             ...turma,
             nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
-            ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(), // Garantir que o campo ano_letivo sempre tenha um valor
           }));
           
           console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
-          
-          if (!turmasFormatadas || turmasFormatadas.length === 0) {
-            console.log('ALERTA: Nenhuma turma encontrada para admin');
-            
-            // Se não encontrar turmas com os filtros, busca todas as turmas
-            console.log('Buscando todas as turmas disponíveis no sistema como fallback para admin');
-            const { data: todasTurmas, error: erroTodasTurmas } = await supabase
-              .from('turmas')
-              .select('*');
-            
-            if (erroTodasTurmas) {
-              console.error('Erro ao buscar todas as turmas (admin):', erroTodasTurmas);
-            } else {
-              console.log(`Encontradas ${todasTurmas?.length || 0} turmas no total (admin):`, todasTurmas);
-            }
-            
-            if (todasTurmas && todasTurmas.length > 0) {
-              console.log(`Usando ${todasTurmas.length} turmas como fallback para admin`);
-              
-              const todasTurmasFormatadas = todasTurmas.map(turma => ({
-                ...turma,
-                nome_turma: turma.nome || "Turma sem nome",
-                ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
-              }));
-              
-              return res.status(200).json(todasTurmasFormatadas);
-            }
-          }
             
           return res.status(200).json(turmasFormatadas);
         }

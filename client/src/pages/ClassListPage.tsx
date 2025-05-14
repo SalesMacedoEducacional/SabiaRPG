@@ -91,10 +91,10 @@ export default function ClassListPage() {
   const nextYear = currentYear + 1;
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Buscar todas as turmas pela rota de teste direta do banco
+  // Buscar turmas
   const { data: turmas, isLoading: isLoadingTurmas, refetch: refetchTurmas } = useQuery({
-    queryKey: ['/api/turmas-teste'],
-    enabled: !!user,
+    queryKey: ['/api/turmas'],
+    enabled: !!user && (user.role === 'manager' || user.role === 'admin'),
   });
 
   // Buscar escolas do gestor
@@ -140,7 +140,7 @@ export default function ClassListPage() {
   };
 
   // Filtrar e ordenar turmas
-  const turmasFiltradas = Array.isArray(turmas)
+  const turmasFiltradas = turmas
     ? turmas
         .filter((turma: Turma) => {
           // Filtrar por termo de busca
@@ -173,7 +173,7 @@ export default function ClassListPage() {
 
   // Encontrar o nome da escola para cada turma
   const getTurmaComEscolaNome = (turma: Turma): Turma => {
-    if (!escolas || !Array.isArray(escolas)) return {...turma, escola_nome: "Escola não encontrada"};
+    if (!escolas) return turma;
     
     const escola = escolas.find((e: Escola) => e.id === turma.escola_id);
     return {
@@ -193,15 +193,10 @@ export default function ClassListPage() {
   };
 
   // Se não for gestor ou admin, redirecionar para o dashboard
-  if (user && user.role !== 'manager' && user.role !== 'admin' && user.role !== 'gestor') {
-    console.log(`Usuário com papel ${user.role} não autorizado. Redirecionando para dashboard.`);
-    setLocation("/");
+  if (user && user.role !== 'manager' && user.role !== 'admin') {
+    setLocation("/dashboard");
     return null;
   }
-  
-  // Mostrar debug no console para ajudar a identificar problemas
-  console.log('Dados de turmas disponíveis:', turmas);
-  console.log('Dados de escolas disponíveis:', escolas);
 
   return (
     <div className="container mx-auto py-6">
@@ -210,7 +205,7 @@ export default function ClassListPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setLocation("/manager")}
+            onClick={() => setLocation("/manager-dashboard")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -277,7 +272,7 @@ export default function ClassListPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todas">Todas as escolas</SelectItem>
-                  {Array.isArray(escolas) && escolas.map((escola: Escola) => (
+                  {escolas?.map((escola: Escola) => (
                     <SelectItem key={escola.id} value={escola.id}>
                       {escola.nome}
                     </SelectItem>
@@ -358,7 +353,7 @@ export default function ClassListPage() {
                     <TableHead>Série</TableHead>
                     <TableHead>Turno</TableHead>
                     <TableHead>Ano Letivo</TableHead>
-                    {Array.isArray(escolas) && escolas.length > 1 && (
+                    {escolas && escolas.length > 1 && (
                       <TableHead>Escola</TableHead>
                     )}
                     <TableHead>Alunos</TableHead>
@@ -378,7 +373,7 @@ export default function ClassListPage() {
                           <Badge variant="outline">{turma.turno}</Badge>
                         </TableCell>
                         <TableCell>{turma.ano_letivo}</TableCell>
-                        {Array.isArray(escolas) && escolas.length > 1 && (
+                        {escolas && escolas.length > 1 && (
                           <TableCell>{turmaComEscola.escola_nome}</TableCell>
                         )}
                         <TableCell>
