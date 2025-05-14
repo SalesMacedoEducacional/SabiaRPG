@@ -140,7 +140,7 @@ export default function ClassListPage() {
   };
 
   // Filtrar e ordenar turmas
-  const turmasFiltradas = turmas
+  const turmasFiltradas = Array.isArray(turmas)
     ? turmas
         .filter((turma: Turma) => {
           // Filtrar por termo de busca
@@ -193,7 +193,8 @@ export default function ClassListPage() {
   };
 
   // Se não for gestor ou admin, redirecionar para o dashboard
-  if (user && user.role !== 'manager' && user.role !== 'admin') {
+  if (user && user.role !== 'manager' && user.role !== 'admin' && user.role !== 'gestor') {
+    console.log(`Usuário com papel ${user.role} não autorizado. Redirecionando para dashboard.`);
     setLocation("/");
     return null;
   }

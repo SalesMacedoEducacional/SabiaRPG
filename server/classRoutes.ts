@@ -118,9 +118,14 @@ export function registerClassRoutes(
       console.log('TESTE DE FALLBACK: Buscando TODAS as turmas direto do banco de dados');
       
       // Chamar SQL direto para buscar todas as turmas sem filtros
+      console.log('Buscando turmas diretamente via SQL');
       const { data: todasTurmas, error } = await supabase
         .from('turmas')
         .select('*');
+        
+      if (todasTurmas) {
+        console.log('IDs das turmas encontradas:', todasTurmas.map(t => t.id).join(', '));
+      }
       
       console.log(`Resposta do banco contém ${todasTurmas?.length || 0} turmas`);
       
