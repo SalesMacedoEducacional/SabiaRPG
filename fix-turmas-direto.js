@@ -3,14 +3,16 @@
  * Usando supabase.from() para tentar as operações CRUD básicas
  */
 import { supabase } from './db/supabase.js';
+import crypto from 'crypto';
 
 async function fixarTurmas() {
   try {
     console.log('Iniciando tentativa de conserto direto da tabela turmas...');
     
     // 1. Tentar inserir uma turma de teste diretamente
-    const testId = 'teste-' + Date.now();
-    console.log('Tentando inserir turma de teste com ID:', testId);
+    // Gerar um UUID válido para o teste
+    const testId = crypto.randomUUID();
+    console.log('Tentando inserir turma de teste com UUID:', testId);
     
     const turmaTeste = {
       id: testId,
