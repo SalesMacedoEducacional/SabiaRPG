@@ -129,6 +129,8 @@ export function registerClassRoutes(
           console.log('Usando escola_id para consulta:', escolaIdConsulta);
             
           // Busca as turmas da escola
+          console.log('Buscando turmas para escola_id:', escolaIdConsulta);
+          
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
@@ -144,9 +146,32 @@ export function registerClassRoutes(
           const turmasFormatadas = turmas?.map(turma => ({
             ...turma,
             nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
+            ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(), // Garantir que o campo ano_letivo sempre tenha um valor
           }));
           
           console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
+          
+          if (!turmasFormatadas || turmasFormatadas.length === 0) {
+            console.log('ALERTA: Nenhuma turma encontrada para a escola_id:', escolaIdConsulta);
+            
+            // Se não encontrar turmas para a escola específica, busca todas as turmas
+            const { data: todasTurmas } = await supabase
+              .from('turmas')
+              .select('*')
+              .order('nome');
+              
+            if (todasTurmas && todasTurmas.length > 0) {
+              console.log(`Encontradas ${todasTurmas.length} turmas no total, usando como fallback`);
+              
+              const todasTurmasFormatadas = todasTurmas.map(turma => ({
+                ...turma,
+                nome_turma: turma.nome,
+                ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
+              }));
+              
+              return res.status(200).json(todasTurmasFormatadas);
+            }
+          }
             
           return res.status(200).json(turmasFormatadas);
         } else {
@@ -168,9 +193,32 @@ export function registerClassRoutes(
           const turmasFormatadas = turmas?.map(turma => ({
             ...turma,
             nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
+            ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(), // Garantir que o campo ano_letivo sempre tenha um valor
           }));
           
           console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
+          
+          if (!turmasFormatadas || turmasFormatadas.length === 0) {
+            console.log('ALERTA: Nenhuma turma encontrada para admin');
+            
+            // Se não encontrar turmas com os filtros, busca todas as turmas
+            const { data: todasTurmas } = await supabase
+              .from('turmas')
+              .select('*')
+              .order('nome');
+              
+            if (todasTurmas && todasTurmas.length > 0) {
+              console.log(`Encontradas ${todasTurmas.length} turmas no total, usando como fallback para admin`);
+              
+              const todasTurmasFormatadas = todasTurmas.map(turma => ({
+                ...turma,
+                nome_turma: turma.nome,
+                ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
+              }));
+              
+              return res.status(200).json(todasTurmasFormatadas);
+            }
+          }
             
           return res.status(200).json(turmasFormatadas);
         }
