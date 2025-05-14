@@ -91,10 +91,10 @@ export default function ClassListPage() {
   const nextYear = currentYear + 1;
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Buscar todas as turmas pela rota simplificada
+  // Buscar todas as turmas pela rota de teste direta do banco
   const { data: turmas, isLoading: isLoadingTurmas, refetch: refetchTurmas } = useQuery({
-    queryKey: ['/api/todas-turmas'],
-    enabled: !!user && (user.role === 'manager' || user.role === 'admin'),
+    queryKey: ['/api/turmas-teste'],
+    enabled: !!user,
   });
 
   // Buscar escolas do gestor

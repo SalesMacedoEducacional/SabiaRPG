@@ -175,7 +175,7 @@ export default function ManagerDashboard() {
                     
                     <button
                       className="manager-action-button w-full"
-                      onClick={() => navigate('/turmas')}
+                      onClick={() => navigate('/class-list')}
                     >
                       <BookOpen className="h-4 w-4 mr-2" />
                       <span className="text-white">Gerenciar Turmas</span>

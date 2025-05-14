@@ -106,6 +106,57 @@ export function registerClassRoutes(
       return res.status(500).json({ message: 'Erro ao buscar turmas' });
     }
   });
+  
+  /**
+   * Rota simplificada de backup para listar TODAS as turmas 
+   * sem nenhuma verificação de filtros
+   */
+  app.get('/api/turmas-teste',
+    authenticate,
+    async (req: Request, res: Response) => {
+    try {
+      console.log('TESTE DE FALLBACK: Buscando TODAS as turmas direto do banco de dados');
+      
+      // Chamar SQL direto para buscar todas as turmas sem filtros
+      const { data: todasTurmas, error } = await supabase
+        .from('turmas')
+        .select('*');
+      
+      console.log(`Resposta do banco contém ${todasTurmas?.length || 0} turmas`);
+      
+      if (error) {
+        console.error('Erro buscando turmas diretamente:', error);
+        return res.status(500).json({ message: 'Erro ao buscar turmas' });
+      }
+      
+      if (!todasTurmas || todasTurmas.length === 0) {
+        console.log('ALERTA: Nenhuma turma encontrada na consulta direta');
+        return res.status(200).json([]);
+      }
+      
+      // Mapear campos para o formato esperado pelo frontend
+      const turmasFormatadas = todasTurmas.map(turma => ({
+        id: turma.id,
+        nome_turma: turma.nome || 'Turma sem nome',
+        nome: turma.nome || 'Turma sem nome',
+        turno: turma.turno || 'Não informado',
+        serie: turma.serie || 'Não informada',
+        modalidade: turma.modalidade || 'Não informada',
+        ano_letivo: turma.ano_letivo || new Date().getFullYear().toString(),
+        quantidade_maxima_alunos: turma.quantidade_maxima_alunos || 0,
+        quantidade_atual_alunos: turma.quantidade_atual_alunos || 0,
+        observacoes: turma.observacoes || '',
+        escola_id: turma.escola_id,
+        criado_em: turma.criado_em
+      }));
+      
+      console.log('Retornando turmas formatadas diretamente do banco:', turmasFormatadas.length);
+      return res.status(200).json(turmasFormatadas);
+    } catch (error) {
+      console.error('Erro na rota de teste de turmas:', error);
+      return res.status(500).json({ message: 'Erro interno ao buscar turmas' });
+    }
+  });
 
   /**
    * Rota para listar turmas de uma escola específica
