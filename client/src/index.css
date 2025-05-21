@@ -56,50 +56,50 @@
   --graph-green: #27AE60;
   --graph-yellow: #D4A054;
   
-  /* Compatibilidade com nomes antigos */
-  --background: 31 90% 4%;   /* #140A02 */
-  --foreground: 36 14% 83%;  /* #D9D6D0 */
+  /* Compatibilidade com nomes antigos - atualizada para nova paleta clara */
+  --background: 43 24% 95%;   /* #F5F2EC */
+  --foreground: 39 13% 17%;   /* #312E26 */
   
-  --muted: 27 18% 45%;       /* #736350 */
-  --muted-foreground: 36 14% 83%; /* #D9D6D0 */
+  --muted: 39 10% 31%;       /* #5A5346 */
+  --muted-foreground: 43 24% 95%; /* #F5F2EC */
   
-  --popover: 31 60% 10%;     /* #291A0A */
-  --popover-foreground: 36 14% 83%; /* #D9D6D0 */
+  --popover: 43 18% 87%;     /* #E0DCD1 */
+  --popover-foreground: 39 13% 17%; /* #312E26 */
   
-  --card: 36 40% 16%;        /* #3B2B16 */
-  --card-foreground: 36 14% 83%; /* #D9D6D0 */
+  --card: 43 21% 89%;        /* #E8E4DA */
+  --card-foreground: 39 13% 17%; /* #312E26 */
   
-  --border: 36 40% 16%;      /* #3B2B16 */
-  --input: 39 37% 19%;       /* #43341C */
+  --border: 38 21% 54%;      /* #A6936C */
+  --input: 43 27% 93%;       /* #F0EDE8 */
   
-  --primary-foreground: 0 0% 100%;  /* #FFFFFF */
-  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  --primary-foreground: 39 13% 17%;  /* #312E26 */
+  --secondary-foreground: 43 24% 95%; /* #F5F2EC */
   
-  --accent: 35 75% 42%;      /* #bf7918 */
-  --accent-light: 38 54% 53%; /* #cb9b43 */
-  --accent-dark: 33 80% 31%;  /* #8F510E */
-  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --accent: 39 59% 58%;      /* #D4A054 */
+  --accent-light: 40 58% 69%; /* #E5BB7B */
+  --accent-dark: 39 56% 45%;  /* #B37F32 */
+  --accent-foreground: 39 13% 17%; /* #312E26 */
   
-  --destructive: 0 84% 60%;   /* #ef4444 */
-  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --destructive: 6 61% 46%;  /* #C0392B */
+  --destructive-foreground: 43 24% 95%; /* #F5F2EC */
   
-  --ring: 35 75% 42%;         /* #bf7918 */
+  --ring: 39 59% 58%;        /* #D4A054 */
   
   --radius: 0.5rem;
   
-  --parchment: 36 14% 83%;    /* #D9D6D0 */
-  --parchment-light: 36 14% 96%; /* #F5F4F2 */
-  --parchment-dark: 27 18% 45%; /* #A19990 */
+  --parchment: 43 24% 95%;    /* #F5F2EC */
+  --parchment-light: 0 0% 100%; /* #FFFFFF */
+  --parchment-dark: 43 18% 87%; /* #E0DCD1 */
   
-  --dark: 31 60% 10%;         /* #291A0A */
-  --dark-light: 36 40% 16%;   /* #3B2B16 */
-  --dark-dark: 31 90% 4%;     /* #140A02 */
+  --dark: 39 13% 17%;         /* #312E26 */
+  --dark-light: 39 14% 25%;   /* #433D33 */
+  --dark-dark: 39 13% 14%;    /* #262420 */
   
   /* Variáveis específicas para o dashboard do gestor */
-  --manager-bg: 31 60% 10%;   /* #291A0A */
-  --manager-card: 36 40% 16%; /* #3B2B16 */
-  --manager-accent: 35 75% 42%; /* #bf7918 */
-  --manager-hover: 36 40% 22%; /* #493722 */
+  --manager-bg: 43 24% 95%;   /* #F5F2EC */
+  --manager-card: 43 18% 87%; /* #E0DCD1 */
+  --manager-accent: 39 59% 58%; /* #D4A054 */
+  --manager-hover: 38 32% 44%; /* #8F7D59 */
 }
 
 /* Classes utilitárias para o painel do gestor baseadas na nova paleta clara */

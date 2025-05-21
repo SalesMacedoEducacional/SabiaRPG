@@ -91,6 +91,10 @@ export default {
           foreground: "#F5F2EC",
         },
         
+        // Adicionando cores que podem ser usadas como substitutos
+        base_dark: "#312E26",
+        light_bg: "#F5F2EC",
+        
         // Mantendo chart para compatibilidade
         chart: {
           "1": "#9C59B6",
