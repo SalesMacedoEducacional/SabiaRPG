@@ -81,6 +81,15 @@ function Router() {
       {/* Rotas apenas para gestores */}
       <ProtectedRoute 
         path="/manager" 
+        component={ManagerDashboardModerno}
+        permissions={[
+          PERMISSIONS.REPORT_SCHOOL_VIEW.id,
+          PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
+        path="/manager-old" 
         component={ManagerDashboard}
         permissions={[
           PERMISSIONS.REPORT_SCHOOL_VIEW.id,

@@ -139,7 +139,7 @@ export default function ManagerDashboardModerno() {
             {/* User Info and Logout */}
             <div className="flex items-center gap-2">
               <div className="hidden md:block text-right">
-                <p className="text-white text-sm font-medium">{user.nome || "Gestor"}</p>
+                <p className="text-white text-sm font-medium">{"Gestor"}</p>
                 <p className="text-accent text-xs">{user.email}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-accent text-white flex items-center justify-center">
