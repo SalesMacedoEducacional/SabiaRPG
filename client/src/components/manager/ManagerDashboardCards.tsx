@@ -458,41 +458,41 @@ export function TotalTurmasCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-2xl bg-light border-accent text-base">
           <DialogHeader>
-            <DialogTitle className="text-xl text-primary flex items-center">
+            <DialogTitle className="text-xl text-accent flex items-center">
               <BookOpen className="h-5 w-5 mr-2" /> Turmas Ativas
             </DialogTitle>
-            <DialogDescription className="text-accent">
+            <DialogDescription className="text-muted">
               Lista de turmas nas escolas sob sua gestão
             </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
-              <TableHeader className="bg-[#43341c]">
+              <TableHeader className="bg-light-2 border-b border-primary/30">
                 <TableRow>
-                  <TableHead className="text-white">Nome</TableHead>
-                  <TableHead className="text-white">Série</TableHead>
-                  <TableHead className="text-white">Turno</TableHead>
-                  <TableHead className="text-white">Ano Letivo</TableHead>
-                  <TableHead className="text-white">Total de Alunos</TableHead>
+                  <TableHead className="text-base font-semibold">Nome</TableHead>
+                  <TableHead className="text-base font-semibold">Série</TableHead>
+                  <TableHead className="text-base font-semibold">Turno</TableHead>
+                  <TableHead className="text-base font-semibold">Ano Letivo</TableHead>
+                  <TableHead className="text-base font-semibold">Total de Alunos</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {turmas.length > 0 ? (
                   turmas.map((turma) => (
-                    <TableRow key={turma.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{turma.nome}</TableCell>
-                      <TableCell className="text-white">{turma.serie}</TableCell>
-                      <TableCell className="text-white">{turma.turno}</TableCell>
-                      <TableCell className="text-white">{turma.ano_letivo}</TableCell>
-                      <TableCell className="text-white">{turma.total_alunos}</TableCell>
+                    <TableRow key={turma.id} className="hover:bg-light-2 border-b border-primary/20">
+                      <TableCell className="text-base font-medium">{turma.nome}</TableCell>
+                      <TableCell className="text-base">{turma.serie}</TableCell>
+                      <TableCell className="text-base">{turma.turno}</TableCell>
+                      <TableCell className="text-base">{turma.ano_letivo}</TableCell>
+                      <TableCell className="text-base">{turma.total_alunos}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-4 text-muted">
                       Nenhuma turma encontrada
                     </TableCell>
                   </TableRow>
