@@ -74,18 +74,18 @@ export default function ManagerDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-[#312e26]">
+    <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-[#312e26] border-b border-accent shadow-md">
+      <header className="bg-light border-b border-primary/30 shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
+            <h1 className="text-2xl font-bold text-base">DASHBOARD DO GESTOR</h1>
             <p className="text-accent text-sm">
               Bem-vindo, gestor!
             </p>
           </div>
           <button 
-            className="manager-button flex items-center gap-1"
+            className="bg-light-2 border border-accent text-base hover:bg-light/80 px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
             onClick={handleLogout}
           >
             <LogOut size={14} /> Sair
@@ -96,39 +96,39 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[#4a4639] border-b border-accent">
+          <TabsList className="grid grid-cols-4 gap-0 bg-light-2 border-b border-primary/30">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-primary/30 data-[state=active]:bg-light data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-base">
                 <Home size={14} className="mr-1.5" />
                 Visão Geral
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-primary/30 data-[state=active]:bg-light data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-base">
                 <FileBarChart2 size={14} className="mr-1.5" />
                 Relatórios
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none border-r border-primary/30 data-[state=active]:bg-light data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-base">
                 <Settings size={14} className="mr-1.5" />
                 Configurações
               </span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-light data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
             >
-              <span className="flex items-center text-white">
+              <span className="flex items-center text-base">
                 <User size={14} className="mr-1.5" />
                 Meu Perfil
               </span>
