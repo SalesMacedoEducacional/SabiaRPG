@@ -102,27 +102,27 @@ export function TotalEscolasCard() {
 
   return (
     <>
-      <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
+      <div className="bg-light border border-accent rounded-md p-4 flex flex-col hover:border-accent/80 transition-all shadow-md">
         <div className="flex items-center mb-2">
-          <div className="rounded-full bg-[#4a4639] p-2 mr-3">
-            <School className="h-5 w-5 text-primary" />
+          <div className="rounded-full bg-light-2 p-2 mr-3">
+            <School className="h-5 w-5 text-accent" />
           </div>
-          <div className="text-sm font-medium text-white">Total de Escolas Vinculadas</div>
+          <div className="text-sm font-medium text-base">Total de Escolas Vinculadas</div>
         </div>
         
         {isLoading ? (
           <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-accent" />
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold text-white mt-2">{totalEscolas}</div>
-            <div className="text-xs text-accent mt-1">{totalEscolas} ativas</div>
+            <div className="text-3xl font-bold text-base mt-2">{totalEscolas}</div>
+            <div className="text-xs text-muted mt-1">{totalEscolas} ativas</div>
             
             <Button 
               variant="outline" 
               size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
+              className="bg-light-2 border border-accent text-base px-3 py-1.5 mt-3 rounded hover:bg-light/80 transition-colors self-start"
               onClick={() => setIsModalOpen(true)}
               disabled={totalEscolas === 0}
             >
@@ -133,35 +133,35 @@ export function TotalEscolasCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-2xl bg-light border-accent text-base">
           <DialogHeader>
-            <DialogTitle className="text-xl text-primary flex items-center">
+            <DialogTitle className="text-xl text-accent flex items-center">
               <School className="h-5 w-5 mr-2" /> Escolas Vinculadas
             </DialogTitle>
-            <DialogDescription className="text-accent">
+            <DialogDescription className="text-muted">
               Lista de escolas sob sua gestão
             </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
-              <TableHeader className="bg-[#43341c]">
+              <TableHeader className="bg-light-2 border-b border-primary/30">
                 <TableRow>
-                  <TableHead className="text-white">Nome da Escola</TableHead>
-                  <TableHead className="text-white">Cidade</TableHead>
+                  <TableHead className="text-base font-semibold">Nome da Escola</TableHead>
+                  <TableHead className="text-base font-semibold">Cidade</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {escolas.length > 0 ? (
                   escolas.map((escola) => (
-                    <TableRow key={escola.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{escola.nome}</TableCell>
-                      <TableCell className="text-white">{escola.cidades?.nome || escola.cidade}</TableCell>
+                    <TableRow key={escola.id} className="hover:bg-light-2 border-b border-primary/20">
+                      <TableCell className="text-base font-medium">{escola.nome}</TableCell>
+                      <TableCell className="text-base">{escola.cidades?.nome || escola.cidade}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={2} className="text-center py-4 text-muted">
                       Nenhuma escola encontrada
                     </TableCell>
                   </TableRow>
@@ -209,27 +209,27 @@ export function TotalProfessoresCard() {
 
   return (
     <>
-      <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
+      <div className="bg-light border border-accent rounded-md p-4 flex flex-col hover:border-accent/80 transition-all shadow-md">
         <div className="flex items-center mb-2">
-          <div className="rounded-full bg-[#4a4639] p-2 mr-3">
-            <Users className="h-5 w-5 text-primary" />
+          <div className="rounded-full bg-light-2 p-2 mr-3">
+            <Users className="h-5 w-5 text-accent" />
           </div>
-          <div className="text-sm font-medium text-white">Total de Professores</div>
+          <div className="text-sm font-medium text-base">Total de Professores</div>
         </div>
         
         {isLoading ? (
           <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-accent" />
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold text-white mt-2">{totalProfessores}</div>
-            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+            <div className="text-3xl font-bold text-base mt-2">{totalProfessores}</div>
+            <div className="text-xs text-muted mt-1">Em todas as escolas</div>
             
             <Button 
               variant="outline" 
               size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
+              className="bg-light-2 border border-accent text-base px-3 py-1.5 mt-3 rounded hover:bg-light/80 transition-colors self-start"
               onClick={() => setIsModalOpen(true)}
               disabled={totalProfessores === 0}
             >
@@ -240,37 +240,37 @@ export function TotalProfessoresCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-2xl bg-light border-accent text-base">
           <DialogHeader>
-            <DialogTitle className="text-xl text-primary flex items-center">
+            <DialogTitle className="text-xl text-accent flex items-center">
               <Users className="h-5 w-5 mr-2" /> Professores Cadastrados
             </DialogTitle>
-            <DialogDescription className="text-accent">
+            <DialogDescription className="text-muted">
               Lista de professores nas escolas sob sua gestão
             </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
-              <TableHeader className="bg-[#43341c]">
+              <TableHeader className="bg-light-2 border-b border-primary/30">
                 <TableRow>
-                  <TableHead className="text-white">Nome do Professor</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
-                  <TableHead className="text-white">Telefone</TableHead>
+                  <TableHead className="text-base font-semibold">Nome do Professor</TableHead>
+                  <TableHead className="text-base font-semibold">CPF</TableHead>
+                  <TableHead className="text-base font-semibold">Telefone</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {professores.length > 0 ? (
                   professores.map((professor) => (
-                    <TableRow key={professor.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{professor.usuarios.nome_completo}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.cpf}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.telefone || "Não informado"}</TableCell>
+                    <TableRow key={professor.id} className="hover:bg-light-2 border-b border-primary/20">
+                      <TableCell className="text-base font-medium">{professor.usuarios.nome_completo}</TableCell>
+                      <TableCell className="text-base">{professor.usuarios.cpf}</TableCell>
+                      <TableCell className="text-base">{professor.usuarios.telefone || "Não informado"}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={3} className="text-center py-4 text-muted">
                       Nenhum professor encontrado
                     </TableCell>
                   </TableRow>
@@ -318,27 +318,27 @@ export function TotalAlunosCard() {
 
   return (
     <>
-      <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
+      <div className="bg-light border border-accent rounded-md p-4 flex flex-col hover:border-accent/80 transition-all shadow-md">
         <div className="flex items-center mb-2">
-          <div className="rounded-full bg-[#4a4639] p-2 mr-3">
-            <GraduationCap className="h-5 w-5 text-primary" />
+          <div className="rounded-full bg-light-2 p-2 mr-3">
+            <GraduationCap className="h-5 w-5 text-accent" />
           </div>
-          <div className="text-sm font-medium text-white">Total de Alunos</div>
+          <div className="text-sm font-medium text-base">Total de Alunos</div>
         </div>
         
         {isLoading ? (
           <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-accent" />
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold text-white mt-2">{totalAlunos}</div>
-            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+            <div className="text-3xl font-bold text-base mt-2">{totalAlunos}</div>
+            <div className="text-xs text-muted mt-1">Em todas as escolas</div>
             
             <Button 
               variant="outline" 
               size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
+              className="bg-light-2 border border-accent text-base px-3 py-1.5 mt-3 rounded hover:bg-light/80 transition-colors self-start"
               onClick={() => setIsModalOpen(true)}
               disabled={totalAlunos === 0}
             >
@@ -349,37 +349,37 @@ export function TotalAlunosCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-2xl bg-light border-accent text-base">
           <DialogHeader>
-            <DialogTitle className="text-xl text-primary flex items-center">
+            <DialogTitle className="text-xl text-accent flex items-center">
               <GraduationCap className="h-5 w-5 mr-2" /> Alunos Matriculados
             </DialogTitle>
-            <DialogDescription className="text-accent">
+            <DialogDescription className="text-muted">
               Lista de alunos nas escolas sob sua gestão
             </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
-              <TableHeader className="bg-[#43341c]">
+              <TableHeader className="bg-light-2 border-b border-primary/30">
                 <TableRow>
-                  <TableHead className="text-white">Nome do Aluno</TableHead>
-                  <TableHead className="text-white">Nº Matrícula</TableHead>
-                  <TableHead className="text-white">Turma</TableHead>
+                  <TableHead className="text-base font-semibold">Nome do Aluno</TableHead>
+                  <TableHead className="text-base font-semibold">Nº Matrícula</TableHead>
+                  <TableHead className="text-base font-semibold">Turma</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {alunos.length > 0 ? (
                   alunos.map((aluno) => (
-                    <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{aluno.usuarios.nome_completo}</TableCell>
-                      <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
-                      <TableCell className="text-white">{aluno.turmas?.nome || "N/A"}</TableCell>
+                    <TableRow key={aluno.id} className="hover:bg-light-2 border-b border-primary/20">
+                      <TableCell className="text-base font-medium">{aluno.usuarios.nome_completo}</TableCell>
+                      <TableCell className="text-base">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
+                      <TableCell className="text-base">{aluno.turmas?.nome || "N/A"}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={3} className="text-center py-4 text-muted">
                       Nenhum aluno encontrado
                     </TableCell>
                   </TableRow>
@@ -427,27 +427,27 @@ export function TotalTurmasCard() {
 
   return (
     <>
-      <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
+      <div className="bg-light border border-accent rounded-md p-4 flex flex-col hover:border-accent/80 transition-all shadow-md">
         <div className="flex items-center mb-2">
-          <div className="rounded-full bg-[#4a4639] p-2 mr-3">
-            <BookOpen className="h-5 w-5 text-primary" />
+          <div className="rounded-full bg-light-2 p-2 mr-3">
+            <BookOpen className="h-5 w-5 text-accent" />
           </div>
-          <div className="text-sm font-medium text-white">Turmas Ativas</div>
+          <div className="text-sm font-medium text-base">Turmas Ativas</div>
         </div>
         
         {isLoading ? (
           <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-accent" />
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold text-white mt-2">{totalTurmas}</div>
-            <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
+            <div className="text-3xl font-bold text-base mt-2">{totalTurmas}</div>
+            <div className="text-xs text-muted mt-1">Distribuídas em todas as escolas</div>
             
             <Button 
               variant="outline" 
               size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
+              className="bg-light-2 border border-accent text-base px-3 py-1.5 mt-3 rounded hover:bg-light/80 transition-colors self-start"
               onClick={() => setIsModalOpen(true)}
               disabled={totalTurmas === 0}
             >
