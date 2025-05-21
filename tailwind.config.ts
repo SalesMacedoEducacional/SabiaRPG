@@ -19,6 +19,8 @@ export default {
         light: "#F5F2EC",  // fundo principal claro
         "light-2": "#E0DCD1",  // fundo secundário claro
         base: "#312E26",  // texto principal escuro
+        muted: "#5A5346",  // texto secundário
+        accent: "#D4A054",  // destaque dourado (mantido)
         primary: "#A6936C",  // bordas e separadores terrosos suaves
         danger: "#C0392B",  // alertas/erros
         
@@ -75,7 +77,7 @@ export default {
           dark: "#262420",
         },
         
-        // Configuração estendida de accent
+        // Mantendo accent com novo valor
         accent: {
           DEFAULT: "#D4A054",
           light: "#E5BB7B",
@@ -83,8 +85,8 @@ export default {
           foreground: "#FFFFFF",
         },
         
-        // Configuração estendida de muted
-        "text-muted": {
+        // Ajustando muted para nova paleta
+        muted: {
           DEFAULT: "#5A5346",
           foreground: "#F5F2EC",
         },
