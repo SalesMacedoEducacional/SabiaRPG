@@ -11,6 +11,7 @@ import {
 import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCard";
 import ManagerProfile from '../components/manager/ManagerProfile';
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
+import SchoolsList from '../components/manager/SchoolsList';
 
 import { 
   Home, 
@@ -360,56 +361,20 @@ export default function ManagerDashboardModerno() {
               
               {/* Stats Cards Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg p-4 hover:border-accent transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Escolas</p>
-                      <p className="text-white text-2xl font-bold mt-1">2</p>
-                      <p className="text-accent text-xs mt-1.5">+0% desde o mês passado</p>
-                    </div>
-                    <div className="bg-[#3a3730] p-2 rounded-lg">
-                      <BuildingSchool className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <EscolasVinculadasCard />
                 </div>
                 
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg p-4 hover:border-accent transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Professores</p>
-                      <p className="text-white text-2xl font-bold mt-1">0</p>
-                      <p className="text-accent text-xs mt-1.5">+0% desde o mês passado</p>
-                    </div>
-                    <div className="bg-[#3a3730] p-2 rounded-lg">
-                      <Briefcase className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalProfessoresCard />
                 </div>
                 
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg p-4 hover:border-accent transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Alunos</p>
-                      <p className="text-white text-2xl font-bold mt-1">0</p>
-                      <p className="text-accent text-xs mt-1.5">+0% desde o mês passado</p>
-                    </div>
-                    <div className="bg-[#3a3730] p-2 rounded-lg">
-                      <GraduationCap className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalAlunosCard />
                 </div>
                 
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg p-4 hover:border-accent transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-white/70 text-sm">Turmas</p>
-                      <p className="text-white text-2xl font-bold mt-1">2</p>
-                      <p className="text-accent text-xs mt-1.5">+0% desde o mês passado</p>
-                    </div>
-                    <div className="bg-[#3a3730] p-2 rounded-lg">
-                      <BookOpen className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalTurmasCard />
                 </div>
               </div>
               
@@ -579,31 +544,7 @@ export default function ManagerDashboardModerno() {
                     <button className="text-accent text-sm hover:underline" onClick={() => setActiveMenu("schools")}>Gerenciar</button>
                   </div>
                   <div className="p-4">
-                    <div className="bg-[#3a3730] rounded-md p-3 mb-3 flex items-center justify-between hover:bg-[#42403a] transition-colors cursor-pointer">
-                      <div className="flex items-center">
-                        <div className="bg-accent/20 p-2 rounded-md mr-3">
-                          <BuildingSchool className="h-5 w-5 text-accent" />
-                        </div>
-                        <div>
-                          <p className="text-white text-sm font-medium">Escola Municipal Pedro II</p>
-                          <p className="text-white/70 text-xs">Teresina, PI</p>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} className="text-accent" />
-                    </div>
-                    
-                    <div className="bg-[#3a3730] rounded-md p-3 flex items-center justify-between hover:bg-[#42403a] transition-colors cursor-pointer">
-                      <div className="flex items-center">
-                        <div className="bg-accent/20 p-2 rounded-md mr-3">
-                          <BuildingSchool className="h-5 w-5 text-accent" />
-                        </div>
-                        <div>
-                          <p className="text-white text-sm font-medium">Colégio Estadual José Alves</p>
-                          <p className="text-white/70 text-xs">Picos, PI</p>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} className="text-accent" />
-                    </div>
+                    <SchoolsList />
                   </div>
                 </div>
               </div>
