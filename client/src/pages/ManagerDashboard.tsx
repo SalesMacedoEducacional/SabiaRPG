@@ -148,73 +148,73 @@ export default function ManagerDashboard() {
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Ações Rápidas */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Ações Rápidas</h3>
-                  <p className="text-xs text-white/70">
+              <div className="bg-light border border-accent rounded-md overflow-hidden shadow-sm">
+                <div className="bg-light-2 p-3 border-b border-primary/20">
+                  <h3 className="text-sm font-medium text-base">Ações Rápidas</h3>
+                  <p className="text-xs text-muted">
                     Acesso direto às principais tarefas administrativas
                   </p>
                 </div>
                 <div className="p-4">
                   <div className="flex flex-col gap-2">
                     <button 
-                      className="manager-action-button w-full"
+                      className="flex items-center justify-start px-3 py-2 bg-light-2 hover:bg-light/80 border border-primary/20 rounded-md w-full transition-colors"
                       onClick={() => navigate('/user-registration')}
                     >
-                      <User className="h-4 w-4 mr-2" />
-                      <span className="text-white">Cadastrar Novo Usuário</span>
+                      <User className="h-4 w-4 mr-2 text-accent" />
+                      <span className="text-base">Cadastrar Novo Usuário</span>
                     </button>
                     
                     <button
-                      className="manager-action-button w-full"
+                      className="flex items-center justify-start px-3 py-2 bg-light-2 hover:bg-light/80 border border-primary/20 rounded-md w-full transition-colors"
                       onClick={() => navigate('/school-registration')}
                     >
-                      <School className="h-4 w-4 mr-2" />
-                      <span className="text-white">Cadastrar Nova Escola</span>
+                      <School className="h-4 w-4 mr-2 text-accent" />
+                      <span className="text-base">Cadastrar Nova Escola</span>
                     </button>
                     
                     <button
-                      className="manager-action-button w-full"
+                      className="flex items-center justify-start px-3 py-2 bg-light-2 hover:bg-light/80 border border-primary/20 rounded-md w-full transition-colors"
                       onClick={() => navigate('/turmas')}
                     >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      <span className="text-white">Gerenciar Turmas</span>
+                      <BookOpen className="h-4 w-4 mr-2 text-accent" />
+                      <span className="text-base">Gerenciar Turmas</span>
                     </button>
                   </div>
                 </div>
               </div>
               
               {/* Alunos Ativos */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Alunos Ativos na Plataforma</h3>
+              <div className="bg-light border border-accent rounded-md overflow-hidden shadow-sm">
+                <div className="bg-light-2 p-3 border-b border-primary/20">
+                  <h3 className="text-sm font-medium text-base">Alunos Ativos na Plataforma</h3>
                 </div>
                 <div className="p-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-white text-3xl font-bold">0</div>
-                      <div className="text-accent text-xs">Últimos 7 dias</div>
+                      <div className="text-base text-3xl font-bold">0</div>
+                      <div className="text-muted text-xs">Últimos 7 dias</div>
                     </div>
                     <div>
-                      <div className="text-white text-3xl font-bold">0</div>
-                      <div className="text-accent text-xs">Últimos 30 dias</div>
+                      <div className="text-base text-3xl font-bold">0</div>
+                      <div className="text-muted text-xs">Últimos 30 dias</div>
                     </div>
                   </div>
                 </div>
               </div>
               
               {/* Alerta de Evasão */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Alerta de Evasão Potencial</h3>
-                  <p className="text-xs text-white/70">
+              <div className="bg-light border border-accent rounded-md overflow-hidden shadow-sm">
+                <div className="bg-light-2 p-3 border-b border-primary/20">
+                  <h3 className="text-sm font-medium text-base">Alerta de Evasão Potencial</h3>
+                  <p className="text-xs text-muted">
                     Alunos com mais de 30 dias sem acesso
                   </p>
                 </div>
                 <div className="p-4">
-                  <div className="text-white text-4xl font-bold text-center my-4">0</div>
+                  <div className="text-base text-4xl font-bold text-center my-4">0</div>
                   
-                  <button className="manager-button w-full">
+                  <button className="bg-light-2 border border-accent text-base hover:bg-light/80 px-3 py-1.5 rounded w-full transition-colors">
                     Ver Lista
                   </button>
                 </div>
@@ -224,59 +224,59 @@ export default function ManagerDashboard() {
             {/* Escolas com maior engajamento e atividade recente */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Escolas com Maior Engajamento */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Escolas com Maior Engajamento</h3>
-                  <p className="text-xs text-white/70">
+              <div className="bg-light border border-accent rounded-md overflow-hidden shadow-sm">
+                <div className="bg-light-2 p-3 border-b border-primary/20">
+                  <h3 className="text-sm font-medium text-base">Escolas com Maior Engajamento</h3>
+                  <p className="text-xs text-muted">
                     Escolas com melhores taxas de participação
                   </p>
                 </div>
                 <div className="p-4">
-                  <div className="flex items-center justify-center h-40 text-white">
+                  <div className="flex items-center justify-center h-40 text-muted">
                     Nenhuma escola cadastrada
                   </div>
                 </div>
               </div>
               
               {/* Atividade Recente */}
-              <div className="manager-card overflow-hidden">
-                <div className="manager-card-header">
-                  <h3 className="text-sm font-medium text-white">Atividade Recente</h3>
-                  <p className="text-xs text-white/70">
+              <div className="bg-light border border-accent rounded-md overflow-hidden shadow-sm">
+                <div className="bg-light-2 p-3 border-b border-primary/20">
+                  <h3 className="text-sm font-medium text-base">Atividade Recente</h3>
+                  <p className="text-xs text-muted">
                     Últimas ações e eventos no sistema
                   </p>
                 </div>
                 <div className="p-4">
                   <div className="space-y-4">
                     <div className="flex items-start">
-                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-light-2 p-1.5 rounded-full mr-3 mt-0.5 border border-primary/20">
                         <FileText className="h-4 w-4 text-accent" />
                       </div>
                       <div>
-                        <p className="text-white text-sm font-medium">Novo relatório gerado</p>
-                        <p className="text-white/70 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                        <p className="text-base text-sm font-medium">Novo relatório gerado</p>
+                        <p className="text-muted text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
                         <p className="text-accent text-xs">Hoje, 09:45</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-light-2 p-1.5 rounded-full mr-3 mt-0.5 border border-primary/20">
                         <Users className="h-4 w-4 text-accent" />
                       </div>
                       <div>
-                        <p className="text-white text-sm font-medium">Novos usuários cadastrados</p>
-                        <p className="text-white/70 text-xs">12 alunos adicionados à plataforma</p>
+                        <p className="text-base text-sm font-medium">Novos usuários cadastrados</p>
+                        <p className="text-muted text-xs">12 alunos adicionados à plataforma</p>
                         <p className="text-accent text-xs">Ontem, 15:30</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start">
-                      <div className="bg-[#4a4639] p-1.5 rounded-full mr-3 mt-0.5">
+                      <div className="bg-light-2 p-1.5 rounded-full mr-3 mt-0.5 border border-primary/20">
                         <AlertCircle className="h-4 w-4 text-accent" />
                       </div>
                       <div>
-                        <p className="text-white text-sm font-medium">Alerta de engajamento</p>
-                        <p className="text-white/70 text-xs">Queda de atividade em 2 turmas do 8º ano</p>
+                        <p className="text-base text-sm font-medium">Alerta de engajamento</p>
+                        <p className="text-muted text-xs">Queda de atividade em 2 turmas do 8º ano</p>
                         <p className="text-accent text-xs">12/05, 13:15</p>
                       </div>
                     </div>
@@ -288,52 +288,52 @@ export default function ManagerDashboard() {
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">
-            <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden mb-4">
-              <div className="bg-[#4a4639] p-3 border-b border-[#D47C06]">
-                <h3 className="text-lg font-medium text-white">Relatórios</h3>
-                <p className="text-sm text-white/70">
+            <div className="bg-light border border-accent rounded-md overflow-hidden mb-4 shadow-sm">
+              <div className="bg-light-2 p-3 border-b border-primary/20">
+                <h3 className="text-lg font-medium text-base">Relatórios</h3>
+                <p className="text-sm text-muted">
                   Gere relatórios detalhados sobre o desempenho dos alunos, escolas e missões.
                 </p>
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
+                  <div className="bg-light border border-primary/30 p-3 flex flex-col items-center justify-center hover:bg-light-2 cursor-pointer transition-colors rounded-md">
                     <FileBarChart2 size={24} className="text-accent mb-2" />
-                    <span className="text-white text-sm font-medium">Desempenho por Turma</span>
+                    <span className="text-base text-sm font-medium">Desempenho por Turma</span>
                   </div>
                   
-                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
+                  <div className="bg-light border border-primary/30 p-3 flex flex-col items-center justify-center hover:bg-light-2 cursor-pointer transition-colors rounded-md">
                     <Users size={24} className="text-accent mb-2" />
-                    <span className="text-white text-sm font-medium">Engajamento de Alunos</span>
+                    <span className="text-base text-sm font-medium">Engajamento de Alunos</span>
                   </div>
                   
-                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
+                  <div className="bg-light border border-primary/30 p-3 flex flex-col items-center justify-center hover:bg-light-2 cursor-pointer transition-colors rounded-md">
                     <Book size={24} className="text-accent mb-2" />
-                    <span className="text-white text-sm font-medium">Missões Completadas</span>
+                    <span className="text-base text-sm font-medium">Missões Completadas</span>
                   </div>
                   
-                  <div className="bg-[#312e26] border border-[#D47C06] p-3 flex flex-col items-center justify-center hover:bg-[#4a4639] cursor-pointer transition-colors rounded-md">
+                  <div className="bg-light border border-primary/30 p-3 flex flex-col items-center justify-center hover:bg-light-2 cursor-pointer transition-colors rounded-md">
                     <School size={24} className="text-accent mb-2" />
-                    <span className="text-white text-sm font-medium">Desempenho por Escola</span>
+                    <span className="text-base text-sm font-medium">Desempenho por Escola</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <div className="mb-4">
-                      <h4 className="text-white text-sm font-medium mb-2">Filtros</h4>
+                      <h4 className="text-base text-sm font-medium mb-2">Filtros</h4>
                       
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Escola</label>
-                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
+                          <label className="text-muted text-xs block mb-1">Escola</label>
+                          <select className="bg-light-2 text-base border border-primary/30 rounded p-2 w-full text-sm">
                             <option value="">Todas as escolas</option>
                           </select>
                         </div>
                         
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Turma</label>
-                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
+                          <label className="text-muted text-xs block mb-1">Turma</label>
+                          <select className="bg-light-2 text-base border border-primary/30 rounded p-2 w-full text-sm">
                             <option value="">Todas as turmas</option>
                           </select>
                         </div>
@@ -341,8 +341,8 @@ export default function ManagerDashboard() {
                       
                       <div className="grid grid-cols-3 gap-4 mb-4">
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Período</label>
-                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
+                          <label className="text-muted text-xs block mb-1">Período</label>
+                          <select className="bg-light-2 text-base border border-primary/30 rounded p-2 w-full text-sm">
                             <option value="7">Últimos 7 dias</option>
                             <option value="30">Últimos 30 dias</option>
                             <option value="90">Últimos 90 dias</option>
@@ -351,15 +351,15 @@ export default function ManagerDashboard() {
                         </div>
                         
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Componente</label>
-                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
+                          <label className="text-muted text-xs block mb-1">Componente</label>
+                          <select className="bg-light-2 text-base border border-primary/30 rounded p-2 w-full text-sm">
                             <option value="">Todos os componentes</option>
                           </select>
                         </div>
                         
                         <div>
-                          <label className="text-white/70 text-xs block mb-1">Formato</label>
-                          <select className="bg-[#4a4639] text-white border border-[#D47C06] rounded p-2 w-full text-sm">
+                          <label className="text-muted text-xs block mb-1">Formato</label>
+                          <select className="bg-light-2 text-base border border-primary/30 rounded p-2 w-full text-sm">
                             <option value="pdf">PDF</option>
                             <option value="xlsx">XLSX</option>
                             <option value="csv">CSV</option>
@@ -367,7 +367,7 @@ export default function ManagerDashboard() {
                         </div>
                       </div>
                       
-                      <Button className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] hover:border-amber-400 transition-colors">
+                      <Button className="bg-light-2 border border-accent text-base px-3 py-1.5 rounded hover:bg-light/80 hover:border-accent/80 transition-colors">
                         Gerar Relatório
                       </Button>
                     </div>
