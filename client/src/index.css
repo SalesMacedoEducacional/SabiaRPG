@@ -5,56 +5,56 @@
 @tailwind utilities;
 
 :root {
-  /* Sistema de cores unificado para Sabiá RPG */
+  /* Sistema de cores unificado para Sabiá RPG - Nova Paleta Clara */
   
   /* Cores Primárias e de Ação */
-  --primary: #bf7918;
-  --primary-hover: #AD6915;
-  --primary-pressed: #8F510E;
-  --primary-contrast: #FFFFFF;
+  --primary: #A6936C;
+  --primary-hover: #8F7D59;
+  --primary-pressed: #7A6A4A;
+  --primary-contrast: #312E26;
   
-  --secondary: #3b82f6;
-  --secondary-hover: #306FDB;
-  --secondary-pressed: #2153B8;
-  --secondary-contrast: #FFFFFF;
+  --secondary: #3498DB;
+  --secondary-hover: #2980B9;
+  --secondary-pressed: #1F6DA5;
+  --secondary-contrast: #F5F2EC;
   
-  --danger: #ef4444;
-  --danger-hover: #D93636;
-  --danger-contrast: #FFFFFF;
+  --danger: #C0392B;
+  --danger-hover: #A93226;
+  --danger-contrast: #F5F2EC;
   
-  --success: #3f693f;
-  --success-hover: #335E33;
-  --success-contrast: #FFFFFF;
+  --success: #27AE60;
+  --success-hover: #229954;
+  --success-contrast: #F5F2EC;
   
-  --warning: #cb9b43;
-  --warning-hover: #B88637;
-  --warning-contrast: #000000;
+  --warning: #D4A054;
+  --warning-hover: #C2903D;
+  --warning-contrast: #312E26;
   
   /* Cores de Fundo */
-  --background-base: #140A02;
-  --background-elevated: #291A0A;
-  --background-card: #3B2B16;
-  --background-input: #43341c;
+  --background-base: #F5F2EC;
+  --background-elevated: #E0DCD1;
+  --background-card: #E8E4DA;
+  --background-input: #F0EDE8;
   
   /* Cores de Texto */
-  --text-heading: #F5F4F2;
-  --text-default: #D9D6D0;
-  --text-muted: #A19990;
-  --text-subtle: #736350;
-  --text-link: #74B4F7;
-  --text-link-hover: #3b82f6;
+  --text-heading: #312E26;
+  --text-default: #433D33;
+  --text-muted: #5A5346;
+  --text-subtle: #7A7367;
+  --text-link: #B37F32;
+  --text-link-hover: #D4A054;
   
   /* Cores de Borda */
-  --border-default: #3B2B16;
-  --border-focus: #bf7918;
-  --border-card: #43341c;
+  --border-default: #A6936C;
+  --border-focus: #D4A054;
+  --border-card: #C5B99D;
   
   /* Cores de Gráficos */
-  --graph-purple: #a855f7;
-  --graph-red: #ef4444;
-  --graph-blue: #3b82f6;
-  --graph-green: #3f693f;
-  --graph-yellow: #cb9b43;
+  --graph-purple: #9C59B6;
+  --graph-red: #C0392B;
+  --graph-blue: #3498DB;
+  --graph-green: #27AE60;
+  --graph-yellow: #D4A054;
   
   /* Compatibilidade com nomes antigos */
   --background: 31 90% 4%;   /* #140A02 */
@@ -102,52 +102,52 @@
   --manager-hover: 36 40% 22%; /* #493722 */
 }
 
-/* Classes utilitárias para o painel do gestor baseadas nas imagens de referência */
+/* Classes utilitárias para o painel do gestor baseadas na nova paleta clara */
 @layer components {
   /* Classes principais do sistema baseadas na nova paleta de cores */
   .btn-primary {
-    @apply bg-primary hover:bg-[#AD6915] text-white py-2 px-4 rounded transition-colors;
+    @apply bg-primary hover:bg-primary-hover text-base py-2 px-4 rounded transition-colors;
   }
   
   .btn-secondary {
-    @apply bg-secondary hover:bg-[#306FDB] text-white py-2 px-4 rounded transition-colors;
+    @apply bg-secondary hover:bg-secondary-hover text-light py-2 px-4 rounded transition-colors;
   }
   
   .btn-danger {
-    @apply bg-danger hover:bg-[#D93636] text-white py-2 px-4 rounded transition-colors;
+    @apply bg-danger hover:bg-danger-hover text-light py-2 px-4 rounded transition-colors;
   }
   
   .btn-success {
-    @apply bg-success hover:bg-[#335E33] text-white py-2 px-4 rounded transition-colors;
+    @apply bg-success hover:bg-success-hover text-light py-2 px-4 rounded transition-colors;
   }
   
   .btn-warning {
-    @apply bg-warning hover:bg-[#B88637] text-black py-2 px-4 rounded transition-colors;
+    @apply bg-warning hover:bg-warning-hover text-base py-2 px-4 rounded transition-colors;
   }
   
   .card {
-    @apply bg-[#4a4639] border border-[#4a4639] p-4 rounded-md text-[#D9D6D0];
+    @apply bg-light-2 border border-primary p-4 rounded-md text-base;
   }
   
   .card-header {
-    @apply border-b border-[#57533f] py-3 px-4 mb-4;
+    @apply border-b border-primary/50 py-3 px-4 mb-4;
   }
   
   .input-field {
-    @apply bg-[#57533f] text-[#D9D6D0] text-sm p-2 border border-[#4a4639] focus:border-[#bf7918] rounded w-full;
+    @apply bg-light text-base text-sm p-2 border border-primary focus:border-accent rounded w-full;
   }
   
   .select-field {
-    @apply bg-[#57533f] text-[#D9D6D0] text-sm p-2 border border-[#4a4639] focus:border-[#bf7918] rounded w-full;
+    @apply bg-light text-base text-sm p-2 border border-primary focus:border-accent rounded w-full;
   }
   
   /* Classes específicas para o painel do gestor (para manter compatibilidade) */
   .manager-card {
-    @apply bg-[#312e26] border border-[#bf7918] rounded-md;
+    @apply bg-light border border-accent rounded-md;
   }
   
   .manager-card-header {
-    @apply border-b border-[#bf7918] py-2 px-4;
+    @apply border-b border-accent py-2 px-4;
   }
   
   .manager-button {

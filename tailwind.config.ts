@@ -16,91 +16,88 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        // Nova paleta de cores unificada
-        primary: {
-          DEFAULT: '#bf7918', // Brandy Punch 500
-          hover: '#AD6915',
-          pressed: '#8F510E',
-          contrast: '#FFFFFF'
+        light: "#F5F2EC",  // fundo principal claro
+        "light-2": "#E0DCD1",  // fundo secundário claro
+        base: "#312E26",  // texto principal escuro
+        muted: "#5A5346",  // texto secundário
+        accent: "#D4A054",  // destaque dourado (mantido)
+        primary: "#A6936C",  // bordas e separadores terrosos suaves
+        danger: "#C0392B",  // alertas/erros
+        
+        // Mantendo compatibilidade com cores de componentes existentes
+        destructive: {
+          DEFAULT: "#C0392B",
+          foreground: "#F5F2EC",
         },
-        secondary: {
-          DEFAULT: '#3b82f6', // Azure Radiance 500
-          hover: '#306FDB',
-          pressed: '#2153B8',
-          contrast: '#FFFFFF'
-        },
-        danger: {
-          DEFAULT: '#ef4444', // Cinnabar 500
-          hover: '#D93636',
-          contrast: '#FFFFFF'
-        },
-        success: {
-          DEFAULT: '#3f693f', // Killarney 500
-          hover: '#335E33',
-          contrast: '#FFFFFF'
-        },
-        warning: {
-          DEFAULT: '#cb9b43', // Tussock 500
-          hover: '#B88637',
-          contrast: '#000000'
-        },
+        
+        // Background - agora cores claras
         background: {
-          base: '#312e26', // Nova cor de fundo mais escura
-          elevated: '#3d3a31', // Ajustado para ser um pouco mais claro que o base
-          card: '#4a4639', // Ajustado para ser um pouco mais claro que o elevated
-          input: '#57533f', // Ajustado para ser um pouco mais claro que o card
+          base: '#F5F2EC', 
+          elevated: '#E0DCD1',
+          card: '#E8E4DA',
+          input: '#F0EDE8',
         },
+        
+        // Texto - agora escuro sobre fundo claro
         text: {
-          heading: '#F5F4F2', // Zorba 100
-          default: '#D9D6D0', // Zorba 300
-          muted: '#A19990',   // Zorba 500
-          subtle: '#736350',  // Zorba 700
-          link: '#74B4F7',
-          link_hover: '#3b82f6',
+          heading: '#312E26',
+          default: '#433D33',
+          muted: '#5A5346',
+          subtle: '#7A7367',
+          link: '#B37F32',
+          link_hover: '#D4A054',
         },
+        
+        // Bordas - mantendo tons terrosos
         border: {
-          DEFAULT: '#3B2B16',
-          focus: '#bf7918',
-          card: '#43341c',
+          DEFAULT: '#A6936C',
+          focus: '#D4A054',
+          card: '#C5B99D',
         },
+        
+        // Gráficos - mantendo as cores originais para destaque
         graph: {
-          purple: '#a855f7',
-          red: '#ef4444',
-          blue: '#3b82f6',
-          green: '#3f693f',
-          yellow: '#cb9b43',
+          purple: '#9C59B6',
+          red: '#C0392B',
+          blue: '#3498DB',
+          green: '#27AE60',
+          yellow: '#D4A054',
         },
+        
         // Mantendo compatibilidade com a estrutura anterior
         parchment: {
-          DEFAULT: "#D9D6D0",
-          light: "#F5F4F2",
-          dark: "#A19990",
+          DEFAULT: "#F5F2EC", // atualizado para novo esquema
+          light: "#FFFFFF",
+          dark: "#E0DCD1",
         },
+        
         dark: {
-          DEFAULT: "#312e26",
-          light: "#4a4639",
+          DEFAULT: "#312E26", // mantido como estava para referências existentes
+          light: "#4A4639",
           dark: "#262420",
         },
+        
+        // Mantendo accent com novo valor
         accent: {
-          DEFAULT: "#bf7918",
-          light: "#cb9b43",
-          dark: "#8F510E",
+          DEFAULT: "#D4A054",
+          light: "#E5BB7B",
+          dark: "#B37F32",
           foreground: "#FFFFFF",
         },
-        destructive: {
-          DEFAULT: "#ef4444",
-          foreground: "#FFFFFF",
-        },
+        
+        // Ajustando muted para nova paleta
         muted: {
-          DEFAULT: "#736350",
-          foreground: "#D9D6D0",
+          DEFAULT: "#5A5346",
+          foreground: "#F5F2EC",
         },
+        
+        // Mantendo chart para compatibilidade
         chart: {
-          "1": "#a855f7",
-          "2": "#ef4444",
-          "3": "#3b82f6",
-          "4": "#3f693f",
-          "5": "#cb9b43",
+          "1": "#9C59B6",
+          "2": "#C0392B",
+          "3": "#3498DB",
+          "4": "#27AE60",
+          "5": "#D4A054",
         },
       },
       keyframes: {
