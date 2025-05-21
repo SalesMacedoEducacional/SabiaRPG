@@ -6,8 +6,9 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
-// Importando o dashboard do gestor
+// Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
+import ManagerDashboardModerno from "@/pages/ManagerDashboardModerno";
 import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistration from "@/pages/UserRegistration";
 import ClassRegistration from "@/pages/ClassRegistration";
