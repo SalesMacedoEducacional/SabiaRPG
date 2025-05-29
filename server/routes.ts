@@ -1511,9 +1511,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from('perfis_professor')
         .select(`
           id,
-          usuarios!inner(
+          usuarios!perfis_professor_usuario_id_fkey(
             id,
-            nome_completo,
+            nome,
             cpf,
             telefone,
             email
@@ -1579,28 +1579,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(200).json({ total: 0, alunos: [] });
       }
 
-      const turmaIds = turmas.map(turma => turma.id);
-
-      // Buscar alunos vinculados às turmas das escolas do gestor
+      // Buscar alunos (usuários com papel 'student' que possuem turmas vinculadas)
       const { data: alunos, error: alunosError } = await supabase
-        .from('perfis_aluno')
+        .from('usuarios')
         .select(`
           id,
-          usuarios!inner(
-            id,
-            nome_completo,
-            cpf,
-            email
-          ),
-          turmas!inner(
-            id,
-            nome
-          ),
-          matriculas(
-            numero_matricula
-          )
+          nome,
+          cpf,
+          email
         `)
-        .in('turma_id', turmaIds);
+        .eq('papel', 'student');
 
       if (alunosError) {
         console.error('Erro ao buscar alunos:', alunosError);
