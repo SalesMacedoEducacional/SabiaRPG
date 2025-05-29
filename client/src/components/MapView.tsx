@@ -110,7 +110,7 @@ const MapView: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useMobile();
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(0.3);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -118,11 +118,11 @@ const MapView: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.25, 2.5));
+    setZoomLevel(prev => Math.min(prev + 0.1, 1.0));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.25, 0.75));
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.2));
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -289,7 +289,7 @@ const MapView: React.FC = () => {
           <Button 
             onClick={handleZoomIn} 
             className="w-10 h-10 rounded-full flex items-center justify-center bg-dark border border-primary hover:bg-primary transition"
-            disabled={zoomLevel >= 2.5}
+            disabled={zoomLevel >= 1.0}
             variant="ghost"
             size="icon"
           >
@@ -298,7 +298,7 @@ const MapView: React.FC = () => {
           <Button 
             onClick={handleZoomOut} 
             className="w-10 h-10 rounded-full flex items-center justify-center bg-dark border border-primary hover:bg-primary transition"
-            disabled={zoomLevel <= 0.75}
+            disabled={zoomLevel <= 0.2}
             variant="ghost"
             size="icon"
           >
