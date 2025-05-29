@@ -348,11 +348,17 @@ export default function ManagerDashboardModerno() {
                   <p className="text-white/70">Painel de controle principal</p>
                 </div>
                 <div className="flex mt-2 md:mt-0 gap-2">
-                  <button className="manager-button flex items-center gap-1.5">
+                  <button 
+                    className="manager-button flex items-center gap-1.5"
+                    onClick={() => navigate('/school-registration')}
+                  >
                     <PlusCircle size={16} />
                     <span>Nova Escola</span>
                   </button>
-                  <button className="manager-button flex items-center gap-1.5">
+                  <button 
+                    className="manager-button flex items-center gap-1.5"
+                    onClick={() => navigate('/user-registration')}
+                  >
                     <UserPlus size={16} />
                     <span>Novo Usuário</span>
                   </button>

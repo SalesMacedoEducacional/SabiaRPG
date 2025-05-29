@@ -1477,6 +1477,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rotas específicas para gestores acessarem dados de professores e alunos
+  app.get("/api/professores", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      console.log("Verificando permissão: Papel do usuário (gestor/manager), Papéis permitidos: manager");
+      
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      console.log("Verificando escola vinculada ao gestor:", userId);
+
+      // Buscar escolas vinculadas ao gestor
+      const { data: escolas, error: escolasError } = await supabase
+        .from('escolas')
+        .select('id')
+        .eq('gestor_id', userId);
+
+      if (escolasError) {
+        console.error('Erro ao buscar escolas do gestor:', escolasError);
+        return res.status(500).json({ message: 'Erro ao buscar escolas', error: escolasError.message });
+      }
+
+      if (!escolas || escolas.length === 0) {
+        return res.status(200).json({ total: 0, professores: [] });
+      }
+
+      const escolaIds = escolas.map(escola => escola.id);
+
+      // Buscar professores vinculados às escolas do gestor
+      const { data: professores, error: professoresError } = await supabase
+        .from('perfis_professor')
+        .select(`
+          id,
+          usuarios!inner(
+            id,
+            nome_completo,
+            cpf,
+            telefone,
+            email
+          )
+        `)
+        .in('escola_id', escolaIds);
+
+      if (professoresError) {
+        console.error('Erro ao buscar professores:', professoresError);
+        return res.status(500).json({ message: 'Erro ao buscar professores', error: professoresError.message });
+      }
+
+      res.status(200).json({ 
+        total: professores?.length || 0, 
+        professores: professores || [] 
+      });
+    } catch (error) {
+      console.error("Erro ao buscar professores:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  app.get("/api/alunos", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      console.log("Verificando permissão: Papel do usuário (gestor/manager), Papéis permitidos: manager");
+      
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      console.log("Verificando escola vinculada ao gestor:", userId);
+
+      // Buscar escolas vinculadas ao gestor
+      const { data: escolas, error: escolasError } = await supabase
+        .from('escolas')
+        .select('id')
+        .eq('gestor_id', userId);
+
+      if (escolasError) {
+        console.error('Erro ao buscar escolas do gestor:', escolasError);
+        return res.status(500).json({ message: 'Erro ao buscar escolas', error: escolasError.message });
+      }
+
+      if (!escolas || escolas.length === 0) {
+        return res.status(200).json({ total: 0, alunos: [] });
+      }
+
+      const escolaIds = escolas.map(escola => escola.id);
+
+      // Buscar turmas das escolas do gestor
+      const { data: turmas, error: turmasError } = await supabase
+        .from('turmas')
+        .select('id')
+        .in('escola_id', escolaIds);
+
+      if (turmasError) {
+        console.error('Erro ao buscar turmas:', turmasError);
+        return res.status(500).json({ message: 'Erro ao buscar turmas', error: turmasError.message });
+      }
+
+      if (!turmas || turmas.length === 0) {
+        return res.status(200).json({ total: 0, alunos: [] });
+      }
+
+      const turmaIds = turmas.map(turma => turma.id);
+
+      // Buscar alunos vinculados às turmas das escolas do gestor
+      const { data: alunos, error: alunosError } = await supabase
+        .from('perfis_aluno')
+        .select(`
+          id,
+          usuarios!inner(
+            id,
+            nome_completo,
+            cpf,
+            email
+          ),
+          turmas!inner(
+            id,
+            nome
+          ),
+          matriculas(
+            numero_matricula
+          )
+        `)
+        .in('turma_id', turmaIds);
+
+      if (alunosError) {
+        console.error('Erro ao buscar alunos:', alunosError);
+        return res.status(500).json({ message: 'Erro ao buscar alunos', error: alunosError.message });
+      }
+
+      res.status(200).json({ 
+        total: alunos?.length || 0, 
+        alunos: alunos || [] 
+      });
+    } catch (error) {
+      console.error("Erro ao buscar alunos:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
   
