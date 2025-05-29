@@ -39,7 +39,7 @@ interface MapLocationProps {
 const MapLocation: React.FC<MapLocationProps> = ({ village, onClick }) => {
   return (
     <div 
-      className="map-point absolute cursor-pointer group transform hover:scale-110 transition-all duration-200"
+      className="map-point absolute cursor-pointer group"
       style={{
         top: `${village.coordinates.y}%`,
         left: `${village.coordinates.x}%`,
@@ -48,9 +48,8 @@ const MapLocation: React.FC<MapLocationProps> = ({ village, onClick }) => {
       onClick={onClick}
     >
       <div className="relative">
-        {/* Ponto de localização */}
-        <div className="w-6 h-6 bg-red-600 border-2 border-yellow-400 rounded-full flex items-center justify-center shadow-lg z-10 animate-pulse">
-          <div className="w-2 h-2 bg-yellow-200 rounded-full"></div>
+        {/* Ponto de localização quase transparente */}
+        <div className="w-4 h-4 bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 rounded-full hover:bg-opacity-60 hover:border-opacity-80 transition-all duration-200 z-10">
         </div>
         
         {/* Tooltip hover */}
@@ -64,12 +63,12 @@ const MapLocation: React.FC<MapLocationProps> = ({ village, onClick }) => {
   );
 };
 
-// Dados dos vilarejos baseados na imagem do mapa
+// Dados dos vilarejos baseados na imagem do mapa, com coordenadas precisas
 const villages: Village[] = [
   {
     id: 1,
     name: "Teresina",
-    coordinates: { x: 50, y: 65 },
+    coordinates: { x: 50, y: 65 }, // Castelo central no mapa
     description: "Capital do Piauí, centro do reino",
     historicalInfo: "Teresina foi fundada em 1852 como a primeira capital planejada do Brasil. Localizada na confluência dos rios Parnaíba e Poti, foi estrategicamente posicionada para ser o centro político e econômico do estado. A cidade recebeu o nome em homenagem à Imperatriz Teresa Cristina, esposa de Dom Pedro II.",
     founded: "1852",
@@ -79,9 +78,9 @@ const villages: Village[] = [
   {
     id: 2,
     name: "Parnaíba",
-    coordinates: { x: 35, y: 25 },
+    coordinates: { x: 35, y: 25 }, // Porto no norte
     description: "Porto histórico do Delta do Parnaíba",
-    historicalInfo: "Parnaíba é uma das cidades mais antigas do Piauí, fundada no século XVIII. Localizada na foz do rio Parnaíba, foi um importante porto comercial que conectava o interior do estado ao oceano Atlântico. A cidade preserva um rico patrimônio arquitetônico colonial e é a porta de entrada para o Delta do Parnaíba.",
+    historicalInfo: "Parnaíba é uma das cidades mais antigas do Piauí, fundada no século XVIII. Localizada na foz do rio Parnaíba, foi um importante porto comercial que conectava o interior do estado ao oceano Atlântico.",
     founded: "Século XVIII",
     population: "Aproximadamente 150 mil habitantes",
     characteristics: ["Porto histórico", "Delta do Parnaíba", "Patrimônio colonial", "Turismo ecológico"]
@@ -89,9 +88,9 @@ const villages: Village[] = [
   {
     id: 3,
     name: "Altos",
-    coordinates: { x: 45, y: 48 },
+    coordinates: { x: 45, y: 48 }, // Vila no centro-norte
     description: "Cidade serrana com tradições culturais",
-    historicalInfo: "Altos é conhecida por sua localização em região de serras e morros, oferecendo um clima mais ameno. A cidade tem forte tradição na produção agrícola e pecuária, além de ser reconhecida por suas manifestações culturais típicas do interior piauiense.",
+    historicalInfo: "Altos é conhecida por sua localização em região de serras e morros, oferecendo um clima mais ameno. A cidade tem forte tradição na produção agrícola e pecuária.",
     founded: "Século XIX",
     population: "Aproximadamente 40 mil habitantes",
     characteristics: ["Região serrana", "Clima ameno", "Tradições rurais", "Agricultura"]
@@ -99,9 +98,9 @@ const villages: Village[] = [
   {
     id: 4,
     name: "Floriano",
-    coordinates: { x: 55, y: 58 },
+    coordinates: { x: 55, y: 58 }, // Vila no centro
     description: "Centro comercial do centro-sul",
-    historicalInfo: "Floriano é uma importante cidade do centro-sul piauiense, conhecida por sua pujança econômica e comercial. A cidade se desenvolveu às margens do rio Parnaíba e tornou-se um centro de distribuição e comércio para toda a região circunvizinha.",
+    historicalInfo: "Floriano é uma importante cidade do centro-sul piauiense, conhecida por sua pujança econômica e comercial. A cidade se desenvolveu às margens do rio Parnaíba.",
     founded: "1897",
     population: "Aproximadamente 60 mil habitantes",
     characteristics: ["Centro comercial", "Rio Parnaíba", "Economia forte", "Distribuição regional"]
@@ -109,82 +108,82 @@ const villages: Village[] = [
   {
     id: 5,
     name: "Oeiras",
-    coordinates: { x: 68, y: 70 },
+    coordinates: { x: 68, y: 70 }, // Vila no centro-leste
     description: "Primeira capital do Piauí",
-    historicalInfo: "Oeiras foi a primeira capital do Piauí, de 1759 a 1852. A cidade possui um valioso conjunto arquitetônico colonial e é considerada Patrimônio Histórico Nacional. Foi o centro administrativo da capitania e depois província do Piauí por quase um século.",
+    historicalInfo: "Oeiras foi a primeira capital do Piauí, de 1759 a 1852. A cidade possui um valioso conjunto arquitetônico colonial e é considerada Patrimônio Histórico Nacional.",
     founded: "1712",
     population: "Aproximadamente 35 mil habitantes",
-    characteristics: ["Primeira capital", "Patrimônio histórico", "Arquitetura colonial", "Centro administrativo antigo"]
+    characteristics: ["Primeira capital", "Patrimônio histórico", "Arquitetura colonial"]
   },
   {
     id: 6,
     name: "Picos",
-    coordinates: { x: 72, y: 82 },
+    coordinates: { x: 72, y: 82 }, // Vila no sul
     description: "Centro do sertão piauiense",
-    historicalInfo: "Picos é uma das principais cidades do interior do Piauí, localizada na região semiárida. A cidade desenvolveu-se como centro comercial e de serviços para a região do sertão, sendo conhecida por sua resistência e adaptação ao clima seco.",
+    historicalInfo: "Picos é uma das principais cidades do interior do Piauí, localizada na região semiárida. A cidade desenvolveu-se como centro comercial e de serviços.",
     founded: "1890",
     population: "Aproximadamente 80 mil habitantes",
-    characteristics: ["Sertão piauiense", "Centro comercial", "Clima semiárido", "Resistência cultural"]
+    characteristics: ["Sertão piauiense", "Centro comercial", "Clima semiárido"]
   },
   {
     id: 7,
     name: "Queluzana",
-    coordinates: { x: 78, y: 68 },
+    coordinates: { x: 78, y: 68 }, // Vila rural no leste
     description: "Vila rural com tradições sertanejas",
-    historicalInfo: "Queluzana é uma pequena comunidade rural que representa as tradições do sertão piauiense. A localidade mantém vivas as práticas culturais típicas do interior, como a agricultura de subsistência e as festividades religiosas tradicionais.",
+    historicalInfo: "Queluzana é uma pequena comunidade rural que representa as tradições do sertão piauiense. A localidade mantém vivas as práticas culturais típicas do interior.",
     founded: "Século XIX",
     population: "Aproximadamente 3 mil habitantes",
-    characteristics: ["Comunidade rural", "Tradições sertanejas", "Agricultura de subsistência", "Festividades religiosas"]
+    characteristics: ["Comunidade rural", "Tradições sertanejas", "Agricultura de subsistência"]
   },
   {
     id: 8,
     name: "Bom Jesus",
-    coordinates: { x: 82, y: 35 },
+    coordinates: { x: 82, y: 35 }, // Vila no nordeste
     description: "Portal do MATOPIBA",
-    historicalInfo: "Bom Jesus é conhecida como a 'Capital do Agronegócio' do Piauí e portal de entrada da região do MATOPIBA. A cidade experimentou grande crescimento econômico com a expansão da fronteira agrícola, tornando-se centro de produção de grãos.",
+    historicalInfo: "Bom Jesus é conhecida como a 'Capital do Agronegócio' do Piauí e portal de entrada da região do MATOPIBA. A cidade experimentou grande crescimento econômico.",
     founded: "1938",
     population: "Aproximadamente 25 mil habitantes",
-    characteristics: ["Agronegócio", "MATOPIBA", "Fronteira agrícola", "Produção de grãos"]
+    characteristics: ["Agronegócio", "MATOPIBA", "Fronteira agrícola"]
   },
   {
     id: 9,
     name: "Piripiri",
-    coordinates: { x: 75, y: 42 },
+    coordinates: { x: 75, y: 42 }, // Vila no nordeste
     description: "Terra dos cajueiros",
-    historicalInfo: "Piripiri é famosa pela produção de caju e por estar próxima ao Parque Nacional de Sete Cidades. A cidade desenvolveu-se com base na agricultura e no comércio, mantendo forte ligação com as tradições rurais piauienses.",
+    historicalInfo: "Piripiri é famosa pela produção de caju e por estar próxima ao Parque Nacional de Sete Cidades. A cidade mantém forte ligação com as tradições rurais.",
     founded: "1930",
     population: "Aproximadamente 65 mil habitantes",
-    characteristics: ["Produção de caju", "Sete Cidades", "Agricultura", "Tradições rurais"]
+    characteristics: ["Produção de caju", "Sete Cidades", "Agricultura"]
   },
   {
     id: 10,
     name: "Campo Maior",
-    coordinates: { x: 68, y: 85 },
+    coordinates: { x: 68, y: 85 }, // Acampamento no sul
     description: "Berço da cultura piauiense",
-    historicalInfo: "Campo Maior é conhecida como berço de importantes manifestações culturais piauienses e por ter sido terra natal de figuras históricas importantes. A cidade possui rica tradição em festivais folclóricos e celebrações religiosas.",
+    historicalInfo: "Campo Maior é conhecida como berço de importantes manifestações culturais piauienses e por ter sido terra natal de figuras históricas importantes.",
     founded: "1761",
     population: "Aproximadamente 50 mil habitantes",
-    characteristics: ["Cultura piauiense", "Manifestações folclóricas", "Tradição religiosa", "Figuras históricas"]
+    characteristics: ["Cultura piauiense", "Manifestações folclóricas", "Tradição religiosa"]
   },
   {
     id: 11,
     name: "Barras",
-    coordinates: { x: 28, y: 68 },
+    coordinates: { x: 28, y: 68 }, // Vila no oeste
     description: "Portal de entrada oeste",
-    historicalInfo: "Barras localiza-se na região oeste do estado, servindo como porta de entrada para quem vem de estados vizinhos. A cidade desenvolveu-se com base na pecuária e agricultura, mantendo características típicas do interior piauiense.",
+    historicalInfo: "Barras localiza-se na região oeste do estado, servindo como porta de entrada para quem vem de estados vizinhos. A cidade desenvolveu-se com base na pecuária.",
     founded: "1870",
     population: "Aproximadamente 45 mil habitantes",
-    characteristics: ["Portal oeste", "Pecuária", "Agricultura", "Interior típico"]
+    characteristics: ["Portal oeste", "Pecuária", "Agricultura"]
   },
   {
     id: 12,
     name: "São Raimundo Nonato",
-    coordinates: { x: 15, y: 45 },
+    coordinates: { x: 15, y: 45 }, // Vila no oeste
     description: "Terra dos sítios arqueológicos",
-    historicalInfo: "São Raimundo Nonato é mundialmente conhecida por abrigar o Parque Nacional da Serra da Capivara, com os mais antigos vestígios de presença humana nas Américas. A cidade é centro de importante patrimônio arqueológico mundial.",
+    historicalInfo: "São Raimundo Nonato é mundialmente conhecida por abrigar o Parque Nacional da Serra da Capivara, com os mais antigos vestígios de presença humana nas Américas.",
     founded: "1912",
     population: "Aproximadamente 35 mil habitantes",
-    characteristics: ["Serra da Capivara", "Patrimônio arqueológico", "Vestígios humanos antigos", "Patrimônio mundial"]
+    characteristics: ["Serra da Capivara", "Patrimônio arqueológico", "Vestígios humanos antigos"]
   }
 ];
 
@@ -280,12 +279,12 @@ const MapView: React.FC = () => {
               {/* Map Content */}
               <div className="relative bg-amber-100 rounded-lg overflow-hidden border-4 border-amber-700 shadow-2xl">
                 {/* Map Image */}
-                <div className="relative w-full" style={{ paddingTop: '75%' }}>
+                <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
                   {/* Mapa de Teresina */}
                   <img 
                     src={mapImage}
                     alt="Mapa de Teresina e região - Estilo RPG medieval" 
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-contain"
                   />
                   
                   {/* Pontos interativos dos vilarejos */}
