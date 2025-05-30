@@ -11,6 +11,7 @@ import {
 } from './ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
+import mapaImage from '@/assets/mapa.png';
 
 interface MapLocationProps {
   location: {
@@ -230,9 +231,9 @@ const MapView: React.FC = () => {
               <div className="relative w-full h-full">
                 {/* Map Illustration */}
                 <img 
-                  src="https://images.unsplash.com/photo-1519009647776-5bbd5b7ada80?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Mapa do Piauí em estilo RPG medieval" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-90"
+                  src={mapaImage} 
+                  alt="Reino Educacional do Piauí - Mapa Interativo" 
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
                 
                 {/* Map Locations - Interactive Points */}
