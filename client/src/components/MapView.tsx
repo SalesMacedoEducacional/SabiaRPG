@@ -12,8 +12,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
 import mapaImage from '@/assets/mapa.png';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Info, MapPin } from 'lucide-react';
 
 interface MapLocationProps {
   location: {
@@ -118,7 +119,8 @@ const MapView: React.FC = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [showCityInfo, setShowCityInfo] = useState(false);
 
   // Dados das cidades do Reino Educacional do Piauí
   const cityInfo = {
@@ -232,21 +234,28 @@ const MapView: React.FC = () => {
     }
   };
 
-  // Posições dos pontos informativos no mapa (em porcentagem)
-  const cityPoints = [
-    { id: 'teresina', x: 50, y: 35, name: 'Teresina' },
-    { id: 'serra-capivara', x: 20, y: 70, name: 'Serra da Capivara' },
-    { id: 'parnaiba', x: 25, y: 15, name: 'Parnaíba' },
-    { id: 'oeiras', x: 70, y: 60, name: 'Oeiras' },
-    { id: 'bom-jesus', x: 85, y: 25, name: 'Bom Jesus' },
-    { id: 'floriano', x: 65, y: 45, name: 'Floriano' },
-    { id: 'picos', x: 85, y: 50, name: 'Picos' },
-    { id: 'piracuruca', x: 30, y: 25, name: 'Piracuruca' },
-    { id: 'jaicos', x: 45, y: 65, name: 'Jaicós' },
-    { id: 'barras', x: 40, y: 80, name: 'Barras' },
-    { id: 'paulistana', x: 75, y: 75, name: 'Paulistana' },
-    { id: 'campo-maior', x: 90, y: 85, name: 'Campo Maior' }
+  // Lista de cidades para o menu dropdown
+  const cityList = [
+    { id: 'teresina', name: 'Teresina – A Cidade das Duas Correntes' },
+    { id: 'serra-capivara', name: 'Serra da Capivara – O Desfiladeiro Ancestral' },
+    { id: 'parnaiba', name: 'Delta do Parnaíba – As Corredeiras Encantadas' },
+    { id: 'oeiras', name: 'Oeiras – O Enclave Barroco' },
+    { id: 'bom-jesus', name: 'Bom Jesus – Os Morros da Fé' },
+    { id: 'floriano', name: 'Floriano – A Ponte dos Destinos' },
+    { id: 'picos', name: 'Picos – A Feira do Crepúsculo' },
+    { id: 'piracuruca', name: 'Piracuruca – A Estação dos Vagões de Fumaça' },
+    { id: 'jaicos', name: 'Jaicós – O Santuário dos Ritmos' },
+    { id: 'barras', name: 'Barras – O Bazar das Mil Estrelas' },
+    { id: 'paulistana', name: 'Paulistana – As Planícies da Locomotiva' },
+    { id: 'campo-maior', name: 'Campo Maior – O Vale dos Canhões' }
   ];
+
+  const handleCitySelect = (cityId: string) => {
+    setSelectedCity(cityId);
+    if (cityId) {
+      setShowCityInfo(true);
+    }
+  };
 
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 2.5));
@@ -325,6 +334,59 @@ const MapView: React.FC = () => {
 
   return (
     <div className="relative flex-1 overflow-hidden">
+      {/* Menu Informativo no Canto Superior */}
+      <div className="absolute top-4 left-4 z-20 bg-parchment/95 border-2 border-primary rounded-lg p-4 shadow-lg min-w-[300px]">
+        <div className="flex items-center gap-2 mb-3">
+          <MapPin className="text-primary" size={20} />
+          <h3 className="text-primary font-bold text-lg">Reino Educacional do Piauí</h3>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-dark-light font-medium text-sm">Explorar Vilarejo:</label>
+          <Select value={selectedCity} onValueChange={handleCitySelect}>
+            <SelectTrigger className="bg-white border-primary">
+              <SelectValue placeholder="Selecione um vilarejo para conhecer..." />
+            </SelectTrigger>
+            <SelectContent className="bg-parchment border-primary max-h-60">
+              {cityList.map(city => (
+                <SelectItem key={city.id} value={city.id} className="hover:bg-primary/10">
+                  {city.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Modal com Informações da Cidade */}
+      <Dialog open={showCityInfo} onOpenChange={setShowCityInfo}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-parchment border-primary">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-primary mb-2">
+              {selectedCity && cityInfo[selectedCity as keyof typeof cityInfo]?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedCity && (
+            <div className="space-y-4">
+              <p className="text-dark-light font-medium leading-relaxed">
+                {cityInfo[selectedCity as keyof typeof cityInfo]?.description}
+              </p>
+              <div className="space-y-3">
+                <h4 className="text-lg font-semibold text-primary">Características Místicas:</h4>
+                <ul className="space-y-2">
+                  {cityInfo[selectedCity as keyof typeof cityInfo]?.features.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-accent mt-1">•</span>
+                      <span className="text-dark-light text-sm leading-relaxed">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Map Container */}
       <div 
         id="map-container" 
