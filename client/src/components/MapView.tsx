@@ -427,12 +427,14 @@ const MapView: React.FC = () => {
         }}
       >
         {/* Interactive Map Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex items-center justify-center p-8">
           <div 
             className="relative transform-gpu"
             style={{
               width: '1536px',
               height: '1024px',
+              maxWidth: 'calc(100vw - 64px)',
+              maxHeight: 'calc(100vh - 120px)',
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})`,
               transition: isDragging ? 'none' : 'transform 0.2s ease-out'
             }}
@@ -448,7 +450,7 @@ const MapView: React.FC = () => {
                 <img 
                   src={mapaImage} 
                   alt="Reino Educacional do Piauí - Mapa Interativo" 
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-fill"
                 />
                 
 
