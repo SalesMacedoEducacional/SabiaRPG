@@ -213,8 +213,10 @@ const MapView: React.FC = () => {
         {/* Interactive Map Overlay */}
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div 
-            className="relative w-full max-w-4xl transform-gpu"
+            className="relative transform-gpu"
             style={{
+              width: '1536px',
+              height: '1024px',
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})`,
               transition: isDragging ? 'none' : 'transform 0.2s ease-out'
             }}
@@ -223,9 +225,9 @@ const MapView: React.FC = () => {
             <div className="absolute inset-0 border-8 border-primary rounded-xl opacity-70"></div>
             
             {/* Map Content */}
-            <div className="relative bg-parchment-dark rounded-lg overflow-hidden">
+            <div className="relative bg-parchment-dark rounded-lg overflow-hidden w-full h-full">
               {/* Map Image */}
-              <div className="relative w-full" style={{ paddingTop: '75%' }}>
+              <div className="relative w-full h-full">
                 {/* Map Illustration */}
                 <img 
                   src="https://images.unsplash.com/photo-1519009647776-5bbd5b7ada80?q=80&w=1000&auto=format&fit=crop" 
