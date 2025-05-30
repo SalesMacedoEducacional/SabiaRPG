@@ -367,46 +367,7 @@ const MapView: React.FC = () => {
                   className="absolute inset-0 w-full h-full object-contain"
                 />
                 
-                {/* Pontos Informativos das Cidades */}
-                {cityPoints.map(point => (
-                  <Dialog key={point.id}>
-                    <DialogTrigger asChild>
-                      <button
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-accent shadow-lg transition-all duration-200 hover:scale-110 z-10"
-                        style={{
-                          left: `${point.x}%`,
-                          top: `${point.y}%`
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Info size={16} />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-parchment border-primary">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-primary mb-2">
-                          {cityInfo[point.id as keyof typeof cityInfo]?.name}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <p className="text-dark-light font-medium leading-relaxed">
-                          {cityInfo[point.id as keyof typeof cityInfo]?.description}
-                        </p>
-                        <div className="space-y-3">
-                          <h4 className="text-lg font-semibold text-primary">Características Místicas:</h4>
-                          <ul className="space-y-2">
-                            {cityInfo[point.id as keyof typeof cityInfo]?.features.map((feature, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-accent mt-1">•</span>
-                                <span className="text-dark-light text-sm leading-relaxed">{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                ))}
+
 
                 {/* Map Locations - Interactive Points */}
                 {locations.map(location => (
