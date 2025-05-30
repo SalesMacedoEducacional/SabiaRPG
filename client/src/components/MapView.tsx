@@ -12,6 +12,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
 import mapaImage from '@/assets/mapa.png';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Info } from 'lucide-react';
 
 interface MapLocationProps {
   location: {
@@ -116,6 +118,135 @@ const MapView: React.FC = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+
+  // Dados das cidades do Reino Educacional do Piauí
+  const cityInfo = {
+    'teresina': {
+      name: 'Teresina – A Cidade das Duas Correntes',
+      description: 'Fortaleza Arcanomural: As muralhas de pedra negra são cravadas de runas que se acendem à noite, alimentadas pelo cristal pulsante no centro.',
+      features: [
+        'Esfera do Conclave: O cristal mágico emite um brilho prateado que flutua acima da praça central, conferindo proteção contra ataques de criaturas sombrias.',
+        'Legião dos Vigias Azuis: Guardiões encapuzados patrulham torres gêmeas, montados em grifos menores.',
+        'Rios Viventes: As fitas azuis formam o "Caminho de Lamen", correntes encantadas que conduzem viajantes místicos até portais submersos.',
+        'Mercadores de Pergaminhos: Ao longo dos fossos, tendas vendem mapas de tesouros e poções de visão aquática.'
+      ]
+    },
+    'serra-capivara': {
+      name: 'Serra da Capivara – O Desfiladeiro Ancestral',
+      description: 'Cânions Sangrentos: Rochas avermelhadas são marcadas por ecochifres–antigos espíritos de bisões que uivam ao luar.',
+      features: [
+        'Galeria das Runas Perdidas: Gravuras rupestres ganham vida ao serem tocadas por lanternas de cristal, revelando profecias antigas.',
+        'Guardião dos Penhascos: Um golem de pedra com olhos de âmbar vigia a região e desafia aventureiros a decifrar seus enigmas.',
+        'Oásis Fantasma: Pequenas lagoas escondem ninfas da caatinga, que oferecem bênçãos de resiliência aos exploradores dignos.'
+      ]
+    },
+    'parnaiba': {
+      name: 'Delta do Parnaíba – As Corredeiras Encantadas',
+      description: 'Ilha das Sereianas: No labirinto de canais, pequenas sereias rudimentares tecem redes de magia para atrair heróis.',
+      features: [
+        'Barcos do Bardo: Em balsas movidas por magos-barqueiros, minstrels cantam lendas perdidas enquanto navegam.',
+        'Manguezal Sombrio: Árvores retorcidas guardam ninhos de "Polvo-Feiticeiro", cujos tentáculos expelem poções de cura.',
+        'Cristais de Maré Alta: Bancos de areia abrigam gemas que mudam de cor conforme a maré, usadas em rituais de transmutação.'
+      ]
+    },
+    'oeiras': {
+      name: 'Oeiras – O Enclave Barroco',
+      description: 'Igreja dos Ecos: Ao tocar o sino talhado em mármore negro, vozes ancestrais sussurram segredos de ordem e caos.',
+      features: [
+        'Pátio do Conclave Solar: Lanternas mágicas soltam fagulhas douradas que energizam feudos e permitem voos breves de corujas encantadas.',
+        'Aldeões-Arcanos: Clérigos de sabedoria vendem pergaminhos de bênçãos, mas cobram missões de resgate de relíquias sagradas.',
+        'Ruas que Se Reconfiguram: À meia-noite, o calçamento muda de posição, revelando passagens secretas para criptas subterrâneas.'
+      ]
+    },
+    'bom-jesus': {
+      name: 'Bom Jesus – Os Morros da Fé',
+      description: 'Escadaria Celestial: Degraus de mármore se iluminam sob pegadas honestas, guiando os justos até capelas suspensas que flutuam em nuvens.',
+      features: [
+        'Cruz de Sol e Lua: No ápice, arcanos convergem para um portal que só se abre durante eclipses, permitindo viagens interplanares.',
+        'Irmãs Miríades: Ordens de freiras místicas cuidam de oráculos vivos, dispensando bênçãos de regeneração a quem provar virtude.'
+      ]
+    },
+    'floriano': {
+      name: 'Floriano – A Ponte dos Destinos',
+      description: 'Arco das Almas: A ponte arqueada emite um som etéreo quando atravessada, anunciando o espírito dos ancestrais.',
+      features: [
+        'Cúpulas dos Sussurros: Cúpulas refletem orações em ecos distantes, capazes de revelar esconderijos de monstros aquáticos.',
+        'Barcos Fantasmagóricos: Em noites de neblina, navios sem tripulação flutuam no rio, guiando ou enganando marinheiros.',
+        'Guardiões do Véu: Estátuas de pedra sobem à vida para testar a coragem dos viajantes.'
+      ]
+    },
+    'picos': {
+      name: 'Picos – A Feira do Crepúsculo',
+      description: 'Barracas do Arcano: Tendas vendem itens mágicos — de poções de aura até pergaminhos de invocação de luz.',
+      features: [
+        'Carroça do Alquimista: Um velho eremita troca ingredientes raros por histórias de heróis.',
+        'Torre de Observação: Vigias em torres cerimoniais usam telescópios mágicos para prever tempestades de magia.',
+        'Caminhos Encantados: Pedras do calçamento mudam de cor para indicar o caminho aos guardiões da feira.'
+      ]
+    },
+    'piracuruca': {
+      name: 'Piracuruca – A Estação dos Vagões de Fumaça',
+      description: 'Locomotiva Idílica: A locomotiva a vapor é guiada por um maquinista espectral que oferece caronas interdimensionais.',
+      features: [
+        'Trilhos de Faísca: Trilhos brilham à noite, conduzindo heróis a fortalezas ocultas.',
+        'Plataforma dos Sonhos: Passeiros estranhos (nível elemental ar) aparecem para propor testes de coragem.',
+        'Guarda-Freio de Ferro: Um autômato colossal cuida da segurança, disparando vapor incandescente contra intrusos.'
+      ]
+    },
+    'jaicos': {
+      name: 'Jaicós – O Santuário dos Ritmos',
+      description: 'Máscaras Vivazes: Máscaras tradicionais ganham vida e dançam na lua, convocando espíritos protetores.',
+      features: [
+        'Tambores de Chama: Ao serem tocados, produzem chamas azuis que revelam caminhos invisíveis.',
+        'Danças Sacras: Grupo de bardos folclóricos ensina rituais de invocação de boas colheitas.',
+        'Casarões Iluminados: Janelas em lanternas azuis guiam viajantes perdidos.'
+      ]
+    },
+    'barras': {
+      name: 'Barras – O Bazar das Mil Estrelas',
+      description: 'Balança do Destino: Quem pesa um objeto tem sua sorte e futuro escritos em runas na prancha de madeira.',
+      features: [
+        'Barracas Errantes: Algumas se movem sozinhas, levando curiosos a vilarejos distantes.',
+        'Fonte de Vidro: Jatos d\'água se transformam em fragmentos de cristal que podem ser forjados em armas rúnicas.',
+        'Sacadas de Observação: Mercadores-espiões vigiam de sacadas ornamentadas, trocando segredos por ouro.'
+      ]
+    },
+    'paulistana': {
+      name: 'Paulistana – As Planícies da Locomotiva',
+      description: 'Trens Erráticos: Vagões sem trilhos aparecem em estradas de terra, levando passageiros a reinos perdidos.',
+      features: [
+        'Caatinga Encantada: Arbustos espinhosos florescem à luz da lua, liberando pólen místico que cura feridas.',
+        'Vagão do Artífice: Um velho engenheiro criou uma forja ambulante que produz engrenagens mágicas.',
+        'Túnel do Tempo: Pequenas ruínas evocam ecos de batalhas antigas, marcadas por faíscas de energia temporal.'
+      ]
+    },
+    'campo-maior': {
+      name: 'Campo Maior – O Vale dos Canhões',
+      description: 'Canhões Antigos: Arrombados mas ainda carregados com balas encantadas que explodem em nuvens de luz.',
+      features: [
+        'Bandeiras Etéreas: Tremulam sem vento, marcando zonas de proteção contra invasões demoníacas.',
+        'Obelisco Sagrado: No centro, um pedestal irradia um escudo mágico que protege toda a região.',
+        'Colinas Sussurrantes: Ventos carregam vozes de generais ancestrais, inspirando exércitos aliados ao amanhecer.'
+      ]
+    }
+  };
+
+  // Posições dos pontos informativos no mapa (em porcentagem)
+  const cityPoints = [
+    { id: 'teresina', x: 50, y: 35, name: 'Teresina' },
+    { id: 'serra-capivara', x: 20, y: 70, name: 'Serra da Capivara' },
+    { id: 'parnaiba', x: 25, y: 15, name: 'Parnaíba' },
+    { id: 'oeiras', x: 70, y: 60, name: 'Oeiras' },
+    { id: 'bom-jesus', x: 85, y: 25, name: 'Bom Jesus' },
+    { id: 'floriano', x: 65, y: 45, name: 'Floriano' },
+    { id: 'picos', x: 85, y: 50, name: 'Picos' },
+    { id: 'piracuruca', x: 30, y: 25, name: 'Piracuruca' },
+    { id: 'jaicos', x: 45, y: 65, name: 'Jaicós' },
+    { id: 'barras', x: 40, y: 80, name: 'Barras' },
+    { id: 'paulistana', x: 75, y: 75, name: 'Paulistana' },
+    { id: 'campo-maior', x: 90, y: 85, name: 'Campo Maior' }
+  ];
 
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 2.5));
