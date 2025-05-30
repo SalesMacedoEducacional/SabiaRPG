@@ -336,7 +336,7 @@ const MapView: React.FC = () => {
   };
 
   return (
-    <div className="relative flex-1 overflow-hidden">
+    <div className="relative overflow-hidden" style={{ width: '1536px', height: '1024px' }}>
       {/* Menu Hambúrguer e Botão de Info */}
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
         {/* Botão Menu Hambúrguer */}
