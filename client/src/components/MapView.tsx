@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
-import { ZoomIn, ZoomOut, Info, X } from 'lucide-react';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import { useAuth } from '@/hooks/use-auth';
 import { 
@@ -9,13 +9,6 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from './ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
 import mapaImage from '@/assets/mapa.png';
@@ -112,155 +105,6 @@ const MapPathConnection: React.FC<{
   );
 };
 
-// Dados dos vilarejos do mapa
-const vilarejos = [
-  {
-    id: 1,
-    nome: "Teresina",
-    posicao: { x: 50, y: 50 },
-    descricao: "Capital do Reino Educacional do Piauí",
-    detalhes: [
-      "Círculo central murado com alto muro de pedra e torres de vigia",
-      "Confluência de dois rios representada por fitas azuis que se unem formando um Y",
-      "No coração, um pequeno cristal ou esfera brilhante (centro mágico da capital)",
-      "Pequenas bandeirolas tremulando sobre as muralhas",
-      "Caminhos de terra batida ligando o portão principal aos arredores"
-    ]
-  },
-  {
-    id: 2,
-    nome: "Serra da Capivara",
-    posicao: { x: 25, y: 75 },
-    descricao: "Região arqueológica com arte rupestre ancestral",
-    detalhes: [
-      "Desenhos de cânions vermelhos escavados em linhas pontilhadas",
-      "Pequenas gravuras rupestres (silhuetas de bisões, cervos e figuras humanas) pintadas nas rochas",
-      "Pedras destacadas com relevo sutil",
-      "Cactus e arbustos ralos típicos da caatinga ao redor"
-    ]
-  },
-  {
-    id: 3,
-    nome: "Delta do Parnaíba",
-    posicao: { x: 75, y: 25 },
-    descricao: "Portal aquático do reino com canais navegáveis",
-    detalhes: [
-      "Rede de pequenos canais sinuosos em tom aqua-claro",
-      "Mini-barquinhos à vela e remos desenhados navegando pelos canais",
-      "Vegetação densa desenhada à margem (palmeiras e manguezais estilizados)",
-      "Ícone de uma criatura aquática fantástica (pequeno tritão ou sereia rústica) emergindo da água"
-    ]
-  },
-  {
-    id: 4,
-    nome: "Oeiras",
-    posicao: { x: 40, y: 65 },
-    descricao: "Antiga capital com arquitetura colonial preservada",
-    detalhes: [
-      "Grupo de casas coloniais com telhados em 'V' e chaminés",
-      "Igreja barroca com fachada de pedra esculpida e duas torres",
-      "Ruas de paralelepípedos desenhadas em linhas tracejadas",
-      "Pequenas lanternas penduradas nas esquinas"
-    ]
-  },
-  {
-    id: 5,
-    nome: "Bom Jesus",
-    posicao: { x: 60, y: 80 },
-    descricao: "Santuário sagrado nas colinas",
-    detalhes: [
-      "Duas ou três capelas/igrejas no topo de colinas arredondadas",
-      "Cruz ornamentada em pedra no ponto mais alto",
-      "Trilha de escadas esculpidas na encosta",
-      "Símbolos de aura (linhas de luz) irradiando das igrejas"
-    ]
-  },
-  {
-    id: 6,
-    nome: "Floriano",
-    posicao: { x: 45, y: 55 },
-    descricao: "Cidade das pontes e arquitetura elegante",
-    detalhes: [
-      "Ponte de pedra arqueada cruzando o rio",
-      "Cúpulas arredondadas (fontes de estilo colonial) em alguns prédios",
-      "Casas de alvenaria com varandas e balaústres",
-      "Pequenos barcos de pesca ancorados na margem"
-    ]
-  },
-  {
-    id: 7,
-    nome: "Picos",
-    posicao: { x: 55, y: 70 },
-    descricao: "Centro comercial e de artesanato",
-    detalhes: [
-      "Feira ao ar livre: tendas triangulares, barracas com cestos de cereais e artesanato",
-      "Carroças e pequenas carroças de bois",
-      "Torre de vigia (torre alta em pedra) no centro da praça",
-      "Rua principal de calçamento simples levando até a feira"
-    ]
-  },
-  {
-    id: 8,
-    nome: "Piracuruca",
-    posicao: { x: 35, y: 35 },
-    descricao: "Estação ferroviária histórica",
-    detalhes: [
-      "Estação ferroviária de pedra e madeira, com arquitetura antiga",
-      "Trilhos de ferro que adotam uma curva levemente ondulada",
-      "Trem a vapor estilizado (locomotiva com chaminé fumegante)",
-      "Pequenos postes de sinalização ferroviária"
-    ]
-  },
-  {
-    id: 9,
-    nome: "Jaicós",
-    posicao: { x: 65, y: 60 },
-    descricao: "Vila cultural com tradições folclóricas",
-    detalhes: [
-      "Máscaras folclóricas penduradas em palmeiras rústicas",
-      "Tambores sobre suportes de madeira",
-      "Figuras de dançarinos estilizados ao lado das construções",
-      "Casarões simples de taipa com telhado de cerâmica"
-    ]
-  },
-  {
-    id: 10,
-    nome: "Barras",
-    posicao: { x: 30, y: 45 },
-    descricao: "Mercado central do reino",
-    detalhes: [
-      "Praça central com fonte e várias barracas de mercado",
-      "Balança de feira em destaque num canto",
-      "Arquitetura colonial com sacadas em ferro forjado",
-      "Pergolados com trepadeiras desenhados nas laterais"
-    ]
-  },
-  {
-    id: 11,
-    nome: "Paulistana",
-    posicao: { x: 70, y: 75 },
-    descricao: "Posto avançado da Transnordestina",
-    detalhes: [
-      "Terreno semiárido com pequenos arbustos de caatinga",
-      "Trilhos de ferro reta cortando o solo, com um vagão de carga ao lado",
-      "Pequeno ícone de trem da Transnordestina (leve símbolo de roda dentada)",
-      "Colinas baixas pontilhadas ao fundo"
-    ]
-  },
-  {
-    id: 12,
-    nome: "Campo Maior",
-    posicao: { x: 50, y: 40 },
-    descricao: "Fortaleza militar estratégica",
-    detalhes: [
-      "Campo amplo com duas colinas na margem",
-      "Canhões de bronze apontados em direções opostas",
-      "Bandeiras tremulando sobre cada colina",
-      "Monumento central (obelisco ou pedestal com brasão)"
-    ]
-  }
-];
-
 const MapView: React.FC = () => {
   const { locations, learningPaths, startMission } = useGame();
   const { user } = useAuth();
@@ -272,8 +116,6 @@ const MapView: React.FC = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
-  const [showVilarejos, setShowVilarejos] = useState(false);
-  const [selectedVilarejo, setSelectedVilarejo] = useState<typeof vilarejos[0] | null>(null);
 
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 2.5));
@@ -394,26 +236,6 @@ const MapView: React.FC = () => {
                   className="absolute inset-0 w-full h-full object-contain"
                 />
                 
-                {/* Vilarejos - Pontos Interativos */}
-                {vilarejos.map(vilarejo => (
-                  <div
-                    key={vilarejo.id}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
-                    style={{
-                      left: `${vilarejo.posicao.x}%`,
-                      top: `${vilarejo.posicao.y}%`,
-                    }}
-                    onClick={() => setSelectedVilarejo(vilarejo)}
-                  >
-                    <div className="w-4 h-4 bg-primary rounded-full border-2 border-accent shadow-lg group-hover:scale-125 transition-transform duration-200">
-                      <div className="w-full h-full bg-accent rounded-full animate-pulse opacity-70"></div>
-                    </div>
-                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-dark-light px-2 py-1 rounded text-xs text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                      {vilarejo.nome}
-                    </div>
-                  </div>
-                ))}
-                
                 {/* Map Locations - Interactive Points */}
                 {locations.map(location => (
                   <MapLocation 
@@ -465,14 +287,6 @@ const MapView: React.FC = () => {
         {/* Map Controls */}
         <div className="absolute bottom-4 right-4 flex space-x-2">
           <Button 
-            onClick={() => setShowVilarejos(true)}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-dark border border-primary hover:bg-primary transition"
-            variant="ghost"
-            size="icon"
-          >
-            <Info className="h-5 w-5 text-parchment" />
-          </Button>
-          <Button 
             onClick={handleZoomIn} 
             className="w-10 h-10 rounded-full flex items-center justify-center bg-dark border border-primary hover:bg-primary transition"
             disabled={zoomLevel >= 2.5}
@@ -492,69 +306,6 @@ const MapView: React.FC = () => {
           </Button>
         </div>
       </div>
-
-      {/* Modal de Informações dos Vilarejos */}
-      <Dialog open={showVilarejos} onOpenChange={setShowVilarejos}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-parchment border-4 border-primary">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-dark mb-4 text-center">
-              Reino Educacional do Piauí - Vilarejos
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {vilarejos.map(vilarejo => (
-              <div 
-                key={vilarejo.id}
-                className="bg-dark-light p-4 rounded-lg border border-primary cursor-pointer hover:bg-primary-dark transition-colors duration-200"
-                onClick={() => {
-                  setSelectedVilarejo(vilarejo);
-                  setShowVilarejos(false);
-                }}
-              >
-                <h3 className="font-bold text-accent text-lg mb-2">{vilarejo.nome}</h3>
-                <p className="text-parchment text-sm mb-3">{vilarejo.descricao}</p>
-                <div className="text-xs text-parchment-dark">
-                  Clique para ver detalhes
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Detalhes do Vilarejo Específico */}
-      <Dialog open={!!selectedVilarejo} onOpenChange={() => setSelectedVilarejo(null)}>
-        <DialogContent className="max-w-2xl bg-parchment border-4 border-primary">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-dark mb-2">
-              {selectedVilarejo?.nome}
-            </DialogTitle>
-            <p className="text-primary-dark text-lg mb-4">{selectedVilarejo?.descricao}</p>
-          </DialogHeader>
-          <div className="space-y-3">
-            <h4 className="font-semibold text-dark text-lg mb-3">Características Visuais:</h4>
-            <ul className="space-y-2">
-              {selectedVilarejo?.detalhes.map((detalhe, index) => (
-                <li 
-                  key={index}
-                  className="flex items-start gap-2 text-dark-light"
-                >
-                  <span className="text-primary font-bold">•</span>
-                  <span className="text-sm leading-relaxed">{detalhe}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex justify-end mt-6">
-            <Button 
-              onClick={() => setSelectedVilarejo(null)}
-              className="bg-primary hover:bg-primary-dark text-parchment"
-            >
-              Fechar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
