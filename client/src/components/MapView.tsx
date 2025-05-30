@@ -121,6 +121,7 @@ const MapView: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [showCityInfo, setShowCityInfo] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showFullMap, setShowFullMap] = useState(false);
 
   // Dados das cidades do Reino Educacional do Piauí
   const cityInfo = {
@@ -258,6 +259,10 @@ const MapView: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleMapClick = () => {
+    setShowFullMap(true);
   };
 
   const handleZoomIn = () => {
@@ -409,6 +414,24 @@ const MapView: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Modal com Mapa Completo */}
+      <Dialog open={showFullMap} onOpenChange={setShowFullMap}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full bg-dark border-primary p-2">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-primary mb-2 text-center">
+              Reino Educacional do Piauí - Mapa Completo
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            <img 
+              src={mapaImage} 
+              alt="Reino Educacional do Piauí - Mapa Completo" 
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Map Container */}
       <div 
         id="map-container" 
@@ -444,11 +467,12 @@ const MapView: React.FC = () => {
             <div className="relative bg-parchment-dark rounded-lg overflow-hidden w-full h-full">
               {/* Map Image */}
               <div className="relative w-full h-full">
-                {/* Map Illustration */}
+                {/* Map Illustration - Clicável */}
                 <img 
                   src={mapaImage} 
                   alt="Reino Educacional do Piauí - Mapa Interativo" 
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={handleMapClick}
                 />
                 
 
