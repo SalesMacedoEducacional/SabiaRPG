@@ -13,8 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
 import mapaImage from '@/assets/mapa.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Info, MapPin } from 'lucide-react';
+import { Info, Menu, X } from 'lucide-react';
 
 interface MapLocationProps {
   location: {
@@ -121,6 +120,7 @@ const MapView: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [showCityInfo, setShowCityInfo] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Dados das cidades do Reino Educacional do Piauí
   const cityInfo = {
@@ -252,9 +252,12 @@ const MapView: React.FC = () => {
 
   const handleCitySelect = (cityId: string) => {
     setSelectedCity(cityId);
-    if (cityId) {
-      setShowCityInfo(true);
-    }
+    setShowCityInfo(true);
+    setIsMenuOpen(false); // Fecha o menu após seleção
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   const handleZoomIn = () => {
@@ -334,29 +337,48 @@ const MapView: React.FC = () => {
 
   return (
     <div className="relative flex-1 overflow-hidden">
-      {/* Menu Informativo no Canto Superior */}
-      <div className="absolute top-4 left-4 z-20 bg-parchment/95 border-2 border-primary rounded-lg p-4 shadow-lg min-w-[300px]">
-        <div className="flex items-center gap-2 mb-3">
-          <MapPin className="text-primary" size={20} />
-          <h3 className="text-primary font-bold text-lg">Reino Educacional do Piauí</h3>
-        </div>
+      {/* Menu Hambúrguer e Botão de Info */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
+        {/* Botão Menu Hambúrguer */}
+        <button
+          onClick={toggleMenu}
+          className="bg-primary/90 hover:bg-primary text-white p-3 rounded-lg border-2 border-accent shadow-lg transition-all duration-200 hover:scale-105"
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
         
-        <div className="space-y-2">
-          <label className="text-dark-light font-medium text-sm">Explorar Vilarejo:</label>
-          <Select value={selectedCity} onValueChange={handleCitySelect}>
-            <SelectTrigger className="bg-white border-primary">
-              <SelectValue placeholder="Selecione um vilarejo para conhecer..." />
-            </SelectTrigger>
-            <SelectContent className="bg-parchment border-primary max-h-60">
-              {cityList.map(city => (
-                <SelectItem key={city.id} value={city.id} className="hover:bg-primary/10">
-                  {city.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Ícone de Informação */}
+        <div className="bg-parchment/90 text-primary p-3 rounded-lg border-2 border-primary shadow-lg">
+          <Info size={20} />
         </div>
       </div>
+
+      {/* Menu Recolhível */}
+      {isMenuOpen && (
+        <div className="absolute top-20 left-4 z-20 bg-parchment/95 border-2 border-primary rounded-lg shadow-lg min-w-[320px] max-h-[400px] overflow-y-auto">
+          <div className="p-4">
+            <h3 className="text-primary font-bold text-lg mb-4 flex items-center gap-2">
+              <Info size={18} />
+              Reino Educacional do Piauí
+            </h3>
+            
+            <div className="space-y-2">
+              <p className="text-dark-light font-medium text-sm mb-3">Explorar Vilarejo:</p>
+              <div className="space-y-1">
+                {cityList.map(city => (
+                  <button
+                    key={city.id}
+                    onClick={() => handleCitySelect(city.id)}
+                    className="w-full text-left p-2 rounded-md hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all duration-150 text-sm text-dark-light hover:text-primary"
+                  >
+                    {city.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal com Informações da Cidade */}
       <Dialog open={showCityInfo} onOpenChange={setShowCityInfo}>
