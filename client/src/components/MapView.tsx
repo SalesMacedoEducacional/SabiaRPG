@@ -348,8 +348,8 @@ const MapView: React.FC = () => {
         </button>
         
         {/* Ícone de Informação */}
-        <div className="bg-parchment/90 text-primary p-3 rounded-lg border-2 border-primary shadow-lg">
-          <Info size={20} />
+        <div className="text-primary">
+          <Info size={24} />
         </div>
       </div>
 
