@@ -38,10 +38,7 @@ import { Loader2, UserPlus, ArrowRight, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 
 // Interfaces
 interface Turma {
@@ -395,41 +392,16 @@ export default function UserRegistration() {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel className="text-parchment font-medium">Data de Nascimento</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={`w-full pl-3 text-left font-normal border-primary bg-dark text-parchment hover:bg-dark-light hover:text-parchment focus:ring-accent ${!field.value && "text-parchment-dark"}`}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "dd/MM/yyyy", { locale: ptBR })
-                                  ) : (
-                                    <span>Selecione a data</span>
-                                  )}
-                                  <Calendar className="ml-auto h-4 w-4 text-accent" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-primary bg-dark" align="start">
-                              <CalendarComponent
-                                mode="single"
-                                selected={field.value}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    field.onChange(date);
-                                  }
-                                }}
-                                disabled={(date) => {
-                                  // Desabilitar datas futuras
-                                  return date > new Date();
-                                }}
-                                initialFocus
-                                locale={ptBR}
-                                className="bg-[#312e26] text-amber-100 border-amber-700"
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <FormControl>
+                            <EnhancedDatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Digite ou selecione a data (dd/mm/aaaa)"
+                              maxDate={new Date()}
+                              disabled={(date: Date) => date > new Date()}
+                              className="w-full"
+                            />
+                          </FormControl>
                           <FormMessage className="text-red-400" />
                         </FormItem>
                       )}
