@@ -18,20 +18,35 @@ import { Search, Eye, Edit, Plus, GraduationCap } from 'lucide-react';
 
 interface Student {
   id: string;
+  usuario_id: string;
   usuarios: {
     id: string;
     nome: string;
     email: string;
     cpf: string;
+    telefone: string;
   };
   turmas: {
     id: string;
     nome: string;
+    serie: string;
+    turno: string;
   };
-  matriculas: {
-    numero_matricula: string;
-  }[];
   escola_nome: string;
+  escola_cidade: string;
+  escola_estado: string;
+  numero_matricula: string;
+  data_matricula: string;
+  serie: string;
+  turno: string;
+  responsavel_nome: string;
+  responsavel_telefone: string;
+  responsavel_email: string;
+  endereco: string;
+  data_nascimento: string;
+  observacoes: string;
+  ativo: boolean;
+  criado_em: string;
 }
 
 interface StudentsResponse {
@@ -194,17 +209,18 @@ export default function StudentsList() {
                 <TableRow className="border-primary/20 hover:bg-primary/5">
                   <TableHead className="text-white">Nome</TableHead>
                   <TableHead className="text-white">Email</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
                   <TableHead className="text-white">Matrícula</TableHead>
                   <TableHead className="text-white">Turma</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
+                  <TableHead className="text-white">Responsável</TableHead>
+                  <TableHead className="text-white">Status</TableHead>
                   <TableHead className="text-white text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-white/70 py-8">
+                    <TableCell colSpan={8} className="text-center text-white/70 py-8">
                       Nenhum aluno encontrado
                     </TableCell>
                   </TableRow>

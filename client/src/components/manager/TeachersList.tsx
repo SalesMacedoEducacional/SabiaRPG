@@ -179,9 +179,10 @@ export default function TeachersList() {
                 <TableRow className="border-primary/20 hover:bg-primary/5">
                   <TableHead className="text-white">Nome</TableHead>
                   <TableHead className="text-white">Email</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
+                  <TableHead className="text-white">Formação</TableHead>
                   <TableHead className="text-white">Disciplinas</TableHead>
+                  <TableHead className="text-white">Experiência</TableHead>
                   <TableHead className="text-white">Status</TableHead>
                   <TableHead className="text-white text-right">Ações</TableHead>
                 </TableRow>
@@ -189,7 +190,7 @@ export default function TeachersList() {
               <TableBody>
                 {filteredTeachers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-white/70 py-8">
+                    <TableCell colSpan={8} className="text-center text-white/70 py-8">
                       Nenhum professor encontrado
                     </TableCell>
                   </TableRow>
@@ -197,16 +198,30 @@ export default function TeachersList() {
                   filteredTeachers.map((teacher) => (
                     <TableRow key={teacher.id} className="border-primary/20 hover:bg-primary/5">
                       <TableCell className="text-white font-medium">
-                        {teacher.usuarios.nome}
+                        <div>
+                          <div>{teacher.usuarios.nome}</div>
+                          <div className="text-xs text-white/50">{teacher.usuarios.cpf}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {teacher.usuarios.email}
+                        <div>
+                          <div>{teacher.usuarios.email}</div>
+                          <div className="text-xs text-white/50">{teacher.telefone_contato || teacher.usuarios.telefone}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {teacher.usuarios.cpf}
+                        <div>
+                          <div>{teacher.escola_nome}</div>
+                          <div className="text-xs text-white/50">{teacher.escola_cidade}, {teacher.escola_estado}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {teacher.escola_nome}
+                        <div>
+                          <div className="text-sm">{teacher.formacao}</div>
+                          {teacher.especializacao && teacher.especializacao !== 'Não informado' && (
+                            <div className="text-xs text-white/50">{teacher.especializacao}</div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
                         <div className="flex flex-wrap gap-1">
@@ -220,6 +235,11 @@ export default function TeachersList() {
                               +{teacher.disciplinas.length - 2}
                             </Badge>
                           )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white/70">
+                        <div className="text-sm">
+                          {teacher.anos_experiencia} {teacher.anos_experiencia === 1 ? 'ano' : 'anos'}
                         </div>
                       </TableCell>
                       <TableCell>
