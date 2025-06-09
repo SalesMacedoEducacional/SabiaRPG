@@ -1774,9 +1774,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Rota para buscar todos os usuários do gestor
   app.get("/api/users/manager", authenticate, authorize(["manager"]), async (req, res) => {
     try {
+      console.log("Iniciando busca de usuários para gestor");
+      console.log("Session data:", req.session);
+      
       const gestorId = req.session.userId;
+      console.log("Gestor ID extraído:", gestorId);
       
       if (!gestorId) {
+        console.log("Erro: Gestor não identificado");
         return res.status(401).json({ message: "Gestor não identificado" });
       }
 
@@ -1837,7 +1842,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
+      console.log("Erro detalhado:", error);
+      res.status(500).json({ message: "Erro interno do servidor", error: error.message });
     }
   });
 
