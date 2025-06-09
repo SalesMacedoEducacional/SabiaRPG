@@ -47,6 +47,11 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
       }
 
+      // Validar CPF para professores e gestores
+      if ((papel === 'professor' || papel === 'gestor') && !cpf) {
+        return res.status(400).json({ message: 'CPF é obrigatório para professores e gestores' });
+      }
+
       // Verificar se email já existe
       const { data: emailExistente } = await supabase
         .from('usuarios')
@@ -99,12 +104,12 @@ export function registerUserRegistrationRoutes(app: Express) {
         .insert({
           id: authData.user.id,
           email,
-          nome_completo,
+          nome: nome_completo,
           telefone,
           data_nascimento,
           papel,
           senha_hash: hashPassword(senhaTemporaria),
-          ativo: true,
+          cpf: (papel === 'professor' || papel === 'gestor') ? cpf : null,
           criado_em: new Date().toISOString()
         })
         .select()
@@ -148,7 +153,7 @@ export function registerUserRegistrationRoutes(app: Express) {
 
       console.log('=== USUÁRIO CADASTRADO COM SUCESSO ===');
       console.log('ID:', novoUsuario.id);
-      console.log('Nome:', novoUsuario.nome_completo);
+      console.log('Nome:', novoUsuario.nome);
       console.log('Email:', novoUsuario.email);
       console.log('Papel:', novoUsuario.papel);
 
@@ -157,7 +162,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         message: 'Usuário cadastrado com sucesso!',
         user: {
           id: novoUsuario.id,
-          nome_completo: novoUsuario.nome_completo,
+          nome_completo: novoUsuario.nome,
           email: novoUsuario.email,
           papel: novoUsuario.papel,
           senha_temporaria: senhaTemporaria
