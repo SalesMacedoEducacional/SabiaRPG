@@ -31,7 +31,7 @@ import OpenAI from "openai";
 import { createTestUsersHandler } from "./createTestUsers";
 import { initializeDatabase } from "../db/supabase";
 import { registerManagerRoutes } from "./managerRoutesNew";
-import { registerUserRoutes } from "./userRoutes";
+import { registerUserRegistrationRoutes } from "./userRegistrationApi";
 import { registerSchoolRoutes } from "./schoolRoutes";
 import { registerClassRoutes } from "./classRoutes";
 import { registerDrizzleSchoolRoutes } from "./drizzleSchoolRoutes";
@@ -1851,7 +1851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerManagerRoutes(app, authenticate, requireRole);
   
   // Registrar rotas de usuário, incluindo upload de foto
-  registerUserRoutes(app);
+  registerUserRegistrationRoutes(app);
   
   // Registrar rotas de escolas e turmas
   registerSchoolRoutes(app, authenticate, requireRole);

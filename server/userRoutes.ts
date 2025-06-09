@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 import { pool } from './db';
-import { supabase } from '../db/supabase.js';
+import { supabase } from '../db/supabase';
 import session from 'express-session';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
