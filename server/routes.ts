@@ -869,7 +869,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   */
 
-  // User routes
+  // User routes - specific routes first
+  // Rota para buscar todos os usuários do gestor
+  app.get("/api/users/manager", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      console.log("Iniciando busca de usuários para gestor");
+      console.log("Session data:", req.session);
+      
+      const gestorId = req.session.userId;
+      console.log("Gestor ID extraído:", gestorId);
+      
+      if (!gestorId) {
+        console.log("Erro: Gestor não identificado");
+        return res.status(401).json({ message: "Gestor não identificado" });
+      }
+
+      console.log(`Buscando todos os usuários para o gestor: ${gestorId}`);
+
+      // Buscar escolas do gestor primeiro
+      const { data: escolas, error: escolasError } = await supabase
+        .from('escolas')
+        .select('id, nome')
+        .eq('gestor_id', gestorId);
+
+      if (escolasError) {
+        console.error("Erro ao buscar escolas:", escolasError);
+        return res.status(500).json({ message: "Erro ao buscar escolas" });
+      }
+
+      // Buscar todos os usuários (não há relação direta com escola na tabela usuarios)
+      const { data: usuarios, error } = await supabase
+        .from('usuarios')
+        .select(`
+          id,
+          nome,
+          email,
+          cpf,
+          papel,
+          criado_em,
+          telefone
+        `);
+
+      if (error) {
+        console.error("Erro ao buscar usuários:", error);
+        return res.status(500).json({ message: "Erro ao buscar usuários" });
+      }
+
+      console.log(`Usuários encontrados no banco: ${usuarios?.length || 0}`);
+
+      // Formatar resposta
+      const usuariosFormatados = usuarios?.map(user => {
+        return {
+          id: user.id,
+          nome: user.nome || 'Nome não informado',
+          email: user.email || 'Email não informado',
+          cpf: user.cpf || 'CPF não informado',
+          papel: user.papel,
+          telefone: user.telefone || 'N/A',
+          escola_nome: 'Geral',
+          ativo: true,
+          criado_em: user.criado_em
+        };
+      }) || [];
+
+      console.log(`Encontrados ${usuariosFormatados.length} usuários`);
+
+      res.json({
+        total: usuariosFormatados.length,
+        usuarios: usuariosFormatados
+      });
+
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      console.log("Erro detalhado:", error);
+      res.status(500).json({ message: "Erro interno do servidor", error: error.message });
+    }
+  });
+
   app.get("/api/users/:id", authenticate, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
@@ -1768,82 +1844,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao buscar alunos:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
-    }
-  });
-
-  // Rota para buscar todos os usuários do gestor
-  app.get("/api/users/manager", authenticate, authorize(["manager"]), async (req, res) => {
-    try {
-      console.log("Iniciando busca de usuários para gestor");
-      console.log("Session data:", req.session);
-      
-      const gestorId = req.session.userId;
-      console.log("Gestor ID extraído:", gestorId);
-      
-      if (!gestorId) {
-        console.log("Erro: Gestor não identificado");
-        return res.status(401).json({ message: "Gestor não identificado" });
-      }
-
-      console.log(`Buscando todos os usuários para o gestor: ${gestorId}`);
-
-      // Buscar escolas do gestor primeiro
-      const { data: escolas, error: escolasError } = await supabase
-        .from('escolas')
-        .select('id, nome')
-        .eq('gestor_id', gestorId);
-
-      if (escolasError) {
-        console.error("Erro ao buscar escolas:", escolasError);
-        return res.status(500).json({ message: "Erro ao buscar escolas" });
-      }
-
-      // Buscar todos os usuários (não há relação direta com escola na tabela usuarios)
-      const { data: usuarios, error } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          papel,
-          criado_em,
-          telefone
-        `);
-
-      if (error) {
-        console.error("Erro ao buscar usuários:", error);
-        return res.status(500).json({ message: "Erro ao buscar usuários" });
-      }
-
-      console.log(`Usuários encontrados no banco: ${usuarios?.length || 0}`);
-
-      // Formatar resposta
-      const usuariosFormatados = usuarios?.map(user => {
-        return {
-          id: user.id,
-          nome: user.nome || 'Nome não informado',
-          email: user.email || 'Email não informado',
-          cpf: user.cpf || 'CPF não informado',
-          papel: user.papel,
-          telefone: user.telefone || 'N/A',
-          escola_nome: 'Geral',
-          ativo: true,
-          criado_em: user.criado_em
-        };
-      }) || [];
-
-      console.log(`Encontrados ${usuariosFormatados.length} usuários`);
-
-      res.json({
-        total: usuariosFormatados.length,
-        usuarios: usuariosFormatados
-      });
-
-    } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
-      console.log("Erro detalhado:", error);
-      res.status(500).json({ message: "Erro interno do servidor", error: error.message });
     }
   });
 
