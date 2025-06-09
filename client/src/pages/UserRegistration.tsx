@@ -83,7 +83,7 @@ const userSchema = baseUserSchema.refine(
     if (data.papel === "aluno") {
       return "turma_id" in data && "numero_matricula" in data;
     }
-    if (data.papel === "professor") {
+    if (data.papel === "professor" || data.papel === "gestor") {
       return "cpf" in data;
     }
     return true;
@@ -187,6 +187,8 @@ export default function UserRegistration() {
     setIsSubmitting(true);
     
     try {
+      console.log('Dados do formulário antes do envio:', data);
+      
       const formData = new FormData();
       
       // Adicionar campos básicos comuns a todos os papéis
@@ -201,7 +203,14 @@ export default function UserRegistration() {
         formData.append("turma_id", data.turma_id);
         formData.append("numero_matricula", data.numero_matricula);
       } else if ((data.papel === "professor" || data.papel === "gestor") && data.cpf) {
+        console.log('Adicionando CPF ao FormData:', data.cpf);
         formData.append("cpf", data.cpf);
+      }
+      
+      // Log do FormData para debug
+      console.log('FormData entries:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
       
       // Adicionar imagem de perfil se disponível
