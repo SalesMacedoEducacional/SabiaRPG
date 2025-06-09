@@ -47,8 +47,8 @@ interface Turma {
   serie: string;
 }
 
-// Schema de validação do formulário
-const baseUserSchema = z.object({
+// Schema de validação do formulário com todos os campos
+const userSchema = z.object({
   nome_completo: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
   email: z.string().email("E-mail inválido"),
   telefone: z.string().min(14, "Formato de telefone inválido").max(15, "Formato de telefone inválido"),
@@ -59,46 +59,27 @@ const baseUserSchema = z.object({
     required_error: "Selecione o perfil do usuário",
   }),
   imagem_perfil: z.instanceof(File).optional(),
-});
-
-// Esquema para alunos
-const alunoSchema = baseUserSchema.extend({
-  turma_id: z.string({
-    required_error: "Selecione a turma do aluno",
-  }),
-  numero_matricula: z.string().min(1, "O número de matrícula é obrigatório"),
-});
-
-// Esquema para professores
-const professorSchema = baseUserSchema.extend({
-  cpf: z.string().min(11, "CPF inválido").max(14, "CPF inválido"),
-});
-
-// Esquema para gestores
-const gestorSchema = baseUserSchema;
-
-// Esquema condicional com base no papel selecionado
-const userSchema = baseUserSchema.refine(
+  // Campos condicionais
+  turma_id: z.string().optional(),
+  numero_matricula: z.string().optional(),
+  cpf: z.string().optional(),
+}).refine(
   (data) => {
     if (data.papel === "aluno") {
-      return "turma_id" in data && "numero_matricula" in data;
+      return data.turma_id && data.numero_matricula;
     }
     if (data.papel === "professor" || data.papel === "gestor") {
-      return "cpf" in data;
+      return data.cpf && data.cpf.length >= 11;
     }
     return true;
   },
   {
-    message: "Preencha todos os campos obrigatórios",
+    message: "Preencha todos os campos obrigatórios para o papel selecionado",
     path: ["papel"],
   }
 );
 
-type UserFormData = z.infer<typeof baseUserSchema> & {
-  turma_id?: string;
-  numero_matricula?: string;
-  cpf?: string;
-};
+type UserFormData = z.infer<typeof userSchema>;
 
 export default function UserRegistration() {
   const { toast } = useToast();
