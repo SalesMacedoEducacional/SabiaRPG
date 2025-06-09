@@ -18,35 +18,20 @@ import { Search, Eye, Edit, Plus, GraduationCap } from 'lucide-react';
 
 interface Student {
   id: string;
-  usuario_id: string;
   usuarios: {
     id: string;
     nome: string;
     email: string;
     cpf: string;
-    telefone: string;
   };
   turmas: {
     id: string;
     nome: string;
-    serie: string;
-    turno: string;
   };
+  matriculas: {
+    numero_matricula: string;
+  }[];
   escola_nome: string;
-  escola_cidade: string;
-  escola_estado: string;
-  numero_matricula: string;
-  data_matricula: string;
-  serie: string;
-  turno: string;
-  responsavel_nome: string;
-  responsavel_telefone: string;
-  responsavel_email: string;
-  endereco: string;
-  data_nascimento: string;
-  observacoes: string;
-  ativo: boolean;
-  criado_em: string;
 }
 
 interface StudentsResponse {
@@ -75,7 +60,7 @@ export default function StudentsList() {
     const matchesSearch = (student?.usuarios?.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (student?.usuarios?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (student?.usuarios?.cpf || '').includes(searchTerm) ||
-                         (student?.numero_matricula || '').includes(searchTerm);
+                         (student?.matriculas?.[0]?.numero_matricula || '').includes(searchTerm);
     
     const matchesSchool = selectedSchool === 'all' || (student?.escola_nome || '') === selectedSchool;
     const matchesClass = selectedClass === 'all' || (student?.turmas?.nome || '') === selectedClass;
@@ -209,18 +194,17 @@ export default function StudentsList() {
                 <TableRow className="border-primary/20 hover:bg-primary/5">
                   <TableHead className="text-white">Nome</TableHead>
                   <TableHead className="text-white">Email</TableHead>
+                  <TableHead className="text-white">CPF</TableHead>
                   <TableHead className="text-white">Matrícula</TableHead>
                   <TableHead className="text-white">Turma</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
-                  <TableHead className="text-white">Responsável</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
                   <TableHead className="text-white text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-white/70 py-8">
+                    <TableCell colSpan={7} className="text-center text-white/70 py-8">
                       Nenhum aluno encontrado
                     </TableCell>
                   </TableRow>
@@ -228,49 +212,24 @@ export default function StudentsList() {
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="border-primary/20 hover:bg-primary/5">
                       <TableCell className="text-white font-medium">
-                        <div>
-                          <div>{student.usuarios.nome}</div>
-                          <div className="text-xs text-white/50">{student.usuarios.cpf}</div>
-                        </div>
+                        {student.usuarios.nome}
                       </TableCell>
                       <TableCell className="text-white/70">
-                        <div>
-                          <div>{student.usuarios.email}</div>
-                          <div className="text-xs text-white/50">{student.usuarios.telefone}</div>
-                        </div>
+                        {student.usuarios.email}
+                      </TableCell>
+                      <TableCell className="text-white/70">
+                        {student.usuarios.cpf}
                       </TableCell>
                       <TableCell className="text-white/70">
                         <Badge variant="outline" className="text-accent border-accent">
-                          {student.numero_matricula || 'N/A'}
+                          {student.matriculas?.[0]?.numero_matricula || 'N/A'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        <div>
-                          <div>{student.turmas?.nome || 'Não vinculado'}</div>
-                          <div className="text-xs text-white/50">
-                            {student.serie} - {student.turno}
-                          </div>
-                        </div>
+                        {student.turmas.nome}
                       </TableCell>
                       <TableCell className="text-white/70">
-                        <div>
-                          <div>{student.escola_nome}</div>
-                          <div className="text-xs text-white/50">{student.escola_cidade}, {student.escola_estado}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        <div>
-                          <div className="text-sm">{student.responsavel_nome}</div>
-                          <div className="text-xs text-white/50">{student.responsavel_telefone}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={student.ativo ? "default" : "secondary"}
-                          className={student.ativo ? "bg-green-600" : "bg-gray-600"}
-                        >
-                          {student.ativo ? "Ativo" : "Inativo"}
-                        </Badge>
+                        {student.escola_nome}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

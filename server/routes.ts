@@ -1705,32 +1705,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar dados da tabela perfis_professor com joins
+      // Buscar todos os usuários com papel 'professor'
       const { data: professores, error } = await supabase
-        .from('perfis_professor')
+        .from('usuarios')
         .select(`
           id,
-          usuario_id,
-          escola_id,
-          disciplinas,
-          turmas,
-          ativo,
-          criado_em,
-          usuarios!perfis_professor_usuario_id_fkey (
-            id,
-            nome,
-            email,
-            cpf,
-            telefone
-          ),
-          escolas!perfis_professor_escola_id_fkey (
-            id,
-            nome,
-            cidade,
-            estado
-          )
+          nome,
+          email,
+          cpf,
+          telefone,
+          papel
         `)
-        .in('escola_id', escolaIds);
+        .eq('papel', 'professor');
 
       if (error) {
         console.error("Erro ao buscar professores:", error);
@@ -1739,30 +1725,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Professores encontrados no banco: ${professores?.length || 0}`);
 
-      // Formatar dados com informações do perfil professor
+      // Buscar perfis de professores para obter vínculo com escolas
+      const usuarioIds = professores?.map(p => p.id) || [];
+      let perfisProfessores = [];
+      
+      if (usuarioIds.length > 0) {
+        const { data } = await supabase
+          .from('perfis_professor')
+          .select('usuario_id, escola_id, ativo')
+          .in('usuario_id', usuarioIds);
+        perfisProfessores = data || [];
+      }
+
+      // Combinar dados
       const professoresFormatados = professores?.map(prof => {
+        const perfil = perfisProfessores?.find(p => p.usuario_id === prof.id);
+        const escola = perfil ? escolas?.find(e => e.id === perfil.escola_id) : null;
+        
         return {
           id: prof.id,
-          usuario_id: prof.usuario_id,
           usuarios: {
-            id: prof.usuarios?.id,
-            nome: prof.usuarios?.nome || 'Nome não informado',
-            email: prof.usuarios?.email || 'Email não informado',
-            cpf: prof.usuarios?.cpf || 'CPF não informado',
-            telefone: prof.usuarios?.telefone || 'N/A'
+            id: prof.id,
+            nome: prof.nome || 'Nome não informado',
+            email: prof.email || 'Email não informado',
+            cpf: prof.cpf || 'CPF não informado',
+            telefone: prof.telefone || 'N/A'
           },
-          escola_nome: prof.escolas?.nome || 'Sem vínculo',
-          escola_cidade: prof.escolas?.cidade || '',
-          escola_estado: prof.escolas?.estado || '',
-          disciplinas: prof.disciplinas || [],
-          turmas: prof.turmas || [],
-          formacao: 'Não informado',
-          especializacao: 'Não informado',
-          anos_experiencia: 0,
-          telefone_contato: prof.usuarios?.telefone || 'N/A',
-          observacoes: '',
-          ativo: prof.ativo ?? true,
-          criado_em: prof.criado_em
+          escola_nome: escola?.nome || 'Sem vínculo',
+          disciplinas: [],
+          ativo: perfil?.ativo ?? true
         };
       }) || [];
 
@@ -1803,7 +1794,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar usuários com papel 'aluno' - sem tabela perfis_aluno específica
+      // Buscar usuários com papel 'aluno' - não há relação direta com escola na tabela usuarios
       const { data: alunos, error } = await supabase
         .from('usuarios')
         .select(`
@@ -1811,8 +1802,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           nome,
           email,
           cpf,
-          telefone,
-          papel
+          papel,
+          telefone
         `)
         .eq('papel', 'aluno');
 
@@ -1823,11 +1814,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Alunos encontrados no banco: ${alunos?.length || 0}`);
 
-      // Formatar dados básicos dos alunos
+      // Formatar dados dos alunos (sem vinculação específica a escolas)
       const alunosFormatados = alunos?.map(aluno => {
         return {
           id: aluno.id,
-          usuario_id: aluno.id,
           usuarios: {
             id: aluno.id,
             nome: aluno.nome || 'Nome não informado',
@@ -1837,25 +1827,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           turmas: {
             id: '',
-            nome: 'Não vinculado',
-            serie: '',
-            turno: ''
+            nome: 'Não vinculado'
           },
-          escola_nome: 'Geral',
-          escola_cidade: '',
-          escola_estado: '',
-          numero_matricula: 'N/A',
-          data_matricula: null,
-          serie: 'N/A',
-          turno: 'N/A',
-          responsavel_nome: 'N/A',
-          responsavel_telefone: 'N/A',
-          responsavel_email: 'N/A',
-          endereco: 'N/A',
-          data_nascimento: null,
-          observacoes: '',
-          ativo: true,
-          criado_em: new Date().toISOString()
+          matriculas: [],
+          escola_nome: 'Geral'
         };
       }) || [];
 
