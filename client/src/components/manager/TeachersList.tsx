@@ -18,6 +18,7 @@ import { Search, Eye, Edit, Plus, User } from 'lucide-react';
 
 interface Teacher {
   id: string;
+  usuario_id: string;
   usuarios: {
     id: string;
     nome: string;
@@ -26,8 +27,16 @@ interface Teacher {
     telefone: string;
   };
   escola_nome: string;
+  escola_cidade: string;
+  escola_estado: string;
   disciplinas: string[];
+  formacao: string;
+  especializacao: string;
+  anos_experiencia: number;
+  telefone_contato: string;
+  observacoes: string;
   ativo: boolean;
+  criado_em: string;
 }
 
 interface TeachersResponse {

@@ -1705,18 +1705,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar todos os usuários com papel 'professor'
+      // Buscar dados completos diretamente da tabela perfis_professor
       const { data: professores, error } = await supabase
-        .from('usuarios')
+        .from('perfis_professor')
         .select(`
           id,
-          nome,
-          email,
-          cpf,
-          telefone,
-          papel
+          usuario_id,
+          escola_id,
+          disciplinas,
+          formacao,
+          especializacao,
+          anos_experiencia,
+          telefone_contato,
+          observacoes,
+          ativo,
+          criado_em,
+          usuarios!perfis_professor_usuario_id_fkey (
+            id,
+            nome,
+            email,
+            cpf,
+            telefone
+          ),
+          escolas!perfis_professor_escola_id_fkey (
+            id,
+            nome,
+            cidade,
+            estado
+          )
         `)
-        .eq('papel', 'professor');
+        .in('escola_id', escolaIds);
 
       if (error) {
         console.error("Erro ao buscar professores:", error);
@@ -1725,35 +1743,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Professores encontrados no banco: ${professores?.length || 0}`);
 
-      // Buscar perfis de professores para obter vínculo com escolas
-      const usuarioIds = professores?.map(p => p.id) || [];
-      let perfisProfessores = [];
-      
-      if (usuarioIds.length > 0) {
-        const { data } = await supabase
-          .from('perfis_professor')
-          .select('usuario_id, escola_id, ativo')
-          .in('usuario_id', usuarioIds);
-        perfisProfessores = data || [];
-      }
-
-      // Combinar dados
+      // Formatar dados com informações completas do perfil
       const professoresFormatados = professores?.map(prof => {
-        const perfil = perfisProfessores?.find(p => p.usuario_id === prof.id);
-        const escola = perfil ? escolas?.find(e => e.id === perfil.escola_id) : null;
-        
         return {
           id: prof.id,
+          usuario_id: prof.usuario_id,
           usuarios: {
-            id: prof.id,
-            nome: prof.nome || 'Nome não informado',
-            email: prof.email || 'Email não informado',
-            cpf: prof.cpf || 'CPF não informado',
-            telefone: prof.telefone || 'N/A'
+            id: prof.usuarios?.id,
+            nome: prof.usuarios?.nome || 'Nome não informado',
+            email: prof.usuarios?.email || 'Email não informado',
+            cpf: prof.usuarios?.cpf || 'CPF não informado',
+            telefone: prof.usuarios?.telefone || prof.telefone_contato || 'N/A'
           },
-          escola_nome: escola?.nome || 'Sem vínculo',
-          disciplinas: [],
-          ativo: perfil?.ativo ?? true
+          escola_nome: prof.escolas?.nome || 'Sem vínculo',
+          escola_cidade: prof.escolas?.cidade || '',
+          escola_estado: prof.escolas?.estado || '',
+          disciplinas: prof.disciplinas || [],
+          formacao: prof.formacao || 'Não informado',
+          especializacao: prof.especializacao || 'Não informado',
+          anos_experiencia: prof.anos_experiencia || 0,
+          telefone_contato: prof.telefone_contato || 'N/A',
+          observacoes: prof.observacoes || '',
+          ativo: prof.ativo ?? true,
+          criado_em: prof.criado_em
         };
       }) || [];
 
@@ -1794,18 +1806,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar usuários com papel 'aluno' - não há relação direta com escola na tabela usuarios
+      // Buscar dados completos diretamente da tabela perfis_aluno
       const { data: alunos, error } = await supabase
-        .from('usuarios')
+        .from('perfis_aluno')
         .select(`
           id,
-          nome,
-          email,
-          cpf,
-          papel,
-          telefone
+          usuario_id,
+          turma_id,
+          numero_matricula,
+          data_matricula,
+          serie,
+          turno,
+          responsavel_nome,
+          responsavel_telefone,
+          responsavel_email,
+          endereco,
+          data_nascimento,
+          observacoes,
+          ativo,
+          criado_em,
+          usuarios!perfis_aluno_usuario_id_fkey (
+            id,
+            nome,
+            email,
+            cpf,
+            telefone
+          ),
+          turmas!perfis_aluno_turma_id_fkey (
+            id,
+            nome,
+            serie,
+            turno,
+            escola_id,
+            escolas!turmas_escola_id_fkey (
+              id,
+              nome,
+              cidade,
+              estado
+            )
+          )
         `)
-        .eq('papel', 'aluno');
+        .in('turmas.escola_id', escolaIds);
 
       if (error) {
         console.error("Erro ao buscar alunos:", error);
@@ -1814,23 +1855,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Alunos encontrados no banco: ${alunos?.length || 0}`);
 
-      // Formatar dados dos alunos (sem vinculação específica a escolas)
+      // Formatar dados com informações completas do perfil de aluno
       const alunosFormatados = alunos?.map(aluno => {
         return {
           id: aluno.id,
+          usuario_id: aluno.usuario_id,
           usuarios: {
-            id: aluno.id,
-            nome: aluno.nome || 'Nome não informado',
-            email: aluno.email || 'Email não informado',
-            cpf: aluno.cpf || 'CPF não informado',
-            telefone: aluno.telefone || 'N/A'
+            id: aluno.usuarios?.id,
+            nome: aluno.usuarios?.nome || 'Nome não informado',
+            email: aluno.usuarios?.email || 'Email não informado',
+            cpf: aluno.usuarios?.cpf || 'CPF não informado',
+            telefone: aluno.usuarios?.telefone || 'N/A'
           },
           turmas: {
-            id: '',
-            nome: 'Não vinculado'
+            id: aluno.turmas?.id || '',
+            nome: aluno.turmas?.nome || 'Não vinculado',
+            serie: aluno.turmas?.serie || aluno.serie || '',
+            turno: aluno.turmas?.turno || aluno.turno || ''
           },
-          matriculas: [],
-          escola_nome: 'Geral'
+          escola_nome: aluno.turmas?.escolas?.nome || 'Sem vínculo',
+          escola_cidade: aluno.turmas?.escolas?.cidade || '',
+          escola_estado: aluno.turmas?.escolas?.estado || '',
+          numero_matricula: aluno.numero_matricula || 'Não informado',
+          data_matricula: aluno.data_matricula || null,
+          serie: aluno.serie || 'Não informado',
+          turno: aluno.turno || 'Não informado',
+          responsavel_nome: aluno.responsavel_nome || 'Não informado',
+          responsavel_telefone: aluno.responsavel_telefone || 'N/A',
+          responsavel_email: aluno.responsavel_email || 'N/A',
+          endereco: aluno.endereco || 'Não informado',
+          data_nascimento: aluno.data_nascimento || null,
+          observacoes: aluno.observacoes || '',
+          ativo: aluno.ativo ?? true,
+          criado_em: aluno.criado_em
         };
       }) || [];
 
