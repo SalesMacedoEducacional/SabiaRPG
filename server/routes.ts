@@ -1705,7 +1705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar dados completos diretamente da tabela perfis_professor
+      // Buscar dados da tabela perfis_professor com joins
       const { data: professores, error } = await supabase
         .from('perfis_professor')
         .select(`
@@ -1713,11 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           usuario_id,
           escola_id,
           disciplinas,
-          formacao,
-          especializacao,
-          anos_experiencia,
-          telefone_contato,
-          observacoes,
+          turmas,
           ativo,
           criado_em,
           usuarios!perfis_professor_usuario_id_fkey (
@@ -1743,7 +1739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Professores encontrados no banco: ${professores?.length || 0}`);
 
-      // Formatar dados com informações completas do perfil
+      // Formatar dados com informações do perfil professor
       const professoresFormatados = professores?.map(prof => {
         return {
           id: prof.id,
@@ -1753,17 +1749,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             nome: prof.usuarios?.nome || 'Nome não informado',
             email: prof.usuarios?.email || 'Email não informado',
             cpf: prof.usuarios?.cpf || 'CPF não informado',
-            telefone: prof.usuarios?.telefone || prof.telefone_contato || 'N/A'
+            telefone: prof.usuarios?.telefone || 'N/A'
           },
           escola_nome: prof.escolas?.nome || 'Sem vínculo',
           escola_cidade: prof.escolas?.cidade || '',
           escola_estado: prof.escolas?.estado || '',
           disciplinas: prof.disciplinas || [],
-          formacao: prof.formacao || 'Não informado',
-          especializacao: prof.especializacao || 'Não informado',
-          anos_experiencia: prof.anos_experiencia || 0,
-          telefone_contato: prof.telefone_contato || 'N/A',
-          observacoes: prof.observacoes || '',
+          turmas: prof.turmas || [],
+          formacao: 'Não informado',
+          especializacao: 'Não informado',
+          anos_experiencia: 0,
+          telefone_contato: prof.usuarios?.telefone || 'N/A',
+          observacoes: '',
           ativo: prof.ativo ?? true,
           criado_em: prof.criado_em
         };
@@ -1806,47 +1803,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar dados completos diretamente da tabela perfis_aluno
+      // Buscar usuários com papel 'aluno' - sem tabela perfis_aluno específica
       const { data: alunos, error } = await supabase
-        .from('perfis_aluno')
+        .from('usuarios')
         .select(`
           id,
-          usuario_id,
-          turma_id,
-          numero_matricula,
-          data_matricula,
-          serie,
-          turno,
-          responsavel_nome,
-          responsavel_telefone,
-          responsavel_email,
-          endereco,
-          data_nascimento,
-          observacoes,
-          ativo,
-          criado_em,
-          usuarios!perfis_aluno_usuario_id_fkey (
-            id,
-            nome,
-            email,
-            cpf,
-            telefone
-          ),
-          turmas!perfis_aluno_turma_id_fkey (
-            id,
-            nome,
-            serie,
-            turno,
-            escola_id,
-            escolas!turmas_escola_id_fkey (
-              id,
-              nome,
-              cidade,
-              estado
-            )
-          )
+          nome,
+          email,
+          cpf,
+          telefone,
+          papel
         `)
-        .in('turmas.escola_id', escolaIds);
+        .eq('papel', 'aluno');
 
       if (error) {
         console.error("Erro ao buscar alunos:", error);
@@ -1855,39 +1823,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Alunos encontrados no banco: ${alunos?.length || 0}`);
 
-      // Formatar dados com informações completas do perfil de aluno
+      // Formatar dados básicos dos alunos
       const alunosFormatados = alunos?.map(aluno => {
         return {
           id: aluno.id,
-          usuario_id: aluno.usuario_id,
+          usuario_id: aluno.id,
           usuarios: {
-            id: aluno.usuarios?.id,
-            nome: aluno.usuarios?.nome || 'Nome não informado',
-            email: aluno.usuarios?.email || 'Email não informado',
-            cpf: aluno.usuarios?.cpf || 'CPF não informado',
-            telefone: aluno.usuarios?.telefone || 'N/A'
+            id: aluno.id,
+            nome: aluno.nome || 'Nome não informado',
+            email: aluno.email || 'Email não informado',
+            cpf: aluno.cpf || 'CPF não informado',
+            telefone: aluno.telefone || 'N/A'
           },
           turmas: {
-            id: aluno.turmas?.id || '',
-            nome: aluno.turmas?.nome || 'Não vinculado',
-            serie: aluno.turmas?.serie || aluno.serie || '',
-            turno: aluno.turmas?.turno || aluno.turno || ''
+            id: '',
+            nome: 'Não vinculado',
+            serie: '',
+            turno: ''
           },
-          escola_nome: aluno.turmas?.escolas?.nome || 'Sem vínculo',
-          escola_cidade: aluno.turmas?.escolas?.cidade || '',
-          escola_estado: aluno.turmas?.escolas?.estado || '',
-          numero_matricula: aluno.numero_matricula || 'Não informado',
-          data_matricula: aluno.data_matricula || null,
-          serie: aluno.serie || 'Não informado',
-          turno: aluno.turno || 'Não informado',
-          responsavel_nome: aluno.responsavel_nome || 'Não informado',
-          responsavel_telefone: aluno.responsavel_telefone || 'N/A',
-          responsavel_email: aluno.responsavel_email || 'N/A',
-          endereco: aluno.endereco || 'Não informado',
-          data_nascimento: aluno.data_nascimento || null,
-          observacoes: aluno.observacoes || '',
-          ativo: aluno.ativo ?? true,
-          criado_em: aluno.criado_em
+          escola_nome: 'Geral',
+          escola_cidade: '',
+          escola_estado: '',
+          numero_matricula: 'N/A',
+          data_matricula: null,
+          serie: 'N/A',
+          turno: 'N/A',
+          responsavel_nome: 'N/A',
+          responsavel_telefone: 'N/A',
+          responsavel_email: 'N/A',
+          endereco: 'N/A',
+          data_nascimento: null,
+          observacoes: '',
+          ativo: true,
+          criado_em: new Date().toISOString()
         };
       }) || [];
 
