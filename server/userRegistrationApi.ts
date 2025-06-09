@@ -42,6 +42,18 @@ export function registerUserRegistrationRoutes(app: Express) {
 
       const { nome_completo, email, telefone, data_nascimento, papel, turma_id, numero_matricula, cpf } = req.body;
 
+      console.log('=== INICIANDO CADASTRO DE USUÁRIO ===');
+      console.log('Dados recebidos:', {
+        nome_completo,
+        email,
+        telefone,
+        data_nascimento,
+        papel,
+        cpf,
+        turma_id,
+        numero_matricula
+      });
+
       // Validar campos obrigatórios
       if (!nome_completo || !email || !telefone || !data_nascimento || !papel) {
         return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });

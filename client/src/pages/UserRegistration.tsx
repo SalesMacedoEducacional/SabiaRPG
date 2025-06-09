@@ -200,7 +200,7 @@ export default function UserRegistration() {
       if (data.papel === "aluno" && data.turma_id && data.numero_matricula) {
         formData.append("turma_id", data.turma_id);
         formData.append("numero_matricula", data.numero_matricula);
-      } else if (data.papel === "professor" && data.cpf) {
+      } else if ((data.papel === "professor" || data.papel === "gestor") && data.cpf) {
         formData.append("cpf", data.cpf);
       }
       
