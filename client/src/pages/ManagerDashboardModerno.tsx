@@ -533,7 +533,7 @@ export default function ManagerDashboardModerno() {
                         </div>
                         <div>
                           <p className="text-white text-sm font-medium">Novo relatório gerado</p>
-                          <p className="text-white/70 text-xs">Relatório bimestral da Escola Municipal Pedro II</p>
+                          <p className="text-white/70 text-xs">Relatório bimestral das escolas vinculadas</p>
                           <p className="text-accent text-xs">Hoje, 09:45</p>
                         </div>
                       </div>
@@ -612,53 +612,7 @@ export default function ManagerDashboardModerno() {
                     </button>
                   </div>
                   <div className="p-4">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="text-white text-sm border-b border-accent/30">
-                          <tr>
-                            <th className="px-3 py-2">Nome</th>
-                            <th className="px-3 py-2">Localização</th>
-                            <th className="px-3 py-2">Turmas</th>
-                            <th className="px-3 py-2">Status</th>
-                            <th className="px-3 py-2">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-white/80 text-sm">
-                          <tr className="border-b border-accent/10 hover:bg-[#3a3730]">
-                            <td className="px-3 py-2.5">Escola Municipal Pedro II</td>
-                            <td className="px-3 py-2.5">Teresina, PI</td>
-                            <td className="px-3 py-2.5">1</td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
-                                Ativo
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center space-x-2">
-                                <button className="text-accent hover:text-white">Editar</button>
-                                <button className="text-accent hover:text-white">Detalhes</button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr className="border-b border-accent/10 hover:bg-[#3a3730]">
-                            <td className="px-3 py-2.5">Colégio Estadual José Alves</td>
-                            <td className="px-3 py-2.5">Picos, PI</td>
-                            <td className="px-3 py-2.5">1</td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
-                                Ativo
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center space-x-2">
-                                <button className="text-accent hover:text-white">Editar</button>
-                                <button className="text-accent hover:text-white">Detalhes</button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                    <SchoolsList />
                   </div>
                 </div>
               </div>
@@ -741,7 +695,7 @@ export default function ManagerDashboardModerno() {
                         <label className="block text-white text-sm mb-1.5">Escola</label>
                         <select className="w-full bg-[#3a3730] text-white border border-accent/50 rounded py-2 px-3 text-sm">
                           <option value="">Todas as escolas</option>
-                          <option>Escola Municipal Pedro II</option>
+                          <option>Todas as Escolas</option>
                           <option>Colégio Estadual José Alves</option>
                         </select>
                       </div>

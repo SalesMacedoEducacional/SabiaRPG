@@ -15,42 +15,37 @@ export function registerGestorEscolasRoutes(app: Express) {
    */
   app.get("/api/escolas/gestor", authenticateCustom, requireRole(["manager", "admin"]), async (req: Request, res: Response) => {
     try {
-      console.log("Verificando escola vinculada ao gestor:", req.session?.userId);
+      const gestorId = req.session?.userId;
+      console.log("Buscando escolas reais para gestor:", gestorId);
       
-      // Buscar escolas reais vinculadas ao gestor
-      const { data: escolasVinculadas, error: errorVinculadas } = await supabase
+      if (!gestorId) {
+        return res.status(401).json({ message: "Gestor não identificado" });
+      }
+      
+      // Buscar APENAS escolas reais do banco de dados
+      const { data: escolas, error } = await supabase
         .from('escolas')
-        .select(`
-          id,
-          nome,
-          codigo_escola,
-          tipo,
-          modalidade_ensino,
-          cidade,
-          estado,
-          zona_geografica,
-          endereco_completo,
-          telefone,
-          email_institucional,
-          criado_em
-        `)
-        .eq('gestor_id', req.session?.userId)
+        .select('*')
+        .eq('gestor_id', gestorId)
         .order('nome');
       
-      if (errorVinculadas) {
-        console.error("Erro ao buscar escolas do gestor:", errorVinculadas.message);
+      if (error) {
+        console.error("Erro na consulta SQL:", error);
         return res.status(500).json({ 
-          message: "Erro ao buscar escolas vinculadas", 
-          error: errorVinculadas.message 
+          message: "Erro ao buscar escolas", 
+          error: error.message 
         });
       }
       
-      console.log(`Encontradas ${escolasVinculadas?.length || 0} escolas vinculadas ao gestor`);
-      return res.status(200).json(escolasVinculadas || []);
+      console.log(`DADOS REAIS: ${escolas?.length || 0} escolas encontradas no banco`);
+      console.log("Escolas:", escolas?.map(e => e.nome) || []);
+      
+      // Retornar APENAS dados autênticos do banco
+      return res.status(200).json(escolas || []);
     } catch (error) {
-      console.error("Erro ao buscar escolas do gestor:", error);
+      console.error("Erro interno:", error);
       return res.status(500).json({ 
-        message: "Erro interno ao consultar escolas", 
+        message: "Erro interno", 
         error: error instanceof Error ? error.message : "Erro desconhecido" 
       });
     }
