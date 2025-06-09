@@ -1772,9 +1772,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Rota para buscar todos os usuários do gestor
-  app.get("/api/users/manager", authenticateCustom, requireRole(['manager']), async (req, res) => {
+  app.get("/api/users/manager", authenticate, authorize(["manager"]), async (req, res) => {
     try {
-      const gestorId = req.user?.id;
+      const gestorId = req.session.userId;
       
       if (!gestorId) {
         return res.status(401).json({ message: "Gestor não identificado" });

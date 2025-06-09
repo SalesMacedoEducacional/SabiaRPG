@@ -45,12 +45,12 @@ export default function UsersList() {
   });
 
   const filteredUsers = usersData?.usuarios?.filter(user => {
-    const matchesSearch = user.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.cpf.includes(searchTerm);
+    const matchesSearch = (user?.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user?.cpf || '').includes(searchTerm);
     
-    const matchesSchool = selectedSchool === 'all' || user.escola_nome === selectedSchool;
-    const matchesRole = selectedRole === 'all' || user.papel === selectedRole;
+    const matchesSchool = selectedSchool === 'all' || (user?.escola_nome || '') === selectedSchool;
+    const matchesRole = selectedRole === 'all' || (user?.papel || '') === selectedRole;
     
     return matchesSearch && matchesSchool && matchesRole;
   }) || [];
