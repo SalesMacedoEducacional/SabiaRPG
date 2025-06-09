@@ -14,6 +14,7 @@ import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegist
 import SchoolsList from '../components/manager/SchoolsList';
 import TeachersList from '../components/manager/TeachersList';
 import StudentsList from '../components/manager/StudentsList';
+import UsersList from '../components/manager/UsersList';
 
 import { 
   Home, 
@@ -672,6 +673,12 @@ export default function ManagerDashboardModerno() {
           {activeMenu === "students" && (
             <div>
               <StudentsList />
+            </div>
+          )}
+          
+          {activeMenu === "users" && (
+            <div>
+              <UsersList />
             </div>
           )}
           
