@@ -132,6 +132,12 @@ export function registerUserRegistrationRoutes(app: Express) {
 
       if (insertError) {
         console.error('Erro ao inserir usuário:', insertError);
+        
+        // Tratar erro de email duplicado especificamente
+        if (insertError.code === '23505' && insertError.message.includes('usuarios_email_key')) {
+          return res.status(400).json({ message: 'Este email já está cadastrado no sistema' });
+        }
+        
         return res.status(500).json({ message: 'Erro ao salvar usuário: ' + insertError.message });
       }
 
