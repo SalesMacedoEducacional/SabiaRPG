@@ -486,7 +486,7 @@ export default function UserRegistration() {
                       </>
                     )}
 
-                    {papel === "professor" && (
+                    {(papel === "professor" || papel === "gestor") && (
                       <FormField
                         control={form.control}
                         name="cpf"

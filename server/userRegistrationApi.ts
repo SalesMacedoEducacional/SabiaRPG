@@ -58,14 +58,18 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(400).json({ message: 'Este email já está cadastrado' });
       }
 
-      // Gerar senha temporária baseada no papel
+      // Gerar senha temporária baseada no papel (seguindo regras do Supabase)
       let senhaTemporaria = '';
       if (papel === 'aluno' && numero_matricula) {
-        senhaTemporaria = numero_matricula;
-      } else if (papel === 'professor' && cpf) {
-        senhaTemporaria = cpf.replace(/[.-]/g, '');
+        // Para alunos: matrícula + caracteres especiais para atender aos requisitos
+        senhaTemporaria = numero_matricula + 'Aluno@2024';
+      } else if ((papel === 'professor' || papel === 'gestor') && cpf) {
+        // Para professores e gestores: CPF limpo + caracteres especiais
+        const cpfLimpo = cpf.replace(/[.-]/g, '');
+        senhaTemporaria = cpfLimpo + 'Temp@123';
       } else {
-        senhaTemporaria = '123456'; // Senha padrão para gestores
+        // Senha padrão segura para casos não especificados
+        senhaTemporaria = 'SabiaRpg@2024';
       }
 
       // Criar usuário no Supabase Auth
