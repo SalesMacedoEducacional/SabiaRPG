@@ -12,6 +12,8 @@ import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCar
 import ManagerProfile from '../components/manager/ManagerProfile';
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import SchoolsList from '../components/manager/SchoolsList';
+import TeachersList from '../components/manager/TeachersList';
+import StudentsList from '../components/manager/StudentsList';
 
 import { 
   Home, 
@@ -658,6 +660,18 @@ export default function ManagerDashboardModerno() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+          
+          {activeMenu === "teachers" && (
+            <div>
+              <TeachersList />
+            </div>
+          )}
+          
+          {activeMenu === "students" && (
+            <div>
+              <StudentsList />
             </div>
           )}
           

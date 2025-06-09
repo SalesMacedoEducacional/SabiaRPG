@@ -1732,6 +1732,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rota para buscar todos os usuários do gestor
+  app.get("/api/users/manager", authenticateCustom, requireRole(['manager']), async (req, res) => {
+    try {
+      const gestorId = req.user?.id;
+      
+      if (!gestorId) {
+        return res.status(401).json({ message: "Gestor não identificado" });
+      }
+
+      console.log(`Buscando todos os usuários para o gestor: ${gestorId}`);
+
+      // Buscar usuários das escolas vinculadas ao gestor
+      const { data: usuarios, error } = await supabase
+        .from('usuarios')
+        .select(`
+          id,
+          nome,
+          email,
+          cpf,
+          papel,
+          ativo,
+          criado_em,
+          escolas!inner (
+            id,
+            nome,
+            gestor_id
+          )
+        `)
+        .eq('escolas.gestor_id', gestorId);
+
+      if (error) {
+        console.error("Erro ao buscar usuários:", error);
+        return res.status(500).json({ message: "Erro ao buscar usuários" });
+      }
+
+      // Formatar resposta
+      const usuariosFormatados = usuarios?.map(user => ({
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        cpf: user.cpf,
+        papel: user.papel,
+        escola_nome: user.escolas.nome,
+        ativo: user.ativo ?? true,
+        criado_em: user.criado_em
+      })) || [];
+
+      console.log(`Encontrados ${usuariosFormatados.length} usuários`);
+
+      res.json({
+        total: usuariosFormatados.length,
+        usuarios: usuariosFormatados
+      });
+
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
   

@@ -113,7 +113,7 @@ export default function TeachersList() {
               </SelectTrigger>
               <SelectContent className="bg-[#312e26] border-primary/30">
                 <SelectItem value="all">Todas as escolas</SelectItem>
-                {schoolsData?.map((school: any) => (
+                {Array.isArray(schoolsData) && schoolsData?.map((school: any) => (
                   <SelectItem key={school.id} value={school.nome}>
                     {school.nome}
                   </SelectItem>
