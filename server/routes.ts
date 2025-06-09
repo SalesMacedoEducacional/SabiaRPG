@@ -1663,10 +1663,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: prof.id,
           usuarios: {
             id: prof.id,
-            nome: prof.nome,
+            nome: prof.nome || 'Nome não informado',
             email: prof.email,
             cpf: prof.cpf,
-            telefone: prof.telefone
+            telefone: prof.telefone || 'N/A'
           },
           escola_nome: escola?.nome || 'Sem vínculo',
           disciplinas: [],
