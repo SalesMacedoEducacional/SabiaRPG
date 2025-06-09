@@ -1633,15 +1633,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ total: 0, professores: [] });
       }
 
-      // Buscar professores das escolas vinculadas ao gestor
-      const { data: professores, error } = await supabase
+      // Buscar perfis de professores das escolas vinculadas ao gestor
+      const { data: perfisProfessores, error } = await supabase
         .from('perfis_professor')
         .select(`
           id,
-          ativo,
-          disciplinas,
           usuario_id,
-          escola_id
+          escola_id,
+          disciplinas,
+          ativo
         `)
         .in('escola_id', escolaIds);
 
@@ -1650,22 +1650,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar professores" });
       }
 
-      // Buscar dados dos usuários e escolas separadamente
-      const usuarioIds = professores?.map(p => p.usuario_id) || [];
+      // Buscar dados dos usuários
+      const usuarioIds = perfisProfessores?.map(p => p.usuario_id) || [];
       const { data: usuarios } = await supabase
         .from('usuarios')
         .select('id, nome, email, cpf, telefone')
         .in('id', usuarioIds);
 
-      const { data: escolasInfo } = await supabase
-        .from('escolas')
-        .select('id, nome')
-        .in('id', escolaIds);
-
       // Combinar dados
-      const professoresFormatados = professores?.map(prof => {
+      const professoresFormatados = perfisProfessores?.map(prof => {
         const usuario = usuarios?.find(u => u.id === prof.usuario_id);
-        const escola = escolasInfo?.find(e => e.id === prof.escola_id);
+        const escola = escolas?.find(e => e.id === prof.escola_id);
         
         return {
           id: prof.id,
@@ -1717,68 +1712,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ total: 0, alunos: [] });
       }
 
-      // Buscar turmas das escolas do gestor
-      const { data: turmas, error: turmasError } = await supabase
-        .from('turmas')
-        .select('id, nome, escola_id')
-        .in('escola_id', escolaIds);
-
-      if (turmasError) {
-        console.error("Erro ao buscar turmas:", turmasError);
-        return res.status(500).json({ message: "Erro ao buscar turmas" });
-      }
-
-      const turmaIds = turmas?.map(t => t.id) || [];
-
-      if (turmaIds.length === 0) {
-        return res.json({ total: 0, alunos: [] });
-      }
-
-      // Buscar alunos das turmas
+      // Buscar usuários com papel 'aluno' das escolas vinculadas ao gestor
       const { data: alunos, error } = await supabase
-        .from('perfis_aluno')
+        .from('usuarios')
         .select(`
           id,
-          usuario_id,
-          turma_id,
-          matricula_id
+          nome,
+          email,
+          cpf,
+          papel,
+          ativo,
+          escola_id
         `)
-        .in('turma_id', turmaIds);
+        .eq('papel', 'aluno')
+        .in('escola_id', escolaIds);
 
       if (error) {
         console.error("Erro ao buscar alunos:", error);
         return res.status(500).json({ message: "Erro ao buscar alunos" });
       }
 
-      // Buscar dados dos usuários separadamente
-      const usuarioIds = alunos?.map(a => a.usuario_id) || [];
-      const { data: usuarios } = await supabase
-        .from('usuarios')
-        .select('id, nome, email, cpf')
-        .in('id', usuarioIds);
-
-      // Buscar dados das matrículas
-      const matriculaIds = alunos?.map(a => a.matricula_id).filter(id => id) || [];
-      const { data: matriculas } = await supabase
-        .from('matriculas')
-        .select('id, numero_matricula')
-        .in('id', matriculaIds);
-
-      // Combinar dados
+      // Combinar dados diretamente
       const alunosFormatados = alunos?.map(aluno => {
-        const usuario = usuarios?.find(u => u.id === aluno.usuario_id);
-        const turma = turmas?.find(t => t.id === aluno.turma_id);
-        const escola = escolas?.find(e => e.id === turma?.escola_id);
-        const matricula = matriculas?.find(m => m.id === aluno.matricula_id);
+        const escola = escolas?.find(e => e.id === aluno.escola_id);
         
         return {
           id: aluno.id,
-          usuarios: usuario || {},
-          turmas: {
-            id: turma?.id || '',
-            nome: turma?.nome || 'Turma não encontrada'
+          usuarios: {
+            id: aluno.id,
+            nome: aluno.nome,
+            email: aluno.email,
+            cpf: aluno.cpf
           },
-          matriculas: matricula ? [{ numero_matricula: matricula.numero_matricula }] : [],
+          turmas: {
+            id: '',
+            nome: 'Não vinculado'
+          },
+          matriculas: [],
           escola_nome: escola?.nome || 'Escola não encontrada'
         };
       }) || [];
