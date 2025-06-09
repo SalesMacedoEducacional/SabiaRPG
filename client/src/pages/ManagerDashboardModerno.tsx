@@ -268,6 +268,22 @@ export default function ManagerDashboardModerno() {
               </button>
               
               <button 
+                onClick={() => setActiveMenu("teachers")}
+                className={`${activeMenu === "teachers" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
+              >
+                <User size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Professores</span>}
+              </button>
+              
+              <button 
+                onClick={() => setActiveMenu("students")}
+                className={`${activeMenu === "students" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
+              >
+                <GraduationCap size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Alunos</span>}
+              </button>
+              
+              <button 
                 onClick={() => setActiveMenu("users")}
                 className={`${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >

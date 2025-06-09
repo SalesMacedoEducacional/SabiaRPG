@@ -1,0 +1,76 @@
+✅ PROMPT PARA O REPLIT – INTEGRAÇÃO DO MENU DO GESTOR COM O BANCO DE DADOS
+
+OBJETIVO: Implementar a funcionalidade do menu lateral do painel do gestor no SABIÁ RPG. Cada item do menu deve consultar diretamente os dados reais do Supabase, com base no gestor autenticado (req.user.id).
+
+⚙️ PADRÃO GERAL:
+- Todas as consultas devem considerar o gestor logado (gestor_id = req.user.id).
+- Os dados exibidos devem estar relacionados às escolas em que esse gestor é responsável.
+- Para cada rota, gerar uma função API REST no backend com Supabase.
+- Layout deve usar componentes do projeto já existentes (Tailwind + Shadcn/ui).
+
+──────────────────────────────────────────────
+📌 1. ESCOLAS – MENU LATERAL: "Escolas"
+──────────────────────────────────────────────
+- Buscar todas as escolas da tabela `escolas` em que `gestor_id = req.user.id`.
+- Exibir: nome, cidade, estado, status.
+- Calcular também o total de turmas da escola (usando COUNT).
+- Adicionar botão "Ver Detalhes" e "Editar".
+
+🛠️ Backend (Exemplo de SQL):
+SELECT e.*, (
+  SELECT COUNT(*) FROM turmas t WHERE t.escola_id = e.id
+) AS total_turmas
+FROM escolas e
+WHERE e.gestor_id = {{req.user.id}};
+
+──────────────────────────────────────────────
+📌 2. PROFESSORES – MENU LATERAL: "Professores"
+──────────────────────────────────────────────
+- Buscar na tabela `perfis_professor` todos os professores vinculados às escolas do gestor logado.
+- Exibir: nome, cpf, telefone, email, escola.
+- Permitir exibição agrupada por escola.
+
+🛠️ Backend:
+SELECT pp.*, u.email, e.nome AS escola_nome
+FROM perfis_professor pp
+JOIN usuarios u ON u.id = pp.usuario_id
+JOIN escolas e ON e.id = pp.escola_id
+WHERE e.gestor_id = {{req.user.id}};
+
+──────────────────────────────────────────────
+📌 3. USUÁRIOS – MENU LATERAL: "Usuários"
+──────────────────────────────────────────────
+- Buscar na tabela `usuarios` todos os usuários com `escola_id` vinculada a uma escola onde `gestor_id = req.user.id`.
+- Exibir: nome, email, papel, status, data de criação.
+
+🛠️ Backend:
+SELECT u.*
+FROM usuarios u
+JOIN escolas e ON u.escola_id = e.id
+WHERE e.gestor_id = {{req.user.id}};
+
+──────────────────────────────────────────────
+📌 4. ALUNOS – NOVO ITEM DE MENU: "Alunos"
+──────────────────────────────────────────────
+- Criar novo item no menu lateral com nome "Alunos" (ícone: 🎓).
+- Buscar na tabela `perfis_aluno` os alunos que:
+  → Têm `turma_id` em turmas da escola do gestor logado.
+- Exibir: nome_aluno, matrícula, turma, escola.
+- Permitir filtro por escola ou turma (dropdown).
+
+🛠️ Backend:
+SELECT pa.*, m.numero_matricula, t.nome AS turma_nome, e.nome AS escola_nome
+FROM perfis_aluno pa
+JOIN matriculas m ON pa.matricula_id = m.id
+JOIN turmas t ON pa.turma_id = t.id
+JOIN escolas e ON t.escola_id = e.id
+WHERE e.gestor_id = {{req.user.id}};
+
+──────────────────────────────────────────────
+💡 EXTRAS:
+- Toda listagem deve permitir paginação e busca.
+- Incluir botão "Cadastrar novo" no topo de cada listagem (ex: novo aluno, novo professor).
+- Garantir que apenas dados do gestor logado sejam exibidos.
+- A autenticação já está vinculada via Supabase Auth. Use auth.uid() para políticas RLS se necessário.
+- Os nomes dos botões, rotas e componentes devem seguir o padrão visual do painel.
+
