@@ -1712,7 +1712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ total: 0, alunos: [] });
       }
 
-      // Buscar usuários com papel 'aluno' das escolas vinculadas ao gestor
+      // Buscar usuários com papel 'aluno' - não há relação direta com escola na tabela usuarios
       const { data: alunos, error } = await supabase
         .from('usuarios')
         .select(`
@@ -1720,22 +1720,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           nome,
           email,
           cpf,
-          papel,
-          ativo,
-          escola_id
+          papel
         `)
-        .eq('papel', 'aluno')
-        .in('escola_id', escolaIds);
+        .eq('papel', 'aluno');
 
       if (error) {
         console.error("Erro ao buscar alunos:", error);
         return res.status(500).json({ message: "Erro ao buscar alunos" });
       }
 
-      // Combinar dados diretamente
+      // Formatar dados dos alunos (sem vinculação específica a escolas)
       const alunosFormatados = alunos?.map(aluno => {
-        const escola = escolas?.find(e => e.id === aluno.escola_id);
-        
         return {
           id: aluno.id,
           usuarios: {
@@ -1749,7 +1744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             nome: 'Não vinculado'
           },
           matriculas: [],
-          escola_nome: escola?.nome || 'Escola não encontrada'
+          escola_nome: 'Geral'
         };
       }) || [];
 
