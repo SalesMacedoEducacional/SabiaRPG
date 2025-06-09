@@ -1619,7 +1619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Buscar escolas do gestor primeiro
       const { data: escolas, error: escolasError } = await supabase
         .from('escolas')
-        .select('id')
+        .select('id, nome')
         .eq('gestor_id', gestorId);
 
       if (escolasError) {
@@ -1629,45 +1629,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      if (escolaIds.length === 0) {
-        return res.json({ total: 0, professores: [] });
-      }
-
-      // Buscar perfis de professores das escolas vinculadas ao gestor
-      const { data: perfisProfessores, error } = await supabase
-        .from('perfis_professor')
+      // Buscar todos os usuários com papel 'professor'
+      const { data: professores, error } = await supabase
+        .from('usuarios')
         .select(`
           id,
-          usuario_id,
-          escola_id,
-          disciplinas,
-          ativo
+          nome,
+          email,
+          cpf,
+          telefone,
+          papel
         `)
-        .in('escola_id', escolaIds);
+        .eq('papel', 'professor');
 
       if (error) {
         console.error("Erro ao buscar professores:", error);
         return res.status(500).json({ message: "Erro ao buscar professores" });
       }
 
-      // Buscar dados dos usuários
-      const usuarioIds = perfisProfessores?.map(p => p.usuario_id) || [];
-      const { data: usuarios } = await supabase
-        .from('usuarios')
-        .select('id, nome, email, cpf, telefone')
-        .in('id', usuarioIds);
+      // Buscar perfis de professores para obter vínculo com escolas
+      const usuarioIds = professores?.map(p => p.id) || [];
+      const { data: perfisProfessores } = await supabase
+        .from('perfis_professor')
+        .select('usuario_id, escola_id, ativo')
+        .in('usuario_id', usuarioIds);
 
       // Combinar dados
-      const professoresFormatados = perfisProfessores?.map(prof => {
-        const usuario = usuarios?.find(u => u.id === prof.usuario_id);
-        const escola = escolas?.find(e => e.id === prof.escola_id);
+      const professoresFormatados = professores?.map(prof => {
+        const perfil = perfisProfessores?.find(p => p.usuario_id === prof.id);
+        const escola = perfil ? escolas?.find(e => e.id === perfil.escola_id) : null;
         
         return {
           id: prof.id,
-          usuarios: usuario || {},
-          escola_nome: escola?.nome || 'Escola não encontrada',
-          disciplinas: prof.disciplinas || [],
-          ativo: prof.ativo ?? true
+          usuarios: {
+            id: prof.id,
+            nome: prof.nome,
+            email: prof.email,
+            cpf: prof.cpf,
+            telefone: prof.telefone
+          },
+          escola_nome: escola?.nome || 'Sem vínculo',
+          disciplinas: [],
+          ativo: perfil?.ativo ?? true
         };
       }) || [];
 
@@ -1707,10 +1710,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const escolaIds = escolas?.map(e => e.id) || [];
-
-      if (escolaIds.length === 0) {
-        return res.json({ total: 0, alunos: [] });
-      }
 
       // Buscar usuários com papel 'aluno' - não há relação direta com escola na tabela usuarios
       const { data: alunos, error } = await supabase
