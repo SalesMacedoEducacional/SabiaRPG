@@ -57,26 +57,9 @@ export function registerGestorEscolasRoutes(app: Express) {
         return res.status(200).json(escolas);
       }
       
-      // Último recurso: buscar todas as escolas para desenvolvimento
-      console.log("Nenhuma escola encontrada via perfis_gestor. Buscando todas as escolas (para desenvolvimento)...");
-      
-      // Obter todas as escolas (apenas para ambiente de desenvolvimento)
-      const { data: todasEscolas, error: errorTodas } = await supabase
-        .from('escolas')
-        .select('*')
-        .order('nome')
-        .limit(3);
-      
-      if (errorTodas) {
-        console.error("Erro ao buscar todas as escolas:", errorTodas.message);
-        return res.status(500).json({
-          message: "Erro ao buscar escolas", 
-          error: errorTodas.message
-        });
-      }
-      
-      console.log("Retornando todas as escolas para desenvolvimento:", todasEscolas?.length || 0);
-      return res.status(200).json(todasEscolas || []);
+      // Se chegou até aqui, o gestor não tem escolas vinculadas
+      console.log("Nenhuma escola encontrada vinculada ao gestor");
+      return res.status(200).json([]);
     } catch (error) {
       console.error("Erro ao buscar escolas do gestor:", error);
       return res.status(500).json({ 
