@@ -695,8 +695,6 @@ export default function ManagerDashboardModerno() {
                         <label className="block text-white text-sm mb-1.5">Escola</label>
                         <select className="w-full bg-[#3a3730] text-white border border-accent/50 rounded py-2 px-3 text-sm">
                           <option value="">Todas as escolas</option>
-                          <option>Todas as Escolas</option>
-                          <option>Colégio Estadual José Alves</option>
                         </select>
                       </div>
                       <div>
