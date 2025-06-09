@@ -114,11 +114,10 @@ export function registerUserRegistrationRoutes(app: Express) {
       const telefoneClean = telefone.replace(/\D/g, '');
       const cpfClean = cpf ? cpf.replace(/\D/g, '') : null;
 
-      // Inserir na tabela usuarios
+      // Inserir na tabela usuarios (sem especificar ID, deixa o banco gerar automaticamente)
       const { data: novoUsuario, error: insertError } = await supabase
         .from('usuarios')
         .insert({
-          id: authData.user.id,
           email,
           nome: nome_completo,
           telefone: telefoneClean,
