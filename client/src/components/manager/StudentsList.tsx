@@ -57,13 +57,13 @@ export default function StudentsList() {
   });
 
   const filteredStudents = studentsData?.alunos?.filter(student => {
-    const matchesSearch = student.usuarios.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.usuarios.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.usuarios.cpf.includes(searchTerm) ||
-                         student.matriculas?.[0]?.numero_matricula?.includes(searchTerm);
+    const matchesSearch = (student?.usuarios?.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (student?.usuarios?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (student?.usuarios?.cpf || '').includes(searchTerm) ||
+                         (student?.matriculas?.[0]?.numero_matricula || '').includes(searchTerm);
     
-    const matchesSchool = selectedSchool === 'all' || student.escola_nome === selectedSchool;
-    const matchesClass = selectedClass === 'all' || student.turmas.nome === selectedClass;
+    const matchesSchool = selectedSchool === 'all' || (student?.escola_nome || '') === selectedSchool;
+    const matchesClass = selectedClass === 'all' || (student?.turmas?.nome || '') === selectedClass;
     
     return matchesSearch && matchesSchool && matchesClass;
   }) || [];

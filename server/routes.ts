@@ -1647,12 +1647,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar professores" });
       }
 
+      console.log(`Professores encontrados no banco: ${professores?.length || 0}`);
+
       // Buscar perfis de professores para obter vínculo com escolas
       const usuarioIds = professores?.map(p => p.id) || [];
-      const { data: perfisProfessores } = await supabase
-        .from('perfis_professor')
-        .select('usuario_id, escola_id, ativo')
-        .in('usuario_id', usuarioIds);
+      let perfisProfessores = [];
+      
+      if (usuarioIds.length > 0) {
+        const { data } = await supabase
+          .from('perfis_professor')
+          .select('usuario_id, escola_id, ativo')
+          .in('usuario_id', usuarioIds);
+        perfisProfessores = data || [];
+      }
 
       // Combinar dados
       const professoresFormatados = professores?.map(prof => {
@@ -1664,8 +1671,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           usuarios: {
             id: prof.id,
             nome: prof.nome || 'Nome não informado',
-            email: prof.email,
-            cpf: prof.cpf,
+            email: prof.email || 'Email não informado',
+            cpf: prof.cpf || 'CPF não informado',
             telefone: prof.telefone || 'N/A'
           },
           escola_nome: escola?.nome || 'Sem vínculo',
@@ -1719,7 +1726,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           nome,
           email,
           cpf,
-          papel
+          papel,
+          telefone
         `)
         .eq('papel', 'aluno');
 
@@ -1728,15 +1736,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar alunos" });
       }
 
+      console.log(`Alunos encontrados no banco: ${alunos?.length || 0}`);
+
       // Formatar dados dos alunos (sem vinculação específica a escolas)
       const alunosFormatados = alunos?.map(aluno => {
         return {
           id: aluno.id,
           usuarios: {
             id: aluno.id,
-            nome: aluno.nome,
-            email: aluno.email,
-            cpf: aluno.cpf
+            nome: aluno.nome || 'Nome não informado',
+            email: aluno.email || 'Email não informado',
+            cpf: aluno.cpf || 'CPF não informado',
+            telefone: aluno.telefone || 'N/A'
           },
           turmas: {
             id: '',
@@ -1782,13 +1793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar escolas" });
       }
 
-      const escolaIds = escolas?.map(e => e.id) || [];
-
-      if (escolaIds.length === 0) {
-        return res.json({ total: 0, usuarios: [] });
-      }
-
-      // Buscar usuários das escolas vinculadas ao gestor
+      // Buscar todos os usuários (não há relação direta com escola na tabela usuarios)
       const { data: usuarios, error } = await supabase
         .from('usuarios')
         .select(`
@@ -1797,29 +1802,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email,
           cpf,
           papel,
-          ativo,
           criado_em,
-          escola_id
-        `)
-        .in('escola_id', escolaIds);
+          telefone
+        `);
 
       if (error) {
         console.error("Erro ao buscar usuários:", error);
         return res.status(500).json({ message: "Erro ao buscar usuários" });
       }
 
+      console.log(`Usuários encontrados no banco: ${usuarios?.length || 0}`);
+
       // Formatar resposta
       const usuariosFormatados = usuarios?.map(user => {
-        const escola = escolas?.find(e => e.id === user.escola_id);
-        
         return {
           id: user.id,
-          nome: user.nome,
-          email: user.email,
-          cpf: user.cpf,
+          nome: user.nome || 'Nome não informado',
+          email: user.email || 'Email não informado',
+          cpf: user.cpf || 'CPF não informado',
           papel: user.papel,
-          escola_nome: escola?.nome || 'Escola não encontrada',
-          ativo: user.ativo ?? true,
+          telefone: user.telefone || 'N/A',
+          escola_nome: 'Geral',
+          ativo: true,
           criado_em: user.criado_em
         };
       }) || [];
