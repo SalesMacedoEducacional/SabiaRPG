@@ -75,7 +75,7 @@ export default function StudentsList() {
     const matchesSearch = (student?.usuarios?.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (student?.usuarios?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (student?.usuarios?.cpf || '').includes(searchTerm) ||
-                         (student?.matriculas?.[0]?.numero_matricula || '').includes(searchTerm);
+                         (student?.numero_matricula || '').includes(searchTerm);
     
     const matchesSchool = selectedSchool === 'all' || (student?.escola_nome || '') === selectedSchool;
     const matchesClass = selectedClass === 'all' || (student?.turmas?.nome || '') === selectedClass;
@@ -228,24 +228,49 @@ export default function StudentsList() {
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="border-primary/20 hover:bg-primary/5">
                       <TableCell className="text-white font-medium">
-                        {student.usuarios.nome}
+                        <div>
+                          <div>{student.usuarios.nome}</div>
+                          <div className="text-xs text-white/50">{student.usuarios.cpf}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {student.usuarios.email}
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        {student.usuarios.cpf}
+                        <div>
+                          <div>{student.usuarios.email}</div>
+                          <div className="text-xs text-white/50">{student.usuarios.telefone}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
                         <Badge variant="outline" className="text-accent border-accent">
-                          {student.matriculas?.[0]?.numero_matricula || 'N/A'}
+                          {student.numero_matricula || 'N/A'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {student.turmas.nome}
+                        <div>
+                          <div>{student.turmas?.nome || 'Não vinculado'}</div>
+                          <div className="text-xs text-white/50">
+                            {student.serie} - {student.turno}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-white/70">
-                        {student.escola_nome}
+                        <div>
+                          <div>{student.escola_nome}</div>
+                          <div className="text-xs text-white/50">{student.escola_cidade}, {student.escola_estado}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white/70">
+                        <div>
+                          <div className="text-sm">{student.responsavel_nome}</div>
+                          <div className="text-xs text-white/50">{student.responsavel_telefone}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={student.ativo ? "default" : "secondary"}
+                          className={student.ativo ? "bg-green-600" : "bg-gray-600"}
+                        >
+                          {student.ativo ? "Ativo" : "Inativo"}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
