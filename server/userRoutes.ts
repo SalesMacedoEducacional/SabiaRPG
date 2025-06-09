@@ -64,17 +64,40 @@ const upload = multer({
  */
 export function registerUserRoutes(app: Express) {
   // Rota para criar novo usuário (apenas para gestores e administradores)
-  app.post('/api/users', (req: any, res: Response) => {
+  app.post('/api/users', async (req: any, res: Response) => {
     console.log('Recebida requisição para criar novo usuário');
     
-    // Se o usuário não estiver autenticado, retornar erro
-    if (!req.session || !req.session.userId) {
+    // Verificar autenticação via sessão
+    let usuarioAutenticado = null;
+    
+    if (req.session?.userId) {
+      console.log('Usuário autenticado via sessão:', req.session.userId);
+      
+      // Buscar dados do usuário na tabela usuarios
+      try {
+        const { data: usuario, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('id', req.session.userId)
+          .single();
+          
+        if (error || !usuario) {
+          console.log('Usuário não encontrado na tabela usuarios');
+          return res.status(401).json({ message: 'Não autorizado' });
+        }
+        
+        usuarioAutenticado = usuario;
+      } catch (error) {
+        console.error('Erro ao buscar usuário:', error);
+        return res.status(401).json({ message: 'Não autorizado' });
+      }
+    } else {
+      console.log('Usuário não autenticado via sessão');
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
     // Verificar se o usuário é gestor ou administrador
-    const userRole = req.session.userRole;
-    if (!['gestor', 'admin'].includes(userRole as string)) {
+    if (!['gestor', 'admin', 'manager'].includes(usuarioAutenticado.papel)) {
       return res.status(403).json({ message: 'Você não tem permissão para cadastrar novos usuários' });
     }
 
@@ -167,53 +190,115 @@ export function registerUserRoutes(app: Express) {
           senha = 'Senha123!'; // Em produção, usar algo como: Math.random().toString(36).slice(-8) + "A!"
         }
         
-        // Em uma implementação real, seria necessário:
-        // 1. Verificar se o e-mail já está em uso
-        // 2. Criptografar a senha antes de salvar
-        // 3. Realizar transação de banco de dados para garantir consistência
+        // Verificar se o e-mail já está em uso
+        const { data: usuarioExistente } = await supabase
+          .from('usuarios')
+          .select('email')
+          .eq('email', email)
+          .single();
+          
+        if (usuarioExistente) {
+          return res.status(400).json({ message: 'Este e-mail já está cadastrado no sistema' });
+        }
         
-        // Para fins de demonstração, simular criação bem-sucedida
-        const novoUsuario = {
-          id: Math.floor(Math.random() * 1000) + 2000, // ID aleatório para demonstração
-          nome_completo,
+        // Criar usuário no Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
-          telefone,
-          data_nascimento,
-          papel,
-          perfil_foto_url: imageUrl,
-          created_at: new Date().toISOString()
-        };
+          password: senha,
+          options: {
+            data: {
+              full_name: nome_completo,
+              role: papel
+            }
+          }
+        });
         
-        // No caso de usuários reais, usar algo como:
-        /*
-        // Criar o usuário no banco de dados
-        const result = await pool.query(
-          'INSERT INTO usuarios (nome, email, telefone, data_nascimento, papel, perfil_foto_url, senha_hash) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-          [nome_completo, email, telefone, data_nascimento, papel, imageUrl, senhaHash]
-        );
-        
-        const novoUsuario = result.rows[0];
-        
-        // Para alunos, criar registro na tabela perfis_aluno
-        if (papel === 'aluno' && novoUsuario.id) {
-          await pool.query(
-            'INSERT INTO perfis_aluno (usuario_id, turma_id, matricula) VALUES ($1, $2, $3)',
-            [novoUsuario.id, turma_id, numero_matricula]
-          );
+        if (authError) {
+          console.error('Erro ao criar usuário no Auth:', authError);
+          return res.status(500).json({ message: 'Erro ao criar conta de usuário: ' + authError.message });
         }
         
-        // Para professores, criar registro na tabela perfis_professor
-        if (papel === 'professor' && novoUsuario.id) {
-          await pool.query(
-            'INSERT INTO perfis_professor (usuario_id, cpf) VALUES ($1, $2)',
-            [novoUsuario.id, cpf]
-          );
+        if (!authData.user) {
+          return res.status(500).json({ message: 'Erro ao criar usuário' });
         }
-        */
         
+        // Inserir dados na tabela usuarios
+        const { data: novoUsuario, error: usuarioError } = await supabase
+          .from('usuarios')
+          .insert({
+            id: authData.user.id,
+            email,
+            nome_completo,
+            telefone,
+            data_nascimento,
+            papel,
+            imagem_perfil: imageUrl,
+            ativo: true,
+            criado_em: new Date().toISOString()
+          })
+          .select()
+          .single();
+          
+        if (usuarioError) {
+          console.error('Erro ao inserir usuário na tabela:', usuarioError);
+          return res.status(500).json({ message: 'Erro ao salvar dados do usuário: ' + usuarioError.message });
+        }
+        
+        // Criar perfis específicos baseado no papel
+        if (papel === 'aluno') {
+          const { error: perfilError } = await supabase
+            .from('perfis_aluno')
+            .insert({
+              usuario_id: authData.user.id,
+              turma_id,
+              numero_matricula,
+              ativo: true,
+              criado_em: new Date().toISOString()
+            });
+            
+          if (perfilError) {
+            console.warn('Aviso: Não foi possível criar perfil de aluno:', perfilError.message);
+          }
+        } else if (papel === 'professor') {
+          const { error: perfilError } = await supabase
+            .from('perfis_professor')
+            .insert({
+              usuario_id: authData.user.id,
+              disciplinas: ['Indefinida'],
+              turmas: ['Indefinida'],
+              ativo: true,
+              criado_em: new Date().toISOString()
+            });
+            
+          if (perfilError) {
+            console.warn('Aviso: Não foi possível criar perfil de professor:', perfilError.message);
+          }
+        } else if (papel === 'gestor') {
+          const { error: perfilError } = await supabase
+            .from('perfis_gestor')
+            .insert({
+              usuario_id: authData.user.id,
+              escola_id: usuarioAutenticado.escola_id || null,
+              ativo: true,
+              criado_em: new Date().toISOString()
+            });
+            
+          if (perfilError) {
+            console.warn('Aviso: Não foi possível criar perfil de gestor:', perfilError.message);
+          }
+        }
+        
+        // Retornar sucesso com dados do usuário criado
         return res.status(201).json({
-          ...novoUsuario,
-          message: 'Usuário cadastrado com sucesso!'
+          success: true,
+          message: 'Usuário cadastrado com sucesso!',
+          user: {
+            id: novoUsuario.id,
+            nome_completo: novoUsuario.nome_completo,
+            email: novoUsuario.email,
+            papel: novoUsuario.papel,
+            senha_temporaria: senha
+          }
         });
         
       } catch (error) {
