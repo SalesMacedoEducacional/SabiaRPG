@@ -110,6 +110,10 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro ao criar usuário' });
       }
 
+      // Limpar formatação do telefone e CPF
+      const telefoneClean = telefone.replace(/\D/g, '');
+      const cpfClean = cpf ? cpf.replace(/\D/g, '') : null;
+
       // Inserir na tabela usuarios
       const { data: novoUsuario, error: insertError } = await supabase
         .from('usuarios')
@@ -117,11 +121,11 @@ export function registerUserRegistrationRoutes(app: Express) {
           id: authData.user.id,
           email,
           nome: nome_completo,
-          telefone,
+          telefone: telefoneClean,
           data_nascimento,
           papel,
           senha_hash: hashPassword(senhaTemporaria),
-          cpf: (papel === 'professor' || papel === 'gestor') ? cpf : null,
+          cpf: (papel === 'professor' || papel === 'gestor') ? cpfClean : null,
           criado_em: new Date().toISOString()
         })
         .select()
