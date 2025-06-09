@@ -17,10 +17,23 @@ export function registerGestorEscolasRoutes(app: Express) {
     try {
       console.log("Verificando escola vinculada ao gestor:", req.session?.userId);
       
-      // Primeiro tenta buscar escolas pela vinculação em perfis_gestor
-      let { data: escolasVinculadas, error: errorVinculadas } = await supabase
+      // Buscar escolas reais vinculadas ao gestor
+      const { data: escolasVinculadas, error: errorVinculadas } = await supabase
         .from('escolas')
-        .select('*')
+        .select(`
+          id,
+          nome,
+          codigo_escola,
+          tipo,
+          modalidade_ensino,
+          cidade,
+          estado,
+          zona_geografica,
+          endereco_completo,
+          telefone,
+          email_institucional,
+          criado_em
+        `)
         .eq('gestor_id', req.session?.userId)
         .order('nome');
       
@@ -32,34 +45,8 @@ export function registerGestorEscolasRoutes(app: Express) {
         });
       }
       
-      // Se encontrou escolas, retorna-as
-      if (escolasVinculadas && escolasVinculadas.length > 0) {
-        console.log("Encontradas escolas vinculadas ao gestor pela coluna gestor_id:", escolasVinculadas.length);
-        return res.status(200).json(escolasVinculadas);
-      }
-      
-      // Se não encontrou por gestor_id, tenta buscar pela relação em perfis_gestor
-      console.log("Nenhuma escola encontrada com gestor_id. Tentando a tabela perfis_gestor...");
-      
-      // Busca pela tabela de perfis_gestor
-      const { data: perfilGestorEscolas, error: errorPerfil } = await supabase
-        .from('perfis_gestor')
-        .select('escolas!inner(*)')
-        .eq('usuario_id', req.session?.userId)
-        .order('created_at');
-      
-      if (errorPerfil) {
-        console.log("Erro ao buscar relação pela tabela perfis_gestor:", errorPerfil.message);
-      } else if (perfilGestorEscolas && perfilGestorEscolas.length > 0) {
-        // Extrai apenas os dados das escolas
-        const escolas = perfilGestorEscolas.map(item => item.escolas);
-        console.log("Encontradas escolas através da tabela perfis_gestor:", escolas.length);
-        return res.status(200).json(escolas);
-      }
-      
-      // Se chegou até aqui, o gestor não tem escolas vinculadas
-      console.log("Nenhuma escola encontrada vinculada ao gestor");
-      return res.status(200).json([]);
+      console.log(`Encontradas ${escolasVinculadas?.length || 0} escolas vinculadas ao gestor`);
+      return res.status(200).json(escolasVinculadas || []);
     } catch (error) {
       console.error("Erro ao buscar escolas do gestor:", error);
       return res.status(500).json({ 
