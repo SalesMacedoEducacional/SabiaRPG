@@ -15,6 +15,7 @@ import SchoolsList from '../components/manager/SchoolsList';
 import TeachersList from '../components/manager/TeachersList';
 import StudentsList from '../components/manager/StudentsList';
 import UsersList from '../components/manager/UsersList';
+import ClassesList from '../components/manager/ClassesList';
 
 import { 
   Home, 
@@ -684,167 +685,11 @@ export default function ManagerDashboardModerno() {
           
           {activeMenu === "classes" && (
             <div>
-              <div className="mb-4">
-                <h1 className="text-2xl font-bold text-white">Turmas</h1>
-                <p className="text-white/70">Gerencie as turmas cadastradas</p>
-              </div>
-              
-              <div className="mb-4 flex justify-between">
-                <div className="flex">
-                  <div className="mr-2">
-                    <select className="bg-[#3a3730] text-white border border-accent/50 rounded px-3 py-1.5 text-sm">
-                      <option value="">Todas as escolas</option>
-                      <option>Escola Municipal Pedro II</option>
-                      <option>Colégio Estadual José Alves</option>
-                    </select>
-                  </div>
-                  <div>
-                    <select className="bg-[#3a3730] text-white border border-accent/50 rounded px-3 py-1.5 text-sm">
-                      <option value="">Todas as séries</option>
-                      <option>6º ano</option>
-                      <option>7º ano</option>
-                      <option>8º ano</option>
-                      <option>9º ano</option>
-                    </select>
-                  </div>
-                </div>
-                <button className="manager-button flex items-center gap-1.5" onClick={() => navigate('/class-registration')}>
-                  <PlusCircle size={16} />
-                  <span>Nova Turma</span>
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
-                  <div className="p-4">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="text-white text-sm border-b border-accent/30">
-                          <tr>
-                            <th className="px-3 py-2">Turma</th>
-                            <th className="px-3 py-2">Escola</th>
-                            <th className="px-3 py-2">Série</th>
-                            <th className="px-3 py-2">Alunos</th>
-                            <th className="px-3 py-2">Status</th>
-                            <th className="px-3 py-2">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-white/80 text-sm">
-                          <tr className="border-b border-accent/10 hover:bg-[#3a3730]">
-                            <td className="px-3 py-2.5">Turma A</td>
-                            <td className="px-3 py-2.5">Escola Municipal Pedro II</td>
-                            <td className="px-3 py-2.5">6º ano</td>
-                            <td className="px-3 py-2.5">0</td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
-                                Ativa
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center space-x-2">
-                                <button className="text-accent hover:text-white">Editar</button>
-                                <button className="text-accent hover:text-white">Detalhes</button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr className="border-b border-accent/10 hover:bg-[#3a3730]">
-                            <td className="px-3 py-2.5">Turma B</td>
-                            <td className="px-3 py-2.5">Colégio Estadual José Alves</td>
-                            <td className="px-3 py-2.5">7º ano</td>
-                            <td className="px-3 py-2.5">0</td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
-                                Ativa
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center space-x-2">
-                                <button className="text-accent hover:text-white">Editar</button>
-                                <button className="text-accent hover:text-white">Detalhes</button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ClassesList />
             </div>
           )}
           
-          {activeMenu === "users" && (
-            <div>
-              <div className="mb-4">
-                <h1 className="text-2xl font-bold text-white">Usuários</h1>
-                <p className="text-white/70">Gerencie os usuários do sistema</p>
-              </div>
-              
-              <div className="mb-4 flex justify-between">
-                <div className="flex">
-                  <div className="mr-2">
-                    <select className="bg-[#3a3730] text-white border border-accent/50 rounded px-3 py-1.5 text-sm">
-                      <option value="">Todos os perfis</option>
-                      <option>Gestor</option>
-                      <option>Professor</option>
-                      <option>Aluno</option>
-                    </select>
-                  </div>
-                  <div>
-                    <select className="bg-[#3a3730] text-white border border-accent/50 rounded px-3 py-1.5 text-sm">
-                      <option value="">Todas as escolas</option>
-                      <option>Escola Municipal Pedro II</option>
-                      <option>Colégio Estadual José Alves</option>
-                    </select>
-                  </div>
-                </div>
-                <button className="manager-button flex items-center gap-1.5" onClick={() => navigate('/user-registration')}>
-                  <UserPlus size={16} />
-                  <span>Novo Usuário</span>
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
-                  <div className="p-4">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="text-white text-sm border-b border-accent/30">
-                          <tr>
-                            <th className="px-3 py-2">Nome</th>
-                            <th className="px-3 py-2">Email</th>
-                            <th className="px-3 py-2">Perfil</th>
-                            <th className="px-3 py-2">Escola</th>
-                            <th className="px-3 py-2">Status</th>
-                            <th className="px-3 py-2">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-white/80 text-sm">
-                          <tr className="border-b border-accent/10 hover:bg-[#3a3730]">
-                            <td className="px-3 py-2.5">Administrador</td>
-                            <td className="px-3 py-2.5">gestor@sabiarpg.edu.br</td>
-                            <td className="px-3 py-2.5">Gestor</td>
-                            <td className="px-3 py-2.5">Múltiplas</td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
-                                Ativo
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center space-x-2">
-                                <button className="text-accent hover:text-white">Editar</button>
-                                <button className="text-accent hover:text-white">Detalhes</button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
           
           {activeMenu === "reports" && (
             <div>
