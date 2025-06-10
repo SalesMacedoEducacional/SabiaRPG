@@ -59,9 +59,9 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
       }
 
-      // Validar CPF para professores e gestores
-      if ((papel === 'professor' || papel === 'gestor') && !cpf) {
-        return res.status(400).json({ message: 'CPF é obrigatório para professores e gestores' });
+      // Validar CPF (obrigatório para todos os papéis)
+      if (!cpf) {
+        return res.status(400).json({ message: 'CPF é obrigatório para todos os usuários' });
       }
 
       // Verificar se email já existe
@@ -77,12 +77,13 @@ export function registerUserRegistrationRoutes(app: Express) {
 
       // Gerar senha temporária baseada no papel (seguindo regras do Supabase)
       let senhaTemporaria = '';
+      const cpfLimpo = cpf.replace(/[.-]/g, '');
+      
       if (papel === 'aluno' && numero_matricula) {
-        // Para alunos: matrícula + caracteres especiais para atender aos requisitos
-        senhaTemporaria = numero_matricula + 'Aluno@2024';
-      } else if ((papel === 'professor' || papel === 'gestor') && cpf) {
+        // Para alunos: matrícula + CPF + caracteres especiais para atender aos requisitos
+        senhaTemporaria = numero_matricula + cpfLimpo.slice(-4) + '@2024';
+      } else if (papel === 'professor' || papel === 'gestor') {
         // Para professores e gestores: CPF limpo + caracteres especiais
-        const cpfLimpo = cpf.replace(/[.-]/g, '');
         senhaTemporaria = cpfLimpo + 'Temp@123';
       } else {
         // Senha padrão segura para casos não especificados
@@ -124,7 +125,7 @@ export function registerUserRegistrationRoutes(app: Express) {
           data_nascimento,
           papel,
           senha_hash: hashPassword(senhaTemporaria),
-          cpf: (papel === 'professor' || papel === 'gestor') ? cpfClean : null,
+          cpf: cpfClean,
           criado_em: new Date().toISOString()
         })
         .select()
