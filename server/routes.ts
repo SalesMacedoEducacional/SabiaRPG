@@ -1905,20 +1905,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ativo 
       } = req.body;
 
-      console.log(`Atualizando usuário: ${userId}`, req.body);
+      console.log(`=== ATUALIZAÇÃO DE USUÁRIO ===`);
+      console.log(`User ID: ${userId}`);
+      console.log(`Dados recebidos:`, req.body);
+      console.log(`Headers:`, req.headers['content-type']);
 
       // Validar dados de entrada
       if (!nome || !email) {
         return res.status(400).json({ message: "Nome e email são obrigatórios" });
       }
 
-      // Preparar objeto de atualização
+      // Preparar objeto de atualização apenas com campos existentes
       const updateData = {
         nome: nome.trim(),
         email: email.toLowerCase().trim(),
         telefone: telefone || null,
         cpf: cpf || null,
-        data_nascimento: data_nascimento || null,
+        data_nascimento: data_nascimento ? new Date(data_nascimento).toISOString() : null,
         endereco: endereco || null,
         cidade: cidade || null,
         estado: estado || null,
@@ -1926,6 +1929,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ativo: Boolean(ativo),
         atualizado_em: new Date().toISOString()
       };
+
+      // Remover campos undefined para evitar erro de atualização
+      Object.keys(updateData).forEach(key => {
+        if ((updateData as any)[key] === undefined) {
+          delete (updateData as any)[key];
+        }
+      });
 
       console.log('Dados que serão atualizados:', updateData);
 
