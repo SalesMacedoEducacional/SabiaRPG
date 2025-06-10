@@ -76,15 +76,16 @@ export function registerUserRegistrationRoutes(app: Express) {
       }
 
       // Gerar senha temporária baseada no papel (seguindo regras do Supabase)
+      // Senha deve ter: maiúscula, minúscula, número e caractere especial
       let senhaTemporaria = '';
       const cpfLimpo = cpf.replace(/[.-]/g, '');
       
       if (papel === 'aluno' && numero_matricula) {
-        // Para alunos: matrícula + CPF + caracteres especiais para atender aos requisitos
-        senhaTemporaria = numero_matricula + cpfLimpo.slice(-4) + '@2024';
+        // Para alunos: matrícula + CPF + requisitos de segurança
+        senhaTemporaria = `${numero_matricula.slice(0,4)}Aluno${cpfLimpo.slice(-4)}@2024`;
       } else if (papel === 'professor' || papel === 'gestor') {
-        // Para professores e gestores: CPF limpo + caracteres especiais
-        senhaTemporaria = cpfLimpo + 'Temp@123';
+        // Para professores e gestores: CPF + requisitos de segurança
+        senhaTemporaria = `Temp${cpfLimpo.slice(-6)}@${new Date().getFullYear()}`;
       } else {
         // Senha padrão segura para casos não especificados
         senhaTemporaria = 'SabiaRpg@2024';
