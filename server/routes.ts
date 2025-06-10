@@ -897,20 +897,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar escolas" });
       }
 
-      // Buscar todos os usuários com campos básicos
-      const { data: usuarios, error } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          papel,
-          criado_em,
-          telefone,
-          ativo
-        `)
-        .order('criado_em', { ascending: false });
+      // Buscar usuários usando função SQL direta para garantir consistência
+      const { data: usuarios, error } = await supabase.rpc('get_usuarios_for_gestor');
 
       if (error) {
         console.error("Erro ao buscar usuários:", error);
@@ -921,6 +909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log dos IDs para debug
       console.log('IDs dos usuários encontrados:', usuarios?.map(u => u.id));
+      console.log('Total de usuários retornados pela API Supabase:', usuarios?.length);
 
       // Formatar resposta com campos básicos
       const usuariosFormatados = usuarios?.map(user => {
