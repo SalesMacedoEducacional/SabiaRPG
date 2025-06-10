@@ -885,6 +885,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`Buscando todos os usuários para o gestor: ${gestorId}`);
+      console.log('=== DEBUG: Iniciando busca de usuários ===');
+
+      // Verificar RLS primeiro
+      console.log('Verificando RLS da tabela usuarios...');
+      const { data: rlsCheck } = await supabase
+        .from('usuarios')
+        .select('count(*)', { count: 'exact', head: true });
+      
+      console.log('RLS Check - Contagem de usuários acessíveis:', rlsCheck);
 
       // Buscar escolas do gestor primeiro
       const { data: escolas, error: escolasError } = await supabase
@@ -897,8 +906,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar escolas" });
       }
 
-      // Buscar usuários usando função SQL direta para garantir consistência
-      const { data: usuarios, error } = await supabase.rpc('get_usuarios_for_gestor');
+      console.log(`Escolas encontradas para o gestor: ${escolas?.length || 0}`);
+
+      // Buscar todos os usuários com campos básicos usando query direta
+      const { data: usuarios, error } = await supabase
+        .from('usuarios')
+        .select(`
+          id,
+          nome,
+          email,
+          cpf,
+          papel,
+          criado_em,
+          telefone,
+          ativo
+        `)
+        .order('criado_em', { ascending: false });
 
       if (error) {
         console.error("Erro ao buscar usuários:", error);
