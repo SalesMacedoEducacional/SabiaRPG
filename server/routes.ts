@@ -897,7 +897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar escolas" });
       }
 
-      // Buscar todos os usuários (não há relação direta com escola na tabela usuarios)
+      // Buscar todos os usuários com campos completos
       const { data: usuarios, error } = await supabase
         .from('usuarios')
         .select(`
@@ -907,8 +907,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cpf,
           papel,
           criado_em,
-          telefone
-        `);
+          telefone,
+          data_nascimento,
+          endereco,
+          cidade,
+          estado,
+          cep,
+          ativo
+        `)
+        .order('criado_em', { ascending: false });
 
       if (error) {
         console.error("Erro ao buscar usuários:", error);
@@ -916,8 +923,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`Usuários encontrados no banco: ${usuarios?.length || 0}`);
+      
+      // Log dos IDs para debug
+      console.log('IDs dos usuários encontrados:', usuarios?.map(u => u.id));
 
-      // Formatar resposta
+      // Formatar resposta com todos os campos necessários
       const usuariosFormatados = usuarios?.map(user => {
         return {
           id: user.id,
@@ -925,9 +935,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email: user.email || 'Email não informado',
           cpf: user.cpf || 'CPF não informado',
           papel: user.papel,
-          telefone: user.telefone || 'N/A',
+          telefone: user.telefone || '',
+          data_nascimento: user.data_nascimento || '',
+          endereco: user.endereco || '',
+          cidade: user.cidade || '',
+          estado: user.estado || '',
+          cep: user.cep || '',
           escola_nome: 'Geral',
-          ativo: true,
+          ativo: user.ativo ?? true,
           criado_em: user.criado_em
         };
       }) || [];
