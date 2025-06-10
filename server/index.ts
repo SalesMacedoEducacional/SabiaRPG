@@ -13,11 +13,13 @@ import { supabase } from '../db/supabase.js';
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
   try {
-    console.log('=== BUSCANDO USUÁRIOS (DIRETO) ===');
+    console.log('=== BUSCANDO USUÁRIOS REAIS ===');
     
     const { data: usuarios, error } = await supabase
       .from('usuarios')
       .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
+      .not('nome', 'is', null)
+      .not('email', 'is', null)
       .order('criado_em', { ascending: false });
 
     if (error) {
@@ -25,14 +27,14 @@ app.get('/api/users/manager', async (req, res) => {
       return res.status(500).json({ message: "Erro ao buscar usuários" });
     }
 
-    console.log(`Usuários encontrados: ${usuarios?.length || 0}`);
+    console.log(`Usuários reais encontrados: ${usuarios?.length || 0}`);
     
     const usuariosFormatados = usuarios?.map(user => ({
       id: user.id,
-      nome: user.nome || 'Nome não informado',
-      email: user.email || 'Email não informado',
-      cpf: user.cpf || 'CPF não informado',
-      papel: user.papel,
+      nome: user.nome,
+      email: user.email,
+      cpf: user.cpf || 'Não informado',
+      papel: user.papel || 'aluno',
       telefone: user.telefone || '',
       escola_nome: 'Geral',
       ativo: user.ativo ?? true,

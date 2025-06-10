@@ -254,11 +254,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API de usuários sem autenticação (colocada antes dos middlewares)
   app.get('/api/users/manager', async (req, res) => {
     try {
-      console.log('=== BUSCANDO USUÁRIOS (SEM AUTENTICAÇÃO) ===');
+      console.log('=== BUSCANDO USUÁRIOS (DIRETO) ===');
       
       const { data: usuarios, error } = await supabase
         .from('usuarios')
         .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
+        .not('nome', 'is', null)
+        .not('email', 'is', null)
         .order('criado_em', { ascending: false });
 
       if (error) {
@@ -268,17 +270,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Usuários encontrados: ${usuarios?.length || 0}`);
       
-      const usuariosFormatados = usuarios?.map(user => ({
+      // Filtrar apenas usuários com dados válidos
+      const usuariosValidos = usuarios?.filter(user => 
+        user.id && user.nome && user.email
+      ) || [];
+      
+      const usuariosFormatados = usuariosValidos.map(user => ({
         id: user.id,
-        nome: user.nome || 'Nome não informado',
-        email: user.email || 'Email não informado',
+        nome: user.nome,
+        email: user.email,
         cpf: user.cpf || 'CPF não informado',
-        papel: user.papel,
+        papel: user.papel || 'aluno',
         telefone: user.telefone || '',
         escola_nome: 'Geral',
         ativo: user.ativo ?? true,
         criado_em: user.criado_em
-      })) || [];
+      }));
 
       res.json({
         total: usuariosFormatados.length,
