@@ -92,6 +92,7 @@ export default function UserRegistration() {
   const [formStep, setFormStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
+  const [showSchoolSelection, setShowSchoolSelection] = useState(false);
 
   // Inicializar formulário com react-hook-form e validação de zod
   const form = useForm<UserFormData>({
@@ -106,34 +107,34 @@ export default function UserRegistration() {
 
   const papel = form.watch("papel");
 
-  // Carregar turmas disponíveis
+  // Carregar turmas e escolas disponíveis
   useEffect(() => {
-    const fetchTurmas = async () => {
+    const fetchData = async () => {
       try {
-        const response = await apiRequest("GET", "/api/turmas");
-        if (response.ok) {
-          const data = await response.json();
-          setTurmas(data);
-        } else {
-          // Dados de exemplo para teste
-          setTurmas([
-            { id: "1", nome: "6º Ano A", serie: "6º Ano" },
-            { id: "2", nome: "7º Ano A", serie: "7º Ano" },
-            { id: "3", nome: "8º Ano A", serie: "8º Ano" },
-            { id: "4", nome: "9º Ano A", serie: "9º Ano" },
-          ]);
+        // Buscar turmas
+        const turmasResponse = await apiRequest("GET", "/api/turmas");
+        if (turmasResponse.ok) {
+          const turmasData = await turmasResponse.json();
+          setTurmas(turmasData);
+        }
+
+        // Buscar escolas disponíveis
+        const escolasResponse = await apiRequest("GET", "/api/escolas/todas");
+        if (escolasResponse.ok) {
+          const escolasData = await escolasResponse.json();
+          setEscolas(escolasData);
         }
       } catch (error) {
-        console.error("Erro ao carregar turmas:", error);
+        console.error("Erro ao carregar dados:", error);
         toast({
-          title: "Erro ao carregar turmas",
-          description: "Não foi possível obter a lista de turmas disponíveis.",
+          title: "Erro ao carregar dados",
+          description: "Não foi possível obter algumas informações necessárias.",
           variant: "destructive",
         });
       }
     };
 
-    fetchTurmas();
+    fetchData();
   }, [toast]);
 
   // Função para aplicar máscara de telefone
@@ -166,8 +167,38 @@ export default function UserRegistration() {
     form.setValue("cpf", value);
   };
 
+  // Função para ir para a tela de seleção de escolas
+  const goToSchoolSelection = () => {
+    const formValues = form.getValues();
+    if (formValues.papel === "professor" || formValues.papel === "gestor") {
+      setShowSchoolSelection(true);
+    }
+  };
+
+  // Função para voltar para o formulário principal
+  const goBackToForm = () => {
+    setShowSchoolSelection(false);
+  };
+
+  // Função para toggle de seleção de escola
+  const toggleEscolaSelection = (escolaId: string) => {
+    setEscolasSelecionadas(prev => {
+      if (prev.includes(escolaId)) {
+        return prev.filter(id => id !== escolaId);
+      } else {
+        return [...prev, escolaId];
+      }
+    });
+  };
+
   // Função de envio do formulário
   const onSubmit = async (data: UserFormData) => {
+    // Para professores e gestores, verificar se precisamos ir para seleção de escolas
+    if ((data.papel === "professor" || data.papel === "gestor") && !showSchoolSelection && escolasSelecionadas.length === 0) {
+      goToSchoolSelection();
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -192,6 +223,11 @@ export default function UserRegistration() {
       if (data.papel === "aluno" && data.turma_id && data.numero_matricula) {
         formData.append("turma_id", data.turma_id);
         formData.append("numero_matricula", data.numero_matricula);
+      }
+
+      // Adicionar escolas selecionadas para professores e gestores
+      if ((data.papel === "professor" || data.papel === "gestor") && escolasSelecionadas.length > 0) {
+        formData.append("escolas_selecionadas", JSON.stringify(escolasSelecionadas));
       }
       
       // Log do FormData para debug
@@ -276,9 +312,10 @@ export default function UserRegistration() {
         </CardHeader>
 
         <CardContent className="pb-4 p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {formStep === 0 && (
+          {!showSchoolSelection ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {formStep === 0 && (
                 <div className="space-y-6">
                   <div className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm space-y-4">
                     <FormField
@@ -538,6 +575,75 @@ export default function UserRegistration() {
               )}
             </form>
           </Form>
+          ) : (
+            // Tela de seleção de escolas
+            <div className="space-y-6">
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-parchment">
+                  Selecionar Escolas
+                </h3>
+                <p className="text-parchment-dark">
+                  Selecione pelo menos uma escola para vincular o {form.getValues("papel")}
+                </p>
+              </div>
+
+              <div className="grid gap-3 max-h-96 overflow-y-auto">
+                {escolas.map((escola) => (
+                  <div
+                    key={escola.id}
+                    onClick={() => toggleEscolaSelection(escola.id)}
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      escolasSelecionadas.includes(escola.id)
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-primary/40 bg-dark hover:bg-dark-light text-parchment"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                        escolasSelecionadas.includes(escola.id)
+                          ? "border-accent bg-accent"
+                          : "border-primary/40"
+                      }`}>
+                        {escolasSelecionadas.includes(escola.id) && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{escola.nome}</h4>
+                        {escola.endereco && (
+                          <p className="text-sm opacity-75">{escola.endereco}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-primary/40">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={goBackToForm}
+                  className="flex-1 border-primary text-parchment hover:bg-dark-light"
+                >
+                  Voltar
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (escolasSelecionadas.length > 0) {
+                      const formData = form.getValues();
+                      form.handleSubmit(onSubmit)(formData);
+                    }
+                  }}
+                  disabled={escolasSelecionadas.length === 0}
+                  className="flex-1 bg-accent hover:bg-accent-dark text-white"
+                >
+                  Cadastrar {form.getValues("papel")} ({escolasSelecionadas.length} escola{escolasSelecionadas.length !== 1 ? 's' : ''} selecionada{escolasSelecionadas.length !== 1 ? 's' : ''})
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-center text-sm text-parchment-dark border-t border-primary/40 bg-dark py-4">
           Todos os campos marcados são obrigatórios para o cadastro
