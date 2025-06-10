@@ -57,9 +57,25 @@ app.put('/api/users/:id', async (req, res) => {
     
     console.log(`Atualizando usuário ${id}:`, updateData);
 
+    // Filtrar apenas campos que existem na tabela usuarios
+    const allowedFields = {
+      nome: updateData.nome,
+      email: updateData.email,
+      telefone: updateData.telefone,
+      cpf: updateData.cpf,
+      ativo: updateData.ativo
+    };
+
+    // Remover campos undefined
+    Object.keys(allowedFields).forEach(key => {
+      if (allowedFields[key] === undefined) {
+        delete allowedFields[key];
+      }
+    });
+
     const { error } = await supabase
       .from('usuarios')
-      .update(updateData)
+      .update(allowedFields)
       .eq('id', id);
 
     if (error) {
