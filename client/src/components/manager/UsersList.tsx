@@ -33,6 +33,10 @@ interface User {
   criado_em: string;
   telefone?: string;
   data_nascimento?: string;
+  endereco?: string;
+  cidade?: string;
+  estado?: string;
+  cep?: string;
 }
 
 interface UsersResponse {
@@ -44,6 +48,12 @@ const editUserSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
   telefone: z.string().optional(),
+  cpf: z.string().optional(),
+  data_nascimento: z.string().optional(),
+  endereco: z.string().optional(),
+  cidade: z.string().optional(),
+  estado: z.string().optional(),
+  cep: z.string().optional(),
   ativo: z.boolean(),
 });
 
@@ -80,6 +90,12 @@ export default function UsersList() {
       nome: "",
       email: "",
       telefone: "",
+      cpf: "",
+      data_nascimento: "",
+      endereco: "",
+      cidade: "",
+      estado: "",
+      cep: "",
       ativo: true,
     },
   });
@@ -187,9 +203,15 @@ export default function UsersList() {
   const handleEditUser = (user: User) => {
     setEditUser(user);
     editForm.reset({
-      nome: user.nome,
-      email: user.email,
+      nome: user.nome || "",
+      email: user.email || "",
       telefone: user.telefone || "",
+      cpf: user.cpf || "",
+      data_nascimento: user.data_nascimento || "",
+      endereco: user.endereco || "",
+      cidade: user.cidade || "",
+      estado: user.estado || "",
+      cep: user.cep || "",
       ativo: user.ativo,
     });
     setShowEditDialog(true);
@@ -511,15 +533,15 @@ export default function UsersList() {
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={editForm.control}
                   name="nome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                      <FormLabel className="text-white">Nome Completo</FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white" />
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="Digite o nome completo" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -530,9 +552,22 @@ export default function UsersList() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-white">E-mail</FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" className="bg-[#1a1713] border-primary/20 text-white" />
+                        <Input {...field} type="email" className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="exemplo@email.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="cpf"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">CPF</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="000.000.000-00" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -543,9 +578,74 @@ export default function UsersList() {
                   name="telefone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Telefone</FormLabel>
+                      <FormLabel className="text-white">Telefone</FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white" />
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="(00) 00000-0000" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="data_nascimento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Data de Nascimento</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" className="bg-[#1a1713] border-primary/20 text-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="endereco"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Endereço</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="Rua, número, bairro" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="cidade"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Cidade</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="Nome da cidade" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="estado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Estado</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="UF do estado" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="cep"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">CEP</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="00000-000" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -555,10 +655,10 @@ export default function UsersList() {
                   control={editForm.control}
                   name="ativo"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-4 bg-[#1a1713]">
                       <div className="space-y-0.5">
-                        <FormLabel>Status</FormLabel>
-                        <div className="text-sm text-muted-foreground">
+                        <FormLabel className="text-white font-medium">Status do Usuário</FormLabel>
+                        <div className="text-sm text-white/70">
                           Usuário ativo no sistema
                         </div>
                       </div>
@@ -567,7 +667,7 @@ export default function UsersList() {
                           type="checkbox"
                           checked={field.value}
                           onChange={field.onChange}
-                          className="h-4 w-4"
+                          className="h-4 w-4 accent-primary"
                         />
                       </FormControl>
                     </FormItem>
