@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import session from "express-session";
 import { z } from "zod";
 import { supabase } from '../db/supabase.js';
+import { getRealUsersFromPostgreSQL, updateRealUser, deleteRealUser } from './userManagementApi';
 import MemoryStore from "memorystore";
 import { 
   insertUserSchema,
@@ -2087,8 +2088,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registrar rotas para gestão de escolas do gestor
   registerGestorEscolasRoutes(app);
   
-  // Registrar rotas de administração de usuários
-  app.use(getUserAdminRoutes());
+  // Registrar rotas de administração de usuários com dados reais
+  app.get('/api/users/manager', authenticate, requireRole(['manager', 'admin']), getRealUsersFromPostgreSQL);
+  app.put('/api/users/:id', authenticate, requireRole(['manager', 'admin']), updateRealUser);
+  app.delete('/api/users/:id', authenticate, requireRole(['manager', 'admin']), deleteRealUser);
   
   // Registrar novas rotas de escolas com Drizzle ORM
   registerDrizzleSchoolRoutes(app, authenticate, requireRole);
