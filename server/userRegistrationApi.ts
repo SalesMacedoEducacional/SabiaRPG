@@ -64,7 +64,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(400).json({ message: 'CPF é obrigatório para todos os usuários' });
       }
 
-      // Verificar se email já existe
+      // Verificar se email já existe na tabela usuarios
       const { data: emailExistente } = await supabase
         .from('usuarios')
         .select('email')
@@ -72,7 +72,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         .single();
 
       if (emailExistente) {
-        return res.status(400).json({ message: 'Este email já está cadastrado' });
+        return res.status(400).json({ message: 'Este email já está cadastrado no sistema' });
       }
 
       // Gerar senha temporária baseada no papel (seguindo regras do Supabase)
@@ -105,6 +105,14 @@ export function registerUserRegistrationRoutes(app: Express) {
 
       if (authError) {
         console.error('Erro no Supabase Auth:', authError);
+        
+        // Tratar erro de email já existente no Supabase Auth
+        if (authError.message.includes('User already registered') || 
+            authError.message.includes('already registered') ||
+            authError.status === 422) {
+          return res.status(400).json({ message: 'Este email já está cadastrado no sistema' });
+        }
+        
         return res.status(500).json({ message: 'Erro ao criar conta: ' + authError.message });
       }
 
