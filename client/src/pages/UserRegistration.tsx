@@ -58,15 +58,15 @@ const userSchema = z.object({
   papel: z.enum(["aluno", "professor", "gestor"], {
     required_error: "Selecione o perfil do usuário",
   }),
+  cpf: z.string().min(11, "CPF deve ter pelo menos 11 caracteres"),
   imagem_perfil: z.instanceof(File).optional(),
   // Campos condicionais
   turma_id: z.string().optional(),
   numero_matricula: z.string().optional(),
-  cpf: z.string().optional(),
 }).refine(
   (data) => {
     if (data.papel === "aluno") {
-      return data.turma_id && data.numero_matricula;
+      return data.turma_id && data.numero_matricula && data.cpf;
     }
     if (data.papel === "professor" || data.papel === "gestor") {
       return data.cpf && data.cpf.length >= 11;
@@ -397,6 +397,31 @@ export default function UserRegistration() {
                       )}
                     />
 
+                    <FormField
+                      control={form.control}
+                      name="cpf"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-parchment font-medium">CPF</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="123.456.789-00" 
+                              value={field.value}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleCpfChange(e);
+                              }}
+                              className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-parchment-dark">
+                            O CPF será usado como senha temporária inicial
+                          </FormDescription>
+                          <FormMessage className="text-destructive" />
+                        </FormItem>
+                      )}
+                    />
+
                     <div className="pt-4 border-t border-primary/40 mt-4">
                       <Button
                         type="button"
@@ -476,32 +501,7 @@ export default function UserRegistration() {
                       </>
                     )}
 
-                    {(papel === "professor" || papel === "gestor") && (
-                      <FormField
-                        control={form.control}
-                        name="cpf"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-parchment font-medium">CPF</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="123.456.789-00" 
-                                value={field.value}
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  handleCpfChange(e);
-                                }}
-                                className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
-                              />
-                            </FormControl>
-                            <FormDescription className="text-parchment-dark">
-                              O CPF será usado como senha temporária inicial
-                            </FormDescription>
-                            <FormMessage className="text-destructive" />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+
 
                     <div className="flex gap-2 pt-4 border-t border-primary/40 mt-4">
                       <Button
