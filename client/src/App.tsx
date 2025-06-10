@@ -89,6 +89,15 @@ function Router() {
       />
       
       <ProtectedRoute 
+        path="/dashboard-gestor-moderno" 
+        component={ManagerDashboardModerno}
+        permissions={[
+          PERMISSIONS.REPORT_SCHOOL_VIEW.id,
+          PERMISSIONS.SCHOOL_CONFIG.id
+        ]}
+      />
+      
+      <ProtectedRoute 
         path="/manager-old" 
         component={ManagerDashboard}
         permissions={[
