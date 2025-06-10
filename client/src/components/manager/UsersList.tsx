@@ -63,8 +63,11 @@ export default function UsersList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: usersData, isLoading, error } = useQuery<UsersResponse>({
-    queryKey: ['/api/users/manager']
+  const { data: usersData, isLoading, error, refetch } = useQuery<UsersResponse>({
+    queryKey: ['/api/users/manager'],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   const { data: schoolsData } = useQuery<any>({
@@ -83,12 +86,24 @@ export default function UsersList() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: { id: string; userData: EditUserForm }) => {
-      return apiRequest('PUT', `/api/users/${data.id}`, data.userData);
+      console.log('Enviando dados para atualização:', data);
+      const result = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
+      console.log('Resposta da API de atualização:', result);
+      return result;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
+    onSuccess: async (data, variables) => {
+      console.log('Atualização bem-sucedida, forçando refresh dos dados...');
+      
+      // Limpar cache completamente
+      queryClient.removeQueries({ queryKey: ['/api/users/manager'] });
+      
+      // Forçar nova busca
+      await refetch();
+      
+      console.log('Dados atualizados, fechando modal...');
       setShowEditDialog(false);
       setEditUser(null);
+      
       toast({
         title: "Sucesso",
         description: "Usuário atualizado com sucesso!",
@@ -107,8 +122,10 @@ export default function UsersList() {
     mutationFn: async (userId: string) => {
       return apiRequest('DELETE', `/api/users/${userId}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
+    onSuccess: async () => {
+      // Invalidar e forçar refetch imediato
+      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
+      await refetch();
       setShowDeleteDialog(false);
       setUserToDelete(null);
       toast({
