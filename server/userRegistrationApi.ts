@@ -68,7 +68,7 @@ export function registerUserRegistrationRoutes(app: Express) {
       const { data: emailExistente } = await supabase
         .from('usuarios')
         .select('email')
-        .eq('email', email)
+        .eq('email', email.toLowerCase().trim())
         .single();
 
       if (emailExistente) {
@@ -128,7 +128,7 @@ export function registerUserRegistrationRoutes(app: Express) {
       const { data: novoUsuario, error: insertError } = await supabase
         .from('usuarios')
         .insert({
-          email,
+          email: email.toLowerCase().trim(),
           nome: nome_completo,
           telefone: telefoneClean,
           data_nascimento,
