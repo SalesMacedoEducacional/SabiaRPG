@@ -1888,6 +1888,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User management routes (PUT and DELETE)
+  app.put("/api/users/:id", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { nome, email, telefone, ativo } = req.body;
+
+      console.log(`Atualizando usuário: ${userId}`, { nome, email, telefone, ativo });
+
+      // Validar dados de entrada
+      if (!nome || !email) {
+        return res.status(400).json({ message: "Nome e email são obrigatórios" });
+      }
+
+      // Atualizar usuário na tabela usuarios
+      const { data: updatedUser, error } = await supabase
+        .from('usuarios')
+        .update({
+          nome,
+          email: email.toLowerCase().trim(),
+          telefone: telefone || null,
+          ativo,
+          atualizado_em: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        return res.status(500).json({ message: 'Erro ao atualizar usuário', error: error.message });
+      }
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      console.log('Usuário atualizado com sucesso:', updatedUser.id);
+      res.status(200).json({ 
+        success: true, 
+        message: 'Usuário atualizado com sucesso!',
+        user: updatedUser 
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+
+  app.delete("/api/users/:id", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      const userId = req.params.id;
+
+      console.log(`Excluindo usuário: ${userId}`);
+
+      // Verificar se o usuário existe
+      const { data: user, error: userError } = await supabase
+        .from('usuarios')
+        .select('id, papel')
+        .eq('id', userId)
+        .single();
+
+      if (userError || !user) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      // Excluir perfis específicos primeiro (devido às foreign keys)
+      if (user.papel === 'aluno') {
+        await supabase
+          .from('perfis_aluno')
+          .delete()
+          .eq('usuario_id', userId);
+      } else if (user.papel === 'professor') {
+        await supabase
+          .from('perfis_professor')
+          .delete()
+          .eq('usuario_id', userId);
+      } else if (user.papel === 'gestor') {
+        await supabase
+          .from('perfis_gestor')
+          .delete()
+          .eq('usuario_id', userId);
+      }
+
+      // Excluir usuário da tabela principal
+      const { error: deleteError } = await supabase
+        .from('usuarios')
+        .delete()
+        .eq('id', userId);
+
+      if (deleteError) {
+        console.error('Erro ao excluir usuário:', deleteError);
+        return res.status(500).json({ message: 'Erro ao excluir usuário', error: deleteError.message });
+      }
+
+      console.log('Usuário excluído com sucesso:', userId);
+      res.status(200).json({ 
+        success: true, 
+        message: 'Usuário excluído com sucesso!' 
+      });
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
   
