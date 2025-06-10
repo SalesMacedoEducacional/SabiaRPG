@@ -73,6 +73,9 @@ export default function UsersList() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    gcTime: 0, // Remove do cache imediatamente
+    refetchInterval: false,
+    retry: false,
   });
 
   const { data: schoolsData } = useQuery<any>({
@@ -97,16 +100,9 @@ export default function UsersList() {
       console.log('Resposta da API de atualização:', result);
       return result;
     },
-    onSuccess: async (data, variables) => {
-      console.log('Atualização bem-sucedida, forçando refresh dos dados...');
+    onSuccess: (data, variables) => {
+      console.log('Atualização bem-sucedida');
       
-      // Limpar cache completamente
-      queryClient.removeQueries({ queryKey: ['/api/users/manager'] });
-      
-      // Forçar nova busca
-      await refetch();
-      
-      console.log('Dados atualizados, fechando modal...');
       setShowEditDialog(false);
       setEditUser(null);
       
@@ -114,6 +110,11 @@ export default function UsersList() {
         title: "Sucesso",
         description: "Usuário atualizado com sucesso!",
       });
+
+      // Forçar reload completo da página para garantir dados atualizados
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
@@ -128,16 +129,20 @@ export default function UsersList() {
     mutationFn: async (userId: string) => {
       return apiRequest('DELETE', `/api/users/${userId}`);
     },
-    onSuccess: async () => {
-      // Invalidar e forçar refetch imediato
-      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
-      await refetch();
+    onSuccess: () => {
+      console.log('Exclusão bem-sucedida');
+      
       setShowDeleteDialog(false);
       setUserToDelete(null);
       toast({
         title: "Sucesso",
         description: "Usuário excluído com sucesso!",
       });
+
+      // Forçar reload completo da página para garantir dados atualizados
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
