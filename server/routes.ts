@@ -1587,12 +1587,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from('perfis_professor')
         .select(`
           id,
+          escola_id,
           usuarios!perfis_professor_usuario_id_fkey(
             id,
             nome,
             cpf,
             telefone,
             email
+          ),
+          escolas!perfis_professor_escola_id_fkey(
+            nome
           )
         `)
         .in('escola_id', escolaIds);
@@ -1602,9 +1606,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: 'Erro ao buscar professores', error: professoresError.message });
       }
 
+      // Formatar dados para o frontend
+      const professoresFormatados = professores?.map(prof => ({
+        id: prof.id,
+        usuarios: {
+          nome: prof.usuarios?.nome || 'Nome não informado',
+          cpf: prof.usuarios?.cpf || 'CPF não informado',
+          telefone: prof.usuarios?.telefone || 'Telefone não informado'
+        },
+        escola_id: prof.escola_id,
+        escola_nome: prof.escolas?.nome || 'Escola não informada'
+      })) || [];
+
       res.status(200).json({ 
-        total: professores?.length || 0, 
-        professores: professores || [] 
+        total: professoresFormatados.length, 
+        professores: professoresFormatados 
       });
     } catch (error) {
       console.error("Erro ao buscar professores:", error);
@@ -1640,40 +1656,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas.map(escola => escola.id);
 
-      // Buscar turmas das escolas do gestor
-      const { data: turmas, error: turmasError } = await supabase
-        .from('turmas')
-        .select('id')
-        .in('escola_id', escolaIds);
-
-      if (turmasError) {
-        console.error('Erro ao buscar turmas:', turmasError);
-        return res.status(500).json({ message: 'Erro ao buscar turmas', error: turmasError.message });
-      }
-
-      if (!turmas || turmas.length === 0) {
-        return res.status(200).json({ total: 0, alunos: [] });
-      }
-
-      // Buscar alunos (usuários com papel 'student' que possuem turmas vinculadas)
+      // Buscar alunos diretamente da tabela usuarios com papel 'aluno'
       const { data: alunos, error: alunosError } = await supabase
         .from('usuarios')
         .select(`
           id,
           nome,
           cpf,
+          telefone,
           email
         `)
-        .eq('papel', 'student');
+        .eq('papel', 'aluno');
 
       if (alunosError) {
         console.error('Erro ao buscar alunos:', alunosError);
         return res.status(500).json({ message: 'Erro ao buscar alunos', error: alunosError.message });
       }
 
+      // Formatar dados para o frontend (sem escola específica por enquanto)
+      const alunosFormatados = alunos?.map(aluno => ({
+        id: aluno.id,
+        usuarios: {
+          nome: aluno.nome || 'Nome não informado'
+        },
+        turmas: {
+          nome: 'Não vinculado'
+        },
+        matriculas: {
+          numero_matricula: 'N/A'
+        },
+        escola_id: escolaIds[0] || null, // Assume primeira escola do gestor por padrão
+        escola_nome: escolas[0]?.nome || 'Escola não informada'
+      })) || [];
+
       res.status(200).json({ 
-        total: alunos?.length || 0, 
-        alunos: alunos || [] 
+        total: alunosFormatados.length, 
+        alunos: alunosFormatados 
       });
     } catch (error) {
       console.error("Erro ao buscar alunos:", error);
