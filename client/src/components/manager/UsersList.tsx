@@ -438,28 +438,31 @@ export default function UsersList() {
                         {new Date(user.criado_em).toLocaleDateString('pt-BR')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-1">
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white hover:text-accent hover:bg-primary/10"
+                            className="text-white/70 hover:text-accent hover:bg-primary/10 h-8 w-8 p-0"
                             onClick={() => handleViewUser(user)}
+                            title="Visualizar usuário"
                           >
                             <Eye size={16} />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white hover:text-accent hover:bg-primary/10"
+                            className="text-white/70 hover:text-accent hover:bg-primary/10 h-8 w-8 p-0"
                             onClick={() => handleEditUser(user)}
+                            title="Editar usuário"
                           >
                             <Edit size={16} />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white hover:text-red-400 hover:bg-red-400/10"
+                            className="text-white/70 hover:text-red-400 hover:bg-red-400/10 h-8 w-8 p-0"
                             onClick={() => handleDeleteUser(user)}
+                            title="Excluir usuário"
                           >
                             <Trash2 size={16} />
                           </Button>
@@ -674,21 +677,22 @@ export default function UsersList() {
                   )}
                 />
               </div>
-              <DialogFooter>
+              <DialogFooter className="gap-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowEditDialog(false)}
-                  className="border-primary/20 text-white hover:bg-primary/10"
+                  className="border-primary/30 text-white hover:bg-primary/10 font-medium px-6 py-2"
+                  disabled={updateUserMutation.isPending}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-accent hover:bg-accent/80 text-primary"
+                  className="bg-accent hover:bg-accent/90 text-primary font-medium px-6 py-2"
                   disabled={updateUserMutation.isPending}
                 >
-                  {updateUserMutation.isPending ? "Salvando..." : "Salvar"}
+                  {updateUserMutation.isPending ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </DialogFooter>
             </form>
@@ -710,20 +714,21 @@ export default function UsersList() {
               Esta ação não pode ser desfeita.
             </p>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
-              className="border-primary/20 text-white hover:bg-primary/10"
+              className="border-primary/30 text-white hover:bg-primary/10 font-medium px-6 py-2"
+              disabled={deleteUserMutation.isPending}
             >
               Cancelar
             </Button>
             <Button
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2"
               disabled={deleteUserMutation.isPending}
             >
-              {deleteUserMutation.isPending ? "Excluindo..." : "Excluir"}
+              {deleteUserMutation.isPending ? "Excluindo..." : "Confirmar Exclusão"}
             </Button>
           </DialogFooter>
         </DialogContent>

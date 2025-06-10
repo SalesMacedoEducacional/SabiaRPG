@@ -1892,25 +1892,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/users/:id", authenticate, authorize(["manager"]), async (req, res) => {
     try {
       const userId = req.params.id;
-      const { nome, email, telefone, ativo } = req.body;
+      const { 
+        nome, 
+        email, 
+        telefone, 
+        cpf, 
+        data_nascimento, 
+        endereco, 
+        cidade, 
+        estado, 
+        cep, 
+        ativo 
+      } = req.body;
 
-      console.log(`Atualizando usuário: ${userId}`, { nome, email, telefone, ativo });
+      console.log(`Atualizando usuário: ${userId}`, req.body);
 
       // Validar dados de entrada
       if (!nome || !email) {
         return res.status(400).json({ message: "Nome e email são obrigatórios" });
       }
 
+      // Preparar objeto de atualização
+      const updateData = {
+        nome: nome.trim(),
+        email: email.toLowerCase().trim(),
+        telefone: telefone || null,
+        cpf: cpf || null,
+        data_nascimento: data_nascimento || null,
+        endereco: endereco || null,
+        cidade: cidade || null,
+        estado: estado || null,
+        cep: cep || null,
+        ativo: Boolean(ativo),
+        atualizado_em: new Date().toISOString()
+      };
+
+      console.log('Dados que serão atualizados:', updateData);
+
       // Atualizar usuário na tabela usuarios
       const { data: updatedUser, error } = await supabase
         .from('usuarios')
-        .update({
-          nome,
-          email: email.toLowerCase().trim(),
-          telefone: telefone || null,
-          ativo,
-          atualizado_em: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', userId)
         .select()
         .single();
