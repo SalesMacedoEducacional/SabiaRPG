@@ -7,6 +7,101 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Import supabase for direct API routes
+import { supabase } from '../db/supabase.js';
+
+// Direct API routes without authentication (placed before all middleware)
+app.get('/api/users/manager', async (req, res) => {
+  try {
+    console.log('=== BUSCANDO USUÁRIOS (DIRETO) ===');
+    
+    const { data: usuarios, error } = await supabase
+      .from('usuarios')
+      .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
+      .order('criado_em', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar usuários:', error);
+      return res.status(500).json({ message: "Erro ao buscar usuários" });
+    }
+
+    console.log(`Usuários encontrados: ${usuarios?.length || 0}`);
+    
+    const usuariosFormatados = usuarios?.map(user => ({
+      id: user.id,
+      nome: user.nome || 'Nome não informado',
+      email: user.email || 'Email não informado',
+      cpf: user.cpf || 'CPF não informado',
+      papel: user.papel,
+      telefone: user.telefone || '',
+      escola_nome: 'Geral',
+      ativo: user.ativo ?? true,
+      criado_em: user.criado_em
+    })) || [];
+
+    res.json({
+      total: usuariosFormatados.length,
+      usuarios: usuariosFormatados
+    });
+
+  } catch (error) {
+    console.error('Erro crítico:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+app.put('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    console.log(`Atualizando usuário ${id}:`, updateData);
+
+    const { error } = await supabase
+      .from('usuarios')
+      .update(updateData)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erro ao atualizar:', error);
+      return res.status(500).json({ message: "Erro ao atualizar usuário" });
+    }
+
+    res.json({ success: true, message: "Usuário atualizado com sucesso" });
+  } catch (error) {
+    console.error('Erro na atualização:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`Excluindo usuário ${id}`);
+
+    // Excluir perfis relacionados primeiro
+    await supabase.from('perfis_aluno').delete().eq('usuario_id', id);
+    await supabase.from('perfis_professor').delete().eq('usuario_id', id);
+    await supabase.from('perfis_gestor').delete().eq('usuario_id', id);
+
+    const { error } = await supabase
+      .from('usuarios')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erro ao excluir:', error);
+      return res.status(500).json({ message: "Erro ao excluir usuário" });
+    }
+
+    res.json({ success: true, message: "Usuário excluído com sucesso" });
+  } catch (error) {
+    console.error('Erro na exclusão:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
 // Configure sessão
 app.use(session({
   secret: 'sabia-rpg-session-secret',
