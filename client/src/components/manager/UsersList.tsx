@@ -100,8 +100,24 @@ export default function UsersList() {
       console.log('Resposta da API de atualização:', result);
       return result;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       console.log('Atualização bem-sucedida');
+      
+      // Forçar atualização imediata dos dados
+      queryClient.setQueryData(['/api/users/manager'], (oldData: UsersResponse | undefined) => {
+        if (!oldData) return oldData;
+        
+        const updatedUsers = oldData.usuarios.map(user => 
+          user.id === variables.id 
+            ? { ...user, ...variables.userData }
+            : user
+        );
+        
+        return { ...oldData, usuarios: updatedUsers };
+      });
+      
+      // Invalidar cache e recarregar dados do servidor
+      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
       
       setShowEditDialog(false);
       setEditUser(null);
@@ -110,11 +126,6 @@ export default function UsersList() {
         title: "Sucesso",
         description: "Usuário atualizado com sucesso!",
       });
-
-      // Forçar reload completo da página para garantir dados atualizados
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     },
     onError: (error: any) => {
       toast({
@@ -129,8 +140,24 @@ export default function UsersList() {
     mutationFn: async (userId: string) => {
       return apiRequest('DELETE', `/api/users/${userId}`);
     },
-    onSuccess: () => {
+    onSuccess: async (data, userId) => {
       console.log('Exclusão bem-sucedida');
+      
+      // Forçar atualização imediata dos dados
+      queryClient.setQueryData(['/api/users/manager'], (oldData: UsersResponse | undefined) => {
+        if (!oldData) return oldData;
+        
+        const filteredUsers = oldData.usuarios.filter(user => user.id !== userId);
+        
+        return { 
+          ...oldData, 
+          usuarios: filteredUsers,
+          total: filteredUsers.length 
+        };
+      });
+      
+      // Invalidar cache e recarregar dados do servidor
+      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
       
       setShowDeleteDialog(false);
       setUserToDelete(null);
@@ -138,11 +165,6 @@ export default function UsersList() {
         title: "Sucesso",
         description: "Usuário excluído com sucesso!",
       });
-
-      // Forçar reload completo da página para garantir dados atualizados
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     },
     onError: (error: any) => {
       toast({

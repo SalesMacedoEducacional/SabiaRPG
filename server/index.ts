@@ -73,17 +73,25 @@ app.put('/api/users/:id', async (req, res) => {
       }
     });
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('usuarios')
       .update(allowedFields)
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     if (error) {
       console.error('Erro ao atualizar:', error);
       return res.status(500).json({ message: "Erro ao atualizar usuário" });
     }
 
-    res.json({ success: true, message: "Usuário atualizado com sucesso" });
+    console.log('Dados atualizados no banco:', data);
+    
+    if (!data || data.length === 0) {
+      console.log('Nenhum registro foi atualizado - ID não encontrado:', id);
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.json({ success: true, message: "Usuário atualizado com sucesso", data: data[0] });
   } catch (error) {
     console.error('Erro na atualização:', error);
     res.status(500).json({ message: "Erro interno do servidor" });
