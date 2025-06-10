@@ -63,6 +63,7 @@ const userSchema = z.object({
   // Campos condicionais
   turma_id: z.string().optional(),
   numero_matricula: z.string().optional(),
+  escolas_selecionadas: z.array(z.string()).optional(),
 }).refine(
   (data) => {
     if (data.papel === "aluno") {
@@ -87,8 +88,10 @@ export default function UserRegistration() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [escolas, setEscolas] = useState<any[]>([]);
   const [formStep, setFormStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date>();
+  const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
 
   // Inicializar formulário com react-hook-form e validação de zod
   const form = useForm<UserFormData>({
@@ -179,13 +182,16 @@ export default function UserRegistration() {
       formData.append("data_nascimento", data.data_nascimento.toISOString());
       formData.append("papel", data.papel);
       
+      // CPF é obrigatório para todos os papéis
+      if (data.cpf) {
+        console.log('Adicionando CPF ao FormData:', data.cpf);
+        formData.append("cpf", data.cpf);
+      }
+
       // Adicionar campos específicos com base no papel selecionado
       if (data.papel === "aluno" && data.turma_id && data.numero_matricula) {
         formData.append("turma_id", data.turma_id);
         formData.append("numero_matricula", data.numero_matricula);
-      } else if ((data.papel === "professor" || data.papel === "gestor") && data.cpf) {
-        console.log('Adicionando CPF ao FormData:', data.cpf);
-        formData.append("cpf", data.cpf);
       }
       
       // Log do FormData para debug

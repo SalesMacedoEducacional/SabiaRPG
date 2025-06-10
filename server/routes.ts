@@ -1788,6 +1788,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rota para buscar todas as escolas (para seleção durante cadastro)
+  app.get("/api/escolas/todas", authenticateCustom, async (req, res) => {
+    try {
+      console.log("Buscando todas as escolas disponíveis");
+
+      const { data: escolas, error } = await supabase
+        .from('escolas')
+        .select('id, nome, endereco')
+        .order('nome');
+
+      if (error) {
+        console.error("Erro ao buscar escolas:", error);
+        return res.status(500).json({ message: "Erro ao buscar escolas" });
+      }
+
+      console.log(`${escolas?.length || 0} escolas encontradas`);
+      res.status(200).json(escolas || []);
+    } catch (error) {
+      console.error("Erro interno:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Rota para buscar alunos do gestor
   app.get("/api/students/manager", authenticateCustom, requireRole(['manager']), async (req, res) => {
     try {
