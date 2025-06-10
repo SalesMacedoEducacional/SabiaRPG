@@ -331,18 +331,28 @@ export function TotalAlunosCard() {
   const { toast } = useToast();
   const [totalAlunos, setTotalAlunos] = useState<number>(0);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/alunos");
-        const data = await response.json();
         
-        setTotalAlunos(data.total || 0);
-        setAlunos(data.alunos || []);
+        // Buscar alunos e escolas em paralelo
+        const [alunosResponse, escolasResponse] = await Promise.all([
+          apiRequest("GET", "/api/alunos"),
+          apiRequest("GET", "/api/escolas/gestor")
+        ]);
+        
+        const alunosData = await alunosResponse.json();
+        const escolasData = await escolasResponse.json();
+        
+        setTotalAlunos(alunosData.total || 0);
+        setAlunos(alunosData.alunos || []);
+        setEscolas(escolasData || []);
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
         toast({
@@ -391,7 +401,7 @@ export function TotalAlunosCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-4xl bg-[#312e26] border-[#D47C06] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center">
               <GraduationCap className="h-5 w-5 mr-2" /> Alunos Matriculados
@@ -401,6 +411,24 @@ export function TotalAlunosCard() {
             </DialogDescription>
           </DialogHeader>
           
+          {/* Filtro por Escola */}
+          <div className="flex items-center gap-3 mb-4">
+            <Filter className="h-4 w-4 text-primary" />
+            <Select value={filtroEscola} onValueChange={setFiltroEscola}>
+              <SelectTrigger className="w-[280px] bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectValue placeholder="Filtrar por escola" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectItem value="todas">Todas as escolas</SelectItem>
+                {escolas.map((escola) => (
+                  <SelectItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
               <TableHeader className="bg-[#43341c]">
@@ -408,24 +436,32 @@ export function TotalAlunosCard() {
                   <TableHead className="text-white">Nome do Aluno</TableHead>
                   <TableHead className="text-white">Nº Matrícula</TableHead>
                   <TableHead className="text-white">Turma</TableHead>
+                  <TableHead className="text-white">Escola</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {alunos.length > 0 ? (
-                  alunos.map((aluno) => (
-                    <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
-                      <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
-                      <TableCell className="text-white">{aluno.turmas?.nome || "N/A"}</TableCell>
+                {(() => {
+                  const alunosFiltrados = filtroEscola === "todas" 
+                    ? alunos 
+                    : alunos.filter(aluno => aluno.escola_id === filtroEscola);
+                  
+                  return alunosFiltrados.length > 0 ? (
+                    alunosFiltrados.map((aluno) => (
+                      <TableRow key={aluno.id} className="hover:bg-[#43341c]">
+                        <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
+                        <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
+                        <TableCell className="text-white">{aluno.turmas?.nome || "N/A"}</TableCell>
+                        <TableCell className="text-white">{aluno.escola_nome || "Não informado"}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                        {filtroEscola === "todas" ? "Nenhum aluno encontrado" : "Nenhum aluno encontrado para esta escola"}
+                      </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
-                      Nenhum aluno encontrado
-                    </TableCell>
-                  </TableRow>
-                )}
+                  );
+                })()}
               </TableBody>
             </Table>
           </ScrollArea>
