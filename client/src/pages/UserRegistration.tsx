@@ -574,7 +574,7 @@ export default function UserRegistration() {
                 </div>
               )}
             </form>
-          </Form>
+            </Form>
           ) : (
             // Tela de seleção de escolas
             <div className="space-y-6">
@@ -633,7 +633,7 @@ export default function UserRegistration() {
                   onClick={() => {
                     if (escolasSelecionadas.length > 0) {
                       const formData = form.getValues();
-                      form.handleSubmit(onSubmit)(formData);
+                      onSubmit(formData);
                     }
                   }}
                   disabled={escolasSelecionadas.length === 0}
