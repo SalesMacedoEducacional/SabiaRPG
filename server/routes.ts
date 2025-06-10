@@ -1937,6 +1937,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Dados que serão atualizados:', updateData);
 
+      // Primeiro verificar se o usuário existe
+      const { data: existingUser, error: checkError } = await supabase
+        .from('usuarios')
+        .select('id, nome')
+        .eq('id', userId)
+        .single();
+
+      if (checkError) {
+        console.error('Erro ao verificar usuário:', checkError);
+        console.log('TENTANDO BUSCAR TODOS OS USUÁRIOS PARA DEBUG:');
+        
+        const { data: allUsers } = await supabase
+          .from('usuarios')
+          .select('id, nome, email');
+        
+        console.log('Usuários reais no banco:', allUsers);
+        return res.status(404).json({ message: 'Usuário não encontrado no banco', userIdAttempted: userId });
+      }
+
+      console.log('Usuário encontrado:', existingUser);
+
       // Atualizar usuário na tabela usuarios
       const { data: updatedUser, error } = await supabase
         .from('usuarios')
