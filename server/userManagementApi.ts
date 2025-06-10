@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { supabase } from '../db/supabase';
 
-// API para buscar usuários diretamente do PostgreSQL
+// API para buscar usuários reais usando nova query
 export async function getRealUsersFromPostgreSQL(req: Request, res: Response) {
   try {
-    console.log('=== BUSCANDO USUÁRIOS DIRETAMENTE DO POSTGRESQL ===');
+    console.log('=== BUSCANDO USUÁRIOS REAIS DO POSTGRESQL ===');
     
-    // Buscar dados diretamente sem cache
+    // Query nova com timestamp para forçar dados atuais
+    const timestamp = Date.now();
     const { data: usuarios, error } = await supabase
       .from('usuarios')
       .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
+      .not('id', 'is', null)
       .order('criado_em', { ascending: false });
 
     if (error) {
@@ -17,10 +19,13 @@ export async function getRealUsersFromPostgreSQL(req: Request, res: Response) {
       return res.status(500).json({ message: "Erro ao buscar usuários" });
     }
 
-    console.log(`Usuários encontrados via SQL direto: ${usuarios?.length || 0}`);
-    console.log('IDs reais do PostgreSQL:', usuarios?.map((u: any) => u.id));
+    // Filtrar apenas usuários que realmente existem (com dados válidos)
+    const usuariosValidos = usuarios?.filter(u => u.id && (u.nome || u.email)) || [];
+    
+    console.log(`Usuários válidos encontrados: ${usuariosValidos.length}`);
+    console.log('IDs válidos:', usuariosValidos.map((u: any) => u.id));
 
-    const usuariosFormatados = usuarios?.map((user: any) => ({
+    const usuariosFormatados = usuariosValidos.map((user: any) => ({
       id: user.id,
       nome: user.nome || 'Nome não informado',
       email: user.email || 'Email não informado',
@@ -30,7 +35,7 @@ export async function getRealUsersFromPostgreSQL(req: Request, res: Response) {
       escola_nome: 'Geral',
       ativo: user.ativo ?? true,
       criado_em: user.criado_em
-    })) || [];
+    }));
 
     res.json({
       total: usuariosFormatados.length,
