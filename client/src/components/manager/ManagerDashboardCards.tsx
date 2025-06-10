@@ -7,7 +7,8 @@ import {
   GraduationCap, 
   BookOpen, 
   Search,
-  Building
+  Building,
+  Filter
 } from "lucide-react";
 import {
   Dialog,
@@ -21,6 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Interfaces para os dados
 interface Escola {
@@ -40,16 +42,18 @@ interface Escola {
 interface Professor {
   id: string;
   usuarios: {
-    nome_completo: string;
+    nome: string;
     cpf: string;
     telefone: string;
   };
+  escola_id?: string;
+  escola_nome?: string;
 }
 
 interface Aluno {
   id: string;
   usuarios: {
-    nome_completo: string;
+    nome: string;
   };
   turmas: {
     nome: string;
@@ -57,6 +61,8 @@ interface Aluno {
   matriculas: {
     numero_matricula: string;
   };
+  escola_id?: string;
+  escola_nome?: string;
 }
 
 interface Turma {
@@ -180,18 +186,28 @@ export function TotalProfessoresCard() {
   const { toast } = useToast();
   const [totalProfessores, setTotalProfessores] = useState<number>(0);
   const [professores, setProfessores] = useState<Professor[]>([]);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/professores");
-        const data = await response.json();
         
-        setTotalProfessores(data.total || 0);
-        setProfessores(data.professores || []);
+        // Buscar professores e escolas em paralelo
+        const [professoresResponse, escolasResponse] = await Promise.all([
+          apiRequest("GET", "/api/professores"),
+          apiRequest("GET", "/api/escolas/gestor")
+        ]);
+        
+        const professoresData = await professoresResponse.json();
+        const escolasData = await escolasResponse.json();
+        
+        setTotalProfessores(professoresData.total || 0);
+        setProfessores(professoresData.professores || []);
+        setEscolas(escolasData || []);
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
         toast({
@@ -240,7 +256,7 @@ export function TotalProfessoresCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-4xl bg-[#312e26] border-[#D47C06] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center">
               <Users className="h-5 w-5 mr-2" /> Professores Cadastrados
@@ -250,6 +266,24 @@ export function TotalProfessoresCard() {
             </DialogDescription>
           </DialogHeader>
           
+          {/* Filtro por Escola */}
+          <div className="flex items-center gap-3 mb-4">
+            <Filter className="h-4 w-4 text-primary" />
+            <Select value={filtroEscola} onValueChange={setFiltroEscola}>
+              <SelectTrigger className="w-[280px] bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectValue placeholder="Filtrar por escola" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectItem value="todas">Todas as escolas</SelectItem>
+                {escolas.map((escola) => (
+                  <SelectItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">
               <TableHeader className="bg-[#43341c]">
@@ -257,24 +291,32 @@ export function TotalProfessoresCard() {
                   <TableHead className="text-white">Nome do Professor</TableHead>
                   <TableHead className="text-white">CPF</TableHead>
                   <TableHead className="text-white">Telefone</TableHead>
+                  <TableHead className="text-white">Escola</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {professores.length > 0 ? (
-                  professores.map((professor) => (
-                    <TableRow key={professor.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{professor.usuarios.nome_completo}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.cpf}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.telefone || "Não informado"}</TableCell>
+                {(() => {
+                  const professoresFiltrados = filtroEscola === "todas" 
+                    ? professores 
+                    : professores.filter(prof => prof.escola_id === filtroEscola);
+                  
+                  return professoresFiltrados.length > 0 ? (
+                    professoresFiltrados.map((professor) => (
+                      <TableRow key={professor.id} className="hover:bg-[#43341c]">
+                        <TableCell className="text-white font-medium">{professor.usuarios.nome}</TableCell>
+                        <TableCell className="text-white">{professor.usuarios.cpf}</TableCell>
+                        <TableCell className="text-white">{professor.usuarios.telefone || "Não informado"}</TableCell>
+                        <TableCell className="text-white">{professor.escola_nome || "Não informado"}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                        {filtroEscola === "todas" ? "Nenhum professor encontrado" : "Nenhum professor encontrado para esta escola"}
+                      </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
-                      Nenhum professor encontrado
-                    </TableCell>
-                  </TableRow>
-                )}
+                  );
+                })()}
               </TableBody>
             </Table>
           </ScrollArea>
@@ -372,7 +414,7 @@ export function TotalAlunosCard() {
                 {alunos.length > 0 ? (
                   alunos.map((aluno) => (
                     <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{aluno.usuarios.nome_completo}</TableCell>
+                      <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
                       <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
                       <TableCell className="text-white">{aluno.turmas?.nome || "N/A"}</TableCell>
                     </TableRow>
