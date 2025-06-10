@@ -1915,18 +1915,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Nome e email são obrigatórios" });
       }
 
-      // Preparar objeto de atualização apenas com campos principais
+      // Usar apenas campos que existem desde o início
       const updateData = {
         nome: nome.trim(),
         email: email.toLowerCase().trim(),
         telefone: telefone || null,
-        cpf: cpf || null,
-        data_nascimento: data_nascimento ? new Date(data_nascimento).toISOString() : null,
-        endereco: endereco || null,
-        cidade: cidade || null,
-        estado: estado || null,
-        cep: cep || null,
-        ativo: Boolean(ativo)
+        cpf: cpf || null
       };
 
       // Remover campos undefined para evitar erro de atualização
