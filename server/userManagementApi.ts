@@ -5,6 +5,9 @@ import { supabase } from '../db/supabase';
 export async function getRealUsersFromPostgreSQL(req: Request, res: Response) {
   try {
     console.log('=== BUSCANDO USUÁRIOS REAIS DO POSTGRESQL ===');
+    console.log('Método:', req.method);
+    console.log('URL:', req.url);
+    console.log('Session:', req.session?.userId);
     
     // Query nova com timestamp para forçar dados atuais
     const timestamp = Date.now();
