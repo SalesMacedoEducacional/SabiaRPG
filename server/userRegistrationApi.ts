@@ -91,43 +91,18 @@ export function registerUserRegistrationRoutes(app: Express) {
         senhaTemporaria = 'SabiaRpg@2024';
       }
 
-      // Criar usuário no Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password: senhaTemporaria,
-        options: {
-          data: {
-            full_name: nome_completo,
-            role: papel
-          }
-        }
-      });
-
-      if (authError) {
-        console.error('Erro no Supabase Auth:', authError);
-        
-        // Tratar erro de email já existente no Supabase Auth
-        if (authError.message.includes('User already registered') || 
-            authError.message.includes('already registered') ||
-            authError.status === 422) {
-          return res.status(400).json({ message: 'Este email já está cadastrado no sistema' });
-        }
-        
-        return res.status(500).json({ message: 'Erro ao criar conta: ' + authError.message });
-      }
-
-      if (!authData.user) {
-        return res.status(500).json({ message: 'Erro ao criar usuário' });
-      }
+      // Gerar ID único para o usuário
+      const userId = crypto.randomUUID();
 
       // Limpar formatação do telefone e CPF
       const telefoneClean = telefone.replace(/\D/g, '');
       const cpfClean = cpf ? cpf.replace(/\D/g, '') : null;
 
-      // Inserir na tabela usuarios (sem especificar ID, deixa o banco gerar automaticamente)
+      // Inserir na tabela usuarios com ID gerado localmente
       const { data: novoUsuario, error: insertError } = await supabase
         .from('usuarios')
         .insert({
+          id: userId,
           email: email.toLowerCase().trim(),
           nome: nome_completo,
           telefone: telefoneClean,
@@ -156,7 +131,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         await supabase
           .from('perfis_aluno')
           .insert({
-            usuario_id: authData.user.id,
+            usuario_id: userId,
             turma_id,
             numero_matricula,
             ativo: true,
@@ -166,7 +141,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         await supabase
           .from('perfis_professor')
           .insert({
-            usuario_id: authData.user.id,
+            usuario_id: userId,
             disciplinas: ['Indefinida'],
             turmas: ['Indefinida'],
             ativo: true,
@@ -176,7 +151,7 @@ export function registerUserRegistrationRoutes(app: Express) {
         await supabase
           .from('perfis_gestor')
           .insert({
-            usuario_id: authData.user.id,
+            usuario_id: userId,
             ativo: true,
             criado_em: new Date().toISOString()
           });
