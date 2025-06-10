@@ -897,7 +897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Erro ao buscar escolas" });
       }
 
-      // Buscar todos os usuários com campos completos
+      // Buscar todos os usuários com campos básicos
       const { data: usuarios, error } = await supabase
         .from('usuarios')
         .select(`
@@ -908,11 +908,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           papel,
           criado_em,
           telefone,
-          data_nascimento,
-          endereco,
-          cidade,
-          estado,
-          cep,
           ativo
         `)
         .order('criado_em', { ascending: false });
@@ -927,7 +922,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log dos IDs para debug
       console.log('IDs dos usuários encontrados:', usuarios?.map(u => u.id));
 
-      // Formatar resposta com todos os campos necessários
+      // Formatar resposta com campos básicos
       const usuariosFormatados = usuarios?.map(user => {
         return {
           id: user.id,
@@ -936,11 +931,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cpf: user.cpf || 'CPF não informado',
           papel: user.papel,
           telefone: user.telefone || '',
-          data_nascimento: user.data_nascimento || '',
-          endereco: user.endereco || '',
-          cidade: user.cidade || '',
-          estado: user.estado || '',
-          cep: user.cep || '',
           escola_nome: 'Geral',
           ativo: user.ativo ?? true,
           criado_em: user.criado_em
