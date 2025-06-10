@@ -1958,12 +1958,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Usuário encontrado:', existingUser);
 
-      // Atualizar usuário na tabela usuarios
-      const { data: updatedUser, error } = await supabase
-        .from('usuarios')
-        .update(updateData)
-        .eq('id', userId)
-        .select();
+      // Usar função SQL direta para garantir atualização
+      const { data: updatedUser, error } = await supabase.rpc('update_usuario_by_id', {
+        user_id: userId,
+        new_nome: updateData.nome,
+        new_email: updateData.email,
+        new_telefone: updateData.telefone,
+        new_cpf: updateData.cpf
+      });
 
       if (error) {
         console.error('Erro ao atualizar usuário:', error);
