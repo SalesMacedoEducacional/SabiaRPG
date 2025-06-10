@@ -1963,23 +1963,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from('usuarios')
         .update(updateData)
         .eq('id', userId)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error('Erro ao atualizar usuário:', error);
         return res.status(500).json({ message: 'Erro ao atualizar usuário', error: error.message });
       }
 
-      if (!updatedUser) {
-        return res.status(404).json({ message: 'Usuário não encontrado' });
+      if (!updatedUser || updatedUser.length === 0) {
+        return res.status(404).json({ message: 'Usuário não encontrado após atualização' });
       }
 
-      console.log('Usuário atualizado com sucesso:', updatedUser.id);
+      const userUpdated = Array.isArray(updatedUser) ? updatedUser[0] : updatedUser;
+      console.log('Usuário atualizado com sucesso:', userUpdated.id);
+      
       res.status(200).json({ 
         success: true, 
         message: 'Usuário atualizado com sucesso!',
-        user: updatedUser 
+        user: userUpdated 
       });
     } catch (error) {
       console.error('Erro ao atualizar usuário:', error);
