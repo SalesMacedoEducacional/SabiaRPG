@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Import supabase for direct API routes
 import { supabase } from '../db/supabase.js';
+import { executeQuery } from './database';
 
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
@@ -53,38 +54,67 @@ app.get('/api/users/manager', async (req, res) => {
 });
 
 app.put('/api/users/:id', async (req, res) => {
-  const { id } = req.params;
-  const { nome, email, telefone, cpf, ativo } = req.body;
-  
-  console.log(`Atualizando usuário ${id}:`, { nome, email, telefone, cpf, ativo });
+  try {
+    const { id } = req.params;
+    const { nome, email, telefone, cpf, ativo } = req.body;
+    
+    console.log(`Atualizando usuário ${id} no banco PostgreSQL`);
 
-  // Sempre retornar sucesso para o frontend para demonstração
-  // Em um ambiente de produção, aqui seria feita a operação real no banco
-  res.json({ 
-    success: true, 
-    message: "Usuário atualizado com sucesso",
-    data: {
-      id,
-      nome,
-      email,
-      cpf,
-      telefone,
-      ativo
+    const query = `
+      UPDATE usuarios 
+      SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
+      WHERE id = $6
+      RETURNING id, nome, email, cpf, telefone, ativo
+    `;
+    
+    const result = await executeQuery(query, [nome, email, telefone, cpf, ativo, id]);
+    
+    if (result.rows.length > 0) {
+      console.log('Usuário atualizado com sucesso:', result.rows[0]);
+      res.json({ 
+        success: true, 
+        message: "Usuário atualizado com sucesso",
+        data: result.rows[0]
+      });
+    } else {
+      res.status(404).json({ message: "Usuário não encontrado" });
     }
-  });
+
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
 });
 
 app.delete('/api/users/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  console.log(`Excluindo usuário ${id}`);
+  try {
+    const { id } = req.params;
+    
+    console.log(`Excluindo usuário ${id} do banco PostgreSQL`);
 
-  // Sempre retornar sucesso para o frontend para demonstração
-  // Em um ambiente de produção, aqui seria feita a operação real no banco
-  res.json({ 
-    success: true, 
-    message: "Usuário excluído com sucesso"
-  });
+    const query = `
+      DELETE FROM usuarios 
+      WHERE id = $1
+      RETURNING id, nome, email
+    `;
+    
+    const result = await executeQuery(query, [id]);
+    
+    if (result.rows.length > 0) {
+      console.log('Usuário excluído com sucesso:', result.rows[0]);
+      res.json({ 
+        success: true, 
+        message: "Usuário excluído com sucesso",
+        data: result.rows[0]
+      });
+    } else {
+      res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+  } catch (error) {
+    console.error('Erro ao excluir usuário:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
 });
 
 // Configure sessão
