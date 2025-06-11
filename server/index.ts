@@ -53,6 +53,37 @@ app.get('/api/users/manager', async (req, res) => {
   }
 });
 
+app.post('/api/users', async (req, res) => {
+  try {
+    const { nome, email, telefone, cpf, papel, ativo = true } = req.body;
+    
+    console.log(`Criando novo usuário no banco PostgreSQL`);
+
+    const query = `
+      INSERT INTO usuarios (nome, email, telefone, cpf, papel, ativo, criado_em, atualizado_em)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING id, nome, email, cpf, telefone, papel, ativo
+    `;
+    
+    const result = await executeQuery(query, [nome, email, telefone, cpf, papel, ativo]);
+    
+    if (result.rows.length > 0) {
+      console.log('Usuário criado com sucesso:', result.rows[0]);
+      res.json({ 
+        success: true, 
+        message: "Usuário criado com sucesso",
+        data: result.rows[0]
+      });
+    } else {
+      res.status(500).json({ message: "Erro ao criar usuário" });
+    }
+
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
 app.put('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
