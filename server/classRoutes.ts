@@ -217,6 +217,11 @@ export function registerClassRoutes(
           return res.status(400).json({ message: 'Ano letivo inválido' });
         }
 
+        // Debug: Log detalhado da validação da escola
+        console.log('=== VALIDAÇÃO DA ESCOLA ===');
+        console.log('escola_id recebido:', escola_id);
+        console.log('Tipo do escola_id:', typeof escola_id);
+        
         // Verificar se a escola existe
         const { data: escolaExistente, error: escolaError } = await supabase
           .from('escolas')
@@ -224,11 +229,16 @@ export function registerClassRoutes(
           .eq('id', escola_id)
           .single();
           
+        console.log('Resultado da busca escola:', escolaExistente);
+        console.log('Erro da busca escola:', escolaError);
+          
         if (escolaError || !escolaExistente) {
+          console.log('ERRO: Escola não encontrada');
           return res.status(400).json({ 
             message: 'A escola especificada não existe ou não está acessível.',
             field: 'escola_id',
-            escola_id: escola_id
+            escola_id: escola_id,
+            error: escolaError?.message
           });
         }
 

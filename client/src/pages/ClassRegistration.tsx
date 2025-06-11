@@ -153,6 +153,12 @@ export default function ClassRegistration() {
         return;
       }
       
+      // Debug: Verificar dados antes do envio
+      console.log('=== DEBUG CADASTRO TURMA ===');
+      console.log('Dados do formulário:', data);
+      console.log('Escola selecionada ID:', data.escola_id);
+      console.log('Escolas disponíveis:', escolas);
+      
       // Preparar dados para enviar ao backend (mapear nome_turma para nome)
       const dadosParaEnvio = {
         nome: data.nome_turma,
@@ -163,6 +169,8 @@ export default function ClassRegistration() {
         descricao: data.observacoes || null,
         escola_id: data.escola_id
       };
+      
+      console.log('Dados preparados para envio:', dadosParaEnvio);
       
       // Fazer requisição para cadastrar a turma
       const response = await apiRequest("POST", "/api/turmas", dadosParaEnvio);
