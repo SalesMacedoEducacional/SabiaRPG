@@ -59,13 +59,16 @@ app.post('/api/users', async (req, res) => {
     
     console.log(`Criando novo usuário no banco PostgreSQL`);
 
+    // Usar CPF como senha padrão para novos usuários
+    const senhaTemporaria = cpf || '123456789';
+    
     const query = `
-      INSERT INTO usuarios (nome, email, telefone, cpf, papel, ativo, criado_em, atualizado_em)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      INSERT INTO usuarios (nome, email, telefone, cpf, papel, ativo, senha_hash, criado_em, atualizado_em)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
       RETURNING id, nome, email, cpf, telefone, papel, ativo
     `;
     
-    const result = await executeQuery(query, [nome, email, telefone, cpf, papel, ativo]);
+    const result = await executeQuery(query, [nome, email, telefone, cpf, papel, ativo, senhaTemporaria]);
     
     if (result.rows.length > 0) {
       console.log('Usuário criado com sucesso:', result.rows[0]);

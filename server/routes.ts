@@ -2041,20 +2041,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerManagerRoutes(app, authenticate, requireRole);
   
   // Registrar rotas de usuário, incluindo upload de foto
-  registerUserRegistrationRoutes(app);
+  // registerUserRegistrationRoutes(app); // Comentado temporariamente para permitir CRUD direto
   
   // Registrar rotas de escolas e turmas
   registerSchoolRoutes(app, authenticate, requireRole);
   registerClassRoutes(app, authenticate, requireRole);
   
   // Registrar rota para criação de usuário com CPF como senha temporária
-  registerCreateUserWithCpfRoute(app);
+  // registerCreateUserWithCpfRoute(app); // Comentado temporariamente para permitir CRUD direto
   
   // Registrar rotas de localização (estados e cidades)
   registerLocationRoutes(app);
   
   // Registrar rota simplificada para criação de usuário (novo formato)
-  registerSimplifiedUserRoutes(app);
+  // registerSimplifiedUserRoutes(app); // Comentado temporariamente para permitir CRUD direto
   
   // Adicionar rotas do gestor
   app.use('/api', managerRoutes);
