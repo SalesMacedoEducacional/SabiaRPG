@@ -1,0 +1,44 @@
+Ordem de execução para implementação obrigatória do vínculo entre a nova turma e a escola selecionada pelo gestor.
+
+1. Objetivo
+Garantir que, ao cadastrar uma nova turma pelo formulário, ela seja corretamente vinculada à escola selecionada no campo "Escola", por meio do campo escola_id na tabela turmas.
+
+2. Ajustes no Frontend
+Certifique-se de que o campo de seleção da escola (dropdown) esteja carregando corretamente todas as escolas vinculadas ao gestor logado.
+
+O valor selecionado no dropdown deve representar o ID real da escola no banco de dados.
+
+Durante o envio do formulário de cadastro de turma, o valor da escola selecionada deve ser incluído no corpo da requisição como identificador da escola (escola_id).
+
+O botão "Cadastrar Turma" só deve funcionar se uma escola tiver sido selecionada.
+
+Caso nenhuma escola esteja selecionada, deve ser exibida uma mensagem de erro clara ao usuário.
+
+3. Ajustes no Backend
+Verifique se a rota responsável pelo cadastro de turmas está recebendo corretamente o valor escola_id.
+
+Faça uma validação no servidor para garantir que o campo escola_id esteja presente e corresponda a uma escola existente.
+
+Certifique-se de que o campo escola_id esteja sendo salvo corretamente na tabela turmas no momento do cadastro.
+
+Garanta que turmas sem vínculo com escola não sejam permitidas.
+
+Se o valor escola_id estiver ausente ou inválido, o servidor deve recusar o cadastro com uma mensagem de erro informativa.
+
+4. Pós-implementação
+Após implementar os ajustes, teste o cadastro de uma turma selecionando uma escola no formulário.
+
+A nova turma cadastrada deve aparecer na tabela turmas com o campo escola_id preenchido com o ID da escola escolhida.
+
+A tela de listagem de turmas deve conseguir exibir corretamente as turmas de cada escola vinculada.
+
+5. Importância do Vínculo
+Esse vínculo será essencial para:
+
+Gerenciar componentes por escola
+
+Listar alunos corretamente por turma e por escola
+
+Realizar filtros por escola nas telas de gestão
+
+Garantir que o gestor só visualize e manipule dados de suas próprias escolas

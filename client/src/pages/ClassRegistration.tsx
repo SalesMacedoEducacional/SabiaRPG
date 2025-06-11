@@ -113,6 +113,29 @@ export default function ClassRegistration() {
     setIsSubmitting(true);
     
     try {
+      // Validação adicional: garantir que escola foi selecionada
+      if (!data.escola_id || data.escola_id.trim() === "") {
+        toast({
+          title: "Escola obrigatória",
+          description: "Você deve selecionar uma escola antes de cadastrar a turma",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Verificar se a escola existe nas escolas do gestor
+      const escolaValida = escolas?.find(escola => escola.id === data.escola_id);
+      if (!escolaValida) {
+        toast({
+          title: "Escola inválida",
+          description: "A escola selecionada não é válida ou você não tem permissão para cadastrar turmas nela",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       // Verifica se o nome da turma já existe para esta escola e ano letivo
       const nomeDisponivel = await verificarNomeTurma(
         data.nome_turma,
@@ -130,8 +153,19 @@ export default function ClassRegistration() {
         return;
       }
       
+      // Preparar dados para enviar ao backend (mapear nome_turma para nome)
+      const dadosParaEnvio = {
+        nome: data.nome_turma,
+        turno: data.turno,
+        serie: data.serie,
+        modalidade: data.modalidade,
+        ano_letivo: data.ano_letivo,
+        descricao: data.observacoes || null,
+        escola_id: data.escola_id
+      };
+      
       // Fazer requisição para cadastrar a turma
-      const response = await apiRequest("POST", "/api/turmas", data);
+      const response = await apiRequest("POST", "/api/turmas", dadosParaEnvio);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -144,7 +178,7 @@ export default function ClassRegistration() {
       // Exibir mensagem de sucesso
       toast({
         title: "Turma cadastrada com sucesso",
-        description: "A turma foi cadastrada com sucesso",
+        description: `A turma "${data.nome_turma}" foi vinculada à escola "${escolaValida.nome}" com sucesso`,
         variant: "default",
       });
       
@@ -209,28 +243,40 @@ export default function ClassRegistration() {
                   name="escola_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Escola</FormLabel>
+                      <FormLabel className="text-red-500">Escola *</FormLabel>
                       <Select
-                        disabled={isLoadingEscolas || escolas?.length === 1}
+                        disabled={isLoadingEscolas}
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
+                        required
                       >
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a escola" />
+                          <SelectTrigger className={`${!field.value ? 'border-red-500' : ''}`}>
+                            <SelectValue placeholder="⚠️ Selecione uma escola (obrigatório)" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {escolas?.map((escola: any) => (
-                            <SelectItem key={escola.id} value={escola.id}>
-                              {escola.nome}
+                          {escolas && escolas.length > 0 ? (
+                            escolas.map((escola: any) => (
+                              <SelectItem key={escola.id} value={escola.id}>
+                                {escola.nome}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="" disabled>
+                              Nenhuma escola encontrada
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
-                      <FormDescription>
-                        Escola na qual a turma será registrada
+                      <FormDescription className="text-orange-600">
+                        <strong>OBRIGATÓRIO:</strong> A turma será vinculada à escola selecionada. Esta seleção não pode ser alterada após o cadastro.
                       </FormDescription>
+                      {!field.value && (
+                        <div className="text-red-500 text-sm mt-1">
+                          ⚠️ Você deve selecionar uma escola para continuar
+                        </div>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -403,6 +449,18 @@ export default function ClassRegistration() {
                 </div>
               </div>
 
+              {/* Aviso quando nenhuma escola estiver selecionada */}
+              {!form.watch("escola_id") && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                  <div className="flex items-center">
+                    <div className="text-red-600 text-sm">
+                      <strong>⚠️ Atenção:</strong> Você deve selecionar uma escola antes de cadastrar a turma. 
+                      O vínculo entre turma e escola é obrigatório e não pode ser alterado posteriormente.
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-end space-x-4">
                 <Button
                   type="button"
@@ -412,12 +470,18 @@ export default function ClassRegistration() {
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || !form.watch("escola_id")}
+                  className={!form.watch("escola_id") ? "opacity-50 cursor-not-allowed" : ""}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Cadastrando...
                     </>
+                  ) : !form.watch("escola_id") ? (
+                    "Selecione uma escola primeiro"
                   ) : (
                     "Cadastrar Turma"
                   )}

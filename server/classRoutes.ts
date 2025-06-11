@@ -190,7 +190,25 @@ export function registerClassRoutes(
 
         // Validação de campos obrigatórios
         if (!nome || !turno || !serie || !modalidade || !ano_letivo || !escola_id) {
-          return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
+          return res.status(400).json({ 
+            message: 'Todos os campos obrigatórios devem ser preenchidos',
+            missing_fields: {
+              nome: !nome,
+              turno: !turno,
+              serie: !serie,
+              modalidade: !modalidade,
+              ano_letivo: !ano_letivo,
+              escola_id: !escola_id
+            }
+          });
+        }
+
+        // Validação específica do campo escola_id
+        if (!escola_id || escola_id.trim() === '') {
+          return res.status(400).json({ 
+            message: 'O campo escola_id é obrigatório. A turma deve estar vinculada a uma escola.',
+            field: 'escola_id'
+          });
         }
 
         // Validação do ano letivo
@@ -199,20 +217,37 @@ export function registerClassRoutes(
           return res.status(400).json({ message: 'Ano letivo inválido' });
         }
 
+        // Verificar se a escola existe
+        const { data: escolaExistente, error: escolaError } = await supabase
+          .from('escolas')
+          .select('id, nome, gestor_id, ativo')
+          .eq('id', escola_id)
+          .single();
+          
+        if (escolaError || !escolaExistente) {
+          return res.status(400).json({ 
+            message: 'A escola especificada não existe ou não está acessível.',
+            field: 'escola_id',
+            escola_id: escola_id
+          });
+        }
+
+        if (!escolaExistente.ativo) {
+          return res.status(400).json({ 
+            message: 'Não é possível cadastrar turmas em uma escola inativa.',
+            field: 'escola_id',
+            escola_nome: escolaExistente.nome
+          });
+        }
+
         // Se o usuário for gestor, verifica se ele é gestor da escola informada
         if (req.user && req.user.role === 'manager') {
-          const { data: escolasGestor, error: escolasError } = await supabase
-            .from('escolas')
-            .select('id')
-            .eq('gestor_id', req.user.id);
-            
-          if (escolasError) {
-            console.error('Erro ao verificar escolas do gestor:', escolasError);
-            return res.status(500).json({ message: 'Erro ao verificar escolas do gestor' });
-          }
-            
-          if (!escolasGestor.some((e: { id: string }) => e.id === escola_id)) {
-            return res.status(403).json({ message: 'Você não tem permissão para cadastrar turmas nesta escola' });
+          if (escolaExistente.gestor_id !== req.user.id) {
+            return res.status(403).json({ 
+              message: `Você não tem permissão para cadastrar turmas na escola "${escolaExistente.nome}". Apenas o gestor responsável pode realizar esta ação.`,
+              escola_nome: escolaExistente.nome,
+              gestor_responsavel: escolaExistente.gestor_id
+            });
           }
         }
 
@@ -235,7 +270,7 @@ export function registerClassRoutes(
           });
         }
 
-        // Inserir a nova turma
+        // Inserir a nova turma com validação final do vínculo escola-turma
         const novaTurma = {
           // Removendo o campo id para que o Supabase gere automaticamente
           nome: nome,
@@ -244,11 +279,16 @@ export function registerClassRoutes(
           modalidade,
           ano_letivo: Number(ano_letivo),
           descricao: descricao || null,
-          escola_id,
+          escola_id, // Garantir que este campo seja sempre preenchido
           criado_em: new Date().toISOString()
         };
         
+        // Log detalhado para confirmar o vínculo
+        console.log('=== CADASTRO DE TURMA COM VÍNCULO OBRIGATÓRIO ===');
         console.log('Dados da turma a ser cadastrada:', novaTurma);
+        console.log('Escola vinculada:', escolaExistente.nome);
+        console.log('Gestor responsável:', req.user?.id);
+        console.log('Vínculo escola_id confirmado:', escola_id);
 
         const { data, error } = await supabase
           .from('turmas')
