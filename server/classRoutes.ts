@@ -323,7 +323,19 @@ export function registerClassRoutes(
           });
         }
 
-        return res.status(201).json(data[0]);
+        console.log('=== TURMA CADASTRADA COM SUCESSO ===');
+        console.log('Turma criada:', data[0]);
+        console.log('Vínculo escola-turma confirmado:', data[0]?.escola_id);
+        
+        return res.status(201).json({
+          message: `Turma "${nome}" cadastrada com sucesso e vinculada à escola "${escolaExistente.nome}"`,
+          turma: data[0],
+          escola_vinculada: {
+            id: escolaExistente.id,
+            nome: escolaExistente.nome
+          },
+          vinculo_confirmado: true
+        });
       } catch (error) {
         console.error('Erro ao cadastrar turma:', error);
         return res.status(500).json({ message: 'Erro ao cadastrar turma' });

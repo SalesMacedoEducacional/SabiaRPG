@@ -360,6 +360,12 @@ export default function ClassManagement() {
                         <span className="text-parchment">Modalidade: {turma.modalidade || '—'}</span>
                       </div>
                       <div className="flex items-start">
+                        <School className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                        <span className="text-green-400 font-medium">
+                          Escola: {escolaSelecionadaNome}
+                        </span>
+                      </div>
+                      <div className="flex items-start">
                         <Users className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
                         <span className="text-parchment">
                           Alunos: {turma.total_alunos || 0}
