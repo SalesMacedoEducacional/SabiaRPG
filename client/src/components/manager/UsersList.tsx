@@ -95,10 +95,27 @@ export default function UsersList() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: { id: string; userData: EditUserForm }) => {
-      console.log('Enviando dados para atualização:', data);
-      const result = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
-      console.log('Resposta da API de atualização:', result);
-      return result;
+      console.log('=== MUTATION: Iniciando edição de usuário ===');
+      console.log('ID do usuário:', data.id);
+      console.log('Dados para envio:', data.userData);
+      
+      try {
+        const response = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
+        console.log('Resposta da API recebida:', response);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Erro na resposta da API:', errorText);
+          throw new Error(errorText || 'Erro ao atualizar usuário');
+        }
+        
+        const result = await response.json();
+        console.log('Dados de resposta parseados:', result);
+        return result;
+      } catch (error) {
+        console.error('Erro na mutation:', error);
+        throw error;
+      }
     },
     onSuccess: async (data, variables) => {
       console.log('Atualização bem-sucedida');
