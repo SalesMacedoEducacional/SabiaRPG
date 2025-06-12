@@ -88,15 +88,15 @@ app.post('/api/users', async (req, res) => {
 });
 
 app.put('/api/users/:id', async (req, res) => {
-  const client = await executeQuery('BEGIN', []);
-  
   try {
+    await executeQuery('BEGIN', []);
+    
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
     console.log('=== INICIANDO ATUALIZAÇÃO COM TRANSAÇÃO ===');
     console.log('ID do usuário:', id);
-    console.log('Dados do body:', { nome, email, telefone, cpf, ativo });
+    console.log('Dados recebidos:', { nome, email, telefone, cpf, ativo });
     
     if (!id) {
       await executeQuery('ROLLBACK', []);
@@ -116,53 +116,7 @@ app.put('/api/users/:id', async (req, res) => {
     console.log('Usuário encontrado:', usuario);
     console.log('Papel do usuário:', usuario.papel);
 
-    // 2. Determinar tabela de perfil baseada no papel
-    let tabelaPerfil = '';
-    switch (usuario.papel) {
-      case 'professor':
-        tabelaPerfil = 'perfis_professor';
-        break;
-      case 'aluno':
-        tabelaPerfil = 'perfis_aluno';
-        break;
-      case 'gestor':
-        tabelaPerfil = 'perfis_gestor';
-        break;
-      default:
-        await executeQuery('ROLLBACK', []);
-        return res.status(400).json({ message: `Papel inválido: ${usuario.papel}` });
-    }
-
-    console.log('Tabela de perfil selecionada:', tabelaPerfil);
-
-    // 3. Atualizar tabela de perfil primeiro
-    const updatePerfilQuery = `
-      UPDATE ${tabelaPerfil} 
-      SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
-      WHERE usuario_id = $6
-      RETURNING usuario_id
-    `;
-    
-    console.log('Atualizando tabela de perfil...');
-    const perfilResult = await executeQuery(updatePerfilQuery, [nome, email, telefone, cpf, ativo, id]);
-    
-    if (perfilResult.rows.length === 0) {
-      console.log('AVISO: Registro de perfil não encontrado, criando novo...');
-      
-      // Criar registro de perfil se não existir
-      const insertPerfilQuery = `
-        INSERT INTO ${tabelaPerfil} (usuario_id, nome, email, telefone, cpf, ativo, criado_em, atualizado_em)
-        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-        RETURNING usuario_id
-      `;
-      
-      await executeQuery(insertPerfilQuery, [id, nome, email, telefone, cpf, ativo]);
-      console.log('Registro de perfil criado com sucesso');
-    } else {
-      console.log('Perfil atualizado com sucesso:', perfilResult.rows[0]);
-    }
-
-    // 4. Atualizar tabela usuarios
+    // 2. Atualizar tabela usuarios primeiro
     const updateUsuarioQuery = `
       UPDATE usuarios 
       SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
@@ -178,7 +132,45 @@ app.put('/api/users/:id', async (req, res) => {
       return res.status(404).json({ message: "Falha ao atualizar usuário" });
     }
 
-    // 5. Commit da transação
+    console.log('Usuário na tabela usuarios atualizado:', usuarioResult.rows[0]);
+
+    // 3. Atualizar tabela de perfil correspondente (apenas para professor e gestor)
+    if (usuario.papel === 'professor') {
+      const updatePerfilQuery = `
+        UPDATE perfis_professor 
+        SET ativo = $1
+        WHERE usuario_id = $2
+        RETURNING usuario_id
+      `;
+      
+      console.log('Atualizando perfis_professor...');
+      const perfilResult = await executeQuery(updatePerfilQuery, [ativo, id]);
+      
+      if (perfilResult.rows.length > 0) {
+        console.log('Perfil professor atualizado:', perfilResult.rows[0]);
+      } else {
+        console.log('AVISO: Nenhum registro encontrado em perfis_professor para este usuário');
+      }
+      
+    } else if (usuario.papel === 'gestor') {
+      const updatePerfilQuery = `
+        UPDATE perfis_gestor 
+        SET ativo = $1
+        WHERE usuario_id = $2
+        RETURNING usuario_id
+      `;
+      
+      console.log('Atualizando perfis_gestor...');
+      const perfilResult = await executeQuery(updatePerfilQuery, [ativo, id]);
+      
+      if (perfilResult.rows.length > 0) {
+        console.log('Perfil gestor atualizado:', perfilResult.rows[0]);
+      } else {
+        console.log('AVISO: Nenhum registro encontrado em perfis_gestor para este usuário');
+      }
+    }
+
+    // 4. Commit da transação
     await executeQuery('COMMIT', []);
     
     console.log('SUCESSO: Transação commitada. Usuário atualizado:', usuarioResult.rows[0]);
@@ -199,9 +191,9 @@ app.put('/api/users/:id', async (req, res) => {
 });
 
 app.delete('/api/users/:id', async (req, res) => {
-  const client = await executeQuery('BEGIN', []);
-  
   try {
+    await executeQuery('BEGIN', []);
+    
     const { id } = req.params;
     
     console.log('=== INICIANDO EXCLUSÃO COM TRANSAÇÃO ===');
@@ -225,42 +217,41 @@ app.delete('/api/users/:id', async (req, res) => {
     console.log('Usuário encontrado para exclusão:', usuario);
     console.log('Papel do usuário:', usuario.papel);
 
-    // 2. Determinar tabela de perfil baseada no papel
-    let tabelaPerfil = '';
-    switch (usuario.papel) {
-      case 'professor':
-        tabelaPerfil = 'perfis_professor';
-        break;
-      case 'aluno':
-        tabelaPerfil = 'perfis_aluno';
-        break;
-      case 'gestor':
-        tabelaPerfil = 'perfis_gestor';
-        break;
-      default:
-        await executeQuery('ROLLBACK', []);
-        return res.status(400).json({ message: `Papel inválido: ${usuario.papel}` });
+    // 2. Excluir registros de perfil primeiro (apenas para professor e gestor)
+    if (usuario.papel === 'professor') {
+      const deletePerfilQuery = `
+        DELETE FROM perfis_professor 
+        WHERE usuario_id = $1
+        RETURNING usuario_id
+      `;
+      
+      console.log('Excluindo registro de perfis_professor...');
+      const perfilResult = await executeQuery(deletePerfilQuery, [id]);
+      
+      if (perfilResult.rows.length > 0) {
+        console.log('Perfil professor excluído:', perfilResult.rows[0]);
+      } else {
+        console.log('AVISO: Nenhum registro encontrado em perfis_professor para este usuário');
+      }
+      
+    } else if (usuario.papel === 'gestor') {
+      const deletePerfilQuery = `
+        DELETE FROM perfis_gestor 
+        WHERE usuario_id = $1
+        RETURNING usuario_id
+      `;
+      
+      console.log('Excluindo registro de perfis_gestor...');
+      const perfilResult = await executeQuery(deletePerfilQuery, [id]);
+      
+      if (perfilResult.rows.length > 0) {
+        console.log('Perfil gestor excluído:', perfilResult.rows[0]);
+      } else {
+        console.log('AVISO: Nenhum registro encontrado em perfis_gestor para este usuário');
+      }
     }
 
-    console.log('Tabela de perfil selecionada para exclusão:', tabelaPerfil);
-
-    // 3. Excluir registro de perfil primeiro
-    const deletePerfilQuery = `
-      DELETE FROM ${tabelaPerfil} 
-      WHERE usuario_id = $1
-      RETURNING usuario_id
-    `;
-    
-    console.log('Excluindo registro de perfil...');
-    const perfilResult = await executeQuery(deletePerfilQuery, [id]);
-    
-    if (perfilResult.rows.length > 0) {
-      console.log('Perfil excluído com sucesso:', perfilResult.rows[0]);
-    } else {
-      console.log('AVISO: Nenhum registro de perfil encontrado para exclusão');
-    }
-
-    // 4. Excluir usuário da tabela usuarios
+    // 3. Excluir usuário da tabela usuarios
     const deleteUsuarioQuery = `
       DELETE FROM usuarios 
       WHERE id = $1
@@ -275,7 +266,7 @@ app.delete('/api/users/:id', async (req, res) => {
       return res.status(404).json({ message: "Falha ao excluir usuário" });
     }
 
-    // 5. Commit da transação
+    // 4. Commit da transação
     await executeQuery('COMMIT', []);
     
     console.log('SUCESSO: Transação commitada. Usuário excluído:', usuarioResult.rows[0]);
