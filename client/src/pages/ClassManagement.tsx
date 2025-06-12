@@ -285,7 +285,7 @@ export default function ClassManagement() {
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex items-center mb-6">
         <Button 
-          onClick={() => setLocation("/dashboard")} 
+          onClick={() => setLocation("/manager-dashboard")} 
           variant="outline" 
           className="mr-4 bg-transparent border-primary text-parchment hover:bg-dark-light"
         >
@@ -446,28 +446,27 @@ export default function ClassManagement() {
                       </Button>
                       <Button 
                         size="sm" 
-                        variant="destructive"
-                        className="text-xs bg-red-600 hover:bg-red-700 text-white border border-red-500"
-                        onClick={() => handleDeleteTurma(turma)}
+                        variant="outline" 
+                        className="text-xs border-primary text-parchment hover:bg-dark-light"
+                        onClick={() => {
+                          // Navegação para detalhes da turma - para implementar futuramente
+                          toast({
+                            title: "Informação",
+                            description: "Funcionalidade de visualizar detalhes será implementada em breve.",
+                          });
+                        }}
                       >
-                        <Trash2 className="h-3.5 w-3.5 mr-1" />
-                        Excluir
+                        <Users className="h-3.5 w-3.5 mr-1" />
+                        Ver Alunos
                       </Button>
                     </div>
                     <Button 
                       size="sm" 
-                      variant="outline" 
-                      className="text-xs border-primary text-parchment hover:bg-dark-light"
-                      onClick={() => {
-                        // Navegação para detalhes da turma - para implementar futuramente
-                        toast({
-                          title: "Informação",
-                          description: "Funcionalidade de visualizar detalhes será implementada em breve.",
-                        });
-                      }}
+                      className="text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground border border-destructive"
+                      onClick={() => handleDeleteTurma(turma)}
                     >
-                      <Users className="h-3.5 w-3.5 mr-1" />
-                      Ver Alunos
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      Excluir
                     </Button>
                   </CardFooter>
                 </Card>

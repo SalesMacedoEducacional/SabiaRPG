@@ -199,7 +199,7 @@ export default function ClassListPage() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    setLocation("/gestor/dashboard");
+    setLocation("/manager-dashboard");
     return null;
   }
 
@@ -210,7 +210,7 @@ export default function ClassListPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setLocation("/gestor/dashboard")}
+            onClick={() => setLocation("/manager-dashboard")}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -217,7 +217,7 @@ export default function ClassRegistration() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setLocation("/manager")}
+            onClick={() => setLocation("/manager-dashboard")}
             className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
