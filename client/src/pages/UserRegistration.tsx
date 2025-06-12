@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
+import { getProfileBasedDashboard } from "@/lib/navigation";
 
 // Componentes UI
 import {
@@ -86,6 +87,34 @@ export default function UserRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+
+  // Função para redirecionar para o dashboard correto baseado no perfil
+  const redirectToDashboard = () => {
+    if (!user) {
+      setLocation("/");
+      return;
+    }
+
+    switch (user.role) {
+      case 'manager':
+      case 'gestor':
+        setLocation("/manager-dashboard");
+        break;
+      case 'admin':
+        setLocation("/admin-dashboard");
+        break;
+      case 'teacher':
+      case 'professor':
+        setLocation("/teacher-dashboard");
+        break;
+      case 'student':
+      case 'aluno':
+        setLocation("/student-dashboard");
+        break;
+      default:
+        setLocation("/");
+    }
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [escolas, setEscolas] = useState<any[]>([]);
@@ -290,7 +319,7 @@ export default function UserRegistration() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setLocation("/manager-dashboard")}
+            onClick={redirectToDashboard}
             className="border-primary text-parchment hover:bg-dark-light"
           >
             Voltar ao Dashboard
