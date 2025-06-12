@@ -45,6 +45,7 @@ app.get('/api/users/manager', async (req, res) => {
         if (perfil) {
           perfilId = perfil.id;
           tabelaPerfil = 'perfis_professor';
+          console.log(`Usuário ${user.nome} - ID perfil professor: ${perfil.id}`);
         }
       } else if (user.papel === 'gestor') {
         const { data: perfil } = await supabase
@@ -55,6 +56,7 @@ app.get('/api/users/manager', async (req, res) => {
         if (perfil) {
           perfilId = perfil.id;
           tabelaPerfil = 'perfis_gestor';
+          console.log(`Usuário ${user.nome} - ID perfil gestor: ${perfil.id}`);
         }
       }
       
@@ -76,8 +78,8 @@ app.get('/api/users/manager', async (req, res) => {
     const usuariosFormatados = usuariosComPerfil;
 
     res.json({
-      total: usuariosFormatados.length,
-      usuarios: usuariosFormatados
+      total: usuariosComPerfil.length,
+      usuarios: usuariosComPerfil
     });
 
   } catch (error) {
