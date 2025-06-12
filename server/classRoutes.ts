@@ -105,32 +105,22 @@ export function registerClassRoutes(
           // Garantimos que o gestor só veja as turmas da escola dele
           console.log('Filtrando para mostrar apenas escolas vinculadas ao gestor logado...');
           
-          // Não faremos filtragem no banco, permitiremos o acesso a todas as escolas
-          // já que o endpoint está protegido pelo middleware que verifica a role do usuário
-            
-          // Determinar qual escola_id usar
-          let escolaIdConsulta = escola_id as string;
+          // Verificar se foi especificado escola_id na query
+          const escolaIdConsulta = escola_id as string;
           
-          // Se não foi especificado escola_id na query, usamos o primeiro da lista
-          if (!escolaIdConsulta && escolasGestor && escolasGestor.length > 0) {
-            escolaIdConsulta = escolasGestor[0].id;
-            console.log('Usando a primeira escola disponível:', escolasGestor[0].nome);
+          if (!escolaIdConsulta) {
+            console.log('Nenhuma escola especificada, retornando array vazio');
+            return res.status(200).json([]);
           }
           
-          console.log('Usando escola_id para consulta:', escolaIdConsulta);
-            
-          // Buscar turmas filtradas por escola se escola_id foi especificado
-          let query = supabase
+          console.log('Filtrando turmas pela escola:', escolaIdConsulta);
+          
+          // Buscar turmas filtradas por escola
+          const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
+            .eq('escola_id', escolaIdConsulta)
             .order('nome');
-          
-          if (escolaIdConsulta) {
-            console.log('Filtrando turmas pela escola:', escolaIdConsulta);
-            query = query.eq('escola_id', escolaIdConsulta);
-          }
-          
-          const { data: turmas, error } = await query;
             
           if (error) {
             console.error('Erro ao buscar turmas:', error);
@@ -147,10 +137,20 @@ export function registerClassRoutes(
             
           return res.status(200).json(turmasFormatadas);
         } else {
-          // Para administradores, também busca todas as turmas (ignorando filtragem por escola)
+          // Para administradores e outros usuários, também aplicar filtro por escola
+          const escolaIdConsulta = escola_id as string;
+          
+          if (!escolaIdConsulta) {
+            console.log('Nenhuma escola especificada, retornando array vazio');
+            return res.status(200).json([]);
+          }
+          
+          console.log('Filtrando turmas pela escola (admin/teacher):', escolaIdConsulta);
+          
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
+            .eq('escola_id', escolaIdConsulta)
             .order('nome');
           
           if (error) {
