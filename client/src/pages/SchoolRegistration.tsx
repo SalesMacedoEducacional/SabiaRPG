@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
 import ManagerSchoolRegistration from "@/components/manager/ManagerSchoolRegistration";
+import { getProfileBasedDashboard } from "@/lib/navigation";
 
 // Componentes UI
 import {
@@ -110,6 +111,12 @@ export default function SchoolRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user, logout, updateUser } = useAuth();
+
+  // Função para redirecionar para o dashboard correto baseado no perfil
+  const redirectToDashboard = () => {
+    const dashboardPath = getProfileBasedDashboard(user);
+    setLocation(dashboardPath);
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [hasSchool, setHasSchool] = useState(false);
   const [schoolData, setSchoolData] = useState<any>(null);
@@ -197,7 +204,7 @@ export default function SchoolRegistration() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => setLocation("/manager-dashboard")}
+              onClick={redirectToDashboard}
               className="border-primary text-parchment hover:bg-dark-light flex items-center"
             >
               <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
