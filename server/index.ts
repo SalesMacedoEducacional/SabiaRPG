@@ -92,7 +92,27 @@ app.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
-    console.log(`Atualizando usuário ${id} no banco PostgreSQL`);
+    console.log('=== DADOS RECEBIDOS PARA ATUALIZAÇÃO ===');
+    console.log('ID do usuário:', id);
+    console.log('Dados do body:', { nome, email, telefone, cpf, ativo });
+    console.log('Headers:', req.headers);
+    console.log('Method:', req.method);
+    
+    if (!id) {
+      console.log('ERRO: ID não fornecido');
+      return res.status(400).json({ message: "ID do usuário é obrigatório" });
+    }
+
+    // Verificar se o usuário existe antes de atualizar
+    const checkQuery = 'SELECT id, nome, email FROM usuarios WHERE id = $1';
+    const checkResult = await executeQuery(checkQuery, [id]);
+    
+    if (checkResult.rows.length === 0) {
+      console.log('ERRO: Usuário não encontrado para ID:', id);
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+    
+    console.log('Usuário encontrado:', checkResult.rows[0]);
 
     const query = `
       UPDATE usuarios 
@@ -101,22 +121,25 @@ app.put('/api/users/:id', async (req, res) => {
       RETURNING id, nome, email, cpf, telefone, ativo
     `;
     
+    console.log('Executando query de atualização...');
     const result = await executeQuery(query, [nome, email, telefone, cpf, ativo, id]);
+    console.log('Resultado da query:', result.rows);
     
     if (result.rows.length > 0) {
-      console.log('Usuário atualizado com sucesso:', result.rows[0]);
+      console.log('SUCESSO: Usuário atualizado:', result.rows[0]);
       res.json({ 
         success: true, 
         message: "Usuário atualizado com sucesso",
         data: result.rows[0]
       });
     } else {
+      console.log('ERRO: Nenhuma linha foi atualizada');
       res.status(404).json({ message: "Usuário não encontrado" });
     }
 
   } catch (error) {
-    console.error('Erro ao atualizar usuário:', error);
-    res.status(500).json({ message: "Erro interno do servidor" });
+    console.error('ERRO CRÍTICO na atualização do usuário:', error);
+    res.status(500).json({ message: "Erro interno do servidor", error: error.message });
   }
 });
 
