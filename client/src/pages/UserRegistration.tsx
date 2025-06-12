@@ -290,7 +290,7 @@ export default function UserRegistration() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setLocation("/manager")}
+            onClick={() => setLocation("/manager-dashboard")}
             className="border-primary text-parchment hover:bg-dark-light"
           >
             Voltar ao Dashboard

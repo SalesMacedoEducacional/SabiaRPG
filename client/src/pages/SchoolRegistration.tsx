@@ -197,7 +197,7 @@ export default function SchoolRegistration() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => setLocation("/manager")}
+              onClick={() => setLocation("/manager-dashboard")}
               className="border-primary text-parchment hover:bg-dark-light flex items-center"
             >
               <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard

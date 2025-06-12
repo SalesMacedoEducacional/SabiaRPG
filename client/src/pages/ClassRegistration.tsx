@@ -191,7 +191,7 @@ export default function ClassRegistration() {
       });
       
       // Redirecionar para a lista de turmas
-      setLocation("/manager/classes");
+      setLocation("/manager-dashboard");
     } catch (error) {
       console.error("Erro ao cadastrar turma:", error);
       toast({
@@ -206,7 +206,7 @@ export default function ClassRegistration() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    setLocation("/dashboard");
+    setLocation("/manager-dashboard");
     return null;
   }
 
