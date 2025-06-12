@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import axios from "axios";
+import { getProfileBasedDashboard } from "@/lib/navigation";
 import { 
   Card, 
   CardHeader, 
@@ -92,6 +93,12 @@ export default function ClassManagement() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Função para redirecionar para o dashboard correto baseado no perfil
+  const redirectToDashboard = () => {
+    const dashboardPath = getProfileBasedDashboard(user);
+    setLocation(dashboardPath);
+  };
   
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [selectedEscola, setSelectedEscola] = useState<string>("");
@@ -295,7 +302,7 @@ export default function ClassManagement() {
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex items-center mb-6">
         <Button 
-          onClick={() => setLocation("/manager-dashboard")} 
+          onClick={redirectToDashboard} 
           variant="outline" 
           className="mr-4 bg-transparent border-primary text-parchment hover:bg-dark-light"
         >
