@@ -90,30 +90,8 @@ export default function UserRegistration() {
 
   // Função para redirecionar para o dashboard correto baseado no perfil
   const redirectToDashboard = () => {
-    if (!user) {
-      setLocation("/");
-      return;
-    }
-
-    switch (user.role) {
-      case 'manager':
-      case 'gestor':
-        setLocation("/manager-dashboard");
-        break;
-      case 'admin':
-        setLocation("/admin-dashboard");
-        break;
-      case 'teacher':
-      case 'professor':
-        setLocation("/teacher-dashboard");
-        break;
-      case 'student':
-      case 'aluno':
-        setLocation("/student-dashboard");
-        break;
-      default:
-        setLocation("/");
-    }
+    const dashboardPath = getProfileBasedDashboard(user);
+    setLocation(dashboardPath);
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turmas, setTurmas] = useState<Turma[]>([]);

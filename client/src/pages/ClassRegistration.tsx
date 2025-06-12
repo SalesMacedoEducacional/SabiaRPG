@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
+import { getProfileBasedDashboard } from "@/lib/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 // Componentes do shadcn
@@ -61,6 +62,12 @@ export default function ClassRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+
+  // Função para redirecionar para o dashboard correto baseado no perfil
+  const redirectToDashboard = () => {
+    const dashboardPath = getProfileBasedDashboard(user);
+    setLocation(dashboardPath);
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
@@ -217,7 +224,7 @@ export default function ClassRegistration() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setLocation("/manager-dashboard")}
+            onClick={redirectToDashboard}
             className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
@@ -473,7 +480,7 @@ export default function ClassRegistration() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setLocation("/manager-dashboard")}
+                  onClick={redirectToDashboard}
                   disabled={isSubmitting}
                 >
                   Cancelar
