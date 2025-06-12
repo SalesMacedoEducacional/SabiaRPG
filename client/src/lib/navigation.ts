@@ -6,15 +6,15 @@ export const getProfileBasedDashboard = (user: any): string => {
   switch (user.role) {
     case 'manager':
     case 'gestor':
-      return "/manager-dashboard";
+      return "/manager";
     case 'admin':
-      return "/admin-dashboard";
+      return "/manager";
     case 'teacher':
     case 'professor':
-      return "/teacher-dashboard";
+      return "/teacher";
     case 'student':
     case 'aluno':
-      return "/student-dashboard";
+      return "/";
     default:
       return "/";
   }
