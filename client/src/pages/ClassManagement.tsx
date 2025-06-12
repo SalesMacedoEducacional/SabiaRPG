@@ -100,6 +100,8 @@ export default function ClassManagement() {
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false);
   const [editTurma, setEditTurma] = useState<Turma | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [turmaParaExcluir, setTurmaParaExcluir] = useState<Turma | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
 
   // Form setup
   const form = useForm<z.infer<typeof turmaFormSchema>>({
@@ -200,14 +202,18 @@ export default function ClassManagement() {
     setShowAddDialog(true);
   };
 
-  // Função para excluir turma
-  const handleDeleteTurma = async (turma: Turma) => {
-    if (!confirm(`Tem certeza que deseja excluir a turma "${turma.nome || turma.nome_turma}"?\n\nEsta ação não pode ser desfeita.`)) {
-      return;
-    }
+  // Função para iniciar exclusão de turma
+  const handleDeleteTurma = (turma: Turma) => {
+    setTurmaParaExcluir(turma);
+    setShowDeleteDialog(true);
+  };
+
+  // Função para confirmar exclusão de turma
+  const confirmarExclusaoTurma = async () => {
+    if (!turmaParaExcluir) return;
 
     try {
-      await axios.delete(`/api/turmas/${turma.id}`);
+      await axios.delete(`/api/turmas/${turmaParaExcluir.id}`);
       
       // Recarregar lista de turmas
       if (selectedEscola) {
@@ -217,8 +223,12 @@ export default function ClassManagement() {
       
       toast({
         title: "Sucesso",
-        description: `Turma "${turma.nome || turma.nome_turma}" excluída com sucesso!`,
+        description: `Turma "${turmaParaExcluir.nome || turmaParaExcluir.nome_turma}" excluída com sucesso!`,
       });
+      
+      // Fechar modal
+      setShowDeleteDialog(false);
+      setTurmaParaExcluir(null);
     } catch (error) {
       console.error("Erro ao excluir turma:", error);
       toast({
@@ -677,6 +687,55 @@ export default function ClassManagement() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de confirmação de exclusão */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="bg-dark border border-destructive text-parchment max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-destructive flex items-center">
+              <Trash2 className="h-5 w-5 mr-2" />
+              Confirmar Exclusão
+            </DialogTitle>
+            <DialogDescription className="text-parchment-dark">
+              Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
+              <p className="text-parchment text-center">
+                Tem certeza que deseja excluir a turma:
+              </p>
+              <p className="text-accent font-semibold text-center text-lg mt-2">
+                "{turmaParaExcluir?.nome || turmaParaExcluir?.nome_turma}"
+              </p>
+            </div>
+            <p className="text-parchment-dark text-sm text-center">
+              Todos os dados relacionados a esta turma serão perdidos permanentemente.
+            </p>
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setTurmaParaExcluir(null);
+              }}
+              className="border-primary text-parchment hover:bg-dark-light"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={confirmarExclusaoTurma}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir Turma
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
