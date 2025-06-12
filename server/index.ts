@@ -116,7 +116,7 @@ app.put('/api/users/:id', async (req, res) => {
     console.log('Usuário encontrado:', usuario);
     console.log('Papel do usuário:', usuario.papel);
 
-    // 2. Atualizar tabela usuarios primeiro
+    // 2. Atualizar tabela usuarios
     const updateUsuarioQuery = `
       UPDATE usuarios 
       SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
@@ -134,39 +134,57 @@ app.put('/api/users/:id', async (req, res) => {
 
     console.log('Usuário na tabela usuarios atualizado:', usuarioResult.rows[0]);
 
-    // 3. Atualizar tabela de perfil correspondente (apenas para professor e gestor)
+    // 3. Verificar e atualizar/criar perfil correspondente
     if (usuario.papel === 'professor') {
-      const updatePerfilQuery = `
-        UPDATE perfis_professor 
-        SET ativo = $1
-        WHERE usuario_id = $2
-        RETURNING usuario_id
-      `;
+      // Verificar se já existe perfil
+      const checkPerfilQuery = 'SELECT id FROM perfis_professor WHERE usuario_id = $1';
+      const checkResult = await executeQuery(checkPerfilQuery, [id]);
       
-      console.log('Atualizando perfis_professor...');
-      const perfilResult = await executeQuery(updatePerfilQuery, [ativo, id]);
-      
-      if (perfilResult.rows.length > 0) {
-        console.log('Perfil professor atualizado:', perfilResult.rows[0]);
+      if (checkResult.rows.length > 0) {
+        // Atualizar perfil existente
+        const updatePerfilQuery = `
+          UPDATE perfis_professor 
+          SET ativo = $1
+          WHERE usuario_id = $2
+          RETURNING id
+        `;
+        await executeQuery(updatePerfilQuery, [ativo, id]);
+        console.log('Perfil professor atualizado');
       } else {
-        console.log('AVISO: Nenhum registro encontrado em perfis_professor para este usuário');
+        // Criar novo perfil
+        const insertPerfilQuery = `
+          INSERT INTO perfis_professor (usuario_id, ativo, criado_em)
+          VALUES ($1, $2, NOW())
+          RETURNING id
+        `;
+        await executeQuery(insertPerfilQuery, [id, ativo]);
+        console.log('Novo perfil professor criado');
       }
       
     } else if (usuario.papel === 'gestor') {
-      const updatePerfilQuery = `
-        UPDATE perfis_gestor 
-        SET ativo = $1
-        WHERE usuario_id = $2
-        RETURNING usuario_id
-      `;
+      // Verificar se já existe perfil
+      const checkPerfilQuery = 'SELECT id FROM perfis_gestor WHERE usuario_id = $1';
+      const checkResult = await executeQuery(checkPerfilQuery, [id]);
       
-      console.log('Atualizando perfis_gestor...');
-      const perfilResult = await executeQuery(updatePerfilQuery, [ativo, id]);
-      
-      if (perfilResult.rows.length > 0) {
-        console.log('Perfil gestor atualizado:', perfilResult.rows[0]);
+      if (checkResult.rows.length > 0) {
+        // Atualizar perfil existente
+        const updatePerfilQuery = `
+          UPDATE perfis_gestor 
+          SET ativo = $1
+          WHERE usuario_id = $2
+          RETURNING id
+        `;
+        await executeQuery(updatePerfilQuery, [ativo, id]);
+        console.log('Perfil gestor atualizado');
       } else {
-        console.log('AVISO: Nenhum registro encontrado em perfis_gestor para este usuário');
+        // Criar novo perfil
+        const insertPerfilQuery = `
+          INSERT INTO perfis_gestor (usuario_id, ativo, criado_em)
+          VALUES ($1, $2, NOW())
+          RETURNING id
+        `;
+        await executeQuery(insertPerfilQuery, [id, ativo]);
+        console.log('Novo perfil gestor criado');
       }
     }
 
