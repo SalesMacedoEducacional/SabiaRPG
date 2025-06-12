@@ -225,7 +225,7 @@ export function registerClassRoutes(
         // Verificar se a escola existe
         const { data: escolaExistente, error: escolaError } = await supabase
           .from('escolas')
-          .select('id, nome, gestor_id, ativo')
+          .select('id, nome, gestor_id')
           .eq('id', escola_id)
           .single();
           
@@ -242,13 +242,7 @@ export function registerClassRoutes(
           });
         }
 
-        if (!escolaExistente.ativo) {
-          return res.status(400).json({ 
-            message: 'Não é possível cadastrar turmas em uma escola inativa.',
-            field: 'escola_id',
-            escola_nome: escolaExistente.nome
-          });
-        }
+        // Escola encontrada e válida, prosseguir com validações
 
         // Se o usuário for gestor, verifica se ele é gestor da escola informada
         if (req.user && req.user.role === 'manager') {
