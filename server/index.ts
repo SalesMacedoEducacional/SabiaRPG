@@ -14,33 +14,33 @@ import { executeQuery } from './database';
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
   try {
-    console.log('=== BUSCANDO USUÁRIOS REAIS DO BANCO ===');
+    console.log('=== BUSCANDO USUÁRIOS REAIS ===');
     
-    // Usar PostgreSQL diretamente para garantir dados reais
-    const query = `
-      SELECT id, nome, email, cpf, papel, telefone, ativo, criado_em
-      FROM usuarios 
-      WHERE id IS NOT NULL
-      ORDER BY criado_em DESC
-    `;
-    
-    const result = await executeQuery(query, []);
-    const usuarios = result.rows;
+    const { data: usuarios, error } = await supabase
+      .from('usuarios')
+      .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
+      .not('nome', 'is', null)
+      .not('email', 'is', null)
+      .order('criado_em', { ascending: false });
 
-    console.log(`Usuários reais encontrados no PostgreSQL: ${usuarios.length}`);
-    console.log('IDs dos usuários:', usuarios.map(u => u.id));
+    if (error) {
+      console.error('Erro ao buscar usuários:', error);
+      return res.status(500).json({ message: "Erro ao buscar usuários" });
+    }
+
+    console.log(`Usuários reais encontrados: ${usuarios?.length || 0}`);
     
-    const usuariosFormatados = usuarios.map(user => ({
+    const usuariosFormatados = usuarios?.map(user => ({
       id: user.id,
-      nome: user.nome || 'Nome não informado',
-      email: user.email || 'Email não informado',
-      cpf: user.cpf || 'CPF não informado',
+      nome: user.nome,
+      email: user.email,
+      cpf: user.cpf || 'Não informado',
       papel: user.papel || 'aluno',
       telefone: user.telefone || '',
       escola_nome: 'Geral',
       ativo: user.ativo ?? true,
       criado_em: user.criado_em
-    }));
+    })) || [];
 
     res.json({
       total: usuariosFormatados.length,
@@ -48,7 +48,7 @@ app.get('/api/users/manager', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erro crítico ao buscar usuários:', error);
+    console.error('Erro crítico:', error);
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
