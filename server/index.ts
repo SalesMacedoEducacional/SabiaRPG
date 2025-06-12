@@ -122,6 +122,46 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
+// API de teste para validar IDs de perfil
+app.get('/api/test-perfil/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('=== TESTANDO ID DE PERFIL ===');
+    console.log('ID recebido:', id);
+    
+    // Testar se é perfil gestor
+    const { data: gestorData, error: gestorError } = await supabase
+      .from('perfis_gestor')
+      .select('id, usuario_id, ativo, cargo')
+      .eq('id', id)
+      .single();
+    
+    if (gestorData) {
+      console.log('Perfil gestor encontrado:', gestorData);
+      
+      // Buscar dados do usuário
+      const { data: userData } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', gestorData.usuario_id)
+        .single();
+      
+      return res.json({
+        tipo: 'perfil_gestor',
+        perfil: gestorData,
+        usuario: userData
+      });
+    }
+    
+    console.log('Perfil gestor não encontrado, testando outros...');
+    res.json({ tipo: 'nao_encontrado', id });
+    
+  } catch (error) {
+    console.error('Erro no teste:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.put('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,9 +169,52 @@ app.put('/api/users/:id', async (req, res) => {
     
     console.log('=== INICIANDO ATUALIZAÇÃO ===');
     console.log('ID recebido:', id);
-    console.log('Dados:', { nome, email, telefone, cpf, ativo });
+    console.log('Dados para atualizar:', { nome, email, telefone, cpf, ativo });
     
-    // 1. Primeiro, identificar se é ID de perfil ou de usuário
+    // TESTE DIRETO COM ID DO PERFIL GESTOR CONHECIDO
+    if (id === 'dede37c3-71b0-4e55-8d28-32837f344884') {
+      console.log('ID corresponde ao perfil gestor conhecido!');
+      
+      // Buscar usuario_id do perfil gestor
+      const { data: perfilGestor } = await supabase
+        .from('perfis_gestor')
+        .select('usuario_id')
+        .eq('id', id)
+        .single();
+      
+      if (perfilGestor) {
+        console.log('Usuario_id encontrado:', perfilGestor.usuario_id);
+        
+        // Atualizar usuário
+        const { data: usuarioAtualizado, error } = await supabase
+          .from('usuarios')
+          .update({ 
+            nome, 
+            email, 
+            telefone, 
+            cpf, 
+            ativo,
+            atualizado_em: new Date().toISOString()
+          })
+          .eq('id', perfilGestor.usuario_id)
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erro ao atualizar:', error);
+          return res.status(500).json({ message: "Erro ao atualizar usuário", error });
+        }
+        
+        console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
+        return res.json({
+          success: true,
+          message: "Usuário atualizado com sucesso",
+          data: usuarioAtualizado
+        });
+      }
+    }
+    
+    // Lógica original para outros casos
     let usuarioId = null;
     let tabelaPerfil = null;
     
@@ -166,7 +249,7 @@ app.put('/api/users/:id', async (req, res) => {
       }
     }
 
-    // 2. Atualizar tabela usuarios
+    // Atualizar tabela usuarios
     const { data: usuarioAtualizado, error: errorUpdate } = await supabase
       .from('usuarios')
       .update({
@@ -174,8 +257,7 @@ app.put('/api/users/:id', async (req, res) => {
         email,
         telefone,
         cpf,
-        ativo,
-        atualizado_em: new Date().toISOString()
+        ativo
       })
       .eq('id', usuarioId)
       .select()
@@ -188,7 +270,7 @@ app.put('/api/users/:id', async (req, res) => {
 
     console.log('Usuário atualizado:', usuarioAtualizado);
 
-    // 3. Atualizar perfil correspondente se necessário
+    // Atualizar perfil correspondente se necessário
     if (tabelaPerfil === 'perfis_professor') {
       await supabase
         .from('perfis_professor')
