@@ -145,22 +145,27 @@ export default function ClassManagement() {
       const fetchTurmas = async () => {
         try {
           setLoading(true);
+          console.log("Carregando turmas da escola:", selectedEscola);
           const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
-          console.log("Turmas retornadas da API:", response.data);
+          console.log("Turmas retornadas da API para escola", selectedEscola, ":", response.data);
           setTurmas(response.data);
         } catch (error) {
           console.error("Erro ao carregar turmas:", error);
           toast({
             title: "Erro",
-            description: "Não foi possível carregar as turmas. Tente novamente mais tarde.",
+            description: "Não foi possível carregar as turmas da escola selecionada.",
             variant: "destructive",
           });
+          setTurmas([]); // Limpar lista em caso de erro
         } finally {
           setLoading(false);
         }
       };
 
       fetchTurmas();
+    } else {
+      // Se nenhuma escola foi selecionada, limpar a lista de turmas
+      setTurmas([]);
     }
   }, [selectedEscola, toast]);
 
@@ -319,20 +324,38 @@ export default function ClassManagement() {
         <div className="flex justify-center items-center h-64">
           <div className="text-parchment">Carregando turmas...</div>
         </div>
+      ) : !selectedEscola ? (
+        <Card className="bg-dark-light border border-primary/50 text-center p-8">
+          <CardContent className="pt-6">
+            <div className="text-6xl mb-4">🏫</div>
+            <h3 className="text-xl font-semibold text-parchment mb-2">
+              Selecione uma escola
+            </h3>
+            <p className="text-parchment-dark mb-4">
+              Para visualizar e gerenciar turmas, primeiro selecione uma escola acima.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <>
           {filteredTurmas.length === 0 ? (
             <Card className="bg-dark-light border border-primary/50 text-center p-8">
               <CardContent className="pt-6">
-                <p className="text-parchment">
-                  {searchTerm ? "Nenhuma turma encontrada com os termos de busca." : "Nenhuma turma cadastrada para esta escola."}
+                <div className="text-6xl mb-4">📚</div>
+                <h3 className="text-xl font-semibold text-parchment mb-2">
+                  Nenhuma turma encontrada
+                </h3>
+                <p className="text-parchment-dark mb-4">
+                  {searchTerm 
+                    ? `Nenhuma turma encontrada com o termo "${searchTerm}" nesta escola.`
+                    : `Esta escola ainda não possui turmas cadastradas.`}
                 </p>
                 <Button 
                   onClick={handleAddTurma} 
-                  className="mt-4 bg-accent hover:bg-accent-dark text-white border border-primary"
+                  className="bg-accent hover:bg-accent-dark text-white"
                   disabled={!selectedEscola}
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Cadastrar Nova Turma
+                  <Plus className="h-4 w-4 mr-2" /> Cadastrar Primeira Turma
                 </Button>
               </CardContent>
             </Card>

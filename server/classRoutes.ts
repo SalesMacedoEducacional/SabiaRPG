@@ -119,12 +119,18 @@ export function registerClassRoutes(
           
           console.log('Usando escola_id para consulta:', escolaIdConsulta);
             
-          // Busca as turmas de todas as escolas (ignorando filtragem por escola específica)
-          // Isso resolve o problema de turmas não sendo exibidas para o gestor
-          const { data: turmas, error } = await supabase
+          // Buscar turmas filtradas por escola se escola_id foi especificado
+          let query = supabase
             .from('turmas')
             .select('*')
             .order('nome');
+          
+          if (escolaIdConsulta) {
+            console.log('Filtrando turmas pela escola:', escolaIdConsulta);
+            query = query.eq('escola_id', escolaIdConsulta);
+          }
+          
+          const { data: turmas, error } = await query;
             
           if (error) {
             console.error('Erro ao buscar turmas:', error);
