@@ -49,7 +49,8 @@ import {
   Users, 
   CalendarDays, 
   Clock, 
-  BookOpen
+  BookOpen,
+  Trash2
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft } from "lucide-react";
@@ -197,6 +198,35 @@ export default function ClassManagement() {
     });
     setEditTurma(turma);
     setShowAddDialog(true);
+  };
+
+  // Função para excluir turma
+  const handleDeleteTurma = async (turma: Turma) => {
+    if (!confirm(`Tem certeza que deseja excluir a turma "${turma.nome || turma.nome_turma}"?\n\nEsta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/turmas/${turma.id}`);
+      
+      // Recarregar lista de turmas
+      if (selectedEscola) {
+        const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
+        setTurmas(response.data);
+      }
+      
+      toast({
+        title: "Sucesso",
+        description: `Turma "${turma.nome || turma.nome_turma}" excluída com sucesso!`,
+      });
+    } catch (error) {
+      console.error("Erro ao excluir turma:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir a turma. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Enviar formulário de turma (criar/editar)
@@ -405,14 +435,25 @@ export default function ClassManagement() {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-primary/40 bg-dark pt-3 flex justify-between">
-                    <Button 
-                      size="sm" 
-                      className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
-                      onClick={() => handleEditTurma(turma)}
-                    >
-                      <PenSquare className="h-3.5 w-3.5 mr-1" />
-                      Editar Turma
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
+                        onClick={() => handleEditTurma(turma)}
+                      >
+                        <PenSquare className="h-3.5 w-3.5 mr-1" />
+                        Editar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        className="text-xs bg-red-600 hover:bg-red-700 text-white border border-red-500"
+                        onClick={() => handleDeleteTurma(turma)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        Excluir
+                      </Button>
+                    </div>
                     <Button 
                       size="sm" 
                       variant="outline" 
