@@ -88,89 +88,210 @@ app.post('/api/users', async (req, res) => {
 });
 
 app.put('/api/users/:id', async (req, res) => {
+  const client = await executeQuery('BEGIN', []);
+  
   try {
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
-    console.log('=== DADOS RECEBIDOS PARA ATUALIZAÇÃO ===');
+    console.log('=== INICIANDO ATUALIZAÇÃO COM TRANSAÇÃO ===');
     console.log('ID do usuário:', id);
     console.log('Dados do body:', { nome, email, telefone, cpf, ativo });
-    console.log('Headers:', req.headers);
-    console.log('Method:', req.method);
     
     if (!id) {
-      console.log('ERRO: ID não fornecido');
+      await executeQuery('ROLLBACK', []);
       return res.status(400).json({ message: "ID do usuário é obrigatório" });
     }
 
-    // Verificar se o usuário existe antes de atualizar
-    const checkQuery = 'SELECT id, nome, email FROM usuarios WHERE id = $1';
-    const checkResult = await executeQuery(checkQuery, [id]);
+    // 1. Verificar se o usuário existe e obter seu papel
+    const userQuery = 'SELECT id, nome, email, papel FROM usuarios WHERE id = $1';
+    const userResult = await executeQuery(userQuery, [id]);
     
-    if (checkResult.rows.length === 0) {
-      console.log('ERRO: Usuário não encontrado para ID:', id);
+    if (userResult.rows.length === 0) {
+      await executeQuery('ROLLBACK', []);
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
     
-    console.log('Usuário encontrado:', checkResult.rows[0]);
+    const usuario = userResult.rows[0];
+    console.log('Usuário encontrado:', usuario);
+    console.log('Papel do usuário:', usuario.papel);
 
-    const query = `
+    // 2. Determinar tabela de perfil baseada no papel
+    let tabelaPerfil = '';
+    switch (usuario.papel) {
+      case 'professor':
+        tabelaPerfil = 'perfis_professor';
+        break;
+      case 'aluno':
+        tabelaPerfil = 'perfis_aluno';
+        break;
+      case 'gestor':
+        tabelaPerfil = 'perfis_gestor';
+        break;
+      default:
+        await executeQuery('ROLLBACK', []);
+        return res.status(400).json({ message: `Papel inválido: ${usuario.papel}` });
+    }
+
+    console.log('Tabela de perfil selecionada:', tabelaPerfil);
+
+    // 3. Atualizar tabela de perfil primeiro
+    const updatePerfilQuery = `
+      UPDATE ${tabelaPerfil} 
+      SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
+      WHERE usuario_id = $6
+      RETURNING usuario_id
+    `;
+    
+    console.log('Atualizando tabela de perfil...');
+    const perfilResult = await executeQuery(updatePerfilQuery, [nome, email, telefone, cpf, ativo, id]);
+    
+    if (perfilResult.rows.length === 0) {
+      console.log('AVISO: Registro de perfil não encontrado, criando novo...');
+      
+      // Criar registro de perfil se não existir
+      const insertPerfilQuery = `
+        INSERT INTO ${tabelaPerfil} (usuario_id, nome, email, telefone, cpf, ativo, criado_em, atualizado_em)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        RETURNING usuario_id
+      `;
+      
+      await executeQuery(insertPerfilQuery, [id, nome, email, telefone, cpf, ativo]);
+      console.log('Registro de perfil criado com sucesso');
+    } else {
+      console.log('Perfil atualizado com sucesso:', perfilResult.rows[0]);
+    }
+
+    // 4. Atualizar tabela usuarios
+    const updateUsuarioQuery = `
       UPDATE usuarios 
       SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5, atualizado_em = NOW()
       WHERE id = $6
-      RETURNING id, nome, email, cpf, telefone, ativo
+      RETURNING id, nome, email, cpf, telefone, ativo, papel
     `;
     
-    console.log('Executando query de atualização...');
-    const result = await executeQuery(query, [nome, email, telefone, cpf, ativo, id]);
-    console.log('Resultado da query:', result.rows);
+    console.log('Atualizando tabela usuarios...');
+    const usuarioResult = await executeQuery(updateUsuarioQuery, [nome, email, telefone, cpf, ativo, id]);
     
-    if (result.rows.length > 0) {
-      console.log('SUCESSO: Usuário atualizado:', result.rows[0]);
-      res.json({ 
-        success: true, 
-        message: "Usuário atualizado com sucesso",
-        data: result.rows[0]
-      });
-    } else {
-      console.log('ERRO: Nenhuma linha foi atualizada');
-      res.status(404).json({ message: "Usuário não encontrado" });
+    if (usuarioResult.rows.length === 0) {
+      await executeQuery('ROLLBACK', []);
+      return res.status(404).json({ message: "Falha ao atualizar usuário" });
     }
 
+    // 5. Commit da transação
+    await executeQuery('COMMIT', []);
+    
+    console.log('SUCESSO: Transação commitada. Usuário atualizado:', usuarioResult.rows[0]);
+    res.json({ 
+      success: true, 
+      message: "Usuário atualizado com sucesso",
+      data: usuarioResult.rows[0]
+    });
+
   } catch (error) {
-    console.error('ERRO CRÍTICO na atualização do usuário:', error);
-    res.status(500).json({ message: "Erro interno do servidor", error: error.message });
+    console.error('ERRO CRÍTICO na atualização:', error);
+    await executeQuery('ROLLBACK', []);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
   }
 });
 
 app.delete('/api/users/:id', async (req, res) => {
+  const client = await executeQuery('BEGIN', []);
+  
   try {
     const { id } = req.params;
     
-    console.log(`Excluindo usuário ${id} do banco PostgreSQL`);
-
-    const query = `
-      DELETE FROM usuarios 
-      WHERE id = $1
-      RETURNING id, nome, email
-    `;
+    console.log('=== INICIANDO EXCLUSÃO COM TRANSAÇÃO ===');
+    console.log('ID do usuário para exclusão:', id);
     
-    const result = await executeQuery(query, [id]);
-    
-    if (result.rows.length > 0) {
-      console.log('Usuário excluído com sucesso:', result.rows[0]);
-      res.json({ 
-        success: true, 
-        message: "Usuário excluído com sucesso",
-        data: result.rows[0]
-      });
-    } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+    if (!id) {
+      await executeQuery('ROLLBACK', []);
+      return res.status(400).json({ message: "ID do usuário é obrigatório" });
     }
 
+    // 1. Verificar se o usuário existe e obter seu papel
+    const userQuery = 'SELECT id, nome, email, papel FROM usuarios WHERE id = $1';
+    const userResult = await executeQuery(userQuery, [id]);
+    
+    if (userResult.rows.length === 0) {
+      await executeQuery('ROLLBACK', []);
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+    
+    const usuario = userResult.rows[0];
+    console.log('Usuário encontrado para exclusão:', usuario);
+    console.log('Papel do usuário:', usuario.papel);
+
+    // 2. Determinar tabela de perfil baseada no papel
+    let tabelaPerfil = '';
+    switch (usuario.papel) {
+      case 'professor':
+        tabelaPerfil = 'perfis_professor';
+        break;
+      case 'aluno':
+        tabelaPerfil = 'perfis_aluno';
+        break;
+      case 'gestor':
+        tabelaPerfil = 'perfis_gestor';
+        break;
+      default:
+        await executeQuery('ROLLBACK', []);
+        return res.status(400).json({ message: `Papel inválido: ${usuario.papel}` });
+    }
+
+    console.log('Tabela de perfil selecionada para exclusão:', tabelaPerfil);
+
+    // 3. Excluir registro de perfil primeiro
+    const deletePerfilQuery = `
+      DELETE FROM ${tabelaPerfil} 
+      WHERE usuario_id = $1
+      RETURNING usuario_id
+    `;
+    
+    console.log('Excluindo registro de perfil...');
+    const perfilResult = await executeQuery(deletePerfilQuery, [id]);
+    
+    if (perfilResult.rows.length > 0) {
+      console.log('Perfil excluído com sucesso:', perfilResult.rows[0]);
+    } else {
+      console.log('AVISO: Nenhum registro de perfil encontrado para exclusão');
+    }
+
+    // 4. Excluir usuário da tabela usuarios
+    const deleteUsuarioQuery = `
+      DELETE FROM usuarios 
+      WHERE id = $1
+      RETURNING id, nome, email, papel
+    `;
+    
+    console.log('Excluindo usuário da tabela usuarios...');
+    const usuarioResult = await executeQuery(deleteUsuarioQuery, [id]);
+    
+    if (usuarioResult.rows.length === 0) {
+      await executeQuery('ROLLBACK', []);
+      return res.status(404).json({ message: "Falha ao excluir usuário" });
+    }
+
+    // 5. Commit da transação
+    await executeQuery('COMMIT', []);
+    
+    console.log('SUCESSO: Transação commitada. Usuário excluído:', usuarioResult.rows[0]);
+    res.json({ 
+      success: true, 
+      message: "Usuário excluído com sucesso",
+      data: usuarioResult.rows[0]
+    });
+
   } catch (error) {
-    console.error('Erro ao excluir usuário:', error);
-    res.status(500).json({ message: "Erro interno do servidor" });
+    console.error('ERRO CRÍTICO na exclusão:', error);
+    await executeQuery('ROLLBACK', []);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
   }
 });
 
