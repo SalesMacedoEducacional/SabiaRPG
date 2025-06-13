@@ -206,20 +206,24 @@ app.put('/api/users/:id', async (req, res) => {
       .from('usuarios')
       .update({ nome, email, telefone, cpf, ativo })
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
-    if (updateError || !usuarioAtualizado) {
+    if (updateError) {
       console.error('Erro ao atualizar usuário:', updateError);
+      return res.status(500).json({ message: "Erro ao atualizar usuário" });
+    }
+
+    if (!usuarioAtualizado || usuarioAtualizado.length === 0) {
+      console.error('Nenhum usuário foi atualizado');
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
 
-    console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
+    console.log('Usuário atualizado com sucesso:', usuarioAtualizado[0]);
     
     res.json({
       success: true,
       message: "Usuário atualizado com sucesso",
-      data: usuarioAtualizado
+      data: usuarioAtualizado[0]
     });
 
   } catch (error) {
