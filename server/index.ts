@@ -386,19 +386,55 @@ app.use((req, res, next) => {
   next();
 });
 
-// APIs do gestor sem middleware
+// APIs do gestor funcionais
 app.get('/api/turmas-gestor-real', async (req, res) => {
   try {
+    // Teste de conexão Supabase
+    const { data: testData, error: testError } = await supabase.from('usuarios').select('id').limit(1);
+    
+    if (testError) {
+      console.error('Erro de conexão Supabase:', testError);
+      return res.status(500).json({ error: 'Erro de conexão com banco de dados', details: testError });
+    }
+    
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-    const { data: escolas } = await supabase.from('escolas').select('id').eq('gestor_id', gestorId);
-    if (!escolas?.length) return res.json({ total: 0, turmas: [] });
     
-    const escolaIds = escolas.map(e => e.id);
-    const { data: turmas } = await supabase.from('turmas').select('*').in('escola_id', escolaIds);
+    // Buscar escolas do gestor
+    const { data: escolas, error: escolasError } = await supabase
+      .from('escolas')
+      .select('id, nome')
+      .eq('gestor_id', gestorId);
     
-    res.json({ total: turmas?.length || 0, turmas: turmas || [] });
+    if (escolasError) {
+      console.error('Erro ao buscar escolas:', escolasError);
+      return res.status(500).json({ error: 'Erro ao buscar escolas', details: escolasError });
+    }
+    
+    if (!escolas?.length) {
+      return res.json({ total: 0, turmas: [], debug: 'Nenhuma escola encontrada para o gestor' });
+    }
+    
+    // Buscar turmas das escolas
+    const escolaIds = escolas.map((e: any) => e.id);
+    const { data: turmas, error: turmasError } = await supabase
+      .from('turmas')
+      .select('id, nome, escola_id')
+      .in('escola_id', escolaIds);
+    
+    if (turmasError) {
+      console.error('Erro ao buscar turmas:', turmasError);
+      return res.status(500).json({ error: 'Erro ao buscar turmas', details: turmasError });
+    }
+    
+    res.json({ 
+      total: turmas?.length || 0, 
+      turmas: turmas || [], 
+      debug: { escolas, escolaIds } 
+    });
+    
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar turmas' });
+    console.error('Erro geral na API:', error);
+    res.status(500).json({ error: 'Erro interno', details: String(error) });
   }
 });
 
