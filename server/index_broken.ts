@@ -1,0 +1,397 @@
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { setupVite, serveStatic, log } from "./vite";
+import session from 'express-session';
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Import supabase for direct API routes
+import { supabase } from '../db/supabase.js';
+import { executeQuery } from './database';
+
+// Direct API routes without authentication (placed before all middleware)
+app.get('/api/users/manager', async (req, res) => {
+  try {
+    console.log('=== BUSCA SINCRONIZADA COM POSTGRESQL ===');
+    
+    const { getUsersWithPostgreSQL } = await import('./usersEndpoint');
+    const result = await getUsersWithPostgreSQL();
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+// PUT endpoint for user updates
+        try {
+          const queryPerfil = 'SELECT id FROM perfis_gestor WHERE usuario_id = $1';
+          const resultPerfil = await executeQuery(queryPerfil, [user.id]);
+          if (resultPerfil.rows.length > 0) {
+            perfilId = resultPerfil.rows[0].id;
+            tabelaPerfil = 'perfis_gestor';
+            console.log(`Usuário ${user.nome} - ID perfil gestor: ${perfilId}`);
+          }
+        } catch (error) {
+          console.log(`Erro ao buscar perfil gestor para ${user.nome}:`, error);
+        }
+      } else if (user.papel === 'aluno') {
+        // Para alunos, usar Supabase já que perfis_aluno só existe no Supabase
+        try {
+          const { data: perfil } = await supabase
+            .from('perfis_aluno')
+            .select('id')
+            .eq('usuario_id', user.id)
+            .single();
+          if (perfil) {
+            perfilId = perfil.id;
+            tabelaPerfil = 'perfis_aluno';
+            console.log(`Usuário ${user.nome} - ID perfil aluno: ${perfilId}`);
+          }
+        } catch (error) {
+          console.log(`Erro ao buscar perfil aluno para ${user.nome}:`, error);
+        }
+      }
+      
+      usuariosComPerfil.push({
+        id: perfilId, // ID para edição (perfil ou usuário)
+        usuario_id: user.id, // ID original do usuário
+        nome: user.nome,
+        email: user.email,
+        cpf: user.cpf || 'Não informado',
+        papel: user.papel || 'aluno',
+        telefone: user.telefone || '',
+        escola_nome: 'Geral',
+        ativo: user.ativo ?? true,
+        criado_em: user.criado_em,
+        tabela_perfil: tabelaPerfil
+      });
+    }
+    
+    const usuariosFormatados = usuariosComPerfil;
+
+    res.json({
+      total: usuariosComPerfil.length,
+      usuarios: usuariosComPerfil
+    });
+
+  } catch (error) {
+    console.error('Erro crítico:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+app.post('/api/users', async (req, res) => {
+  try {
+    const { nome, email, telefone, cpf, papel, ativo = true } = req.body;
+    
+    console.log(`Criando novo usuário no banco PostgreSQL`);
+
+    // Usar CPF como senha padrão para novos usuários
+    const senhaTemporaria = cpf || '123456789';
+    
+    const query = `
+      INSERT INTO usuarios (email, senha_hash, papel, cpf, nome, telefone, ativo, criado_em, atualizado_em)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      RETURNING id, nome, email, cpf, telefone, papel, ativo
+    `;
+    
+    const result = await executeQuery(query, [email, senhaTemporaria, papel, cpf, nome, telefone, ativo]);
+    
+    if (result.rows.length > 0) {
+      console.log('Usuário criado com sucesso:', result.rows[0]);
+      res.json({ 
+        success: true, 
+        message: "Usuário criado com sucesso",
+        data: result.rows[0]
+      });
+    } else {
+      res.status(500).json({ message: "Erro ao criar usuário" });
+    }
+
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+// API de teste para validar IDs de perfil com query direta
+app.get('/api/test-perfil/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('=== TESTANDO ID DE PERFIL COM SQL DIRETO ===');
+    console.log('ID recebido:', id);
+    
+    // Testar com SQL direto primeiro
+    const testQuery = `
+      SELECT 'perfil_gestor' as tipo, id::text, usuario_id::text 
+      FROM perfis_gestor WHERE id = $1
+      UNION ALL
+      SELECT 'perfil_professor' as tipo, id::text, usuario_id::text 
+      FROM perfis_professor WHERE id = $1
+    `;
+    
+    const result = await executeQuery(testQuery, [id]);
+    
+    if (result.rows.length > 0) {
+      console.log('Perfil encontrado via SQL:', result.rows[0]);
+      return res.json({
+        tipo: result.rows[0].tipo,
+        id: result.rows[0].id,
+        usuario_id: result.rows[0].usuario_id
+      });
+    }
+    
+    // Testar também com Supabase para perfis_aluno
+    const { data: alunoData } = await supabase
+      .from('perfis_aluno')
+      .select('id, usuario_id')
+      .eq('id', id)
+      .single();
+    
+    if (alunoData) {
+      console.log('Perfil aluno encontrado via Supabase:', alunoData);
+      return res.json({
+        tipo: 'perfil_aluno',
+        perfil: alunoData
+      });
+    }
+    
+    console.log('ID não encontrado em nenhuma tabela de perfil');
+    res.json({ tipo: 'nao_encontrado', id });
+    
+  } catch (error) {
+    console.error('Erro no teste:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Novos endpoints conforme especificação
+app.put('/api/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, telefone, cpf, ativo } = req.body;
+    
+    console.log('=== PUT /api/usuarios/:id ===');
+    console.log('ID do usuário:', id);
+    console.log('Dados:', { nome, email, telefone, cpf, ativo });
+
+    const { updateUserDirect } = await import('./directDatabase.js');
+    
+    const result = await updateUserDirect(id, {
+      nome,
+      email, 
+      telefone,
+      cpf,
+      ativo
+    });
+
+    if (!result.success) {
+      console.error('Falha na atualização:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário atualizado com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário atualizado com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na atualização:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+app.delete('/api/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('=== DELETE /api/usuarios/:id ===');
+    console.log('ID do usuário:', id);
+
+    const { deleteUserDirect } = await import('./directDatabase.js');
+    
+    const result = await deleteUserDirect(id);
+
+    if (!result.success) {
+      console.error('Falha na exclusão:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário excluído com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário excluído com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na exclusão:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+// Manter endpoints antigos para compatibilidade
+app.put('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, telefone, cpf, ativo } = req.body;
+    
+    console.log('=== ATUALIZANDO USUÁRIO ===');
+    console.log('ID recebido:', id);
+    console.log('Dados:', { nome, email, telefone, cpf, ativo });
+
+    // Usar cliente PostgreSQL direto para contornar RLS
+    const { updateUserDirect } = await import('./directDatabase.js');
+    
+    const result = await updateUserDirect(id, {
+      nome,
+      email, 
+      telefone,
+      cpf,
+      ativo
+    });
+
+    if (!result.success) {
+      console.error('Falha na atualização:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário atualizado com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário atualizado com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na atualização:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('=== EXCLUINDO USUÁRIO ===');
+    console.log('ID recebido:', id);
+
+    // Usar cliente PostgreSQL direto para contornar RLS
+    const { deleteUserDirect } = await import('./directDatabase.js');
+    
+    const result = await deleteUserDirect(id);
+
+    if (!result.success) {
+      console.error('Falha na exclusão:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário excluído com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário excluído com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na exclusão:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+// Configure sessão
+app.use(session({
+  secret: 'sabia-rpg-session-secret',
+  resave: false,
+  saveUninitialized: true,  // Alterado para true para criar sessão para todos os visitantes
+  cookie: {
+    secure: false, // Em produção deveria ser true (HTTPS)
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
+
+      log(logLine);
+    }
+  });
+
+  next();
+});
+
+(async () => {
+  const server = await registerRoutes(app);
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // ALWAYS serve the app on port 5000
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
+  const port = 5000;
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
