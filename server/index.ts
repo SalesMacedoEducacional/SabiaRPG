@@ -14,42 +14,19 @@ import { executeQuery } from './database';
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
   try {
-    console.log('=== BUSCANDO USUÁRIOS REAIS ===');
+    console.log('=== BUSCA SINCRONIZADA COM POSTGRESQL ===');
     
-    const { data: usuarios, error } = await supabase
-      .from('usuarios')
-      .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
-      .not('nome', 'is', null)
-      .not('email', 'is', null)
-      .order('criado_em', { ascending: false });
-
-    if (error) {
-      console.error('Erro ao buscar usuários:', error);
-      return res.status(500).json({ message: "Erro ao buscar usuários" });
-    }
-
-    console.log(`Usuários reais encontrados: ${usuarios?.length || 0}`);
+    const { getUsersWithPostgreSQL } = await import('./usersEndpoint');
+    const result = await getUsersWithPostgreSQL();
     
-    // Buscar IDs de perfil para cada usuário
-    const usuariosComPerfil = [];
-    for (const user of usuarios || []) {
-      let perfilId = user.id; // Por padrão, usar ID do usuário
-      let tabelaPerfil = 'usuarios';
-      
-        // Buscar ID da tabela de perfil usando SQL direto para professor e gestor
-      if (user.papel === 'professor') {
-        try {
-          const queryPerfil = 'SELECT id FROM perfis_professor WHERE usuario_id = $1';
-          const resultPerfil = await executeQuery(queryPerfil, [user.id]);
-          if (resultPerfil.rows.length > 0) {
-            perfilId = resultPerfil.rows[0].id;
-            tabelaPerfil = 'perfis_professor';
-            console.log(`Usuário ${user.nome} - ID perfil professor: ${perfilId}`);
-          }
-        } catch (error) {
-          console.log(`Erro ao buscar perfil professor para ${user.nome}:`, error);
-        }
-      } else if (user.papel === 'gestor') {
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+// PUT endpoint for user updates
         try {
           const queryPerfil = 'SELECT id FROM perfis_gestor WHERE usuario_id = $1';
           const resultPerfil = await executeQuery(queryPerfil, [user.id]);
