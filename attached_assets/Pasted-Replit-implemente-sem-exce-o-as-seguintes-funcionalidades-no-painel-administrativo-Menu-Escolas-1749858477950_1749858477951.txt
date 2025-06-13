@@ -1,0 +1,63 @@
+Replit, implemente sem exceção as seguintes funcionalidades no painel administrativo:
+
+Menu “Escolas”
+
+Endpoint GET /api/escolas: retorne todas as escolas da tabela escolas onde gestor_id = session.user.id.
+
+Exiba lista no sidebar com botão “Ver detalhes” (pop-up), “Editar” e “Excluir”.
+
+Pop-up de detalhes deve mostrar todos os campos da escola.
+
+“Editar” abre formulário pré-preenchido; “Excluir” remove registro da tabela.
+
+Menu “Turmas”
+
+Endpoint GET /api/turmas: retorne todas as turmas da tabela turmas vinculadas às escolas do gestor (escola_id IN (…)).
+
+Sidebar: “Ver detalhes” (pop-up com dados completos da turma e do professor responsável), “Editar” e “Excluir”.
+
+Menu “Professores”
+
+Endpoint GET /api/professores: retorne todos os registros de usuarios onde role = 'professor' e escola_id IN (…).
+
+Sidebar: “Ver detalhes” (pop-up com perfil completo), “Editar” e “Excluir”.
+
+Menu “Alunos”
+
+Endpoint GET /api/alunos: retorne todos os registros de usuarios onde role = 'aluno' e turma_id IN (…) para as turmas vinculadas.
+
+Sidebar: “Ver detalhes” (pop-up com perfil completo), “Editar” e “Excluir”.
+
+Menu “Usuários”
+
+Endpoint GET /api/usuarios: retorne todos os usuários (usuarios), filtrando por escola_id IN (…) do gestor.
+
+Sidebar: “Ver detalhes” e “Editar”/“Excluir” para todos os perfis, exibindo também campo status (ativo/inativo).
+
+Dashboard Inicial (Visão Geral)
+
+Cards dinâmicos que exibam:
+
+Total de Escolas Vinculadas
+
+Total de Professores
+
+Total de Alunos
+
+Total de Turmas Ativas
+
+Todos os valores devem vir de consultas reais ao banco via os endpoints acima.
+
+Requisitos Gerais
+
+Use session.user.id para filtrar por gestor logado em todas as queries.
+
+Garanta que backend persista alterações e exclusões diretamente no banco (CRUD real).
+
+As operações de “Editar” e “Excluir” devem usar transações SQL para manter integridade.
+
+No front-end, consuma esses endpoints e exiba apenas dados reais, sem placeholders fictícios.
+
+Implemente estados de loading e tratamento de erros em todas as rotas e pop-ups.
+
+Implemente essas tarefas agora para que o painel reflita fielmente o estado do banco de dados.
