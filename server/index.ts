@@ -290,92 +290,89 @@ app.delete('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    console.log('=== INICIANDO EXCLUSÃO ===');
+    console.log('=== INICIANDO EXCLUSÃO COM SQL DIRETO ===');
     console.log('ID recebido:', id);
+    
+    // Usar SQL direto para identificar tipo de ID
+    const identificarQuery = `
+      SELECT 'perfil_gestor' as tipo, usuario_id::text
+      FROM perfis_gestor WHERE id = $1
+      UNION ALL
+      SELECT 'perfil_professor' as tipo, usuario_id::text
+      FROM perfis_professor WHERE id = $1
+    `;
+    
+    const identificarResult = await executeQuery(identificarQuery, [id]);
     
     let usuarioId = null;
     let tipoTabela = null;
     
-    // Verificar perfil_aluno
-    const { data: perfilAluno } = await supabase
-      .from('perfis_aluno')
-      .select('usuario_id')
-      .eq('id', id)
-      .single();
-    
-    if (perfilAluno) {
-      usuarioId = perfilAluno.usuario_id;
-      tipoTabela = 'perfil_aluno';
+    if (identificarResult.rows.length > 0) {
+      usuarioId = identificarResult.rows[0].usuario_id;
+      tipoTabela = identificarResult.rows[0].tipo;
+      console.log(`Perfil encontrado via SQL: ${tipoTabela}, Usuario ID: ${usuarioId}`);
     } else {
-      // Verificar perfil_gestor
-      const { data: perfilGestor } = await supabase
-        .from('perfis_gestor')
+      // Verificar perfil_aluno usando Supabase
+      const { data: perfilAluno } = await supabase
+        .from('perfis_aluno')
         .select('usuario_id')
         .eq('id', id)
         .single();
       
-      if (perfilGestor) {
-        usuarioId = perfilGestor.usuario_id;
-        tipoTabela = 'perfil_gestor';
+      if (perfilAluno) {
+        usuarioId = perfilAluno.usuario_id;
+        tipoTabela = 'perfil_aluno';
+        console.log(`Perfil aluno encontrado: Usuario ID: ${usuarioId}`);
       } else {
-        // Verificar perfil_professor
-        const { data: perfilProfessor } = await supabase
-          .from('perfis_professor')
-          .select('usuario_id')
-          .eq('id', id)
-          .single();
-        
-        if (perfilProfessor) {
-          usuarioId = perfilProfessor.usuario_id;
-          tipoTabela = 'perfil_professor';
-        } else {
-          // É ID de usuário direto
-          usuarioId = id;
-          tipoTabela = 'usuario_direto';
-        }
+        // É ID de usuário direto
+        usuarioId = id;
+        tipoTabela = 'usuario_direto';
+        console.log(`ID é de usuário direto: ${usuarioId}`);
       }
     }
     
-    console.log(`Tipo identificado: ${tipoTabela}, Usuario ID: ${usuarioId}`);
+    // Buscar dados do usuário antes da exclusão usando SQL direto
+    const buscarQuery = `SELECT id, nome, email, papel FROM usuarios WHERE id = $1`;
+    const buscarResult = await executeQuery(buscarQuery, [usuarioId]);
     
-    // Buscar dados do usuário antes da exclusão
-    const { data: usuario, error: userError } = await supabase
-      .from('usuarios')
-      .select('id, nome, email, papel')
-      .eq('id', usuarioId)
-      .single();
-    
-    if (userError || !usuario) {
-      console.error('Usuário não encontrado:', userError);
+    if (buscarResult.rows.length === 0) {
+      console.error('Usuário não encontrado para ID:', usuarioId);
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
     
+    const usuario = buscarResult.rows[0];
+    
     console.log('Usuário encontrado para exclusão:', usuario);
     
-    // Excluir perfil primeiro se necessário
-    if (tipoTabela === 'perfil_aluno') {
-      await supabase.from('perfis_aluno').delete().eq('id', id);
-      console.log('Perfil aluno excluído');
-    } else if (tipoTabela === 'perfil_professor') {
-      await supabase.from('perfis_professor').delete().eq('id', id);
+    // Excluir perfil primeiro usando SQL direto
+    if (tipoTabela === 'perfil_professor') {
+      const deletePerfilQuery = `DELETE FROM perfis_professor WHERE id = $1`;
+      await executeQuery(deletePerfilQuery, [id]);
       console.log('Perfil professor excluído');
     } else if (tipoTabela === 'perfil_gestor') {
-      await supabase.from('perfis_gestor').delete().eq('id', id);
+      const deletePerfilQuery = `DELETE FROM perfis_gestor WHERE id = $1`;
+      await executeQuery(deletePerfilQuery, [id]);
       console.log('Perfil gestor excluído');
+    } else if (tipoTabela === 'perfil_aluno') {
+      await supabase.from('perfis_aluno').delete().eq('id', id);
+      console.log('Perfil aluno excluído');
     }
     
-    // Excluir usuário da tabela usuarios
-    const { data: usuarioExcluido, error: deleteError } = await supabase
-      .from('usuarios')
-      .delete()
-      .eq('id', usuarioId)
-      .select()
-      .single();
+    // Excluir usuário usando SQL direto
+    const deleteQuery = `
+      DELETE FROM usuarios 
+      WHERE id = $1
+      RETURNING id, nome, email, cpf, telefone, ativo, papel
+    `;
     
-    if (deleteError || !usuarioExcluido) {
-      console.error('Erro ao excluir usuário:', deleteError);
+    const deleteResult = await executeQuery(deleteQuery, [usuarioId]);
+    
+    if (deleteResult.rows.length === 0) {
+      console.error('Erro ao excluir usuário - nenhum registro removido');
       return res.status(500).json({ message: "Erro ao excluir usuário" });
     }
+    
+    const usuarioExcluido = deleteResult.rows[0];
     
     console.log('SUCESSO: Usuário excluído:', usuarioExcluido);
     res.json({
