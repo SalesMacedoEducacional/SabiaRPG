@@ -67,28 +67,26 @@ export async function updateUserDirect(userId: string, userData: any) {
       email: userData.email,
       telefone: userData.telefone,
       cpf: userData.cpf,
-      ativo: userData.ativo,
-      updated_at: new Date().toISOString()
+      ativo: userData.ativo
     };
     
     const { data: updated, error } = await supabase
       .from('usuarios')
       .update(updateData)
       .eq('id', realUserId)
-      .select()
-      .single();
+      .select();
     
     if (error) {
       console.error('Erro na atualização direta:', error);
       return { success: false, error: error.message };
     }
     
-    if (!updated) {
+    if (!updated || updated.length === 0) {
       return { success: false, error: 'Usuário não encontrado' };
     }
     
-    console.log('Usuário atualizado:', updated);
-    return { success: true, data: updated };
+    console.log('Usuário atualizado:', updated[0]);
+    return { success: true, data: updated[0] };
     
   } catch (error) {
     console.error('Erro geral:', error);
