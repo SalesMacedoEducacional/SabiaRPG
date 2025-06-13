@@ -386,20 +386,16 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
-
-  // API nova para turmas do gestor - sem middlewares
-  app.get('/api/dashboard/turmas-gestor', async (req, res) => {
-    try {
-      console.log('=== API NOVA: BUSCANDO TURMAS DO GESTOR ===');
-      // Usar ID fixo do gestor que está funcionando
-      const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-      
-      const { data: escolas, error: escolasError } = await supabase
-        .from('escolas')
-        .select('id')
-        .eq('gestor_id', gestorId);
+// APIs funcionais do dashboard do gestor - ANTES DE TUDO
+app.get('/api/data/turmas-gestor', async (req, res) => {
+  try {
+    console.log('=== BUSCANDO TURMAS REAIS DO GESTOR ===');
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    
+    const { data: escolas, error: escolasError } = await supabase
+      .from('escolas')
+      .select('id')
+      .eq('gestor_id', gestorId);
       
       if (escolasError) {
         console.error('Erro ao buscar escolas do gestor:', escolasError);
@@ -447,10 +443,10 @@ app.use((req, res, next) => {
       console.error('Erro ao processar solicitação de turmas:', error);
       return res.status(500).json({ message: 'Erro interno ao processar solicitação' });
     }
-  });
+});
 
-  // API corrigida para professores do gestor
-  app.get('/api/gestor/professores', async (req, res) => {
+// API para professores do gestor
+app.get('/api/data/professores-gestor', async (req, res) => {
     try {
       // Usar ID fixo do gestor que está funcionando
       const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
@@ -492,10 +488,10 @@ app.use((req, res, next) => {
       console.error('Erro ao processar solicitação de professores:', error);
       return res.status(500).json({ message: 'Erro interno ao processar solicitação' });
     }
-  });
+});
 
-  // API corrigida para alunos do gestor
-  app.get('/api/gestor/alunos', async (req, res) => {
+// API para alunos do gestor
+app.get('/api/data/alunos-gestor', async (req, res) => {
     try {
       // Usar ID fixo do gestor que está funcionando
       const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
@@ -559,7 +555,10 @@ app.use((req, res, next) => {
       console.error('Erro ao processar solicitação de alunos:', error);
       return res.status(500).json({ message: 'Erro interno ao processar solicitação' });
     }
-  });
+});
+
+(async () => {
+  const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
