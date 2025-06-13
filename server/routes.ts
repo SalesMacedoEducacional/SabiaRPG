@@ -1742,8 +1742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             papel
           )
         `)
-        .in('escola_id', escolaIds)
-        .eq('ativo', true);
+        .in('escola_id', escolaIds);
 
       if (perfisError) {
         console.error("Erro ao buscar perfis de professores:", perfisError);

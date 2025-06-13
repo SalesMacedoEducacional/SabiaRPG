@@ -200,7 +200,7 @@ export function TotalProfessoresCard() {
         
         // Buscar professores e escolas em paralelo
         const [professoresResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/professores"),
+          apiRequest("GET", "/api/teachers/manager"),
           apiRequest("GET", "/api/escolas/gestor")
         ]);
         
@@ -493,7 +493,7 @@ export function TotalTurmasCard() {
         setIsLoading(true);
         console.log('Requisição API: GET /api/turmas', '');
         
-        const response = await apiRequest("GET", "/api/turmas");
+        const response = await apiRequest("GET", "/api/gestor/turmas");
         
         console.log('Resposta GET /api/turmas: status', response.status);
         
