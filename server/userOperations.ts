@@ -9,12 +9,12 @@ export async function updateUserWithServiceRole(userId: string, userData: any) {
 
     // Usar uma query SQL direta que bypass o RLS
     const { data, error } = await supabase.rpc('update_user_data', {
-      user_id: userId,
-      user_name: userData.nome,
-      user_email: userData.email,
-      user_phone: userData.telefone || '',
-      user_cpf: userData.cpf || '',
-      user_active: userData.ativo
+      p_user_id: userId,
+      p_user_name: userData.nome,
+      p_user_email: userData.email,
+      p_user_phone: userData.telefone || '',
+      p_user_cpf: userData.cpf || '',
+      p_user_active: userData.ativo
     });
 
     if (error) {
@@ -22,12 +22,17 @@ export async function updateUserWithServiceRole(userId: string, userData: any) {
       return { success: false, error: error.message };
     }
 
-    if (!data || data.length === 0) {
+    if (!data) {
       return { success: false, error: 'Usuário não encontrado' };
     }
 
-    console.log('Usuário atualizado via RPC:', data[0]);
-    return { success: true, data: data[0] };
+    // A função retorna um JSON diretamente
+    if (data.error) {
+      return { success: false, error: data.error };
+    }
+
+    console.log('Usuário atualizado via RPC:', data);
+    return { success: true, data: data };
   } catch (error) {
     console.error('Erro na atualização:', error);
     return { success: false, error: 'Erro interno' };
