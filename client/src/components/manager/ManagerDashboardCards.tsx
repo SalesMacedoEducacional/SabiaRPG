@@ -200,8 +200,8 @@ export function TotalProfessoresCard() {
         
         // Buscar professores e escolas em paralelo
         const [professoresResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/teachers/manager"),
-          apiRequest("GET", "/api/escolas/gestor")
+          apiRequest("GET", "/api/gestor/professores"),
+          apiRequest("GET", "/api/gestor/escolas")
         ]);
         
         console.log('Resposta GET /api/professores: status', professoresResponse.status);
@@ -213,9 +213,10 @@ export function TotalProfessoresCard() {
         console.log('Professores recebidos:', professoresData);
         console.log('Escolas vinculadas recebidas para professores:', escolasData);
         
+        // Ajustar formato de resposta conforme as APIs do dashboard
         setTotalProfessores(professoresData.total || 0);
         setProfessores(professoresData.professores || []);
-        setEscolas(Array.isArray(escolasData) ? escolasData : []);
+        setEscolas(Array.isArray(escolasData) ? escolasData : (escolasData.escolas || []));
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
         toast({
@@ -501,8 +502,9 @@ export function TotalTurmasCard() {
         
         console.log('Turmas recebidas:', data);
         
-        setTotalTurmas(data.length || 0);
-        setTurmas(data || []);
+        // Ajustar formato de resposta conforme a API do dashboard
+        setTotalTurmas(data.total || 0);
+        setTurmas(data.turmas || []);
       } catch (error) {
         console.error("Erro ao buscar turmas:", error);
         toast({
