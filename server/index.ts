@@ -201,49 +201,10 @@ app.put('/api/users/:id', async (req, res) => {
     console.log('ID recebido:', id);
     console.log('Dados:', { nome, email, telefone, cpf, ativo });
 
-    // Primeiro identificar se é ID de perfil ou usuário direto
-    let realUserId = id;
+    // Usar cliente PostgreSQL direto para contornar RLS
+    const { updateUserDirect } = await import('./directDatabase.js');
     
-    // Verificar se é ID de perfil gestor
-    const { data: perfilGestor } = await supabase
-      .from('perfis_gestor')
-      .select('usuario_id')
-      .eq('id', id)
-      .limit(1);
-
-    if (perfilGestor && perfilGestor.length > 0) {
-      realUserId = perfilGestor[0].usuario_id;
-      console.log('ID é de perfil gestor, usuario_id:', realUserId);
-    } else {
-      // Verificar perfil professor
-      const { data: perfilProfessor } = await supabase
-        .from('perfis_professor')
-        .select('usuario_id')
-        .eq('id', id)
-        .limit(1);
-
-      if (perfilProfessor && perfilProfessor.length > 0) {
-        realUserId = perfilProfessor[0].usuario_id;
-        console.log('ID é de perfil professor, usuario_id:', realUserId);
-      } else {
-        // Verificar perfil aluno
-        const { data: perfilAluno } = await supabase
-          .from('perfis_aluno')
-          .select('usuario_id')
-          .eq('id', id)
-          .limit(1);
-
-        if (perfilAluno && perfilAluno.length > 0) {
-          realUserId = perfilAluno[0].usuario_id;
-          console.log('ID é de perfil aluno, usuario_id:', realUserId);
-        }
-      }
-    }
-
-    // Usar função SQL que contorna RLS
-    const { updateUserWithServiceRole } = await import('./userOperations.js');
-    
-    const result = await updateUserWithServiceRole(realUserId, {
+    const result = await updateUserDirect(id, {
       nome,
       email, 
       telefone,
@@ -278,53 +239,24 @@ app.delete('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     
     console.log('=== EXCLUINDO USUÁRIO ===');
-    console.log('ID:', id);
+    console.log('ID recebido:', id);
 
-    // Buscar usuário antes de excluir
-    const { data: usuario, error: fetchError } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('id', id)
-      .single();
+    // Usar cliente PostgreSQL direto para contornar RLS
+    const { deleteUserDirect } = await import('./directDatabase.js');
+    
+    const result = await deleteUserDirect(id);
 
-    if (fetchError || !usuario) {
-      console.error('Usuário não encontrado:', fetchError);
-      return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!result.success) {
+      console.error('Falha na exclusão:', result.error);
+      return res.status(404).json({ message: result.error });
     }
 
-    console.log('Usuário encontrado para exclusão:', usuario);
-
-    // Excluir perfis relacionados primeiro
-    if (usuario.papel === 'gestor') {
-      await supabase.from('perfis_gestor').delete().eq('usuario_id', id);
-      console.log('Perfil gestor excluído');
-    } else if (usuario.papel === 'professor') {
-      await supabase.from('perfis_professor').delete().eq('usuario_id', id);
-      console.log('Perfil professor excluído');
-    } else if (usuario.papel === 'aluno') {
-      await supabase.from('perfis_aluno').delete().eq('usuario_id', id);
-      console.log('Perfil aluno excluído');
-    }
-
-    // Excluir usuário
-    const { data: usuarioExcluido, error: deleteError } = await supabase
-      .from('usuarios')
-      .delete()
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (deleteError || !usuarioExcluido) {
-      console.error('Erro ao excluir usuário:', deleteError);
-      return res.status(500).json({ message: "Erro ao excluir usuário" });
-    }
-
-    console.log('Usuário excluído com sucesso:', usuarioExcluido);
+    console.log('Usuário excluído com sucesso:', result.data);
     
     res.json({
       success: true,
       message: "Usuário excluído com sucesso",
-      data: usuarioExcluido
+      data: result.data
     });
 
   } catch (error) {
