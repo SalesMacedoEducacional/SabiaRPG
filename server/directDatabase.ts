@@ -42,17 +42,7 @@ export async function updateUserDirect(userId: string, userData: any) {
         profileTable = 'perfis_professor';
         console.log('ID é de perfil professor, usuario_id:', realUserId);
       } else {
-        // Verificar se é ID de perfil_aluno
-        const alunoQuery = 'SELECT usuario_id FROM perfis_aluno WHERE id = $1 LIMIT 1';
-        const alunoResult = await client.query(alunoQuery, [userId]);
-        
-        if (alunoResult.rows.length > 0) {
-          realUserId = alunoResult.rows[0].usuario_id;
-          profileTable = 'perfis_aluno';
-          console.log('ID é de perfil aluno, usuario_id:', realUserId);
-        } else {
-          console.log('ID é de usuário direto:', realUserId);
-        }
+        console.log('ID é de usuário direto:', realUserId);
       }
     }
 
@@ -116,18 +106,24 @@ export async function deleteUserDirect(userId: string) {
     let profileTable = null;
     let profileId = userId;
 
-    // Verificar perfis
-    const profileTables = ['perfis_gestor', 'perfis_professor', 'perfis_aluno'];
+    // Verificar perfis (apenas tabelas que existem)
+    const profileTables = ['perfis_gestor', 'perfis_professor'];
     
     for (const table of profileTables) {
-      const query = `SELECT usuario_id FROM ${table} WHERE id = $1 LIMIT 1`;
-      const result = await client.query(query, [userId]);
-      
-      if (result.rows.length > 0) {
-        realUserId = result.rows[0].usuario_id;
-        profileTable = table;
-        console.log(`ID é de ${table}, usuario_id:`, realUserId);
-        break;
+      try {
+        const query = `SELECT usuario_id FROM ${table} WHERE id = $1 LIMIT 1`;
+        const result = await client.query(query, [userId]);
+        
+        if (result.rows.length > 0) {
+          realUserId = result.rows[0].usuario_id;
+          profileTable = table;
+          console.log(`ID é de ${table}, usuario_id:`, realUserId);
+          break;
+        }
+      } catch (error) {
+        // Tabela não existe, continuar
+        console.log(`Tabela ${table} não encontrada, continuando...`);
+        continue;
       }
     }
 
