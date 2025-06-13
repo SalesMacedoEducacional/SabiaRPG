@@ -386,89 +386,105 @@ app.use((req, res, next) => {
   next();
 });
 
-// APIs do gestor funcionais
+// APIs do gestor usando cliente direto PostgreSQL
 app.get('/api/turmas-gestor-real', async (req, res) => {
   try {
-    // Teste de conexão Supabase
-    const { data: testData, error: testError } = await supabase.from('usuarios').select('id').limit(1);
+    const { Client } = require('pg');
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL
+    });
     
-    if (testError) {
-      console.error('Erro de conexão Supabase:', testError);
-      return res.status(500).json({ error: 'Erro de conexão com banco de dados', details: testError });
-    }
+    await client.connect();
     
+    // Buscar turmas reais do gestor
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     
-    // Buscar escolas do gestor
-    const { data: escolas, error: escolasError } = await supabase
-      .from('escolas')
-      .select('id, nome')
-      .eq('gestor_id', gestorId);
+    const result = await client.query(`
+      SELECT t.id, t.nome, t.escola_id, e.nome as escola_nome,
+             (SELECT COUNT(*) FROM perfis_aluno pa WHERE pa.turma_id = t.id) as total_alunos
+      FROM turmas t 
+      JOIN escolas e ON t.escola_id = e.id 
+      WHERE e.gestor_id = $1
+    `, [gestorId]);
     
-    if (escolasError) {
-      console.error('Erro ao buscar escolas:', escolasError);
-      return res.status(500).json({ error: 'Erro ao buscar escolas', details: escolasError });
-    }
+    await client.end();
     
-    if (!escolas?.length) {
-      return res.json({ total: 0, turmas: [], debug: 'Nenhuma escola encontrada para o gestor' });
-    }
-    
-    // Buscar turmas das escolas
-    const escolaIds = escolas.map((e: any) => e.id);
-    const { data: turmas, error: turmasError } = await supabase
-      .from('turmas')
-      .select('id, nome, escola_id')
-      .in('escola_id', escolaIds);
-    
-    if (turmasError) {
-      console.error('Erro ao buscar turmas:', turmasError);
-      return res.status(500).json({ error: 'Erro ao buscar turmas', details: turmasError });
-    }
-    
-    res.json({ 
-      total: turmas?.length || 0, 
-      turmas: turmas || [], 
-      debug: { escolas, escolaIds } 
+    res.json({
+      total: result.rows.length,
+      turmas: result.rows
     });
     
   } catch (error) {
-    console.error('Erro geral na API:', error);
-    res.status(500).json({ error: 'Erro interno', details: String(error) });
+    console.error('Erro na API turmas:', error);
+    res.status(500).json({ error: 'Erro interno' });
   }
 });
 
 app.get('/api/professores-gestor-real', async (req, res) => {
   try {
+    const { Client } = require('pg');
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL
+    });
+    
+    await client.connect();
+    
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-    const { data: escolas } = await supabase.from('escolas').select('id').eq('gestor_id', gestorId);
-    if (!escolas?.length) return res.json({ total: 0, professores: [] });
     
-    const escolaIds = escolas.map(e => e.id);
-    const { data: professores } = await supabase.from('perfis_professor').select('*, usuarios(nome_completo)').in('escola_id', escolaIds);
+    const result = await client.query(`
+      SELECT pp.id, pp.escola_id, u.nome, u.cpf, u.telefone, e.nome as escola_nome
+      FROM perfis_professor pp
+      JOIN usuarios u ON pp.usuario_id = u.id 
+      JOIN escolas e ON pp.escola_id = e.id
+      WHERE e.gestor_id = $1
+    `, [gestorId]);
     
-    res.json({ total: professores?.length || 0, professores: professores || [] });
+    await client.end();
+    
+    res.json({
+      total: result.rows.length,
+      professores: result.rows
+    });
+    
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar professores' });
+    console.error('Erro na API professores:', error);
+    res.status(500).json({ error: 'Erro interno' });
   }
 });
 
 app.get('/api/alunos-gestor-real', async (req, res) => {
   try {
+    const { Client } = require('pg');
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL
+    });
+    
+    await client.connect();
+    
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-    const { data: escolas } = await supabase.from('escolas').select('id').eq('gestor_id', gestorId);
-    if (!escolas?.length) return res.json({ total: 0, alunos: [] });
     
-    const escolaIds = escolas.map(e => e.id);
-    const { data: turmas } = await supabase.from('turmas').select('id').in('escola_id', escolaIds);
-    if (!turmas?.length) return res.json({ total: 0, alunos: [] });
+    const result = await client.query(`
+      SELECT pa.id, pa.turma_id, u.nome, t.nome as turma_nome, 
+             e.nome as escola_nome, m.numero_matricula
+      FROM perfis_aluno pa
+      JOIN usuarios u ON pa.usuario_id = u.id 
+      JOIN turmas t ON pa.turma_id = t.id
+      JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN matriculas m ON pa.id = m.aluno_id
+      WHERE e.gestor_id = $1
+      ORDER BY t.nome, u.nome
+    `, [gestorId]);
     
-    const turmaIds = turmas.map(t => t.id);
-    const { data: alunos } = await supabase.from('perfis_aluno').select('*, usuarios(nome_completo), turmas(nome)').in('turma_id', turmaIds);
+    await client.end();
     
-    res.json({ total: alunos?.length || 0, alunos: alunos || [] });
+    res.json({
+      total: result.rows.length,
+      alunos: result.rows
+    });
+    
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar alunos' });
+    console.error('Erro na API alunos:', error);
+    res.status(500).json({ error: 'Erro interno' });
   }
 });
 
