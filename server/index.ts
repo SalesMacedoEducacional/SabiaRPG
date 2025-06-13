@@ -442,6 +442,138 @@ app.get('/api/alunos-gestor-real', async (req, res) => {
   }
 });
 
+// API para criar nova turma
+app.post('/api/turmas', async (req, res) => {
+  try {
+    const { nome, escola_id, serie, ano_letivo } = req.body;
+    
+    if (!nome || !escola_id) {
+      return res.status(400).json({ error: 'Nome da turma e escola são obrigatórios' });
+    }
+
+    const query = `
+      INSERT INTO turmas (nome, escola_id, serie, ano_letivo, ativo, criado_em)
+      VALUES ($1, $2, $3, $4, true, NOW())
+      RETURNING id, nome, escola_id, serie, ano_letivo, ativo
+    `;
+    
+    const result = await executeQuery(query, [nome, escola_id, serie || null, ano_letivo || new Date().getFullYear()]);
+    
+    if (result.rows.length > 0) {
+      const novaTurma = result.rows[0];
+      res.json({ 
+        success: true, 
+        turma: novaTurma,
+        message: 'Turma criada com sucesso' 
+      });
+    } else {
+      res.status(500).json({ error: 'Erro ao criar turma' });
+    }
+  } catch (error) {
+    console.error('Erro ao criar turma:', error);
+    res.status(500).json({ error: 'Erro interno ao criar turma' });
+  }
+});
+
+// API para atualizar turma
+app.put('/api/turmas/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, escola_id, serie, ano_letivo } = req.body;
+    
+    if (!nome || !escola_id) {
+      return res.status(400).json({ error: 'Nome da turma e escola são obrigatórios' });
+    }
+
+    const query = `
+      UPDATE turmas 
+      SET nome = $1, escola_id = $2, serie = $3, ano_letivo = $4, atualizado_em = NOW()
+      WHERE id = $5
+      RETURNING id, nome, escola_id, serie, ano_letivo, ativo
+    `;
+    
+    const result = await executeQuery(query, [nome, escola_id, serie || null, ano_letivo || new Date().getFullYear(), id]);
+    
+    if (result.rows.length > 0) {
+      const turmaAtualizada = result.rows[0];
+      res.json({ 
+        success: true, 
+        turma: turmaAtualizada,
+        message: 'Turma atualizada com sucesso' 
+      });
+    } else {
+      res.status(404).json({ error: 'Turma não encontrada' });
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar turma:', error);
+    res.status(500).json({ error: 'Erro interno ao atualizar turma' });
+  }
+});
+
+// API para excluir turma
+app.delete('/api/turmas/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Primeiro, verificar se a turma existe
+    const checkQuery = 'SELECT id, nome FROM turmas WHERE id = $1';
+    const checkResult = await executeQuery(checkQuery, [id]);
+    
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+    
+    // Excluir a turma
+    const deleteQuery = 'DELETE FROM turmas WHERE id = $1';
+    await executeQuery(deleteQuery, [id]);
+    
+    res.json({ 
+      success: true, 
+      message: `Turma "${checkResult.rows[0].nome}" excluída com sucesso` 
+    });
+  } catch (error) {
+    console.error('Erro ao excluir turma:', error);
+    res.status(500).json({ error: 'Erro interno ao excluir turma' });
+  }
+});
+
+// API para buscar turma específica
+app.get('/api/turmas/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const query = `
+      SELECT 
+        t.id,
+        t.nome,
+        t.serie,
+        t.ano_letivo,
+        t.ativo,
+        t.escola_id,
+        e.nome as escola_nome,
+        COUNT(a.id) as total_alunos
+      FROM turmas t
+      LEFT JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN alunos a ON t.id = a.turma_id AND a.ativo = true
+      WHERE t.id = $1
+      GROUP BY t.id, t.nome, t.serie, t.ano_letivo, t.ativo, t.escola_id, e.nome
+    `;
+    
+    const result = await executeQuery(query, [id]);
+    
+    if (result.rows.length > 0) {
+      const turma = result.rows[0];
+      turma.total_alunos = parseInt(turma.total_alunos) || 0;
+      res.json(turma);
+    } else {
+      res.status(404).json({ error: 'Turma não encontrada' });
+    }
+  } catch (error) {
+    console.error('Erro ao buscar turma:', error);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
