@@ -36,20 +36,37 @@ app.get('/api/users/manager', async (req, res) => {
       let perfilId = user.id; // Por padrão, usar ID do usuário
       let tabelaPerfil = 'usuarios';
       
-      // Buscar ID da tabela de perfil usando SQL direto para garantir funcionamento
-      if (user.papel === 'professor') {
-        const queryPerfil = 'SELECT id FROM perfis_professor WHERE usuario_id = $1';
-        const resultPerfil = await executeQuery(queryPerfil, [user.id]);
-        if (resultPerfil.rows.length > 0) {
-          perfilId = resultPerfil.rows[0].id;
+      // Buscar ID da tabela de perfil usando Supabase para incluir perfis_aluno
+      if (user.papel === 'aluno') {
+        const { data: perfil } = await supabase
+          .from('perfis_aluno')
+          .select('id')
+          .eq('usuario_id', user.id)
+          .single();
+        if (perfil) {
+          perfilId = perfil.id;
+          tabelaPerfil = 'perfis_aluno';
+          console.log(`Usuário ${user.nome} - ID perfil aluno: ${perfilId}`);
+        }
+      } else if (user.papel === 'professor') {
+        const { data: perfil } = await supabase
+          .from('perfis_professor')
+          .select('id')
+          .eq('usuario_id', user.id)
+          .single();
+        if (perfil) {
+          perfilId = perfil.id;
           tabelaPerfil = 'perfis_professor';
           console.log(`Usuário ${user.nome} - ID perfil professor: ${perfilId}`);
         }
       } else if (user.papel === 'gestor') {
-        const queryPerfil = 'SELECT id FROM perfis_gestor WHERE usuario_id = $1';
-        const resultPerfil = await executeQuery(queryPerfil, [user.id]);
-        if (resultPerfil.rows.length > 0) {
-          perfilId = resultPerfil.rows[0].id;
+        const { data: perfil } = await supabase
+          .from('perfis_gestor')
+          .select('id')
+          .eq('usuario_id', user.id)
+          .single();
+        if (perfil) {
+          perfilId = perfil.id;
           tabelaPerfil = 'perfis_gestor';
           console.log(`Usuário ${user.nome} - ID perfil gestor: ${perfilId}`);
         }
@@ -162,70 +179,86 @@ app.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
-    console.log('=== INICIANDO ATUALIZAÇÃO COM SQL DIRETO ===');
+    console.log('=== INICIANDO ATUALIZAÇÃO ===');
     console.log('ID recebido:', id);
     console.log('Dados para atualizar:', { nome, email, telefone, cpf, ativo });
     
-    // Primeiro, identificar que tipo de ID é usando SQL direto
-    const identifyQuery = `
-      SELECT 
-        'perfil_gestor' as tipo, 
-        pg.usuario_id as target_id
-      FROM perfis_gestor pg WHERE pg.id = $1
-      UNION ALL
-      SELECT 
-        'perfil_professor' as tipo, 
-        pp.usuario_id as target_id
-      FROM perfis_professor pp WHERE pp.id = $1
-      UNION ALL
-      SELECT 
-        'usuario_direto' as tipo, 
-        u.id as target_id
-      FROM usuarios u WHERE u.id = $1
-    `;
+    let usuarioId = null;
+    let tipoTabela = null;
     
-    const identifyResult = await executeQuery(identifyQuery, [id]);
+    // Verificar perfil_aluno
+    const { data: perfilAluno } = await supabase
+      .from('perfis_aluno')
+      .select('usuario_id')
+      .eq('id', id)
+      .single();
     
-    if (identifyResult.rows.length === 0) {
-      return res.status(404).json({ message: "ID não encontrado em nenhuma tabela" });
+    if (perfilAluno) {
+      usuarioId = perfilAluno.usuario_id;
+      tipoTabela = 'perfil_aluno';
+    } else {
+      // Verificar perfil_gestor
+      const { data: perfilGestor } = await supabase
+        .from('perfis_gestor')
+        .select('usuario_id')
+        .eq('id', id)
+        .single();
+      
+      if (perfilGestor) {
+        usuarioId = perfilGestor.usuario_id;
+        tipoTabela = 'perfil_gestor';
+      } else {
+        // Verificar perfil_professor
+        const { data: perfilProfessor } = await supabase
+          .from('perfis_professor')
+          .select('usuario_id')
+          .eq('id', id)
+          .single();
+        
+        if (perfilProfessor) {
+          usuarioId = perfilProfessor.usuario_id;
+          tipoTabela = 'perfil_professor';
+        } else {
+          // É ID de usuário direto
+          usuarioId = id;
+          tipoTabela = 'usuario_direto';
+        }
+      }
     }
     
-    const { tipo, target_id } = identifyResult.rows[0];
-    console.log(`Tipo identificado: ${tipo}, Target ID: ${target_id}`);
+    console.log(`Tipo identificado: ${tipoTabela}, Usuario ID: ${usuarioId}`);
     
-    // Atualizar o usuário usando SQL direto
-    const updateQuery = `
-      UPDATE usuarios 
-      SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5
-      WHERE id = $6
-      RETURNING id, nome, email, cpf, telefone, ativo, papel
-    `;
+    // Atualizar o usuário
+    const { data: usuarioAtualizado, error: updateError } = await supabase
+      .from('usuarios')
+      .update({ nome, email, telefone, cpf, ativo })
+      .eq('id', usuarioId)
+      .select()
+      .single();
     
-    const updateResult = await executeQuery(updateQuery, [
-      nome, email, telefone, cpf, ativo, target_id
-    ]);
-    
-    if (updateResult.rows.length === 0) {
-      return res.status(404).json({ message: "Usuário não encontrado para atualização" });
+    if (updateError || !usuarioAtualizado) {
+      console.error('Erro ao atualizar usuário:', updateError);
+      return res.status(500).json({ message: "Erro ao atualizar usuário" });
     }
     
-    console.log('Usuário atualizado com sucesso:', updateResult.rows[0]);
+    console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
     
-    // Atualizar perfil correspondente se necessário
-    if (tipo === 'perfil_professor') {
-      const updatePerfilQuery = `UPDATE perfis_professor SET ativo = $1 WHERE id = $2`;
-      await executeQuery(updatePerfilQuery, [ativo, id]);
+    // Atualizar perfil correspondente
+    if (tipoTabela === 'perfil_aluno') {
+      await supabase.from('perfis_aluno').update({ ativo }).eq('id', id);
+      console.log('Perfil aluno atualizado');
+    } else if (tipoTabela === 'perfil_professor') {
+      await supabase.from('perfis_professor').update({ ativo }).eq('id', id);
       console.log('Perfil professor atualizado');
-    } else if (tipo === 'perfil_gestor') {
-      const updatePerfilQuery = `UPDATE perfis_gestor SET ativo = $1 WHERE id = $2`;
-      await executeQuery(updatePerfilQuery, [ativo, id]);
+    } else if (tipoTabela === 'perfil_gestor') {
+      await supabase.from('perfis_gestor').update({ ativo }).eq('id', id);
       console.log('Perfil gestor atualizado');
     }
     
     res.json({
       success: true,
       message: "Usuário atualizado com sucesso",
-      data: updateResult.rows[0]
+      data: usuarioAtualizado
     });
 
   } catch (error) {
@@ -241,76 +274,98 @@ app.delete('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    console.log('=== INICIANDO EXCLUSÃO COM SQL DIRETO ===');
+    console.log('=== INICIANDO EXCLUSÃO ===');
     console.log('ID recebido:', id);
     
-    // Identificar que tipo de ID é usando SQL direto
-    const identifyQuery = `
-      SELECT 
-        'perfil_gestor' as tipo, 
-        pg.usuario_id as target_id
-      FROM perfis_gestor pg WHERE pg.id = $1
-      UNION ALL
-      SELECT 
-        'perfil_professor' as tipo, 
-        pp.usuario_id as target_id
-      FROM perfis_professor pp WHERE pp.id = $1
-      UNION ALL
-      SELECT 
-        'usuario_direto' as tipo, 
-        u.id as target_id
-      FROM usuarios u WHERE u.id = $1
-    `;
+    let usuarioId = null;
+    let tipoTabela = null;
     
-    const identifyResult = await executeQuery(identifyQuery, [id]);
+    // Verificar perfil_aluno
+    const { data: perfilAluno } = await supabase
+      .from('perfis_aluno')
+      .select('usuario_id')
+      .eq('id', id)
+      .single();
     
-    if (identifyResult.rows.length === 0) {
-      return res.status(404).json({ message: "ID não encontrado em nenhuma tabela" });
+    if (perfilAluno) {
+      usuarioId = perfilAluno.usuario_id;
+      tipoTabela = 'perfil_aluno';
+    } else {
+      // Verificar perfil_gestor
+      const { data: perfilGestor } = await supabase
+        .from('perfis_gestor')
+        .select('usuario_id')
+        .eq('id', id)
+        .single();
+      
+      if (perfilGestor) {
+        usuarioId = perfilGestor.usuario_id;
+        tipoTabela = 'perfil_gestor';
+      } else {
+        // Verificar perfil_professor
+        const { data: perfilProfessor } = await supabase
+          .from('perfis_professor')
+          .select('usuario_id')
+          .eq('id', id)
+          .single();
+        
+        if (perfilProfessor) {
+          usuarioId = perfilProfessor.usuario_id;
+          tipoTabela = 'perfil_professor';
+        } else {
+          // É ID de usuário direto
+          usuarioId = id;
+          tipoTabela = 'usuario_direto';
+        }
+      }
     }
     
-    const { tipo, target_id } = identifyResult.rows[0];
-    console.log(`Tipo identificado: ${tipo}, Target ID: ${target_id}`);
+    console.log(`Tipo identificado: ${tipoTabela}, Usuario ID: ${usuarioId}`);
     
     // Buscar dados do usuário antes da exclusão
-    const userQuery = `SELECT id, nome, email, papel FROM usuarios WHERE id = $1`;
-    const userResult = await executeQuery(userQuery, [target_id]);
+    const { data: usuario, error: userError } = await supabase
+      .from('usuarios')
+      .select('id, nome, email, papel')
+      .eq('id', usuarioId)
+      .single();
     
-    if (userResult.rows.length === 0) {
+    if (userError || !usuario) {
+      console.error('Usuário não encontrado:', userError);
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
     
-    const usuario = userResult.rows[0];
     console.log('Usuário encontrado para exclusão:', usuario);
     
-    // Excluir perfil primeiro se necessário usando SQL direto
-    if (tipo === 'perfil_professor') {
-      const deletePerfilQuery = `DELETE FROM perfis_professor WHERE id = $1`;
-      await executeQuery(deletePerfilQuery, [id]);
+    // Excluir perfil primeiro se necessário
+    if (tipoTabela === 'perfil_aluno') {
+      await supabase.from('perfis_aluno').delete().eq('id', id);
+      console.log('Perfil aluno excluído');
+    } else if (tipoTabela === 'perfil_professor') {
+      await supabase.from('perfis_professor').delete().eq('id', id);
       console.log('Perfil professor excluído');
-    } else if (tipo === 'perfil_gestor') {
-      const deletePerfilQuery = `DELETE FROM perfis_gestor WHERE id = $1`;
-      await executeQuery(deletePerfilQuery, [id]);
+    } else if (tipoTabela === 'perfil_gestor') {
+      await supabase.from('perfis_gestor').delete().eq('id', id);
       console.log('Perfil gestor excluído');
     }
     
     // Excluir usuário da tabela usuarios
-    const deleteUserQuery = `
-      DELETE FROM usuarios 
-      WHERE id = $1
-      RETURNING id, nome, email, papel
-    `;
+    const { data: usuarioExcluido, error: deleteError } = await supabase
+      .from('usuarios')
+      .delete()
+      .eq('id', usuarioId)
+      .select()
+      .single();
     
-    const deleteResult = await executeQuery(deleteUserQuery, [target_id]);
-    
-    if (deleteResult.rows.length === 0) {
-      return res.status(404).json({ message: "Usuário não encontrado para exclusão" });
+    if (deleteError || !usuarioExcluido) {
+      console.error('Erro ao excluir usuário:', deleteError);
+      return res.status(500).json({ message: "Erro ao excluir usuário" });
     }
     
-    console.log('SUCESSO: Usuário excluído:', deleteResult.rows[0]);
+    console.log('SUCESSO: Usuário excluído:', usuarioExcluido);
     res.json({
       success: true,
       message: "Usuário excluído com sucesso",
-      data: deleteResult.rows[0]
+      data: usuarioExcluido
     });
 
   } catch (error) {
