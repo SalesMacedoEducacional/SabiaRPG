@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
 import { 
   TotalEscolasCard, 
   TotalProfessoresCard, 
@@ -61,39 +60,6 @@ export default function ManagerDashboardModerno() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Consultas para contadores do menu lateral
-  const { data: escolasData } = useQuery({
-    queryKey: ['/api/gestor/escolas'],
-    enabled: !!user,
-  });
-
-  const { data: turmasData } = useQuery({
-    queryKey: ['/api/gestor/turmas'],
-    enabled: !!user,
-  });
-
-  const { data: professoresData } = useQuery({
-    queryKey: ['/api/gestor/professores'],
-    enabled: !!user,
-  });
-
-  const { data: alunosData } = useQuery({
-    queryKey: ['/api/gestor/alunos'],
-    enabled: !!user,
-  });
-
-  const { data: usuariosData } = useQuery({
-    queryKey: ['/api/usuarios'],
-    enabled: !!user,
-  });
-
-  // Contadores para exibir no menu
-  const escolasTotal = (escolasData as any)?.total || 0;
-  const turmasTotal = (turmasData as any)?.total || 0;
-  const professoresTotal = (professoresData as any)?.total || 0;
-  const alunosTotal = (alunosData as any)?.total || 0;
-  const usuariosTotal = (usuariosData as any)?.total || 0;
   
   // Função para lidar com logout
   const handleLogout = async () => {
@@ -291,77 +257,42 @@ export default function ManagerDashboardModerno() {
               
               <button 
                 onClick={() => setActiveMenu("schools")}
-                className={`${activeMenu === "schools" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center justify-between rounded-md px-2.5 py-2`}
+                className={`${activeMenu === "schools" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
-                <div className="flex items-center">
-                  <BuildingSchool size={18} className="flex-shrink-0" />
-                  {sidebarOpen && <span className="ml-2">Escolas</span>}
-                </div>
-                {sidebarOpen && escolasTotal > 0 && (
-                  <span className="bg-accent text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {escolasTotal}
-                  </span>
-                )}
+                <BuildingSchool size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Escolas</span>}
               </button>
               
               <button 
                 onClick={() => setActiveMenu("classes")}
-                className={`${activeMenu === "classes" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center justify-between rounded-md px-2.5 py-2`}
+                className={`${activeMenu === "classes" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
-                <div className="flex items-center">
-                  <BookOpen size={18} className="flex-shrink-0" />
-                  {sidebarOpen && <span className="ml-2">Turmas</span>}
-                </div>
-                {sidebarOpen && turmasTotal > 0 && (
-                  <span className="bg-accent text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {turmasTotal}
-                  </span>
-                )}
+                <BookOpen size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Turmas</span>}
               </button>
               
               <button 
                 onClick={() => setActiveMenu("teachers")}
-                className={`${activeMenu === "teachers" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center justify-between rounded-md px-2.5 py-2`}
+                className={`${activeMenu === "teachers" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
-                <div className="flex items-center">
-                  <User size={18} className="flex-shrink-0" />
-                  {sidebarOpen && <span className="ml-2">Professores</span>}
-                </div>
-                {sidebarOpen && professoresTotal > 0 && (
-                  <span className="bg-accent text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {professoresTotal}
-                  </span>
-                )}
+                <User size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Professores</span>}
               </button>
               
               <button 
                 onClick={() => setActiveMenu("students")}
-                className={`${activeMenu === "students" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center justify-between rounded-md px-2.5 py-2`}
+                className={`${activeMenu === "students" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
-                <div className="flex items-center">
-                  <GraduationCap size={18} className="flex-shrink-0" />
-                  {sidebarOpen && <span className="ml-2">Alunos</span>}
-                </div>
-                {sidebarOpen && alunosTotal > 0 && (
-                  <span className="bg-accent text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {alunosTotal}
-                  </span>
-                )}
+                <GraduationCap size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Alunos</span>}
               </button>
               
               <button 
                 onClick={() => setActiveMenu("users")}
-                className={`${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center justify-between rounded-md px-2.5 py-2`}
+                className={`${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
-                <div className="flex items-center">
-                  <Users size={18} className="flex-shrink-0" />
-                  {sidebarOpen && <span className="ml-2">Usuários</span>}
-                </div>
-                {sidebarOpen && usuariosTotal > 0 && (
-                  <span className="bg-accent text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {usuariosTotal}
-                  </span>
-                )}
+                <Users size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Usuários</span>}
               </button>
               
               <div className={`ml-2 ${!sidebarOpen && 'hidden'}`}>

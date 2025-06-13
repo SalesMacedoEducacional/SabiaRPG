@@ -1732,6 +1732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .select(`
           usuario_id,
           escola_id,
+          ativo,
           usuarios!perfis_professor_usuario_id_fkey(
             id,
             nome,
@@ -1765,7 +1766,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           escola_nome: escola?.nome || 'Escola não informada',
           escola_id: perfil.escola_id,
-          disciplinas: []
+          disciplinas: [],
+          ativo: perfil.ativo
         };
       }) || [];
 
@@ -1864,6 +1866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .select(`
           usuario_id,
           turma_id,
+          ativo,
           usuarios!perfis_aluno_usuario_id_fkey(
             id,
             nome,
@@ -1878,7 +1881,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             escola_id
           )
         `)
-        .in('turma_id', turmaIds);
+        .in('turma_id', turmaIds)
+        .eq('ativo', true);
 
       if (perfisError) {
         console.error("Erro ao buscar perfis de alunos:", perfisError);

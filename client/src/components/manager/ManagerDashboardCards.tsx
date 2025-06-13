@@ -68,8 +68,9 @@ interface Aluno {
 interface Turma {
   id: string;
   nome: string;
-  escola_id: string;
-  escola_nome: string;
+  serie: string;
+  ano_letivo: number;
+  turno: string;
   total_alunos: number;
 }
 
@@ -493,7 +494,7 @@ export function TotalTurmasCard() {
         setIsLoading(true);
         console.log('Requisição API: GET /api/turmas', '');
         
-        const response = await fetch("/api/turmas-gestor-real");
+        const response = await apiRequest("GET", "/api/gestor/turmas");
         
         console.log('Resposta GET /api/turmas: status', response.status);
         
@@ -566,8 +567,10 @@ export function TotalTurmasCard() {
             <Table className="border-collapse">
               <TableHeader className="bg-[#43341c]">
                 <TableRow>
-                  <TableHead className="text-white">Nome da Turma</TableHead>
-                  <TableHead className="text-white">Escola</TableHead>
+                  <TableHead className="text-white">Nome</TableHead>
+                  <TableHead className="text-white">Série</TableHead>
+                  <TableHead className="text-white">Turno</TableHead>
+                  <TableHead className="text-white">Ano Letivo</TableHead>
                   <TableHead className="text-white">Total de Alunos</TableHead>
                 </TableRow>
               </TableHeader>
@@ -576,13 +579,15 @@ export function TotalTurmasCard() {
                   turmas.map((turma) => (
                     <TableRow key={turma.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{turma.nome}</TableCell>
-                      <TableCell className="text-white">{turma.escola_nome}</TableCell>
+                      <TableCell className="text-white">{turma.serie}</TableCell>
+                      <TableCell className="text-white">{turma.turno}</TableCell>
+                      <TableCell className="text-white">{turma.ano_letivo}</TableCell>
                       <TableCell className="text-white">{turma.total_alunos}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
                       Nenhuma turma encontrada
                     </TableCell>
                   </TableRow>

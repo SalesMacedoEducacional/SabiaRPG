@@ -171,8 +171,6 @@ router.get('/alunos', isAuthenticated, isManager, async (req, res) => {
     // Obter os IDs das turmas
     const turmaIds = turmas.map(turma => turma.id);
     
-    console.log('IDs das turmas das escolas do gestor:', turmaIds);
-    
     // Buscar todos os alunos vinculados a essas turmas, ordenados por turma
     const { data: alunos, error: alunosError } = await supabase
       .from('perfis_aluno')
@@ -183,9 +181,8 @@ router.get('/alunos', isAuthenticated, isManager, async (req, res) => {
         matriculas(numero_matricula)
       `)
       .in('turma_id', turmaIds)
+      .eq('ativo', true)
       .order('turma_id');
-      
-    console.log('Alunos encontrados:', alunos?.length || 0);
     
     if (alunosError) {
       console.error('Erro ao buscar alunos:', alunosError);
