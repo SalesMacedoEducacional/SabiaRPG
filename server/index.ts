@@ -239,23 +239,20 @@ app.put('/api/users/:id', async (req, res) => {
       }
     }
     
-    // Atualizar usuário usando SQL direto
-    const updateQuery = `
-      UPDATE usuarios 
-      SET nome = $1, email = $2, telefone = $3, cpf = $4, ativo = $5
-      WHERE id = $6
-      RETURNING id, nome, email, cpf, telefone, ativo, papel
-    `;
+    // Atualizar usuário usando Supabase (dados reais)
+    const { data: usuarioAtualizado, error: updateError } = await supabase
+      .from('usuarios')
+      .update({ nome, email, telefone, cpf, ativo })
+      .eq('id', usuarioId)
+      .select()
+      .single();
     
-    const updateResult = await executeQuery(updateQuery, [
-      nome, email, telefone, cpf, ativo, usuarioId
-    ]);
-    
-    if (updateResult.rows.length === 0) {
+    if (updateError || !usuarioAtualizado) {
+      console.error('Erro ao atualizar usuário:', updateError);
       return res.status(404).json({ message: "Usuário não encontrado para atualização" });
     }
     
-    console.log('Usuário atualizado com sucesso:', updateResult.rows[0]);
+    console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
     
     // Atualizar perfil correspondente usando SQL direto
     if (tipoTabela === 'perfil_professor') {
