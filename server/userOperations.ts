@@ -12,8 +12,8 @@ export async function updateUserWithServiceRole(userId: string, userData: any) {
       user_id: userId,
       user_name: userData.nome,
       user_email: userData.email,
-      user_phone: userData.telefone || null,
-      user_cpf: userData.cpf,
+      user_phone: userData.telefone || '',
+      user_cpf: userData.cpf || '',
       user_active: userData.ativo
     });
 
@@ -22,7 +22,12 @@ export async function updateUserWithServiceRole(userId: string, userData: any) {
       return { success: false, error: error.message };
     }
 
-    return { success: true, data };
+    if (!data || data.length === 0) {
+      return { success: false, error: 'Usuário não encontrado' };
+    }
+
+    console.log('Usuário atualizado via RPC:', data[0]);
+    return { success: true, data: data[0] };
   } catch (error) {
     console.error('Erro na atualização:', error);
     return { success: false, error: 'Erro interno' };

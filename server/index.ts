@@ -201,10 +201,49 @@ app.put('/api/users/:id', async (req, res) => {
     console.log('ID recebido:', id);
     console.log('Dados:', { nome, email, telefone, cpf, ativo });
 
-    // Usar função que contorna limitações do RLS
-    const { updateUserDirect } = await import('./userOperations.js');
+    // Primeiro identificar se é ID de perfil ou usuário direto
+    let realUserId = id;
     
-    const result = await updateUserDirect(id, {
+    // Verificar se é ID de perfil gestor
+    const { data: perfilGestor } = await supabase
+      .from('perfis_gestor')
+      .select('usuario_id')
+      .eq('id', id)
+      .limit(1);
+
+    if (perfilGestor && perfilGestor.length > 0) {
+      realUserId = perfilGestor[0].usuario_id;
+      console.log('ID é de perfil gestor, usuario_id:', realUserId);
+    } else {
+      // Verificar perfil professor
+      const { data: perfilProfessor } = await supabase
+        .from('perfis_professor')
+        .select('usuario_id')
+        .eq('id', id)
+        .limit(1);
+
+      if (perfilProfessor && perfilProfessor.length > 0) {
+        realUserId = perfilProfessor[0].usuario_id;
+        console.log('ID é de perfil professor, usuario_id:', realUserId);
+      } else {
+        // Verificar perfil aluno
+        const { data: perfilAluno } = await supabase
+          .from('perfis_aluno')
+          .select('usuario_id')
+          .eq('id', id)
+          .limit(1);
+
+        if (perfilAluno && perfilAluno.length > 0) {
+          realUserId = perfilAluno[0].usuario_id;
+          console.log('ID é de perfil aluno, usuario_id:', realUserId);
+        }
+      }
+    }
+
+    // Usar função SQL que contorna RLS
+    const { updateUserWithServiceRole } = await import('./userOperations.js');
+    
+    const result = await updateUserWithServiceRole(realUserId, {
       nome,
       email, 
       telefone,
