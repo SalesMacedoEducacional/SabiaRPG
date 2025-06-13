@@ -283,7 +283,7 @@ export function TotalProfessoresCard() {
               </SelectTrigger>
               <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {escolas.map((escola) => (
+                {(escolas || []).map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
@@ -428,7 +428,7 @@ export function TotalAlunosCard() {
               </SelectTrigger>
               <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {escolas.map((escola) => (
+                {(escolas || []).map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
