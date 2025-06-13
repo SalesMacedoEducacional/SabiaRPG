@@ -197,7 +197,7 @@ app.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
-    console.log('=== INICIANDO ATUALIZAÇÃO COM SQL DIRETO ===');
+    console.log('=== INICIANDO ATUALIZAÇÃO COM SUPABASE ===');
     console.log('ID recebido:', id);
     console.log('Dados para atualizar:', { nome, email, telefone, cpf, ativo });
     
@@ -271,7 +271,7 @@ app.put('/api/users/:id', async (req, res) => {
     res.json({
       success: true,
       message: "Usuário atualizado com sucesso",
-      data: updateResult.rows[0]
+      data: usuarioAtualizado
     });
 
   } catch (error) {
@@ -328,16 +328,17 @@ app.delete('/api/users/:id', async (req, res) => {
       }
     }
     
-    // Buscar dados do usuário antes da exclusão usando SQL direto
-    const buscarQuery = `SELECT id, nome, email, papel FROM usuarios WHERE id = $1`;
-    const buscarResult = await executeQuery(buscarQuery, [usuarioId]);
+    // Buscar dados do usuário antes da exclusão usando Supabase
+    const { data: usuario, error: userError } = await supabase
+      .from('usuarios')
+      .select('id, nome, email, papel')
+      .eq('id', usuarioId)
+      .single();
     
-    if (buscarResult.rows.length === 0) {
-      console.error('Usuário não encontrado para ID:', usuarioId);
+    if (userError || !usuario) {
+      console.error('Usuário não encontrado:', userError);
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    
-    const usuario = buscarResult.rows[0];
     
     console.log('Usuário encontrado para exclusão:', usuario);
     
@@ -355,21 +356,18 @@ app.delete('/api/users/:id', async (req, res) => {
       console.log('Perfil aluno excluído');
     }
     
-    // Excluir usuário usando SQL direto
-    const deleteQuery = `
-      DELETE FROM usuarios 
-      WHERE id = $1
-      RETURNING id, nome, email, cpf, telefone, ativo, papel
-    `;
+    // Excluir usuário usando Supabase
+    const { data: usuarioExcluido, error: deleteError } = await supabase
+      .from('usuarios')
+      .delete()
+      .eq('id', usuarioId)
+      .select()
+      .single();
     
-    const deleteResult = await executeQuery(deleteQuery, [usuarioId]);
-    
-    if (deleteResult.rows.length === 0) {
-      console.error('Erro ao excluir usuário - nenhum registro removido');
+    if (deleteError || !usuarioExcluido) {
+      console.error('Erro ao excluir usuário:', deleteError);
       return res.status(500).json({ message: "Erro ao excluir usuário" });
     }
-    
-    const usuarioExcluido = deleteResult.rows[0];
     
     console.log('SUCESSO: Usuário excluído:', usuarioExcluido);
     res.json({
