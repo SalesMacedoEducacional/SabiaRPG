@@ -36,39 +36,46 @@ app.get('/api/users/manager', async (req, res) => {
       let perfilId = user.id; // Por padrão, usar ID do usuário
       let tabelaPerfil = 'usuarios';
       
-      // Buscar ID da tabela de perfil usando Supabase para incluir perfis_aluno
-      if (user.papel === 'aluno') {
-        const { data: perfil } = await supabase
-          .from('perfis_aluno')
-          .select('id')
-          .eq('usuario_id', user.id)
-          .single();
-        if (perfil) {
-          perfilId = perfil.id;
-          tabelaPerfil = 'perfis_aluno';
-          console.log(`Usuário ${user.nome} - ID perfil aluno: ${perfilId}`);
-        }
-      } else if (user.papel === 'professor') {
-        const { data: perfil } = await supabase
-          .from('perfis_professor')
-          .select('id')
-          .eq('usuario_id', user.id)
-          .single();
-        if (perfil) {
-          perfilId = perfil.id;
-          tabelaPerfil = 'perfis_professor';
-          console.log(`Usuário ${user.nome} - ID perfil professor: ${perfilId}`);
+        // Buscar ID da tabela de perfil usando SQL direto para professor e gestor
+      if (user.papel === 'professor') {
+        try {
+          const queryPerfil = 'SELECT id FROM perfis_professor WHERE usuario_id = $1';
+          const resultPerfil = await executeQuery(queryPerfil, [user.id]);
+          if (resultPerfil.rows.length > 0) {
+            perfilId = resultPerfil.rows[0].id;
+            tabelaPerfil = 'perfis_professor';
+            console.log(`Usuário ${user.nome} - ID perfil professor: ${perfilId}`);
+          }
+        } catch (error) {
+          console.log(`Erro ao buscar perfil professor para ${user.nome}:`, error);
         }
       } else if (user.papel === 'gestor') {
-        const { data: perfil } = await supabase
-          .from('perfis_gestor')
-          .select('id')
-          .eq('usuario_id', user.id)
-          .single();
-        if (perfil) {
-          perfilId = perfil.id;
-          tabelaPerfil = 'perfis_gestor';
-          console.log(`Usuário ${user.nome} - ID perfil gestor: ${perfilId}`);
+        try {
+          const queryPerfil = 'SELECT id FROM perfis_gestor WHERE usuario_id = $1';
+          const resultPerfil = await executeQuery(queryPerfil, [user.id]);
+          if (resultPerfil.rows.length > 0) {
+            perfilId = resultPerfil.rows[0].id;
+            tabelaPerfil = 'perfis_gestor';
+            console.log(`Usuário ${user.nome} - ID perfil gestor: ${perfilId}`);
+          }
+        } catch (error) {
+          console.log(`Erro ao buscar perfil gestor para ${user.nome}:`, error);
+        }
+      } else if (user.papel === 'aluno') {
+        // Para alunos, usar Supabase já que perfis_aluno só existe no Supabase
+        try {
+          const { data: perfil } = await supabase
+            .from('perfis_aluno')
+            .select('id')
+            .eq('usuario_id', user.id)
+            .single();
+          if (perfil) {
+            perfilId = perfil.id;
+            tabelaPerfil = 'perfis_aluno';
+            console.log(`Usuário ${user.nome} - ID perfil aluno: ${perfilId}`);
+          }
+        } catch (error) {
+          console.log(`Erro ao buscar perfil aluno para ${user.nome}:`, error);
         }
       }
       
@@ -134,38 +141,49 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-// API de teste para validar IDs de perfil
+// API de teste para validar IDs de perfil com query direta
 app.get('/api/test-perfil/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('=== TESTANDO ID DE PERFIL ===');
+    console.log('=== TESTANDO ID DE PERFIL COM SQL DIRETO ===');
     console.log('ID recebido:', id);
     
-    // Testar se é perfil gestor
-    const { data: gestorData, error: gestorError } = await supabase
-      .from('perfis_gestor')
-      .select('id, usuario_id, ativo, cargo')
-      .eq('id', id)
-      .single();
+    // Testar com SQL direto primeiro
+    const testQuery = `
+      SELECT 'perfil_gestor' as tipo, id::text, usuario_id::text 
+      FROM perfis_gestor WHERE id = $1
+      UNION ALL
+      SELECT 'perfil_professor' as tipo, id::text, usuario_id::text 
+      FROM perfis_professor WHERE id = $1
+    `;
     
-    if (gestorData) {
-      console.log('Perfil gestor encontrado:', gestorData);
-      
-      // Buscar dados do usuário
-      const { data: userData } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('id', gestorData.usuario_id)
-        .single();
-      
+    const result = await executeQuery(testQuery, [id]);
+    
+    if (result.rows.length > 0) {
+      console.log('Perfil encontrado via SQL:', result.rows[0]);
       return res.json({
-        tipo: 'perfil_gestor',
-        perfil: gestorData,
-        usuario: userData
+        tipo: result.rows[0].tipo,
+        id: result.rows[0].id,
+        usuario_id: result.rows[0].usuario_id
       });
     }
     
-    console.log('Perfil gestor não encontrado, testando outros...');
+    // Testar também com Supabase para perfis_aluno
+    const { data: alunoData } = await supabase
+      .from('perfis_aluno')
+      .select('id, usuario_id')
+      .eq('id', id)
+      .single();
+    
+    if (alunoData) {
+      console.log('Perfil aluno encontrado via Supabase:', alunoData);
+      return res.json({
+        tipo: 'perfil_aluno',
+        perfil: alunoData
+      });
+    }
+    
+    console.log('ID não encontrado em nenhuma tabela de perfil');
     res.json({ tipo: 'nao_encontrado', id });
     
   } catch (error) {
