@@ -192,6 +192,82 @@ app.get('/api/test-perfil/:id', async (req, res) => {
   }
 });
 
+// Novos endpoints conforme especificação
+app.put('/api/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, telefone, cpf, ativo } = req.body;
+    
+    console.log('=== PUT /api/usuarios/:id ===');
+    console.log('ID do usuário:', id);
+    console.log('Dados:', { nome, email, telefone, cpf, ativo });
+
+    const { updateUserDirect } = await import('./directDatabase.js');
+    
+    const result = await updateUserDirect(id, {
+      nome,
+      email, 
+      telefone,
+      cpf,
+      ativo
+    });
+
+    if (!result.success) {
+      console.error('Falha na atualização:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário atualizado com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário atualizado com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na atualização:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+app.delete('/api/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('=== DELETE /api/usuarios/:id ===');
+    console.log('ID do usuário:', id);
+
+    const { deleteUserDirect } = await import('./directDatabase.js');
+    
+    const result = await deleteUserDirect(id);
+
+    if (!result.success) {
+      console.error('Falha na exclusão:', result.error);
+      return res.status(404).json({ message: result.error });
+    }
+
+    console.log('Usuário excluído com sucesso:', result.data);
+    
+    res.json({
+      success: true,
+      message: "Usuário excluído com sucesso",
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('ERRO na exclusão:', error);
+    res.status(500).json({ 
+      message: "Erro interno do servidor", 
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    });
+  }
+});
+
+// Manter endpoints antigos para compatibilidade
 app.put('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;

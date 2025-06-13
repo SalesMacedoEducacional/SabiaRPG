@@ -100,7 +100,7 @@ export default function UsersList() {
       console.log('Dados para envio:', data.userData);
       
       try {
-        const response = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
+        const response = await apiRequest('PUT', `/api/usuarios/${data.id}`, data.userData);
         console.log('Resposta da API recebida:', response);
         
         if (!response.ok) {
@@ -171,7 +171,7 @@ export default function UsersList() {
       console.log('ID do usuário:', userId);
       
       try {
-        const response = await apiRequest('DELETE', `/api/users/${userId}`);
+        const response = await apiRequest('DELETE', `/api/usuarios/${userId}`);
         console.log('Resposta da API recebida:', response);
         
         if (!response.ok) {
