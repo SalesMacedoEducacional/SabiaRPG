@@ -86,14 +86,35 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 async function startServer() {
   // Setup Vite dev server for frontend
   if (process.env.NODE_ENV === 'development') {
-    const vite = await createServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-      root: join(__dirname, '../')
-    });
-    
-    app.use(vite.ssrFixStacktrace);
-    app.use(vite.middlewares);
+    try {
+      const vite = await createServer({
+        server: { middlewareMode: true },
+        appType: 'spa'
+      });
+      
+      app.use(vite.ssrFixStacktrace);
+      app.use(vite.middlewares);
+    } catch (error) {
+      console.error('Error setting up Vite:', error);
+      // Fallback: serve a simple index.html
+      app.get('*', (req, res) => {
+        if (req.path.startsWith('/api/')) return;
+        res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SABI RPG</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/client/src/main.tsx"></script>
+</body>
+</html>
+        `);
+      });
+    }
   } else {
     // Production static files
     app.use(express.static(join(__dirname, '../dist')));
