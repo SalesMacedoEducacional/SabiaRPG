@@ -36,17 +36,18 @@ export async function updateUserDirect(userId: string, userData: any) {
     const papel = user.papel;
     console.log('Papel do usuário:', papel);
 
-    // Mapear papel para tabela de perfil
+    // Mapear papel para tabela de perfil (apenas tabelas que existem)
     let profileTable = null;
     switch (papel) {
       case 'professor':
         profileTable = 'perfis_professor';
         break;
-      case 'aluno':
-        profileTable = 'perfis_aluno';
-        break;
       case 'gestor':
         profileTable = 'perfis_gestor';
+        break;
+      case 'aluno':
+        // Tabela perfis_aluno não existe, pular
+        console.log('Perfil aluno não possui tabela específica');
         break;
     }
 
