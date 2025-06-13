@@ -69,11 +69,11 @@ export default function UsersList() {
   const queryClient = useQueryClient();
 
   const { data: usersData, isLoading, error, refetch } = useQuery<UsersResponse>({
-    queryKey: ['/api/users/manager', Date.now()], // Força cache único
+    queryKey: ['/api/users/manager'],
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    gcTime: 0,
+    gcTime: 0, // Remove do cache imediatamente
     refetchInterval: false,
     retry: false,
   });
@@ -154,9 +154,6 @@ export default function UsersList() {
       // Invalidar cache e recarregar dados do servidor
       await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
       
-      // Forçar reload da página para garantir dados atualizados
-      await refetch();
-      
       setShowEditDialog(false);
       setEditUser(null);
       
@@ -232,9 +229,6 @@ export default function UsersList() {
       
       // Invalidar cache e recarregar dados do servidor
       await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
-      
-      // Forçar reload da página para garantir dados atualizados
-      await refetch();
       
       setShowDeleteDialog(false);
       setUserToDelete(null);
