@@ -198,32 +198,31 @@ app.put('/api/users/:id', async (req, res) => {
     const { nome, email, telefone, cpf, ativo } = req.body;
     
     console.log('=== ATUALIZANDO USUÁRIO ===');
-    console.log('ID:', id);
+    console.log('ID recebido:', id);
     console.log('Dados:', { nome, email, telefone, cpf, ativo });
 
-    // Atualizar diretamente na tabela usuarios do Supabase
-    const { data: usuarioAtualizado, error: updateError } = await supabase
-      .from('usuarios')
-      .update({ nome, email, telefone, cpf, ativo })
-      .eq('id', id)
-      .select();
+    // Usar função que contorna limitações do RLS
+    const { updateUserDirect } = await import('./userOperations.js');
+    
+    const result = await updateUserDirect(id, {
+      nome,
+      email, 
+      telefone,
+      cpf,
+      ativo
+    });
 
-    if (updateError) {
-      console.error('Erro ao atualizar usuário:', updateError);
-      return res.status(500).json({ message: "Erro ao atualizar usuário" });
+    if (!result.success) {
+      console.error('Falha na atualização:', result.error);
+      return res.status(404).json({ message: result.error });
     }
 
-    if (!usuarioAtualizado || usuarioAtualizado.length === 0) {
-      console.error('Nenhum usuário foi atualizado');
-      return res.status(404).json({ message: "Usuário não encontrado" });
-    }
-
-    console.log('Usuário atualizado com sucesso:', usuarioAtualizado[0]);
+    console.log('Usuário atualizado com sucesso:', result.data);
     
     res.json({
       success: true,
       message: "Usuário atualizado com sucesso",
-      data: usuarioAtualizado[0]
+      data: result.data
     });
 
   } catch (error) {
