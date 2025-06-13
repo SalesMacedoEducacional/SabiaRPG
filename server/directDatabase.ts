@@ -36,7 +36,7 @@ export async function updateUserDirect(userId: string, userData: any) {
     const papel = user.papel;
     console.log('Papel do usuário:', papel);
 
-    // Mapear papel para tabela de perfil
+    // Mapear papel para tabela de perfil (apenas tabelas existentes)
     let profileTable = null;
     switch (papel) {
       case 'professor':
@@ -46,7 +46,9 @@ export async function updateUserDirect(userId: string, userData: any) {
         profileTable = 'perfis_gestor';
         break;
       case 'aluno':
-        profileTable = 'perfis_aluno';
+        // Tabela perfis_aluno não existe no banco
+        profileTable = null;
+        console.log('Aluno não possui tabela de perfil específica');
         break;
     }
 
@@ -130,7 +132,7 @@ export async function deleteUserDirect(userId: string) {
     const papel = userData.papel;
     console.log('Papel do usuário:', papel);
 
-    // Mapear papel para tabela de perfil
+    // Mapear papel para tabela de perfil (apenas tabelas existentes)
     let profileTable = null;
     switch (papel) {
       case 'professor':
@@ -140,7 +142,9 @@ export async function deleteUserDirect(userId: string) {
         profileTable = 'perfis_gestor';
         break;
       case 'aluno':
-        profileTable = 'perfis_aluno';
+        // Tabela perfis_aluno não existe no banco
+        profileTable = null;
+        console.log('Aluno não possui tabela de perfil específica');
         break;
     }
 
