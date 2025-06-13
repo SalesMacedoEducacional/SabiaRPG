@@ -2,7 +2,8 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import * as dotenv from 'dotenv';
-import { createServer } from 'vite';
+import { createServer } from 'http';
+import { setupVite, serveStatic, log } from './vite.js';
 
 dotenv.config();
 
@@ -82,51 +83,187 @@ app.delete('/api/usuarios/:id', async (req, res) => {
   }
 });
 
+// Game API endpoints
+app.get('/api/locations', async (req, res) => {
+  try {
+    const locations = [
+      {
+        id: 1,
+        name: 'Teresina - A Cidade das Duas Correntes',
+        description: 'Fortaleza Arcanomural: As muralhas de pedra negra são cravadas de runas que se acendem à noite.',
+        coordinates: { x: 45, y: 35 },
+        icon: 'castle',
+        unlockLevel: 1
+      },
+      {
+        id: 2,
+        name: 'Serra da Capivara - O Desfiladeiro Ancestral',
+        description: 'Cânions Sangrentos: Rochas avermelhadas são marcadas por ecochifres ancestrais.',
+        coordinates: { x: 25, y: 55 },
+        icon: 'mountain',
+        unlockLevel: 3
+      },
+      {
+        id: 3,
+        name: 'Delta do Parnaíba - As Corredeiras Encantadas',
+        description: 'Ilha das Sereianas: No labirinto de canais, pequenas sereias tecem redes de magia.',
+        coordinates: { x: 20, y: 25 },
+        icon: 'water',
+        unlockLevel: 5
+      },
+      {
+        id: 4,
+        name: 'Oeiras - O Enclave Barroco',
+        description: 'Igreja dos Ecos: Ao tocar o sino talhado em mármore negro, vozes ancestrais sussurram segredos.',
+        coordinates: { x: 55, y: 45 },
+        icon: 'landmark',
+        unlockLevel: 7
+      }
+    ];
+    res.json(locations);
+  } catch (error) {
+    console.error('Erro ao buscar localizações:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/learning-paths', async (req, res) => {
+  try {
+    const learningPaths = [
+      {
+        id: 1,
+        title: 'Fundamentos da Matemática',
+        description: 'Explore os mistérios dos números através de aventuras épicas.',
+        area: 'Matemática',
+        difficulty: 1,
+        requiredLevel: 1,
+        locationId: 1
+      },
+      {
+        id: 2,
+        title: 'Língua Portuguesa Ancestral',
+        description: 'Desvende os segredos da comunicação através de runas antigas.',
+        area: 'Português',
+        difficulty: 1,
+        requiredLevel: 1,
+        locationId: 1
+      },
+      {
+        id: 3,
+        title: 'Ciências da Natureza',
+        description: 'Descubra os elementos místicos que regem o mundo natural.',
+        area: 'Ciências',
+        difficulty: 2,
+        requiredLevel: 3,
+        locationId: 2
+      }
+    ];
+    res.json(learningPaths);
+  } catch (error) {
+    console.error('Erro ao buscar caminhos de aprendizagem:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/missions', async (req, res) => {
+  try {
+    const missions = [
+      {
+        id: 1,
+        title: 'A Primeira Soma',
+        description: 'Ajude os mercadores de Teresina a calcular seus lucros.',
+        area: 'Matemática',
+        difficulty: 1,
+        requiredLevel: 1,
+        xpReward: 100,
+        pathId: 1
+      },
+      {
+        id: 2,
+        title: 'Decifrando Runas',
+        description: 'Traduza as antigas escritas encontradas nas muralhas.',
+        area: 'Português',
+        difficulty: 1,
+        requiredLevel: 1,
+        xpReward: 100,
+        pathId: 2
+      }
+    ];
+    res.json(missions);
+  } catch (error) {
+    console.error('Erro ao buscar missões:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/user-progress', async (req, res) => {
+  try {
+    res.json([]);
+  } catch (error) {
+    console.error('Erro ao buscar progresso do usuário:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/achievements', async (req, res) => {
+  try {
+    const achievements = [
+      {
+        id: 1,
+        title: 'Primeiro Passo',
+        description: 'Complete sua primeira missão',
+        iconUrl: '/icons/first-step.png',
+        xpReward: 50
+      },
+      {
+        id: 2,
+        title: 'Explorador Iniciante',
+        description: 'Visite 3 localizações diferentes',
+        iconUrl: '/icons/explorer.png',
+        xpReward: 150
+      }
+    ];
+    res.json(achievements);
+  } catch (error) {
+    console.error('Erro ao buscar conquistas:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/user-achievements', async (req, res) => {
+  try {
+    res.json([]);
+  } catch (error) {
+    console.error('Erro ao buscar conquistas do usuário:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/user-diagnostics', async (req, res) => {
+  try {
+    res.json([]);
+  } catch (error) {
+    console.error('Erro ao buscar diagnósticos do usuário:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 // Setup server startup
 async function startServer() {
-  // Setup Vite dev server for frontend
+  const PORT = Number(process.env.PORT) || 5000;
+  
   if (process.env.NODE_ENV === 'development') {
-    try {
-      const vite = await createServer({
-        server: { middlewareMode: true },
-        appType: 'spa'
-      });
-      
-      app.use(vite.ssrFixStacktrace);
-      app.use(vite.middlewares);
-    } catch (error) {
-      console.error('Error setting up Vite:', error);
-      // Fallback: serve a simple index.html
-      app.get('*', (req, res) => {
-        if (req.path.startsWith('/api/')) return;
-        res.send(`
-<!DOCTYPE html>
-<html>
-<head>
-  <title>SABI RPG</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/client/src/main.tsx"></script>
-</body>
-</html>
-        `);
-      });
-    }
+    const server = createServer(app);
+    await setupVite(app, server);
+    server.listen(PORT, '0.0.0.0', () => {
+      log(`serving on port ${PORT}`);
+    });
   } else {
-    // Production static files
-    app.use(express.static(join(__dirname, '../dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(join(__dirname, '../dist/index.html'));
+    serveStatic(app);
+    app.listen(PORT, '0.0.0.0', () => {
+      log(`serving on port ${PORT}`);
     });
   }
-
-  const PORT = Number(process.env.PORT) || 5000;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[express] serving on port ${PORT}`);
-  });
 }
 
 startServer().catch(console.error);
