@@ -215,7 +215,7 @@ export function TotalProfessoresCard() {
         
         setTotalProfessores(professoresData.total || 0);
         setProfessores(professoresData.professores || []);
-        setEscolas(escolasData || []);
+        setEscolas(Array.isArray(escolasData) ? escolasData : []);
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
         toast({
@@ -360,7 +360,7 @@ export function TotalAlunosCard() {
         
         setTotalAlunos(alunosData.total || 0);
         setAlunos(alunosData.alunos || []);
-        setEscolas(escolasData || []);
+        setEscolas(Array.isArray(escolasData) ? escolasData : []);
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
         toast({
