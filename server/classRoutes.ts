@@ -105,37 +105,73 @@ export function registerClassRoutes(
           // Garantimos que o gestor só veja as turmas da escola dele
           console.log('Filtrando para mostrar apenas escolas vinculadas ao gestor logado...');
           
-          // Verificar se foi especificado escola_id na query
-          const escolaIdConsulta = escola_id as string;
+          // Filtrar escolas vinculadas ao gestor logado
+          const escolasVinculadas = escolasGestor?.filter(escola => escola.gestor_id === req.user.id) || [];
+          console.log(`Escolas vinculadas ao gestor: ${escolasVinculadas.length}`);
           
-          if (!escolaIdConsulta) {
-            console.log('Nenhuma escola especificada, retornando array vazio');
+          if (escolasVinculadas.length === 0) {
+            console.log('Gestor não possui escolas vinculadas');
             return res.status(200).json([]);
           }
           
-          console.log('Filtrando turmas pela escola:', escolaIdConsulta);
+          const escolaIdsVinculadas = escolasVinculadas.map(escola => escola.id);
           
-          // Buscar turmas filtradas por escola
-          const { data: turmas, error } = await supabase
-            .from('turmas')
-            .select('*')
-            .eq('escola_id', escolaIdConsulta)
-            .order('nome');
+          // Verificar se foi especificado escola_id na query
+          const escolaIdConsulta = escola_id as string;
+          
+          if (escolaIdConsulta) {
+            // Se especificou escola_id, verificar se é uma escola vinculada ao gestor
+            if (!escolaIdsVinculadas.includes(escolaIdConsulta)) {
+              console.log('Escola especificada não está vinculada ao gestor');
+              return res.status(403).json({ message: 'Acesso negado à escola especificada' });
+            }
             
-          if (error) {
-            console.error('Erro ao buscar turmas:', error);
-            return res.status(500).json({ message: 'Erro ao buscar turmas' });
+            console.log('Filtrando turmas pela escola:', escolaIdConsulta);
+            
+            // Buscar turmas filtradas por escola específica
+            const { data: turmas, error } = await supabase
+              .from('turmas')
+              .select('*')
+              .eq('escola_id', escolaIdConsulta)
+              .order('nome');
+              
+            if (error) {
+              console.error('Erro ao buscar turmas:', error);
+              return res.status(500).json({ message: 'Erro ao buscar turmas' });
+            }
+            
+            // Mapear os dados da tabela para o formato esperado pelo frontend
+            const turmasFormatadas = turmas?.map(turma => ({
+              ...turma,
+              nome_turma: turma.nome,
+            }));
+            
+            console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para escola específica`);
+            return res.status(200).json(turmasFormatadas);
+          } else {
+            // Se não especificou escola_id, buscar turmas de todas as escolas vinculadas
+            console.log('Buscando turmas de todas as escolas vinculadas ao gestor');
+            
+            const { data: turmas, error } = await supabase
+              .from('turmas')
+              .select('*')
+              .in('escola_id', escolaIdsVinculadas)
+              .order('nome');
+              
+            if (error) {
+              console.error('Erro ao buscar turmas:', error);
+              return res.status(500).json({ message: 'Erro ao buscar turmas' });
+            }
+            
+            // Mapear os dados da tabela para o formato esperado pelo frontend
+            const turmasFormatadas = turmas?.map(turma => ({
+              ...turma,
+              nome_turma: turma.nome,
+            }));
+            
+            console.log(`Retornando ${turmasFormatadas?.length || 0} turmas de todas as escolas vinculadas`);
+            return res.status(200).json(turmasFormatadas);
           }
-          
-          // Mapear os dados da tabela para o formato esperado pelo frontend
-          const turmasFormatadas = turmas?.map(turma => ({
-            ...turma,
-            nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
-          }));
-          
-          console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
-            
-          return res.status(200).json(turmasFormatadas);
         } else {
           // Para administradores e outros usuários, também aplicar filtro por escola
           const escolaIdConsulta = escola_id as string;

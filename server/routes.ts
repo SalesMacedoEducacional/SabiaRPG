@@ -1718,55 +1718,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar todos os usuários com papel 'professor'
-      const { data: professores, error } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          telefone,
-          papel
-        `)
-        .eq('papel', 'professor');
+      if (escolaIds.length === 0) {
+        console.log('Gestor não possui escolas vinculadas');
+        return res.json({
+          total: 0,
+          professores: []
+        });
+      }
 
-      if (error) {
-        console.error("Erro ao buscar professores:", error);
+      // Buscar perfis de professores vinculados às escolas do gestor
+      const { data: perfisProfessores, error: perfisError } = await supabase
+        .from('perfis_professor')
+        .select(`
+          usuario_id,
+          escola_id,
+          ativo,
+          usuarios!perfis_professor_usuario_id_fkey(
+            id,
+            nome,
+            email,
+            cpf,
+            telefone,
+            papel
+          )
+        `)
+        .in('escola_id', escolaIds)
+        .eq('ativo', true);
+
+      if (perfisError) {
+        console.error("Erro ao buscar perfis de professores:", perfisError);
         return res.status(500).json({ message: "Erro ao buscar professores" });
       }
 
-      console.log(`Professores encontrados no banco: ${professores?.length || 0}`);
+      console.log(`Perfis de professores encontrados: ${perfisProfessores?.length || 0}`);
 
-      // Buscar perfis de professores para obter vínculo com escolas
-      const usuarioIds = professores?.map(p => p.id) || [];
-      let perfisProfessores = [];
-      
-      if (usuarioIds.length > 0) {
-        const { data } = await supabase
-          .from('perfis_professor')
-          .select('usuario_id, escola_id, ativo')
-          .in('usuario_id', usuarioIds);
-        perfisProfessores = data || [];
-      }
-
-      // Combinar dados
-      const professoresFormatados = professores?.map(prof => {
-        const perfil = perfisProfessores?.find(p => p.usuario_id === prof.id);
-        const escola = perfil ? escolas?.find(e => e.id === perfil.escola_id) : null;
+      // Combinar dados dos professores com suas escolas
+      const professoresFormatados = perfisProfessores?.map(perfil => {
+        const escola = escolas?.find(e => e.id === perfil.escola_id);
         
         return {
-          id: prof.id,
+          id: perfil.usuario_id,
           usuarios: {
-            id: prof.id,
-            nome: prof.nome || 'Nome não informado',
-            email: prof.email || 'Email não informado',
-            cpf: prof.cpf || 'CPF não informado',
-            telefone: prof.telefone || 'N/A'
+            id: perfil.usuarios?.id || perfil.usuario_id,
+            nome: perfil.usuarios?.nome || 'Nome não informado',
+            email: perfil.usuarios?.email || 'Email não informado',
+            cpf: perfil.usuarios?.cpf || 'CPF não informado',
+            telefone: perfil.usuarios?.telefone || 'N/A'
           },
-          escola_nome: escola?.nome || 'Sem vínculo',
+          escola_nome: escola?.nome || 'Escola não informada',
+          escola_id: perfil.escola_id,
           disciplinas: [],
-          ativo: perfil?.ativo ?? true
+          ativo: perfil.ativo
         };
       }) || [];
 
@@ -1830,43 +1832,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas?.map(e => e.id) || [];
 
-      // Buscar usuários com papel 'aluno' - não há relação direta com escola na tabela usuarios
-      const { data: alunos, error } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          papel,
-          telefone
-        `)
-        .eq('papel', 'aluno');
+      if (escolaIds.length === 0) {
+        console.log('Gestor não possui escolas vinculadas');
+        return res.json({
+          total: 0,
+          alunos: []
+        });
+      }
 
-      if (error) {
-        console.error("Erro ao buscar alunos:", error);
+      // Buscar turmas das escolas do gestor
+      const { data: turmas, error: turmasError } = await supabase
+        .from('turmas')
+        .select('id, nome, escola_id')
+        .in('escola_id', escolaIds);
+
+      if (turmasError) {
+        console.error("Erro ao buscar turmas:", turmasError);
+        return res.status(500).json({ message: "Erro ao buscar turmas" });
+      }
+
+      const turmaIds = turmas?.map(t => t.id) || [];
+
+      if (turmaIds.length === 0) {
+        console.log('Nenhuma turma encontrada nas escolas do gestor');
+        return res.json({
+          total: 0,
+          alunos: []
+        });
+      }
+
+      // Buscar perfis de alunos vinculados às turmas das escolas do gestor
+      const { data: perfisAlunos, error: perfisError } = await supabase
+        .from('perfis_aluno')
+        .select(`
+          usuario_id,
+          turma_id,
+          ativo,
+          usuarios!perfis_aluno_usuario_id_fkey(
+            id,
+            nome,
+            email,
+            cpf,
+            telefone,
+            papel
+          ),
+          turmas!perfis_aluno_turma_id_fkey(
+            id,
+            nome,
+            escola_id
+          )
+        `)
+        .in('turma_id', turmaIds)
+        .eq('ativo', true);
+
+      if (perfisError) {
+        console.error("Erro ao buscar perfis de alunos:", perfisError);
         return res.status(500).json({ message: "Erro ao buscar alunos" });
       }
 
-      console.log(`Alunos encontrados no banco: ${alunos?.length || 0}`);
+      console.log(`Perfis de alunos encontrados: ${perfisAlunos?.length || 0}`);
 
-      // Formatar dados dos alunos (sem vinculação específica a escolas)
-      const alunosFormatados = alunos?.map(aluno => {
+      // Combinar dados dos alunos com suas turmas e escolas
+      const alunosFormatados = perfisAlunos?.map(perfil => {
+        const turma = turmas?.find(t => t.id === perfil.turma_id);
+        const escola = escolas?.find(e => e.id === turma?.escola_id);
+        
         return {
-          id: aluno.id,
+          id: perfil.usuario_id,
           usuarios: {
-            id: aluno.id,
-            nome: aluno.nome || 'Nome não informado',
-            email: aluno.email || 'Email não informado',
-            cpf: aluno.cpf || 'CPF não informado',
-            telefone: aluno.telefone || 'N/A'
+            id: perfil.usuarios?.id || perfil.usuario_id,
+            nome: perfil.usuarios?.nome || 'Nome não informado',
+            email: perfil.usuarios?.email || 'Email não informado',
+            cpf: perfil.usuarios?.cpf || 'CPF não informado',
+            telefone: perfil.usuarios?.telefone || 'N/A'
           },
           turmas: {
-            id: '',
-            nome: 'Não vinculado'
+            id: perfil.turma_id,
+            nome: turma?.nome || 'Turma não informada'
           },
           matriculas: [],
-          escola_nome: 'Geral'
+          escola_nome: escola?.nome || 'Escola não informada',
+          escola_id: turma?.escola_id,
+          ativo: perfil.ativo
         };
       }) || [];
 
