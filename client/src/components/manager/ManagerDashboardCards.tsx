@@ -195,6 +195,8 @@ export function TotalProfessoresCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        console.log('Requisição API: GET /api/professores', '');
+        console.log('Requisição API: GET /api/escolas/gestor', '');
         
         // Buscar professores e escolas em paralelo
         const [professoresResponse, escolasResponse] = await Promise.all([
@@ -202,8 +204,14 @@ export function TotalProfessoresCard() {
           apiRequest("GET", "/api/escolas/gestor")
         ]);
         
+        console.log('Resposta GET /api/professores: status', professoresResponse.status);
+        console.log('Resposta GET /api/escolas/gestor: status', escolasResponse.status);
+        
         const professoresData = await professoresResponse.json();
         const escolasData = await escolasResponse.json();
+        
+        console.log('Professores recebidos:', professoresData);
+        console.log('Escolas vinculadas recebidas para professores:', escolasData);
         
         setTotalProfessores(professoresData.total || 0);
         setProfessores(professoresData.professores || []);
@@ -240,7 +248,7 @@ export function TotalProfessoresCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalProfessores}</div>
-            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
             
             <Button 
               variant="outline" 
@@ -385,7 +393,7 @@ export function TotalAlunosCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalAlunos}</div>
-            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
             
             <Button 
               variant="outline" 
@@ -483,11 +491,18 @@ export function TotalTurmasCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        console.log('Requisição API: GET /api/turmas', '');
+        
         const response = await apiRequest("GET", "/api/turmas");
+        
+        console.log('Resposta GET /api/turmas: status', response.status);
+        
         const data = await response.json();
         
-        setTotalTurmas(data.total || 0);
-        setTurmas(data.turmas || []);
+        console.log('Turmas recebidas:', data);
+        
+        setTotalTurmas(data.length || 0);
+        setTurmas(data || []);
       } catch (error) {
         console.error("Erro ao buscar turmas:", error);
         toast({
@@ -520,7 +535,7 @@ export function TotalTurmasCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalTurmas}</div>
-            <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
+            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
             
             <Button 
               variant="outline" 
