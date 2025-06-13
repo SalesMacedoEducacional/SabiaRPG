@@ -32,6 +32,7 @@ import {
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import ManagerProfile from '../components/manager/ManagerProfile';
+import AdminPanel from '../components/admin/AdminPanel';
 
 /**
  * Dashboard do Gestor
@@ -96,7 +97,7 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[#4a4639] border-b border-accent">
+          <TabsList className="grid grid-cols-5 gap-0 bg-[#4a4639] border-b border-accent">
             <TabsTrigger 
               value="overview" 
               className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
@@ -104,6 +105,15 @@ export default function ManagerDashboard() {
               <span className="flex items-center text-white">
                 <Home size={14} className="mr-1.5" />
                 Visão Geral
+              </span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="admin" 
+              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
+            >
+              <span className="flex items-center text-white">
+                <Users size={14} className="mr-1.5" />
+                Painel Admin
               </span>
             </TabsTrigger>
             <TabsTrigger 
@@ -283,6 +293,13 @@ export default function ManagerDashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+          </TabsContent>
+          
+          {/* Tab do Painel Administrativo */}
+          <TabsContent value="admin">
+            <div className="p-6">
+              <AdminPanel />
             </div>
           </TabsContent>
           

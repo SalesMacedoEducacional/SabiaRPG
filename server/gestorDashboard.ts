@@ -79,11 +79,14 @@ router.get('/professores', isAuthenticated, isManager, async (req, res) => {
     }
     
     // Primeiro, buscar todas as escolas do gestor
+    console.log('Buscando escolas para gestor (professores):', req.user.id);
+    
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')
       .select('id')
-      .eq('gestor_id', req.user.id)
-      .eq('ativo', true);
+      .eq('gestor_id', req.user.id);
+      
+    console.log('Escolas encontradas para query professores:', escolas?.length || 0);
     
     if (escolasError) {
       console.error('Erro ao buscar escolas do gestor:', escolasError);
