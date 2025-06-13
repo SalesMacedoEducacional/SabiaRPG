@@ -197,76 +197,24 @@ app.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, telefone, cpf, ativo } = req.body;
     
-    console.log('=== INICIANDO ATUALIZAÇÃO COM SUPABASE ===');
-    console.log('ID recebido:', id);
-    console.log('Dados para atualizar:', { nome, email, telefone, cpf, ativo });
-    
-    // Usar SQL direto para identificar tipo de ID
-    const identificarQuery = `
-      SELECT 'perfil_gestor' as tipo, usuario_id::text
-      FROM perfis_gestor WHERE id = $1
-      UNION ALL
-      SELECT 'perfil_professor' as tipo, usuario_id::text
-      FROM perfis_professor WHERE id = $1
-    `;
-    
-    const identificarResult = await executeQuery(identificarQuery, [id]);
-    
-    let usuarioId = null;
-    let tipoTabela = null;
-    
-    if (identificarResult.rows.length > 0) {
-      usuarioId = identificarResult.rows[0].usuario_id;
-      tipoTabela = identificarResult.rows[0].tipo;
-      console.log(`Perfil encontrado via SQL: ${tipoTabela}, Usuario ID: ${usuarioId}`);
-    } else {
-      // Verificar perfil_aluno usando Supabase
-      const { data: perfilAluno } = await supabase
-        .from('perfis_aluno')
-        .select('usuario_id')
-        .eq('id', id)
-        .single();
-      
-      if (perfilAluno) {
-        usuarioId = perfilAluno.usuario_id;
-        tipoTabela = 'perfil_aluno';
-        console.log(`Perfil aluno encontrado: Usuario ID: ${usuarioId}`);
-      } else {
-        // É ID de usuário direto
-        usuarioId = id;
-        tipoTabela = 'usuario_direto';
-        console.log(`ID é de usuário direto: ${usuarioId}`);
-      }
-    }
-    
-    // Atualizar usuário usando Supabase (dados reais)
+    console.log('=== ATUALIZANDO USUÁRIO ===');
+    console.log('ID:', id);
+    console.log('Dados:', { nome, email, telefone, cpf, ativo });
+
+    // Atualizar diretamente na tabela usuarios do Supabase
     const { data: usuarioAtualizado, error: updateError } = await supabase
       .from('usuarios')
       .update({ nome, email, telefone, cpf, ativo })
-      .eq('id', usuarioId)
+      .eq('id', id)
       .select()
       .single();
-    
+
     if (updateError || !usuarioAtualizado) {
       console.error('Erro ao atualizar usuário:', updateError);
-      return res.status(404).json({ message: "Usuário não encontrado para atualização" });
+      return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    
+
     console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
-    
-    // Atualizar perfil correspondente usando SQL direto
-    if (tipoTabela === 'perfil_professor') {
-      const updatePerfilQuery = `UPDATE perfis_professor SET ativo = $1 WHERE id = $2`;
-      await executeQuery(updatePerfilQuery, [ativo, id]);
-      console.log('Perfil professor atualizado');
-    } else if (tipoTabela === 'perfil_gestor') {
-      const updatePerfilQuery = `UPDATE perfis_gestor SET ativo = $1 WHERE id = $2`;
-      await executeQuery(updatePerfilQuery, [ativo, id]);
-      console.log('Perfil gestor atualizado');
-    } else if (tipoTabela === 'perfil_aluno') {
-      await supabase.from('perfis_aluno').update({ ativo }).eq('id', id);
-      console.log('Perfil aluno atualizado');
-    }
     
     res.json({
       success: true,
@@ -287,89 +235,50 @@ app.delete('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    console.log('=== INICIANDO EXCLUSÃO COM SQL DIRETO ===');
-    console.log('ID recebido:', id);
-    
-    // Usar SQL direto para identificar tipo de ID
-    const identificarQuery = `
-      SELECT 'perfil_gestor' as tipo, usuario_id::text
-      FROM perfis_gestor WHERE id = $1
-      UNION ALL
-      SELECT 'perfil_professor' as tipo, usuario_id::text
-      FROM perfis_professor WHERE id = $1
-    `;
-    
-    const identificarResult = await executeQuery(identificarQuery, [id]);
-    
-    let usuarioId = null;
-    let tipoTabela = null;
-    
-    if (identificarResult.rows.length > 0) {
-      usuarioId = identificarResult.rows[0].usuario_id;
-      tipoTabela = identificarResult.rows[0].tipo;
-      console.log(`Perfil encontrado via SQL: ${tipoTabela}, Usuario ID: ${usuarioId}`);
-    } else {
-      // Verificar perfil_aluno usando Supabase
-      const { data: perfilAluno } = await supabase
-        .from('perfis_aluno')
-        .select('usuario_id')
-        .eq('id', id)
-        .single();
-      
-      if (perfilAluno) {
-        usuarioId = perfilAluno.usuario_id;
-        tipoTabela = 'perfil_aluno';
-        console.log(`Perfil aluno encontrado: Usuario ID: ${usuarioId}`);
-      } else {
-        // É ID de usuário direto
-        usuarioId = id;
-        tipoTabela = 'usuario_direto';
-        console.log(`ID é de usuário direto: ${usuarioId}`);
-      }
-    }
-    
-    // Buscar dados do usuário antes da exclusão usando Supabase
-    const { data: usuario, error: userError } = await supabase
+    console.log('=== EXCLUINDO USUÁRIO ===');
+    console.log('ID:', id);
+
+    // Buscar usuário antes de excluir
+    const { data: usuario, error: fetchError } = await supabase
       .from('usuarios')
-      .select('id, nome, email, papel')
-      .eq('id', usuarioId)
+      .select('*')
+      .eq('id', id)
       .single();
-    
-    if (userError || !usuario) {
-      console.error('Usuário não encontrado:', userError);
+
+    if (fetchError || !usuario) {
+      console.error('Usuário não encontrado:', fetchError);
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    
+
     console.log('Usuário encontrado para exclusão:', usuario);
-    
-    // Excluir perfil primeiro usando SQL direto
-    if (tipoTabela === 'perfil_professor') {
-      const deletePerfilQuery = `DELETE FROM perfis_professor WHERE id = $1`;
-      await executeQuery(deletePerfilQuery, [id]);
-      console.log('Perfil professor excluído');
-    } else if (tipoTabela === 'perfil_gestor') {
-      const deletePerfilQuery = `DELETE FROM perfis_gestor WHERE id = $1`;
-      await executeQuery(deletePerfilQuery, [id]);
+
+    // Excluir perfis relacionados primeiro
+    if (usuario.papel === 'gestor') {
+      await supabase.from('perfis_gestor').delete().eq('usuario_id', id);
       console.log('Perfil gestor excluído');
-    } else if (tipoTabela === 'perfil_aluno') {
-      await supabase.from('perfis_aluno').delete().eq('id', id);
+    } else if (usuario.papel === 'professor') {
+      await supabase.from('perfis_professor').delete().eq('usuario_id', id);
+      console.log('Perfil professor excluído');
+    } else if (usuario.papel === 'aluno') {
+      await supabase.from('perfis_aluno').delete().eq('usuario_id', id);
       console.log('Perfil aluno excluído');
     }
-    
-    // Excluir usuário usando Supabase
+
+    // Excluir usuário
     const { data: usuarioExcluido, error: deleteError } = await supabase
       .from('usuarios')
       .delete()
-      .eq('id', usuarioId)
+      .eq('id', id)
       .select()
       .single();
-    
+
     if (deleteError || !usuarioExcluido) {
       console.error('Erro ao excluir usuário:', deleteError);
       return res.status(500).json({ message: "Erro ao excluir usuário" });
     }
+
+    console.log('Usuário excluído com sucesso:', usuarioExcluido);
     
-    console.log('SUCESSO: Usuário excluído:', usuarioExcluido);
     res.json({
       success: true,
       message: "Usuário excluído com sucesso",

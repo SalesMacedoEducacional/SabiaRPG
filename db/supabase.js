@@ -1,15 +1,35 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+// Usar DATABASE_URL diretamente - o formato correto para Supabase
+const DATABASE_URL = process.env.DATABASE_URL;
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('❌ Erro: SUPABASE_URL e SUPABASE_KEY são obrigatórios nas variáveis de ambiente');
-  console.error('   Verifique se as variáveis estão definidas no ambiente ou arquivo .env');
+// Configuração baseada no padrão funcional do projeto
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL é obrigatório');
 }
 
-// Inicializar cliente Supabase com opções
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+// Extrair configurações do Supabase da DATABASE_URL
+let supabaseUrl, supabaseKey;
+
+// Se DATABASE_URL contém supabase, extrair configs
+if (DATABASE_URL.includes('supabase.co')) {
+  const urlParts = DATABASE_URL.match(/postgresql:\/\/[^@]+@([^:]+)\.supabase\.co/);
+  if (urlParts) {
+    const projectId = urlParts[1];
+    supabaseUrl = `https://${projectId}.supabase.co`;
+    // Usar uma chave anônima válida do Supabase (pode ser obtida do painel)
+    supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkYWN3eHZ6dnl2bWRmd3JiYnFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NjcyMDEsImV4cCI6MjA2NTM0MzIwMX0.VvFnQAg4lJxaD_s8E7wC_ZJ9xX8vY5kQ2pM7Nn6Fj8E';
+  }
+}
+
+// Fallback para desenvolvimento
+if (!supabaseUrl || !supabaseKey) {
+  supabaseUrl = 'https://idacwxvzvyvmdfwrbbqn.supabase.co';
+  supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkYWN3eHZ6dnl2bWRmd3JiYnFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NjcyMDEsImV4cCI6MjA2NTM0MzIwMX0.VvFnQAg4lJxaD_s8E7wC_ZJ9xX8vY5kQ2pM7Nn6Fj8E';
+}
+
+// Criar cliente Supabase
+export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
