@@ -88,11 +88,9 @@ export function TotalEscolasCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/escolas");
-        const data = await response.json();
-        
-        setTotalEscolas(data.total || 0);
-        setEscolas(data.escolas || []);
+        const response = await apiRequest("GET", "/api/gestor/escolas");
+        setTotalEscolas(Array.isArray(response) ? response.length : 0);
+        setEscolas(Array.isArray(response) ? response : []);
       } catch (error) {
         console.error("Erro ao buscar escolas:", error);
         toast({
@@ -107,6 +105,43 @@ export function TotalEscolasCard() {
 
     fetchData();
   }, [toast]);
+
+  const handleEditEscola = (escola: Escola) => {
+    toast({
+      title: "Função em desenvolvimento",
+      description: "A edição de escola será implementada em breve.",
+    });
+  };
+
+  const handleDeleteEscola = (escola: Escola) => {
+    setEscolaToDelete(escola);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!escolaToDelete) return;
+    
+    try {
+      await apiRequest('DELETE', `/api/escolas/${escolaToDelete.id}`);
+      const response = await apiRequest("GET", "/api/gestor/escolas");
+      setTotalEscolas(Array.isArray(response) ? response.length : 0);
+      setEscolas(Array.isArray(response) ? response : []);
+      
+      toast({
+        title: "Escola excluída",
+        description: "A escola foi excluída com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a escola.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setEscolaToDelete(null);
+    }
+  };
 
   return (
     <>
@@ -200,6 +235,34 @@ export function TotalEscolasCard() {
               </TableBody>
             </Table>
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmação de exclusão */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md bg-[#2d2a21] border-[#D47C06]">
+          <DialogHeader>
+            <DialogTitle className="text-white">Confirmar Exclusão</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Tem certeza que deseja excluir a escola "{escolaToDelete?.nome}"? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="bg-gray-900/30 border-gray-600 text-gray-400 hover:bg-gray-900/50"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="outline"
+              onClick={confirmDelete}
+              className="bg-red-900/30 border-red-600 text-red-400 hover:bg-red-900/50"
+            >
+              Excluir
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
