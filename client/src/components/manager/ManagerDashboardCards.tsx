@@ -296,9 +296,9 @@ export function TotalProfessoresCard() {
         console.log('Escolas vinculadas recebidas para professores:', escolasData);
         
         // Ajustar formato de resposta conforme as APIs do dashboard
-        setTotalProfessores(professoresData.total || 0);
-        setProfessores(professoresData.professores || []);
-        setEscolas(Array.isArray(escolasData) ? escolasData : (escolasData.escolas || []));
+        setTotalProfessores(Array.isArray(professoresData) ? professoresData.length : 0);
+        setProfessores(Array.isArray(professoresData) ? professoresData : []);
+        setEscolas(Array.isArray(escolasData) ? escolasData : []);
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
         toast({
@@ -433,16 +433,13 @@ export function TotalAlunosCard() {
         setIsLoading(true);
         
         // Buscar alunos e escolas em paralelo
-        const [alunosResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/alunos"),
-          apiRequest("GET", "/api/escolas/gestor")
+        const [alunosData, escolasData] = await Promise.all([
+          apiRequest("GET", "/api/gestor/alunos-dashboard"),
+          apiRequest("GET", "/api/gestor/escolas-dashboard")
         ]);
         
-        const alunosData = await alunosResponse.json();
-        const escolasData = await escolasResponse.json();
-        
-        setTotalAlunos(alunosData.total || 0);
-        setAlunos(alunosData.alunos || []);
+        setTotalAlunos(Array.isArray(alunosData) ? alunosData.length : 0);
+        setAlunos(Array.isArray(alunosData) ? alunosData : []);
         setEscolas(Array.isArray(escolasData) ? escolasData : []);
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
@@ -576,17 +573,13 @@ export function TotalTurmasCard() {
         setIsLoading(true);
         console.log('Requisição API: GET /api/turmas', '');
         
-        const response = await apiRequest("GET", "/api/gestor/turmas");
-        
-        console.log('Resposta GET /api/turmas: status', response.status);
-        
-        const data = await response.json();
+        const data = await apiRequest("GET", "/api/gestor/turmas-dashboard");
         
         console.log('Turmas recebidas:', data);
         
         // Ajustar formato de resposta conforme a API do dashboard
-        setTotalTurmas(data.total || 0);
-        setTurmas(data.turmas || []);
+        setTotalTurmas(Array.isArray(data) ? data.length : 0);
+        setTurmas(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Erro ao buscar turmas:", error);
         toast({
