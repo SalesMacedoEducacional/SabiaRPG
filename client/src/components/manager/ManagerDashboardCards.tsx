@@ -81,6 +81,8 @@ export function TotalEscolasCard() {
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [escolaToDelete, setEscolaToDelete] = useState<Escola | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,6 +157,8 @@ export function TotalEscolasCard() {
                 <TableRow>
                   <TableHead className="text-white">Nome da Escola</TableHead>
                   <TableHead className="text-white">Cidade</TableHead>
+                  <TableHead className="text-white">Estado</TableHead>
+                  <TableHead className="text-white">Ações Administrativas</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,11 +167,32 @@ export function TotalEscolasCard() {
                     <TableRow key={escola.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{escola.nome}</TableCell>
                       <TableCell className="text-white">{escola.cidades?.nome || escola.cidade}</TableCell>
+                      <TableCell className="text-white">{escola.estados?.sigla || 'N/A'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-blue-900/30 border-blue-600 text-blue-400 hover:bg-blue-900/50 text-xs px-2 py-1"
+                            onClick={() => handleEditEscola(escola)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-red-900/30 border-red-600 text-red-400 hover:bg-red-900/50 text-xs px-2 py-1"
+                            onClick={() => handleDeleteEscola(escola)}
+                          >
+                            Excluir
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
                       Nenhuma escola encontrada
                     </TableCell>
                   </TableRow>
