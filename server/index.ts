@@ -11,6 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
 import { registerAdminRoutes } from './adminRoutes';
+import { registerGestorDashboardRoutes } from './gestorDashboardRoutes';
 
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
@@ -390,6 +391,9 @@ app.use((req, res, next) => {
 (async () => {
   // Registrar rotas administrativas do painel do gestor
   registerAdminRoutes(app);
+  
+  // Registrar rotas específicas do dashboard do gestor com dados reais
+  registerGestorDashboardRoutes(app);
   
   const server = await registerRoutes(app);
 

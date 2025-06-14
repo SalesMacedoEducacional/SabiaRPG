@@ -88,7 +88,7 @@ export function TotalEscolasCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/gestor/escolas");
+        const response = await apiRequest("GET", "/api/gestor/escolas-dashboard");
         setTotalEscolas(Array.isArray(response) ? response.length : 0);
         setEscolas(Array.isArray(response) ? response : []);
       } catch (error) {
@@ -122,8 +122,8 @@ export function TotalEscolasCard() {
     if (!escolaToDelete) return;
     
     try {
-      await apiRequest('DELETE', `/api/escolas/${escolaToDelete.id}`);
-      const response = await apiRequest("GET", "/api/gestor/escolas");
+      await apiRequest('DELETE', `/api/gestor/escola/${escolaToDelete.id}`);
+      const response = await apiRequest("GET", "/api/gestor/escolas-dashboard");
       setTotalEscolas(Array.isArray(response) ? response.length : 0);
       setEscolas(Array.isArray(response) ? response : []);
       
@@ -287,16 +287,10 @@ export function TotalProfessoresCard() {
         console.log('Requisição API: GET /api/escolas/gestor', '');
         
         // Buscar professores e escolas em paralelo
-        const [professoresResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/gestor/professores"),
-          apiRequest("GET", "/api/gestor/escolas")
+        const [professoresData, escolasData] = await Promise.all([
+          apiRequest("GET", "/api/gestor/professores-dashboard"),
+          apiRequest("GET", "/api/gestor/escolas-dashboard")
         ]);
-        
-        console.log('Resposta GET /api/professores: status', professoresResponse.status);
-        console.log('Resposta GET /api/escolas/gestor: status', escolasResponse.status);
-        
-        const professoresData = await professoresResponse.json();
-        const escolasData = await escolasResponse.json();
         
         console.log('Professores recebidos:', professoresData);
         console.log('Escolas vinculadas recebidas para professores:', escolasData);
