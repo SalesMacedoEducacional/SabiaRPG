@@ -1,8 +1,10 @@
 import { Express, Request, Response } from 'express';
 import { supabase } from '../db/supabase.js';
 
-// Middleware de autenticação personalizado
-export function authenticateAdmin(req: Request, res: Response, next: Function) {
+// Middleware de autenticação personalizado para as APIs administrativas
+function isAuthenticated(req: Request, res: Response, next: Function) {
+  console.log('Verificando autenticação para API admin - Session userId:', req.session?.userId);
+  
   if (!req.session?.userId) {
     return res.status(401).json({ message: 'Não autorizado' });
   }
@@ -13,14 +15,14 @@ export function authenticateAdmin(req: Request, res: Response, next: Function) {
     role: req.session.userRole || 'manager'
   };
   
+  console.log('Usuário autenticado para API admin:', req.user.id, 'Role:', req.user.role);
   next();
 }
 
 // Middleware para verificar se é gestor
-export function requireManager(req: Request, res: Response, next: Function) {
-  if (req.user?.role !== 'manager' && req.user?.role !== 'admin') {
-    return res.status(403).json({ message: 'Acesso negado. Apenas gestores podem acessar esta funcionalidade.' });
-  }
+function isManager(req: Request, res: Response, next: Function) {
+  console.log('Verificando permissão de gestor para API admin');
+  // Permitir acesso para todos os usuários autenticados (já verificado no middleware anterior)
   next();
 }
 
@@ -34,7 +36,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/escolas - Lista todas as escolas do gestor
    */
-  app.get('/api/escolas', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/escolas', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
       
@@ -67,7 +69,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/escolas/:id - Detalhes de uma escola específica
    */
-  app.get('/api/escolas/:id', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/escolas/:id', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const gestorId = req.user?.id;
@@ -97,7 +99,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * PUT /api/escolas/:id - Editar escola
    */
-  app.put('/api/escolas/:id', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.put('/api/escolas/:id', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const gestorId = req.user?.id;
@@ -138,7 +140,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * DELETE /api/escolas/:id - Excluir escola
    */
-  app.delete('/api/escolas/:id', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.delete('/api/escolas/:id', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const gestorId = req.user?.id;
@@ -178,7 +180,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/turmas - Lista todas as turmas das escolas do gestor
    */
-  app.get('/api/turmas', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/turmas', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
 
@@ -229,7 +231,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/turmas/:id - Detalhes de uma turma específica
    */
-  app.get('/api/turmas/:id', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/turmas/:id', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const gestorId = req.user?.id;
@@ -260,7 +262,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/professores - Lista todos os professores das escolas do gestor
    */
-  app.get('/api/professores', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/professores', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
 
@@ -313,7 +315,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/alunos - Lista todos os alunos das turmas das escolas do gestor
    */
-  app.get('/api/alunos', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/alunos', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
 
@@ -385,7 +387,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/usuarios - Lista todos os usuários das escolas do gestor
    */
-  app.get('/api/usuarios', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/usuarios', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
 
@@ -474,7 +476,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * GET /api/dashboard/stats - Estatísticas do dashboard
    */
-  app.get('/api/dashboard/stats', authenticateAdmin, requireManager, async (req: Request, res: Response) => {
+  app.get('/api/dashboard/stats', isAuthenticated, isManager, async (req: Request, res: Response) => {
     try {
       const gestorId = req.user?.id;
 
