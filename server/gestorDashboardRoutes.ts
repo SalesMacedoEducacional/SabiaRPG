@@ -21,6 +21,44 @@ function isAuthenticated(req: Request, res: Response, next: Function) {
 export function registerGestorDashboardRoutes(app: Express) {
   
   /**
+   * GET /api/gestor/test-escolas - Teste de escolas sem autenticação (temporário)
+   */
+  app.get('/api/gestor/test-escolas', async (req: Request, res: Response) => {
+    try {
+      const gestorId = '8d2bc35c-acba-468a-a85e-c8e923bbd0a7'; // ID do gestor teste
+      
+      const { data: escolas, error } = await supabase
+        .from('escolas')
+        .select(`
+          id,
+          nome,
+          endereco_completo,
+          telefone,
+          email_institucional,
+          cidade,
+          estado,
+          tipo
+        `)
+        .eq('gestor_id', gestorId)
+        .order('nome');
+
+      if (error) {
+        console.error('Erro ao buscar escolas do gestor:', error);
+        return res.status(500).json({ message: 'Erro ao buscar escolas' });
+      }
+
+      res.json({
+        success: true,
+        data: escolas || [],
+        total: escolas?.length || 0
+      });
+    } catch (error) {
+      console.error('Erro interno:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+  
+  /**
    * GET /api/gestor/escolas-dashboard - Escolas vinculadas ao gestor
    */
   app.get('/api/gestor/escolas-dashboard', isAuthenticated, async (req: Request, res: Response) => {
@@ -32,14 +70,13 @@ export function registerGestorDashboardRoutes(app: Express) {
         .select(`
           id,
           nome,
-          endereco,
+          endereco_completo,
           telefone,
-          email,
-          diretor,
-          cidade_id,
-          estado_id,
-          cidades(nome),
-          estados(nome, sigla)
+          email_institucional,
+          cidade,
+          estado,
+          tipo,
+          modalidade_ensino
         `)
         .eq('gestor_id', gestorId)
         .order('nome');
@@ -84,11 +121,14 @@ export function registerGestorDashboardRoutes(app: Express) {
           serie,
           ano_letivo,
           turno,
+          modalidade,
+          descricao,
           escola_id,
-          escolas(nome),
-          perfis_professor(usuarios(nome, email, telefone))
+          ativo,
+          escolas(nome, tipo)
         `)
         .in('escola_id', escolasIds)
+        .eq('ativo', true)
         .order('nome');
 
       if (error) {
@@ -131,14 +171,16 @@ export function registerGestorDashboardRoutes(app: Express) {
           email,
           cpf,
           telefone,
-          data_criacao,
+          criado_em,
           perfis_professor(
             escola_id,
-            escolas(nome)
+            disciplinas,
+            turmas,
+            escolas(nome, tipo)
           )
         `)
-        .eq('papel', 'professor')
-        .eq('perfis_professor.escola_id', escolasIds);
+        .eq('papel', 'teacher')
+        .not('perfis_professor', 'is', null);
 
       if (error) {
         console.error('Erro ao buscar professores:', error);
