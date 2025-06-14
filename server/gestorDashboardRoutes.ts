@@ -21,11 +21,80 @@ function isAuthenticated(req: Request, res: Response, next: Function) {
 export function registerGestorDashboardRoutes(app: Express) {
   
   /**
+   * GET /api/gestor/dashboard-completo - Dados consolidados do dashboard com dados reais
+   */
+  app.get('/api/gestor/dashboard-completo', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const gestorId = req.user?.id;
+      console.log('Buscando dados completos para gestor:', gestorId);
+      
+      // Buscar escolas do gestor logado
+      const { data: escolas, error: escolasError } = await supabase
+        .from('escolas')
+        .select('*')
+        .eq('gestor_id', gestorId);
+
+      if (escolasError) {
+        console.error('Erro ao buscar escolas:', escolasError);
+        return res.status(500).json({ message: 'Erro ao buscar escolas' });
+      }
+
+      const escolasIds = (escolas || []).map(e => e.id);
+
+      // Buscar turmas das escolas
+      let turmas = [];
+      if (escolasIds.length > 0) {
+        const { data: turmasData, error: turmasError } = await supabase
+          .from('turmas')
+          .select('*')
+          .in('escola_id', escolasIds)
+          .eq('ativo', true);
+
+        if (!turmasError) {
+          turmas = turmasData || [];
+        }
+      }
+
+      // Buscar todos os professores do sistema
+      const { data: professores, error: profError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .in('papel', ['teacher', 'professor']);
+
+      // Buscar todos os alunos do sistema
+      const { data: alunos, error: alunosError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .in('papel', ['student', 'aluno']);
+
+      const dashboardData = {
+        escolas: escolas || [],
+        turmas: turmas,
+        professores: professores || [],
+        alunos: alunos || [],
+        resumo: {
+          totalEscolas: (escolas || []).length,
+          totalTurmas: turmas.length,
+          totalProfessores: (professores || []).length,
+          totalAlunos: (alunos || []).length
+        }
+      };
+
+      console.log('Dados consolidados encontrados:', dashboardData.resumo);
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error('Erro interno ao buscar dashboard:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+
+  /**
    * GET /api/gestor/test-escolas - Teste de escolas sem autenticação (temporário)
    */
   app.get('/api/gestor/test-escolas', async (req: Request, res: Response) => {
     try {
-      const gestorId = '8d2bc35c-acba-468a-a85e-c8e923bbd0a7'; // ID do gestor teste
+      const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe'; // ID do gestor logado atual
       
       const { data: escolas, error } = await supabase
         .from('escolas')
