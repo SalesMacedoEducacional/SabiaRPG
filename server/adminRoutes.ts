@@ -43,12 +43,19 @@ export function registerAdminRoutes(app: Express) {
       const { data: escolas, error } = await supabase
         .from('escolas')
         .select(`
-          *,
+          id,
+          nome,
+          endereco,
+          telefone,
+          email,
+          diretor,
+          cidade_id,
+          estado_id,
+          gestor_id,
           cidades(nome),
           estados(nome, sigla)
         `)
         .eq('gestor_id', gestorId)
-        .eq('ativo', true)
         .order('nome');
 
       if (error) {
@@ -513,8 +520,7 @@ export function registerAdminRoutes(app: Express) {
         supabase
           .from('turmas')
           .select('id')
-          .in('escola_id', escolaIds)
-          .eq('ativo', true),
+          .in('escola_id', escolaIds),
         supabase
           .from('perfis_professor')
           .select('id')
@@ -531,8 +537,7 @@ export function registerAdminRoutes(app: Express) {
         const { data: alunos } = await supabase
           .from('perfis_aluno')
           .select('id')
-          .in('turma_id', turmaIds)
-          .eq('ativo', true);
+          .in('turma_id', turmaIds);
         
         totalAlunos = alunos?.length || 0;
       }
