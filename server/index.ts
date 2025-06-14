@@ -10,45 +10,6 @@ app.use(express.urlencoded({ extended: false }));
 // Import supabase for direct API routes
 import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
-import { registerAdminRoutes } from './adminRoutes';
-import { registerGestorDashboardRoutes } from './gestorDashboardRoutes';
-
-// Endpoint de login temporário para testes
-app.post('/api/auth/login-temp', async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    // Buscar usuário gestor
-    const { data: usuario, error } = await supabase
-      .from('usuarios')
-      .select('id, nome, email, papel')
-      .eq('email', email)
-      .eq('papel', 'manager')
-      .single();
-
-    if (error || !usuario) {
-      return res.status(401).json({ message: 'Usuário não encontrado' });
-    }
-
-    // Criar sessão
-    req.session.userId = usuario.id;
-    req.session.userRole = usuario.papel;
-    req.session.userName = usuario.nome;
-
-    res.json({
-      success: true,
-      user: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        papel: usuario.papel
-      }
-    });
-  } catch (error) {
-    console.error('Erro no login temporário:', error);
-    res.status(500).json({ message: 'Erro interno do servidor' });
-  }
-});
 
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/users/manager', async (req, res) => {
@@ -426,12 +387,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Registrar rotas administrativas do painel do gestor
-  registerAdminRoutes(app);
-  
-  // Registrar rotas específicas do dashboard do gestor com dados reais
-  registerGestorDashboardRoutes(app);
-  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

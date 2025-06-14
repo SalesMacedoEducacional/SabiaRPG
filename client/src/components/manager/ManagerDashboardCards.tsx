@@ -24,58 +24,30 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Interfaces para os dados reais
+// Interfaces para os dados
 interface Escola {
   id: string;
   nome: string;
-  codigo_escola: string;
-  tipo: string;
-  modalidade_ensino: string;
   cidade: string;
-  estado: string;
-  zona_geografica: string;
-  endereco_completo: string;
-  telefone: string;
-  email_institucional: string;
-  criado_em: string;
-  gestor_id: string;
+  ativo?: boolean;
+  estado?: string;
+  endereco?: string;
+  telefone?: string;
+  email?: string;
+  diretor?: string;
+  cidades?: { nome: string };
+  estados?: { nome: string; sigla: string };
 }
 
-interface Turma {
+interface Professor {
   id: string;
-  nome: string;
-  ano_letivo: string;
-  turno: string;
-  modalidade: string;
-  serie: string;
-  descricao: string;
-  escola_id: string;
-  criado_em: string;
-  ativo: boolean;
-}
-
-interface Usuario {
-  id: string;
-  email: string;
-  papel: string;
-  criado_em: string;
-  cpf: string;
-  nome: string;
-  telefone: string;
-  ativo: boolean;
-}
-
-interface DashboardData {
-  escolas: Escola[];
-  turmas: Turma[];
-  professores: Usuario[];
-  alunos: Usuario[];
-  resumo: {
-    totalEscolas: number;
-    totalTurmas: number;
-    totalProfessores: number;
-    totalAlunos: number;
+  usuarios: {
+    nome: string;
+    cpf: string;
+    telefone: string;
   };
+  escola_id?: string;
+  escola_nome?: string;
 }
 
 interface Aluno {
@@ -102,35 +74,28 @@ interface Turma {
   total_alunos: number;
 }
 
-// Hook para buscar dados consolidados do dashboard
-function useDashboardData() {
+// Componente para o card de total de escolas
+export function TotalEscolasCard() {
   const { toast } = useToast();
-  const [dashboardData, setDashboardData] = useState<DashboardData>({
-    escolas: [],
-    turmas: [],
-    professores: [],
-    alunos: [],
-    resumo: { totalEscolas: 0, totalTurmas: 0, totalProfessores: 0, totalAlunos: 0 }
-  });
+  const [totalEscolas, setTotalEscolas] = useState<number>(0);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/gestor/dashboard-completo");
-        setDashboardData(response || {
-          escolas: [],
-          turmas: [],
-          professores: [],
-          alunos: [],
-          resumo: { totalEscolas: 0, totalTurmas: 0, totalProfessores: 0, totalAlunos: 0 }
-        });
+        const response = await apiRequest("GET", "/api/escolas");
+        const data = await response.json();
+        
+        setTotalEscolas(data.total || 0);
+        setEscolas(data.escolas || []);
       } catch (error) {
-        console.error("Erro ao buscar dados do dashboard:", error);
+        console.error("Erro ao buscar escolas:", error);
         toast({
-          title: "Erro ao carregar dados",
-          description: "Não foi possível carregar as informações do dashboard",
+          title: "Erro ao carregar escolas",
+          description: "Não foi possível carregar as informações de escolas",
           variant: "destructive",
         });
       } finally {
@@ -140,54 +105,6 @@ function useDashboardData() {
 
     fetchData();
   }, [toast]);
-
-  return { dashboardData, isLoading, refreshData: () => fetchData() };
-}
-
-// Componente para o card de total de escolas
-export function TotalEscolasCard() {
-  const { toast } = useToast();
-  const { dashboardData, isLoading } = useDashboardData();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
-  const [escolaToDelete, setEscolaToDelete] = useState<Escola | null>(null);
-
-  const handleEditEscola = (escola: Escola) => {
-    toast({
-      title: "Função em desenvolvimento",
-      description: "A edição de escola será implementada em breve.",
-    });
-  };
-
-  const handleDeleteEscola = (escola: Escola) => {
-    setEscolaToDelete(escola);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!escolaToDelete) return;
-    
-    try {
-      await apiRequest('DELETE', `/api/gestor/escola/${escolaToDelete.id}`);
-      const response = await apiRequest("GET", "/api/gestor/escolas-dashboard");
-      setTotalEscolas(Array.isArray(response) ? response.length : 0);
-      setEscolas(Array.isArray(response) ? response : []);
-      
-      toast({
-        title: "Escola excluída",
-        description: "A escola foi excluída com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao excluir",
-        description: "Não foi possível excluir a escola.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setEscolaToDelete(null);
-    }
-  };
 
   return (
     <>
@@ -238,8 +155,6 @@ export function TotalEscolasCard() {
                 <TableRow>
                   <TableHead className="text-white">Nome da Escola</TableHead>
                   <TableHead className="text-white">Cidade</TableHead>
-                  <TableHead className="text-white">Estado</TableHead>
-                  <TableHead className="text-white">Ações Administrativas</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -248,32 +163,11 @@ export function TotalEscolasCard() {
                     <TableRow key={escola.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{escola.nome}</TableCell>
                       <TableCell className="text-white">{escola.cidades?.nome || escola.cidade}</TableCell>
-                      <TableCell className="text-white">{escola.estados?.sigla || 'N/A'}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="bg-blue-900/30 border-blue-600 text-blue-400 hover:bg-blue-900/50 text-xs px-2 py-1"
-                            onClick={() => handleEditEscola(escola)}
-                          >
-                            Editar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="bg-red-900/30 border-red-600 text-red-400 hover:bg-red-900/50 text-xs px-2 py-1"
-                            onClick={() => handleDeleteEscola(escola)}
-                          >
-                            Excluir
-                          </Button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                    <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
                       Nenhuma escola encontrada
                     </TableCell>
                   </TableRow>
@@ -281,34 +175,6 @@ export function TotalEscolasCard() {
               </TableBody>
             </Table>
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog de confirmação de exclusão */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-md bg-[#2d2a21] border-[#D47C06]">
-          <DialogHeader>
-            <DialogTitle className="text-white">Confirmar Exclusão</DialogTitle>
-            <DialogDescription className="text-white/70">
-              Tem certeza que deseja excluir a escola "{escolaToDelete?.nome}"? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              className="bg-gray-900/30 border-gray-600 text-gray-400 hover:bg-gray-900/50"
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="outline"
-              onClick={confirmDelete}
-              className="bg-red-900/30 border-red-600 text-red-400 hover:bg-red-900/50"
-            >
-              Excluir
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </>
@@ -329,22 +195,19 @@ export function TotalProfessoresCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        console.log('Requisição API: GET /api/professores', '');
-        console.log('Requisição API: GET /api/escolas/gestor', '');
         
         // Buscar professores e escolas em paralelo
-        const [professoresData, escolasData] = await Promise.all([
-          apiRequest("GET", "/api/gestor/professores-dashboard"),
-          apiRequest("GET", "/api/gestor/escolas-dashboard")
+        const [professoresResponse, escolasResponse] = await Promise.all([
+          apiRequest("GET", "/api/professores"),
+          apiRequest("GET", "/api/escolas/gestor")
         ]);
         
-        console.log('Professores recebidos:', professoresData);
-        console.log('Escolas vinculadas recebidas para professores:', escolasData);
+        const professoresData = await professoresResponse.json();
+        const escolasData = await escolasResponse.json();
         
-        // Ajustar formato de resposta conforme as APIs do dashboard
-        setTotalProfessores(Array.isArray(professoresData) ? professoresData.length : 0);
-        setProfessores(Array.isArray(professoresData) ? professoresData : []);
-        setEscolas(Array.isArray(escolasData) ? escolasData : []);
+        setTotalProfessores(professoresData.total || 0);
+        setProfessores(professoresData.professores || []);
+        setEscolas(escolasData || []);
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
         toast({
@@ -377,7 +240,7 @@ export function TotalProfessoresCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalProfessores}</div>
-            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
+            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
             
             <Button 
               variant="outline" 
@@ -412,7 +275,7 @@ export function TotalProfessoresCard() {
               </SelectTrigger>
               <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {(escolas || []).map((escola) => (
+                {escolas.map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
@@ -479,14 +342,17 @@ export function TotalAlunosCard() {
         setIsLoading(true);
         
         // Buscar alunos e escolas em paralelo
-        const [alunosData, escolasData] = await Promise.all([
-          apiRequest("GET", "/api/gestor/alunos-dashboard"),
-          apiRequest("GET", "/api/gestor/escolas-dashboard")
+        const [alunosResponse, escolasResponse] = await Promise.all([
+          apiRequest("GET", "/api/alunos"),
+          apiRequest("GET", "/api/escolas/gestor")
         ]);
         
-        setTotalAlunos(Array.isArray(alunosData) ? alunosData.length : 0);
-        setAlunos(Array.isArray(alunosData) ? alunosData : []);
-        setEscolas(Array.isArray(escolasData) ? escolasData : []);
+        const alunosData = await alunosResponse.json();
+        const escolasData = await escolasResponse.json();
+        
+        setTotalAlunos(alunosData.total || 0);
+        setAlunos(alunosData.alunos || []);
+        setEscolas(escolasData || []);
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
         toast({
@@ -519,7 +385,7 @@ export function TotalAlunosCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalAlunos}</div>
-            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
+            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
             
             <Button 
               variant="outline" 
@@ -554,7 +420,7 @@ export function TotalAlunosCard() {
               </SelectTrigger>
               <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {(escolas || []).map((escola) => (
+                {escolas.map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
@@ -617,15 +483,11 @@ export function TotalTurmasCard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        console.log('Requisição API: GET /api/turmas', '');
+        const response = await apiRequest("GET", "/api/turmas");
+        const data = await response.json();
         
-        const data = await apiRequest("GET", "/api/gestor/turmas-dashboard");
-        
-        console.log('Turmas recebidas:', data);
-        
-        // Ajustar formato de resposta conforme a API do dashboard
-        setTotalTurmas(Array.isArray(data) ? data.length : 0);
-        setTurmas(Array.isArray(data) ? data : []);
+        setTotalTurmas(data.total || 0);
+        setTurmas(data.turmas || []);
       } catch (error) {
         console.error("Erro ao buscar turmas:", error);
         toast({
@@ -658,7 +520,7 @@ export function TotalTurmasCard() {
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">{totalTurmas}</div>
-            <div className="text-xs text-accent mt-1">Nas escolas vinculadas</div>
+            <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
             
             <Button 
               variant="outline" 

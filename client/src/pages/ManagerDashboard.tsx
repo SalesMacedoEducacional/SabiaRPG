@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import DashboardCardsReal from "@/components/manager/DashboardCardsReal";
+import { 
+  TotalEscolasCard, 
+  TotalProfessoresCard, 
+  TotalAlunosCard, 
+  TotalTurmasCard 
+} from "@/components/manager/ManagerDashboardCards";
+import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCard";
 import { 
   Home, 
   FileBarChart2, 
@@ -26,7 +32,6 @@ import {
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import ManagerProfile from '../components/manager/ManagerProfile';
-import AdminPanel from '../components/admin/AdminPanel';
 
 /**
  * Dashboard do Gestor
@@ -132,8 +137,13 @@ export default function ManagerDashboard() {
           
           {/* Tab de Visão Geral */}
           <TabsContent value="overview">
-            {/* Primeira linha: estatísticas básicas com dados reais */}
-            <DashboardCardsReal />
+            {/* Primeira linha: estatísticas básicas */}
+            <div className="grid grid-cols-4 gap-4 mb-4">
+              <EscolasVinculadasCard />
+              <TotalProfessoresCard />
+              <TotalAlunosCard />
+              <TotalTurmasCard />
+            </div>
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
@@ -275,8 +285,6 @@ export default function ManagerDashboard() {
               </div>
             </div>
           </TabsContent>
-          
-
           
           {/* Tab de Relatórios */}
           <TabsContent value="reports">

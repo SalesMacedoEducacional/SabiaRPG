@@ -79,14 +79,11 @@ router.get('/professores', isAuthenticated, isManager, async (req, res) => {
     }
     
     // Primeiro, buscar todas as escolas do gestor
-    console.log('Buscando escolas para gestor (professores):', req.user.id);
-    
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')
       .select('id')
-      .eq('gestor_id', req.user.id);
-      
-    console.log('Escolas encontradas para query professores:', escolas?.length || 0);
+      .eq('gestor_id', req.user.id)
+      .eq('ativo', true);
     
     if (escolasError) {
       console.error('Erro ao buscar escolas do gestor:', escolasError);
@@ -100,15 +97,12 @@ router.get('/professores', isAuthenticated, isManager, async (req, res) => {
     // Obter os IDs das escolas para filtrar professores
     const escolaIds = escolas.map(escola => escola.id);
     
-    console.log('IDs das escolas do gestor:', escolaIds);
-    
     // Buscar todos os professores vinculados a essas escolas
     const { data: professores, error: professoresError } = await supabase
       .from('perfis_professor')
       .select('*, usuarios(nome_completo, cpf, telefone)')
-      .in('escola_id', escolaIds);
-      
-    console.log('Professores encontrados:', professores?.length || 0);
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
     
     if (professoresError) {
       console.error('Erro ao buscar professores:', professoresError);
@@ -233,15 +227,11 @@ router.get('/turmas', isAuthenticated, isManager, async (req, res) => {
     // Obter os IDs das escolas
     const escolaIds = escolas.map(escola => escola.id);
     
-    console.log('IDs das escolas do gestor para turmas:', escolaIds);
-    
     // Buscar todas as turmas dessas escolas
     const { data: turmas, error: turmasError } = await supabase
       .from('turmas')
       .select('*')
       .in('escola_id', escolaIds);
-      
-    console.log('Turmas encontradas:', turmas?.length || 0);
     
     if (turmasError) {
       console.error('Erro ao buscar turmas:', turmasError);

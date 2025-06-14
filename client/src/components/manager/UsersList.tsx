@@ -100,13 +100,7 @@ export default function UsersList() {
       console.log('Dados para envio:', data.userData);
       
       try {
-        const response = await fetch(`/api/usuarios/${data.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data.userData),
-        });
+        const response = await apiRequest('PUT', `/api/usuarios/${data.id}`, data.userData);
         console.log('Resposta da API recebida:', response);
         
         if (!response.ok) {
@@ -177,12 +171,7 @@ export default function UsersList() {
       console.log('ID do usuário:', userId);
       
       try {
-        const response = await fetch(`/api/usuarios/${userId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await apiRequest('DELETE', `/api/usuarios/${userId}`);
         console.log('Resposta da API recebida:', response);
         
         if (!response.ok) {
