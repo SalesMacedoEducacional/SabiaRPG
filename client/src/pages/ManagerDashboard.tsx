@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  TotalEscolasCard, 
-  TotalProfessoresCard, 
-  TotalAlunosCard, 
-  TotalTurmasCard 
-} from "@/components/manager/ManagerDashboardCards";
-import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCard";
+import DashboardCardsReal from "@/components/manager/DashboardCardsReal";
 import { 
   Home, 
   FileBarChart2, 
@@ -138,13 +132,8 @@ export default function ManagerDashboard() {
           
           {/* Tab de Visão Geral */}
           <TabsContent value="overview">
-            {/* Primeira linha: estatísticas básicas */}
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <EscolasVinculadasCard />
-              <TotalProfessoresCard />
-              <TotalAlunosCard />
-              <TotalTurmasCard />
-            </div>
+            {/* Primeira linha: estatísticas básicas com dados reais */}
+            <DashboardCardsReal />
             
             {/* Segunda linha: ações, alunos ativos, alertas */}
             <div className="grid grid-cols-3 gap-4 mb-4">
