@@ -97,7 +97,7 @@ export default function ManagerDashboard() {
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 gap-0 bg-[#4a4639] border-b border-accent">
+          <TabsList className="grid grid-cols-5 gap-0 bg-[#4a4639] border-b border-accent w-full">
             <TabsTrigger 
               value="overview" 
               className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
