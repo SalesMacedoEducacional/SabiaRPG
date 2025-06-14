@@ -82,7 +82,7 @@ function useDashboardData() {
     try {
       setLoading(true);
       const response = await apiRequest("GET", "/api/gestor/dashboard-completo");
-      setData(response as DashboardData);
+      setData(response as any);
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
       toast({
