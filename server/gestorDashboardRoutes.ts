@@ -189,7 +189,8 @@ export function registerGestorDashboardRoutes(app: Express) {
 
       // Filtrar apenas professores que estão vinculados às escolas do gestor
       const professoresFiltrados = professores?.filter(prof => 
-        prof.perfis_professor?.some(perfil => escolasIds.includes(perfil.escola_id))
+        prof.perfis_professor && prof.perfis_professor.length > 0 &&
+        prof.perfis_professor.some(perfil => escolasIds.includes(perfil.escola_id))
       ) || [];
 
       res.json(professoresFiltrados);
@@ -230,7 +231,7 @@ export function registerGestorDashboardRoutes(app: Express) {
 
       const turmasIds = turmas.map(t => t.id);
 
-      // Buscar alunos vinculados às turmas
+      // Buscar alunos vinculados às turmas (simplificado pois não há tabela perfis_aluno)
       const { data: alunos, error } = await supabase
         .from('usuarios')
         .select(`
@@ -239,14 +240,9 @@ export function registerGestorDashboardRoutes(app: Express) {
           email,
           cpf,
           telefone,
-          data_criacao,
-          perfis_aluno(
-            turma_id,
-            turmas(nome, escolas(nome))
-          )
+          criado_em
         `)
-        .eq('papel', 'aluno')
-        .eq('perfis_aluno.turma_id', turmasIds);
+        .eq('papel', 'student');
 
       if (error) {
         console.error('Erro ao buscar alunos:', error);
@@ -272,7 +268,7 @@ export function registerGestorDashboardRoutes(app: Express) {
     try {
       const { id } = req.params;
       const gestorId = req.user?.id;
-      const dadosEscola = req.body;
+      const { nome, endereco_completo, telefone, email_institucional, cidade, estado, tipo, modalidade_ensino } = req.body;
 
       // Verificar se a escola pertence ao gestor
       const { data: escola, error: verificaError } = await supabase
@@ -286,10 +282,19 @@ export function registerGestorDashboardRoutes(app: Express) {
         return res.status(404).json({ message: 'Escola não encontrada ou sem permissão' });
       }
 
-      // Atualizar escola
+      // Atualizar escola com campos específicos
       const { data, error } = await supabase
         .from('escolas')
-        .update(dadosEscola)
+        .update({
+          nome,
+          endereco_completo,
+          telefone,
+          email_institucional,
+          cidade,
+          estado,
+          tipo,
+          modalidade_ensino
+        })
         .eq('id', id)
         .select();
 
