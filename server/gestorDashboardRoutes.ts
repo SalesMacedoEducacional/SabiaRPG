@@ -28,61 +28,24 @@ export function registerGestorDashboardRoutes(app: Express) {
       const gestorId = req.user?.id;
       console.log('Buscando dados completos para gestor:', gestorId);
       
-      // Buscar escolas do gestor logado
-      const { data: escolas, error: escolasError } = await supabase
-        .from('escolas')
-        .select('*')
-        .eq('gestor_id', gestorId);
+      // Usar função SQL para buscar todos os dados consolidados
+      const { data, error } = await supabase
+        .rpc('get_gestor_dashboard_data', { p_gestor_id: gestorId });
 
-      if (escolasError) {
-        console.error('Erro ao buscar escolas:', escolasError);
-        return res.status(500).json({ message: 'Erro ao buscar escolas' });
+      if (error) {
+        console.error('Erro ao buscar dados do dashboard:', error);
+        return res.status(500).json({ message: 'Erro ao buscar dados do dashboard' });
       }
 
-      const escolasIds = (escolas || []).map(e => e.id);
+      console.log('Dados consolidados encontrados:', data?.resumo || {});
 
-      // Buscar turmas das escolas
-      let turmas = [];
-      if (escolasIds.length > 0) {
-        const { data: turmasData, error: turmasError } = await supabase
-          .from('turmas')
-          .select('*')
-          .in('escola_id', escolasIds)
-          .eq('ativo', true);
-
-        if (!turmasError) {
-          turmas = turmasData || [];
-        }
-      }
-
-      // Buscar todos os professores do sistema
-      const { data: professores, error: profError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .in('papel', ['teacher', 'professor']);
-
-      // Buscar todos os alunos do sistema
-      const { data: alunos, error: alunosError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .in('papel', ['student', 'aluno']);
-
-      const dashboardData = {
-        escolas: escolas || [],
-        turmas: turmas,
-        professores: professores || [],
-        alunos: alunos || [],
-        resumo: {
-          totalEscolas: (escolas || []).length,
-          totalTurmas: turmas.length,
-          totalProfessores: (professores || []).length,
-          totalAlunos: (alunos || []).length
-        }
-      };
-
-      console.log('Dados consolidados encontrados:', dashboardData.resumo);
-
-      res.json(dashboardData);
+      res.json(data || {
+        escolas: [],
+        turmas: [],
+        professores: [],
+        alunos: [],
+        resumo: { totalEscolas: 0, totalTurmas: 0, totalProfessores: 0, totalAlunos: 0 }
+      });
     } catch (error) {
       console.error('Erro interno ao buscar dashboard:', error);
       res.status(500).json({ message: 'Erro interno do servidor' });

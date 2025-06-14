@@ -24,30 +24,58 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Interfaces para os dados
+// Interfaces para os dados reais
 interface Escola {
   id: string;
   nome: string;
+  codigo_escola: string;
+  tipo: string;
+  modalidade_ensino: string;
   cidade: string;
-  ativo?: boolean;
-  estado?: string;
-  endereco?: string;
-  telefone?: string;
-  email?: string;
-  diretor?: string;
-  cidades?: { nome: string };
-  estados?: { nome: string; sigla: string };
+  estado: string;
+  zona_geografica: string;
+  endereco_completo: string;
+  telefone: string;
+  email_institucional: string;
+  criado_em: string;
+  gestor_id: string;
 }
 
-interface Professor {
+interface Turma {
   id: string;
-  usuarios: {
-    nome: string;
-    cpf: string;
-    telefone: string;
+  nome: string;
+  ano_letivo: string;
+  turno: string;
+  modalidade: string;
+  serie: string;
+  descricao: string;
+  escola_id: string;
+  criado_em: string;
+  ativo: boolean;
+}
+
+interface Usuario {
+  id: string;
+  email: string;
+  papel: string;
+  criado_em: string;
+  cpf: string;
+  nome: string;
+  telefone: string;
+  ativo: boolean;
+}
+
+interface DashboardData {
+  escolas: Escola[];
+  turmas: Turma[];
+  professores: Usuario[];
+  alunos: Usuario[];
+  resumo: {
+    totalEscolas: number;
+    totalTurmas: number;
+    totalProfessores: number;
+    totalAlunos: number;
   };
-  escola_id?: string;
-  escola_nome?: string;
 }
 
 interface Aluno {
@@ -74,28 +102,35 @@ interface Turma {
   total_alunos: number;
 }
 
-// Componente para o card de total de escolas
-export function TotalEscolasCard() {
+// Hook para buscar dados consolidados do dashboard
+function useDashboardData() {
   const { toast } = useToast();
-  const [totalEscolas, setTotalEscolas] = useState<number>(0);
-  const [escolas, setEscolas] = useState<Escola[]>([]);
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
+    escolas: [],
+    turmas: [],
+    professores: [],
+    alunos: [],
+    resumo: { totalEscolas: 0, totalTurmas: 0, totalProfessores: 0, totalAlunos: 0 }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
-  const [escolaToDelete, setEscolaToDelete] = useState<Escola | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("GET", "/api/gestor/escolas-dashboard");
-        setTotalEscolas(Array.isArray(response) ? response.length : 0);
-        setEscolas(Array.isArray(response) ? response : []);
+        const response = await apiRequest("GET", "/api/gestor/dashboard-completo");
+        setDashboardData(response || {
+          escolas: [],
+          turmas: [],
+          professores: [],
+          alunos: [],
+          resumo: { totalEscolas: 0, totalTurmas: 0, totalProfessores: 0, totalAlunos: 0 }
+        });
       } catch (error) {
-        console.error("Erro ao buscar escolas:", error);
+        console.error("Erro ao buscar dados do dashboard:", error);
         toast({
-          title: "Erro ao carregar escolas",
-          description: "Não foi possível carregar as informações de escolas",
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar as informações do dashboard",
           variant: "destructive",
         });
       } finally {
@@ -105,6 +140,17 @@ export function TotalEscolasCard() {
 
     fetchData();
   }, [toast]);
+
+  return { dashboardData, isLoading, refreshData: () => fetchData() };
+}
+
+// Componente para o card de total de escolas
+export function TotalEscolasCard() {
+  const { toast } = useToast();
+  const { dashboardData, isLoading } = useDashboardData();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [escolaToDelete, setEscolaToDelete] = useState<Escola | null>(null);
 
   const handleEditEscola = (escola: Escola) => {
     toast({
