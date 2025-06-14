@@ -95,39 +95,10 @@ export default function UsersList() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: { id: string; userData: EditUserForm }) => {
-      console.log('=== MUTATION: Iniciando edição de usuário ===');
-      console.log('ID do usuário:', data.id);
-      console.log('Dados para envio:', data.userData);
-      
-      try {
-        const response = await apiRequest('PUT', `/api/usuarios/${data.id}`, data.userData);
-        console.log('Resposta da API recebida:', response);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Erro na resposta da API:', errorText);
-          
-          // Tentar parsear como JSON para obter a mensagem de erro
-          try {
-            const errorData = JSON.parse(errorText);
-            throw new Error(errorData.message || 'Erro ao atualizar usuário');
-          } catch {
-            throw new Error(errorText || 'Erro ao atualizar usuário');
-          }
-        }
-        
-        const result = await response.json();
-        console.log('Dados de resposta parseados:', result);
-        
-        if (!result.success) {
-          throw new Error(result.message || 'Erro ao atualizar usuário');
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('Erro na mutation:', error);
-        throw error;
-      }
+      console.log('Enviando dados para atualização:', data);
+      const result = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
+      console.log('Resposta da API de atualização:', result);
+      return result;
     },
     onSuccess: async (data, variables) => {
       console.log('Atualização bem-sucedida');
@@ -167,38 +138,7 @@ export default function UsersList() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      console.log('=== MUTATION: Iniciando exclusão de usuário ===');
-      console.log('ID do usuário:', userId);
-      
-      try {
-        const response = await apiRequest('DELETE', `/api/usuarios/${userId}`);
-        console.log('Resposta da API recebida:', response);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Erro na resposta da API:', errorText);
-          
-          // Tentar parsear como JSON para obter a mensagem de erro
-          try {
-            const errorData = JSON.parse(errorText);
-            throw new Error(errorData.message || 'Erro ao excluir usuário');
-          } catch {
-            throw new Error(errorText || 'Erro ao excluir usuário');
-          }
-        }
-        
-        const result = await response.json();
-        console.log('Dados de resposta parseados:', result);
-        
-        if (!result.success) {
-          throw new Error(result.message || 'Erro ao excluir usuário');
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('Erro na mutation:', error);
-        throw error;
-      }
+      return apiRequest('DELETE', `/api/users/${userId}`);
     },
     onSuccess: async (data, userId) => {
       console.log('Exclusão bem-sucedida');

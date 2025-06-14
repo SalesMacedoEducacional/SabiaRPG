@@ -1,11 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Configuração do Supabase
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkYWN3eHZ6dnl2bWRmd3JiYnFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE2NzQyMjEsImV4cCI6MjAzNzI1MDIyMX0.k-3a-nrCo_JKSGjJkqKJQr2jlPgTqjpDIcFQu3vr4uQ';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-// Criar cliente Supabase
-export const supabase = createClient(supabaseUrl, supabaseKey, {
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Erro: SUPABASE_URL e SUPABASE_KEY são obrigatórios nas variáveis de ambiente');
+  console.error('   Verifique se as variáveis estão definidas no ambiente ou arquivo .env');
+}
+
+// Inicializar cliente Supabase com opções
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -15,9 +19,14 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 /**
  * Executa SQL diretamente no Supabase através da API
+ * Nota: Esta é uma solução alternativa, já que o método ideal seria
+ * usar migrations com drizzle-orm direto no Supabase
  */
 export async function executeSql(sql) {
   try {
+    // Usar o recurso de RPC para executar SQL diretamente
+    // Se o Supabase não tiver uma função SQL RPC configurada, isto falhará
+    // e você precisará criar a função no painel do Supabase
     const { data, error } = await supabase.rpc('execute_sql', { sql_query: sql });
     
     if (error) {
@@ -34,15 +43,21 @@ export async function executeSql(sql) {
 
 /**
  * Função para inicializar o banco de dados
+ * Isso vai criar todas as tabelas necessárias no Supabase
+ * 
+ * Nota: Esta função deve ser chamada apenas uma vez para configuração inicial
+ * ou então executar pelo painel administrativo do Supabase
  */
 export async function initializeDatabase(sqlContent) {
   try {
     console.log('🔄 Tentando inicializar banco de dados...');
     
+    // Tentar executar o SQL pelo RPC
     const result = await executeSql(sqlContent);
     
     if (!result.success) {
       console.log('⚠️ Não foi possível executar SQL através de RPC.');
+      console.log('⚠️ Você precisará criar as tabelas manualmente pelo painel do Supabase ou configurar uma função RPC para executar SQL.');
       return false;
     }
     

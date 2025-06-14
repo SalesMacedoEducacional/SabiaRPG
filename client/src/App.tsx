@@ -5,7 +5,6 @@ import NotFound from "@/pages/not-found";
 import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
-import QuickLogin from "@/pages/QuickLogin";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 // Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
@@ -32,7 +31,6 @@ function Router() {
     <Switch>
       {/* Rotas públicas */}
       <Route path="/auth" component={Login} />
-      <Route path="/quick-login" component={QuickLogin} />
       <Route path="/auth-test" component={LoginTest} />
       <Route path="/acesso-negado" component={AccessDenied} />
       <Route path="/teste-upload" component={TestUpload} />

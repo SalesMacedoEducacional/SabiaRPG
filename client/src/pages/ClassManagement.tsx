@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import axios from "axios";
-import { getProfileBasedDashboard } from "@/lib/navigation";
 import { 
   Card, 
   CardHeader, 
@@ -50,8 +49,7 @@ import {
   Users, 
   CalendarDays, 
   Clock, 
-  BookOpen,
-  Trash2
+  BookOpen
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft } from "lucide-react";
@@ -93,12 +91,6 @@ export default function ClassManagement() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
-
-  // Função para redirecionar para o dashboard correto baseado no perfil
-  const redirectToDashboard = () => {
-    const dashboardPath = getProfileBasedDashboard(user);
-    setLocation(dashboardPath);
-  };
   
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [selectedEscola, setSelectedEscola] = useState<string>("");
@@ -107,8 +99,6 @@ export default function ClassManagement() {
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false);
   const [editTurma, setEditTurma] = useState<Turma | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [turmaParaExcluir, setTurmaParaExcluir] = useState<Turma | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
 
   // Form setup
   const form = useForm<z.infer<typeof turmaFormSchema>>({
@@ -155,27 +145,22 @@ export default function ClassManagement() {
       const fetchTurmas = async () => {
         try {
           setLoading(true);
-          console.log("Carregando turmas da escola:", selectedEscola);
           const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
-          console.log("Turmas retornadas da API para escola", selectedEscola, ":", response.data);
+          console.log("Turmas retornadas da API:", response.data);
           setTurmas(response.data);
         } catch (error) {
           console.error("Erro ao carregar turmas:", error);
           toast({
             title: "Erro",
-            description: "Não foi possível carregar as turmas da escola selecionada.",
+            description: "Não foi possível carregar as turmas. Tente novamente mais tarde.",
             variant: "destructive",
           });
-          setTurmas([]); // Limpar lista em caso de erro
         } finally {
           setLoading(false);
         }
       };
 
       fetchTurmas();
-    } else {
-      // Se nenhuma escola foi selecionada, limpar a lista de turmas
-      setTurmas([]);
     }
   }, [selectedEscola, toast]);
 
@@ -207,43 +192,6 @@ export default function ClassManagement() {
     });
     setEditTurma(turma);
     setShowAddDialog(true);
-  };
-
-  // Função para iniciar exclusão de turma
-  const handleDeleteTurma = (turma: Turma) => {
-    setTurmaParaExcluir(turma);
-    setShowDeleteDialog(true);
-  };
-
-  // Função para confirmar exclusão de turma
-  const confirmarExclusaoTurma = async () => {
-    if (!turmaParaExcluir) return;
-
-    try {
-      await axios.delete(`/api/turmas/${turmaParaExcluir.id}`);
-      
-      // Recarregar lista de turmas
-      if (selectedEscola) {
-        const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
-        setTurmas(response.data);
-      }
-      
-      toast({
-        title: "Sucesso",
-        description: `Turma "${turmaParaExcluir.nome || turmaParaExcluir.nome_turma}" excluída com sucesso!`,
-      });
-      
-      // Fechar modal
-      setShowDeleteDialog(false);
-      setTurmaParaExcluir(null);
-    } catch (error) {
-      console.error("Erro ao excluir turma:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir a turma. Tente novamente.",
-        variant: "destructive",
-      });
-    }
   };
 
   // Enviar formulário de turma (criar/editar)
@@ -302,7 +250,7 @@ export default function ClassManagement() {
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex items-center mb-6">
         <Button 
-          onClick={redirectToDashboard} 
+          onClick={() => setLocation("/dashboard")} 
           variant="outline" 
           className="mr-4 bg-transparent border-primary text-parchment hover:bg-dark-light"
         >
@@ -371,38 +319,20 @@ export default function ClassManagement() {
         <div className="flex justify-center items-center h-64">
           <div className="text-parchment">Carregando turmas...</div>
         </div>
-      ) : !selectedEscola ? (
-        <Card className="bg-dark-light border border-primary/50 text-center p-8">
-          <CardContent className="pt-6">
-            <div className="text-6xl mb-4">🏫</div>
-            <h3 className="text-xl font-semibold text-parchment mb-2">
-              Selecione uma escola
-            </h3>
-            <p className="text-parchment-dark mb-4">
-              Para visualizar e gerenciar turmas, primeiro selecione uma escola acima.
-            </p>
-          </CardContent>
-        </Card>
       ) : (
         <>
           {filteredTurmas.length === 0 ? (
             <Card className="bg-dark-light border border-primary/50 text-center p-8">
               <CardContent className="pt-6">
-                <div className="text-6xl mb-4">📚</div>
-                <h3 className="text-xl font-semibold text-parchment mb-2">
-                  Nenhuma turma encontrada
-                </h3>
-                <p className="text-parchment-dark mb-4">
-                  {searchTerm 
-                    ? `Nenhuma turma encontrada com o termo "${searchTerm}" nesta escola.`
-                    : `Esta escola ainda não possui turmas cadastradas.`}
+                <p className="text-parchment">
+                  {searchTerm ? "Nenhuma turma encontrada com os termos de busca." : "Nenhuma turma cadastrada para esta escola."}
                 </p>
                 <Button 
                   onClick={handleAddTurma} 
-                  className="bg-accent hover:bg-accent-dark text-white"
+                  className="mt-4 bg-accent hover:bg-accent-dark text-white border border-primary"
                   disabled={!selectedEscola}
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Cadastrar Primeira Turma
+                  <Plus className="h-4 w-4 mr-2" /> Cadastrar Nova Turma
                 </Button>
               </CardContent>
             </Card>
@@ -430,12 +360,6 @@ export default function ClassManagement() {
                         <span className="text-parchment">Modalidade: {turma.modalidade || '—'}</span>
                       </div>
                       <div className="flex items-start">
-                        <School className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
-                        <span className="text-green-400 font-medium">
-                          Escola: {escolaSelecionadaNome}
-                        </span>
-                      </div>
-                      <div className="flex items-start">
                         <Users className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
                         <span className="text-parchment">
                           Alunos: {turma.total_alunos || 0}
@@ -452,38 +376,28 @@ export default function ClassManagement() {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-primary/40 bg-dark pt-3 flex justify-between">
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
-                        onClick={() => handleEditTurma(turma)}
-                      >
-                        <PenSquare className="h-3.5 w-3.5 mr-1" />
-                        Editar
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="text-xs border-primary text-parchment hover:bg-dark-light"
-                        onClick={() => {
-                          // Navegação para detalhes da turma - para implementar futuramente
-                          toast({
-                            title: "Informação",
-                            description: "Funcionalidade de visualizar detalhes será implementada em breve.",
-                          });
-                        }}
-                      >
-                        <Users className="h-3.5 w-3.5 mr-1" />
-                        Ver Alunos
-                      </Button>
-                    </div>
                     <Button 
                       size="sm" 
-                      className="text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground border border-destructive"
-                      onClick={() => handleDeleteTurma(turma)}
+                      className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
+                      onClick={() => handleEditTurma(turma)}
                     >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      Excluir
+                      <PenSquare className="h-3.5 w-3.5 mr-1" />
+                      Editar Turma
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs border-primary text-parchment hover:bg-dark-light"
+                      onClick={() => {
+                        // Navegação para detalhes da turma - para implementar futuramente
+                        toast({
+                          title: "Informação",
+                          description: "Funcionalidade de visualizar detalhes será implementada em breve.",
+                        });
+                      }}
+                    >
+                      <Users className="h-3.5 w-3.5 mr-1" />
+                      Ver Alunos
                     </Button>
                   </CardFooter>
                 </Card>
@@ -694,55 +608,6 @@ export default function ClassManagement() {
               </DialogFooter>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de confirmação de exclusão */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-dark border border-destructive text-parchment max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl text-destructive flex items-center">
-              <Trash2 className="h-5 w-5 mr-2" />
-              Confirmar Exclusão
-            </DialogTitle>
-            <DialogDescription className="text-parchment-dark">
-              Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
-              <p className="text-parchment text-center">
-                Tem certeza que deseja excluir a turma:
-              </p>
-              <p className="text-accent font-semibold text-center text-lg mt-2">
-                "{turmaParaExcluir?.nome || turmaParaExcluir?.nome_turma}"
-              </p>
-            </div>
-            <p className="text-parchment-dark text-sm text-center">
-              Todos os dados relacionados a esta turma serão perdidos permanentemente.
-            </p>
-          </div>
-
-          <div className="flex gap-3 justify-end">
-            <Button 
-              variant="outline"
-              onClick={() => {
-                setShowDeleteDialog(false);
-                setTurmaParaExcluir(null);
-              }}
-              className="border-primary text-parchment hover:bg-dark-light"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              onClick={confirmarExclusaoTurma}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Excluir Turma
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>

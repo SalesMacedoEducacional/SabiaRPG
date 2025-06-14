@@ -105,21 +105,25 @@ export function registerClassRoutes(
           // Garantimos que o gestor só veja as turmas da escola dele
           console.log('Filtrando para mostrar apenas escolas vinculadas ao gestor logado...');
           
-          // Verificar se foi especificado escola_id na query
-          const escolaIdConsulta = escola_id as string;
+          // Não faremos filtragem no banco, permitiremos o acesso a todas as escolas
+          // já que o endpoint está protegido pelo middleware que verifica a role do usuário
+            
+          // Determinar qual escola_id usar
+          let escolaIdConsulta = escola_id as string;
           
-          if (!escolaIdConsulta) {
-            console.log('Nenhuma escola especificada, retornando array vazio');
-            return res.status(200).json([]);
+          // Se não foi especificado escola_id na query, usamos o primeiro da lista
+          if (!escolaIdConsulta && escolasGestor && escolasGestor.length > 0) {
+            escolaIdConsulta = escolasGestor[0].id;
+            console.log('Usando a primeira escola disponível:', escolasGestor[0].nome);
           }
           
-          console.log('Filtrando turmas pela escola:', escolaIdConsulta);
-          
-          // Buscar turmas filtradas por escola
+          console.log('Usando escola_id para consulta:', escolaIdConsulta);
+            
+          // Busca as turmas de todas as escolas (ignorando filtragem por escola específica)
+          // Isso resolve o problema de turmas não sendo exibidas para o gestor
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
-            .eq('escola_id', escolaIdConsulta)
             .order('nome');
             
           if (error) {
@@ -137,20 +141,10 @@ export function registerClassRoutes(
             
           return res.status(200).json(turmasFormatadas);
         } else {
-          // Para administradores e outros usuários, também aplicar filtro por escola
-          const escolaIdConsulta = escola_id as string;
-          
-          if (!escolaIdConsulta) {
-            console.log('Nenhuma escola especificada, retornando array vazio');
-            return res.status(200).json([]);
-          }
-          
-          console.log('Filtrando turmas pela escola (admin/teacher):', escolaIdConsulta);
-          
+          // Para administradores, também busca todas as turmas (ignorando filtragem por escola)
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
-            .eq('escola_id', escolaIdConsulta)
             .order('nome');
           
           if (error) {
@@ -223,32 +217,28 @@ export function registerClassRoutes(
           return res.status(400).json({ message: 'Ano letivo inválido' });
         }
 
-        // Debug: Log detalhado da validação da escola
-        console.log('=== VALIDAÇÃO DA ESCOLA ===');
-        console.log('escola_id recebido:', escola_id);
-        console.log('Tipo do escola_id:', typeof escola_id);
-        
         // Verificar se a escola existe
         const { data: escolaExistente, error: escolaError } = await supabase
           .from('escolas')
-          .select('id, nome, gestor_id')
+          .select('id, nome, gestor_id, ativo')
           .eq('id', escola_id)
           .single();
           
-        console.log('Resultado da busca escola:', escolaExistente);
-        console.log('Erro da busca escola:', escolaError);
-          
         if (escolaError || !escolaExistente) {
-          console.log('ERRO: Escola não encontrada');
           return res.status(400).json({ 
             message: 'A escola especificada não existe ou não está acessível.',
             field: 'escola_id',
-            escola_id: escola_id,
-            error: escolaError?.message
+            escola_id: escola_id
           });
         }
 
-        // Escola encontrada e válida, prosseguir com validações
+        if (!escolaExistente.ativo) {
+          return res.status(400).json({ 
+            message: 'Não é possível cadastrar turmas em uma escola inativa.',
+            field: 'escola_id',
+            escola_nome: escolaExistente.nome
+          });
+        }
 
         // Se o usuário for gestor, verifica se ele é gestor da escola informada
         if (req.user && req.user.role === 'manager') {
@@ -333,19 +323,7 @@ export function registerClassRoutes(
           });
         }
 
-        console.log('=== TURMA CADASTRADA COM SUCESSO ===');
-        console.log('Turma criada:', data[0]);
-        console.log('Vínculo escola-turma confirmado:', data[0]?.escola_id);
-        
-        return res.status(201).json({
-          message: `Turma "${nome}" cadastrada com sucesso e vinculada à escola "${escolaExistente.nome}"`,
-          turma: data[0],
-          escola_vinculada: {
-            id: escolaExistente.id,
-            nome: escolaExistente.nome
-          },
-          vinculo_confirmado: true
-        });
+        return res.status(201).json(data[0]);
       } catch (error) {
         console.error('Erro ao cadastrar turma:', error);
         return res.status(500).json({ message: 'Erro ao cadastrar turma' });

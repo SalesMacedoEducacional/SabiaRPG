@@ -6,7 +6,6 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
-import { getProfileBasedDashboard } from "@/lib/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 // Componentes do shadcn
@@ -62,12 +61,6 @@ export default function ClassRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-
-  // Função para redirecionar para o dashboard correto baseado no perfil
-  const redirectToDashboard = () => {
-    const dashboardPath = getProfileBasedDashboard(user);
-    setLocation(dashboardPath);
-  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
@@ -160,12 +153,6 @@ export default function ClassRegistration() {
         return;
       }
       
-      // Debug: Verificar dados antes do envio
-      console.log('=== DEBUG CADASTRO TURMA ===');
-      console.log('Dados do formulário:', data);
-      console.log('Escola selecionada ID:', data.escola_id);
-      console.log('Escolas disponíveis:', escolas);
-      
       // Preparar dados para enviar ao backend (mapear nome_turma para nome)
       const dadosParaEnvio = {
         nome: data.nome_turma,
@@ -176,8 +163,6 @@ export default function ClassRegistration() {
         descricao: data.observacoes || null,
         escola_id: data.escola_id
       };
-      
-      console.log('Dados preparados para envio:', dadosParaEnvio);
       
       // Fazer requisição para cadastrar a turma
       const response = await apiRequest("POST", "/api/turmas", dadosParaEnvio);
@@ -198,7 +183,7 @@ export default function ClassRegistration() {
       });
       
       // Redirecionar para a lista de turmas
-      setLocation("/manager-dashboard");
+      setLocation("/manager/classes");
     } catch (error) {
       console.error("Erro ao cadastrar turma:", error);
       toast({
@@ -213,7 +198,7 @@ export default function ClassRegistration() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    setLocation("/manager-dashboard");
+    setLocation("/dashboard");
     return null;
   }
 
@@ -224,7 +209,7 @@ export default function ClassRegistration() {
           <Button
             variant="outline"
             size="sm"
-            onClick={redirectToDashboard}
+            onClick={() => setLocation("/manager")}
             className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
@@ -480,7 +465,7 @@ export default function ClassRegistration() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={redirectToDashboard}
+                  onClick={() => setLocation("/manager-dashboard")}
                   disabled={isSubmitting}
                 >
                   Cancelar

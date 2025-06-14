@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { getProfileBasedDashboard } from "@/lib/navigation";
 
 // Componentes do shadcn
 import {
@@ -84,12 +83,6 @@ export default function ClassListPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-
-  // Função para redirecionar para o dashboard correto baseado no perfil
-  const redirectToDashboard = () => {
-    const dashboardPath = getProfileBasedDashboard(user);
-    setLocation(dashboardPath);
-  };
   const [searchTerm, setSearchTerm] = useState("");
   const [anoLetivoFilter, setAnoLetivoFilter] = useState<string>("todos");
   const [escolaFilter, setEscolaFilter] = useState<string>("todas");
@@ -206,8 +199,7 @@ export default function ClassListPage() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    const dashboardPath = getProfileBasedDashboard(user);
-    setLocation(dashboardPath);
+    setLocation("/gestor/dashboard");
     return null;
   }
 
@@ -218,7 +210,7 @@ export default function ClassListPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={redirectToDashboard}
+            onClick={() => setLocation("/gestor/dashboard")}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
