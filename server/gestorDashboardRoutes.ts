@@ -172,10 +172,11 @@ export function registerGestorDashboardRoutes(app: Express) {
           cpf,
           telefone,
           criado_em,
-          perfis_professor(
+          perfis_professor!perfis_professor_usuario_id_fkey(
             escola_id,
             disciplinas,
             turmas,
+            ativo,
             escolas(nome, tipo)
           )
         `)
