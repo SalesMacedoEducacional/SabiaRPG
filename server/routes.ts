@@ -818,6 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Login bem-sucedido para:", email);
       console.log("ID do usuário autenticado (auth.uid):", authData.user.id);
       console.log("Papel do usuário:", usuarioDb.papel);
+      console.log("Nome do usuário no banco:", usuarioDb.nome);
       
       // Converter papel do usuário para formato da aplicação
       let role = "student";

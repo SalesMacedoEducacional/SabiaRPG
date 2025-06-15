@@ -172,15 +172,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
+      // Debug: logs para verificar dados recebidos
+      console.log("Dados do usuário no login:", data);
+      console.log("fullName:", data.fullName);
+      console.log("username:", data.username);
+      console.log("email:", data.email);
+      
       // Criar nome de exibição inteligente
       let displayName = 'usuário';
       
       if (data.fullName) {
         // Se tem nome completo, usar ele
         displayName = data.fullName;
+        console.log("Usando fullName:", displayName);
       } else if (data.username) {
         // Se tem username, usar ele
         displayName = data.username;
+        console.log("Usando username:", displayName);
       } else if (data.email) {
         // Se só tem email, criar um nome amigável baseado no email
         const emailPart = data.email.split('@')[0];
@@ -190,8 +198,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
+        console.log("Usando email processado:", displayName);
       }
       
+      console.log("Nome final para notificação:", displayName);
       toast.loginSuccess(displayName);
     },
     onError: (error: any) => {
