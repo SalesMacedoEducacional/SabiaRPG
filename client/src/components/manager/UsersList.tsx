@@ -283,7 +283,7 @@ export default function UsersList() {
           </p>
         </div>
         <Button 
-          className="bg-accent hover:bg-accent-dark text-white border border-accent-light shadow-md transition-colors"
+          className="bg-[#C5A572] hover:bg-[#B3956A] text-white border border-[#D4A054] shadow-md transition-colors"
           onClick={() => setLocation('/user-registration')}
         >
           <Plus size={16} className="mr-2" />

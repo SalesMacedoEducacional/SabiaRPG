@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { insertUserSchema } from '@shared/schema';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon, Eye as EyeIcon, EyeOff as EyeOffIcon, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useStandardToast } from "@/lib/toast-utils";
 
 // Login form schema
 const loginSchema = z.object({
@@ -56,7 +56,7 @@ const registerSchema = insertUserSchema.extend({
 
 const Login: React.FC = () => {
   const { login, register, isAuthenticated } = useAuth();
-  const { toast } = useToast();
+  const toast = useStandardToast();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('login');
   const [isLoading, setIsLoading] = useState(false);

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
+import { useStandardToast } from "@/lib/toast-utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
