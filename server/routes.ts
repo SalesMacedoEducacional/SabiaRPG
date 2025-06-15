@@ -829,7 +829,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: authData.user.id,
         email: usuarioDb.email,
         username: usuarioDb.username || email.split('@')[0],
-        fullName: usuarioDb.nome_completo || "Usuário",
+        fullName: usuarioDb.nome || null, // Usar o campo 'nome' correto do banco
         role: role,
         level: usuarioDb.nivel || 1,
         xp: usuarioDb.xp || 0,
