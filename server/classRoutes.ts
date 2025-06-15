@@ -102,28 +102,27 @@ export function registerClassRoutes(
           console.log(`Total de escolas encontradas: ${escolasGestor?.length || 0}`);
           console.log('ID do usuário autenticado:', req.user.id);
           
-          // Garantimos que o gestor só veja as turmas da escola dele
-          console.log('Filtrando para mostrar apenas escolas vinculadas ao gestor logado...');
+          // Garantimos que o gestor só veja as turmas das escolas que ele gerencia
+          console.log('Verificando escola vinculada ao gestor:', req.user.id);
           
-          // Não faremos filtragem no banco, permitiremos o acesso a todas as escolas
-          // já que o endpoint está protegido pelo middleware que verifica a role do usuário
-            
-          // Determinar qual escola_id usar
-          let escolaIdConsulta = escola_id as string;
+          // Filtrar escolas que o gestor gerencia
+          const escolasDoGestor = escolasGestor?.filter(escola => escola.gestor_id === req.user.id) || [];
+          console.log(`Escolas gerenciadas pelo usuário: ${escolasDoGestor.length}`);
           
-          // Se não foi especificado escola_id na query, usamos o primeiro da lista
-          if (!escolaIdConsulta && escolasGestor && escolasGestor.length > 0) {
-            escolaIdConsulta = escolasGestor[0].id;
-            console.log('Usando a primeira escola disponível:', escolasGestor[0].nome);
+          if (escolasDoGestor.length === 0) {
+            console.log('Gestor não possui escolas vinculadas');
+            return res.status(200).json([]);
           }
           
-          console.log('Usando escola_id para consulta:', escolaIdConsulta);
-            
-          // Busca as turmas de todas as escolas (ignorando filtragem por escola específica)
-          // Isso resolve o problema de turmas não sendo exibidas para o gestor
+          // Obter IDs das escolas do gestor
+          const escolaIds = escolasDoGestor.map(escola => escola.id);
+          console.log('IDs das escolas do gestor:', escolaIds);
+          
+          // Buscar turmas apenas das escolas gerenciadas pelo gestor
           const { data: turmas, error } = await supabase
             .from('turmas')
             .select('*')
+            .in('escola_id', escolaIds)
             .order('nome');
             
           if (error) {
