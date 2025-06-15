@@ -108,9 +108,16 @@ export default function ClassListPage() {
   const [showComponentsModal, setShowComponentsModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
-  // Buscar turmas
+  // Buscar turmas (incluir filtro de escola na query)
   const { data: turmas = [], isLoading: isLoadingTurmas } = useQuery({
-    queryKey: ['/api/turmas'],
+    queryKey: ['/api/turmas', escolaFilter],
+    queryFn: async () => {
+      let url = '/api/turmas';
+      if (escolaFilter && escolaFilter !== 'todas') {
+        url += `?escola_id=${escolaFilter}`;
+      }
+      return apiRequest('GET', url);
+    },
     enabled: !!user && (user.role === 'manager' || user.role === 'admin'),
   });
 
@@ -175,15 +182,15 @@ export default function ClassListPage() {
     setShowDetailsModal(true);
   };
 
+  const handleEdit = (turmaId: string) => {
+    setLocation(`/class-edit/${turmaId}`);
+  };
+
   const handleDelete = (turmaId: string) => {
     setIsDeleting(turmaId);
     deleteMutation.mutate(turmaId, {
       onSettled: () => setIsDeleting(null)
     });
-  };
-
-  const handleEdit = (turmaId: string) => {
-    setLocation(`/turmas/editar/${turmaId}`);
   };
 
   const handleViewStudents = (turmaId: string) => {
@@ -228,7 +235,7 @@ export default function ClassListPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setLocation("/dashboard")}
+              onClick={() => setLocation("/gestor-dashboard")}
               className="flex items-center gap-2 bg-[#2a2621] border-accent text-accent hover:bg-accent hover:text-[#2a2621]"
             >
               <ArrowLeft className="h-4 w-4" />

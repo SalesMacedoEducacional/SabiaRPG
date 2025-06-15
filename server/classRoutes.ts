@@ -80,6 +80,7 @@ export function registerClassRoutes(
     async (req: Request, res: Response) => {
       try {
         const { escola_id } = req.query;
+        console.log('Query params recebidos:', req.query);
         
         // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
         if (req.user && req.user.role === 'manager') {
@@ -110,7 +111,21 @@ export function registerClassRoutes(
           }
           
           // Obter IDs das escolas do gestor
-          const escolaIds = escolasDoGestor.map(escola => escola.id);
+          let escolaIds = escolasDoGestor.map(escola => escola.id);
+          
+          // Se uma escola específica foi solicitada, filtrar apenas por ela
+          if (escola_id && escola_id !== 'todas') {
+            console.log(`Filtro por escola específica solicitado: ${escola_id}`);
+            // Verificar se a escola solicitada está entre as escolas do gestor
+            if (escolaIds.includes(escola_id)) {
+              escolaIds = [escola_id];
+              console.log('Escola válida para o gestor - filtrando apenas por ela');
+            } else {
+              console.log('Escola solicitada não pertence ao gestor - retornando vazio');
+              return res.status(200).json([]);
+            }
+          }
+          
           console.log('IDs das escolas que serão filtradas para turmas:', escolaIds);
           
           // Buscar turmas apenas das escolas gerenciadas pelo gestor
