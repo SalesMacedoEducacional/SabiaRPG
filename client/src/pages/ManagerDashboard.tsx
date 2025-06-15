@@ -181,6 +181,8 @@ export default function ManagerDashboard() {
                       <BookOpen className="h-4 w-4 mr-2" />
                       <span className="text-white">Gerenciar Turmas</span>
                     </button>
+                    
+                    <ComponentesCurriculares />
                   </div>
                 </div>
               </div>
