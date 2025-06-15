@@ -113,12 +113,12 @@ export default function ComponentesCurriculares() {
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Plano de aula criado com sucesso!');
+      toastUtils.success('Plano de aula criado com sucesso!');
       setNovoPlano({ titulo: '', conteudo: '', data_aula: '' });
       refetchPlanos();
     },
     onError: (error: any) => {
-      toast.error('Erro ao criar plano de aula', error.message);
+      toastUtils.error('Erro ao criar plano de aula', error.message);
     }
   });
 
@@ -129,13 +129,13 @@ export default function ComponentesCurriculares() {
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Componente adicionado com sucesso!');
+      toastUtils.success('Componente adicionado com sucesso!');
       setNovoComponente({ componente_id: '', professor_id: '', ano_serie: '' });
       setIsAddComponentModalOpen(false);
       refetchComponentes();
     },
     onError: (error: any) => {
-      toast.error('Erro ao adicionar componente', error.message);
+      toastUtils.error('Erro ao adicionar componente', error.message);
     }
   });
 
@@ -167,7 +167,7 @@ export default function ComponentesCurriculares() {
 
   const handleCreatePlano = () => {
     if (!novoPlano.titulo.trim()) {
-      toast.error('Título é obrigatório');
+      toastUtils.error('Título é obrigatório');
       return;
     }
 
@@ -181,7 +181,7 @@ export default function ComponentesCurriculares() {
 
   const handleAddComponente = () => {
     if (!novoComponente.componente_id || !novoComponente.professor_id || !novoComponente.ano_serie) {
-      toast.error('Todos os campos são obrigatórios');
+      toastUtils.error('Todos os campos são obrigatórios');
       return;
     }
 
