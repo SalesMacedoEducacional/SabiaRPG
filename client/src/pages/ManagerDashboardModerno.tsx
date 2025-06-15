@@ -16,6 +16,7 @@ import TeachersList from '../components/manager/TeachersList';
 import StudentsList from '../components/manager/StudentsList';
 import UsersList from '../components/manager/UsersList';
 import ClassesList from '../components/manager/ClassesList';
+import ComponentesCurriculares from '@/components/manager/ComponentsCurriculares';
 
 import { 
   Home, 
@@ -45,7 +46,9 @@ import {
   Search,
   PlusCircle,
   ArrowRightToLine,
-  X
+  X,
+  Library,
+  ChevronDown
 } from 'lucide-react';
 
 /**
@@ -60,6 +63,7 @@ export default function ManagerDashboardModerno() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   
   // Função para lidar com logout
   const handleLogout = async () => {
@@ -141,22 +145,80 @@ export default function ManagerDashboardModerno() {
               <Search size={16} className="absolute left-3 text-[#877d63]" />
             </div>
 
-            {/* User Info and Logout */}
-            <div className="flex items-center gap-2">
+            {/* User Info and Profile Popup */}
+            <div className="flex items-center gap-2 relative">
               <div className="hidden md:block text-right">
                 <p className="text-white text-sm font-medium">{"Gestor"}</p>
                 <p className="text-accent text-xs">{user.email}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-accent text-white flex items-center justify-center">
-                <User size={16} />
+              
+              {/* Profile Button with Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowProfilePopup(!showProfilePopup)}
+                  className="flex items-center gap-2 p-1.5 hover:bg-[#3a3730] rounded-md text-white"
+                  title="Perfil do Usuário"
+                >
+                  <div className="h-8 w-8 rounded-full bg-accent text-white flex items-center justify-center">
+                    <User size={16} />
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform ${showProfilePopup ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Profile Popup */}
+                {showProfilePopup && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-[#312e26] border border-accent rounded-lg shadow-xl z-50">
+                    <div className="p-4 border-b border-accent">
+                      <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-full bg-accent text-white flex items-center justify-center">
+                          <User size={20} />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Gestor Escolar</p>
+                          <p className="text-accent text-sm">{user.email}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-2">
+                      <button 
+                        onClick={() => {
+                          setActiveMenu("profile");
+                          setShowProfilePopup(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3730] text-white text-left"
+                      >
+                        <User size={16} />
+                        <span className="text-sm">Meu Perfil</span>
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          setActiveMenu("settings");
+                          setShowProfilePopup(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3730] text-white text-left"
+                      >
+                        <Settings size={16} />
+                        <span className="text-sm">Configurações</span>
+                      </button>
+                      
+                      <div className="border-t border-accent my-2"></div>
+                      
+                      <button 
+                        onClick={() => {
+                          handleLogout();
+                          setShowProfilePopup(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-600/20 text-red-400 text-left"
+                      >
+                        <LogOut size={16} />
+                        <span className="text-sm">Sair do Sistema</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <button 
-                onClick={handleLogout}
-                className="ml-2 p-1.5 hover:bg-[#3a3730] rounded-md text-white"
-                title="Sair"
-              >
-                <LogOut size={18} />
-              </button>
             </div>
           </div>
         </div>
@@ -207,6 +269,14 @@ export default function ManagerDashboardModerno() {
                 >
                   <Users size={18} />
                   <span>Usuários</span>
+                </button>
+                
+                <button 
+                  onClick={() => handleMenuSelect("components")}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md ${activeMenu === "components" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"}`}
+                >
+                  <Library size={18} />
+                  <span>Componentes</span>
                 </button>
                 
                 <button 
@@ -293,6 +363,14 @@ export default function ManagerDashboardModerno() {
               >
                 <Users size={18} className="flex-shrink-0" />
                 {sidebarOpen && <span className="ml-2">Usuários</span>}
+              </button>
+              
+              <button 
+                onClick={() => setActiveMenu("components")}
+                className={`${activeMenu === "components" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
+              >
+                <Library size={18} className="flex-shrink-0" />
+                {sidebarOpen && <span className="ml-2">Componentes</span>}
               </button>
               
               <div className={`ml-2 ${!sidebarOpen && 'hidden'}`}>
@@ -643,7 +721,105 @@ export default function ManagerDashboardModerno() {
             </div>
           )}
           
-
+          {activeMenu === "components" && (
+            <div>
+              <ComponentesCurriculares />
+            </div>
+          )}
+          
+          {activeMenu === "dashboard" && (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">Estatísticas Detalhadas</h1>
+                  <p className="text-white/70">Análise completa do sistema</p>
+                </div>
+              </div>
+              
+              {/* Detailed Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <EscolasVinculadasCard />
+                </div>
+                
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalProfessoresCard />
+                </div>
+                
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalAlunosCard />
+                </div>
+                
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden hover:border-accent transition-colors">
+                  <TotalTurmasCard />
+                </div>
+              </div>
+              
+              {/* Charts and Analytics Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
+                  <div className="border-b border-accent/50 px-4 py-3">
+                    <h3 className="text-white font-medium">Atividade dos Usuários</h3>
+                  </div>
+                  <div className="p-4">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white text-sm">Alunos Ativos</span>
+                        <span className="text-accent font-bold">0</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-white text-sm">Professores Online</span>
+                        <span className="text-accent font-bold">0</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-white text-sm">Sessões Hoje</span>
+                        <span className="text-accent font-bold">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
+                  <div className="border-b border-accent/50 px-4 py-3">
+                    <h3 className="text-white font-medium">Performance Geral</h3>
+                  </div>
+                  <div className="p-4">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-white">Taxa de Conclusão</span>
+                          <span className="text-accent">0%</span>
+                        </div>
+                        <div className="w-full bg-[#3a3730] rounded-full h-2">
+                          <div className="bg-accent h-2 rounded-full" style={{ width: '0%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-white">Engajamento</span>
+                          <span className="text-accent">0%</span>
+                        </div>
+                        <div className="w-full bg-[#3a3730] rounded-full h-2">
+                          <div className="bg-accent h-2 rounded-full" style={{ width: '0%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-white">Satisfação</span>
+                          <span className="text-accent">0%</span>
+                        </div>
+                        <div className="w-full bg-[#3a3730] rounded-full h-2">
+                          <div className="bg-accent h-2 rounded-full" style={{ width: '0%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {activeMenu === "reports" && (
             <div>
