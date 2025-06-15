@@ -64,7 +64,7 @@ import {
   GraduationCap,
   MoreHorizontal
 } from "lucide-react";
-import ComponentesCurriculares from "@/components/manager/ComponentsCurriculares";
+// import ComponentesCurriculares from "@/components/manager/ComponentsCurriculares";
 
 // Interface para representar uma Turma
 interface Turma {
@@ -123,7 +123,16 @@ export default function ClassListPage() {
   // Mutation para deletar turma
   const deleteMutation = useMutation({
     mutationFn: async (turmaId: string) => {
-      return await apiRequest(`/api/turmas/${turmaId}`, 'DELETE');
+      const response = await fetch(`/api/turmas/${turmaId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao excluir turma');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/turmas'] });
@@ -143,17 +152,17 @@ export default function ClassListPage() {
   });
 
   // Filtrar turmas
-  const turmasFiltradas = turmas.filter((turma: Turma) => {
+  const turmasFiltradas = Array.isArray(turmas) ? turmas.filter((turma: Turma) => {
     const matchesSearch = turma.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          turma.nome_turma?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEscola = escolaFilter === "todas" || turma.escola_id === escolaFilter;
     
     return matchesSearch && matchesEscola;
-  });
+  }) : [];
 
   // Função para obter turma com nome da escola
   const getTurmaComEscolaNome = (turma: Turma): Turma => {
-    const escola = escolas.find((e: Escola) => e.id === turma.escola_id);
+    const escola = Array.isArray(escolas) ? escolas.find((e: Escola) => e.id === turma.escola_id) : null;
     return {
       ...turma,
       escola_nome: escola?.nome || 'Escola não identificada'
@@ -252,7 +261,7 @@ export default function ClassListPage() {
                   <SelectItem value="todas" className="text-white hover:bg-accent hover:text-[#312e2a]">
                     Todas as Escolas
                   </SelectItem>
-                  {escolas.map((escola: Escola) => (
+                  {Array.isArray(escolas) && escolas.map((escola: Escola) => (
                     <SelectItem 
                       key={escola.id} 
                       value={escola.id}
@@ -539,10 +548,25 @@ export default function ClassListPage() {
           </DialogHeader>
           
           {selectedTurma && (
-            <ComponentesCurriculares 
-              turmaId={selectedTurma.id}
-              turmaNome={selectedTurma.nome || selectedTurma.nome_turma || ''}
-            />
+            <div className="p-4">
+              <div className="bg-[#1a1815] rounded-lg p-6 border border-accent/20">
+                <h3 className="text-lg font-semibold text-accent mb-4">
+                  Componentes Curriculares
+                </h3>
+                <p className="text-gray-300 mb-4">
+                  Funcionalidade de gerenciamento de componentes curriculares será implementada em breve.
+                </p>
+                <p className="text-sm text-gray-400 mb-6">
+                  Turma: {selectedTurma.nome || selectedTurma.nome_turma}
+                </p>
+                <Button 
+                  onClick={() => setShowComponentsModal(false)}
+                  className="bg-accent text-[#312e2a] hover:bg-[#d4af37]"
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
