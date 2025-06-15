@@ -1,0 +1,71 @@
+Replit, implemente agora, sem exceção, o seguinte no painel do Gestor:
+
+Botão “Gerenciar Componentes Curriculares”
+
+Adicione nas Ações Rápidas do menu Turmas um botão com esse texto.
+
+Modal de Seleção de Turma
+
+Ao clicar, abra um modal que faça GET /api/gestor/turmas?gestorId=session.user.id e liste todas as turmas ativas vinculadas ao gestor.
+
+Permita selecionar uma turma; o ID selecionado será usado nos próximos passos.
+
+Listagem de Componentes
+
+Após selecionar a turma, faça GET /api/turmas/{turmaId}/componentes no back-end com a query:
+
+sql
+Copiar
+Editar
+SELECT 
+  tc.id AS turma_componente_id,
+  c.nome       AS componente,
+  u.nome_completo AS professor,
+  tc.ano_serie
+FROM turma_componentes tc
+JOIN componentes c      ON c.id = tc.componente_id
+JOIN usuarios u         ON u.id = tc.professor_id
+WHERE tc.turma_id = :turmaId;
+Exiba em tabela no modal com colunas Componente, Professor, Ano/Série e botão “Planos de Aula” para cada linha.
+
+Gerenciamento de Planos de Aula
+
+“Planos de Aula” abre um segundo modal que faz GET /api/turma_componentes/{turma_componente_id}/planos_aula e lista plano_aula.
+
+Inclua botão “Novo Plano” que abre formulário para POST /api/plano_aula com { turma_componente_id, titulo, conteudo }.
+
+Adicionar Novo Componente
+
+No modal de componentes, inclua botão “Adicionar Componente” que abre formulário com:
+
+Select Componente (GET /api/componentes)
+
+Select Professor (GET /api/professores?turmaId={turmaId})
+
+Input Ano/Série
+
+Ao submeter, faça POST /api/turma_componentes com { turma_id, componente_id, professor_id, ano_serie } e recarregue a lista.
+
+Back-end
+
+Crie endpoints REST funcionais:
+
+GET /api/turmas/{id}/componentes
+
+GET /api/turma_componentes/{id}/planos_aula
+
+POST /api/turma_componentes
+
+POST /api/plano_aula
+
+Utilize session.user.id para filtrar turmas/professores do gestor.
+
+Persistência em banco usando tabelas turmas, componentes, turma_componentes e plano_aula conforme schema apresentado.
+
+UI/UX
+
+Implemente loading spinners e tratamento de erros em todas as chamadas.
+
+Garanta que a interface reflita exatamente os dados reais do banco, sem placeholders fictícios.
+
+Implemente essas mudanças imediatamente para que o Gestor possa gerenciar componentes curriculares e planos de aula trimestrais diretamente pelo painel.
