@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import * as toast from '@/lib/toast-utils';
+import { useStandardToast } from '@/lib/toast-utils';
 import { Loader2, Plus, BookOpen, Calendar } from 'lucide-react';
 
 interface Turma {
@@ -143,6 +143,20 @@ export default function ComponentesCurriculares() {
     setIsMainModalOpen(false);
     setIsComponentModalOpen(true);
   };
+
+  // Listener para eventos customizados da tela de turmas
+  useEffect(() => {
+    const handleOpenComponentsModal = (event: CustomEvent) => {
+      const turmaData = event.detail;
+      handleTurmaSelect(turmaData);
+    };
+
+    document.addEventListener('openComponentsModal', handleOpenComponentsModal as EventListener);
+    
+    return () => {
+      document.removeEventListener('openComponentsModal', handleOpenComponentsModal as EventListener);
+    };
+  }, []);
 
   const handlePlanosAulaClick = (turmaComponenteId: string) => {
     setSelectedTurmaComponenteId(turmaComponenteId);

@@ -53,8 +53,10 @@ import {
   School,
   Filter,
   FileDown,
-  Loader2
+  Loader2,
+  BookOpen
 } from "lucide-react";
+import ComponentesCurriculares from "@/components/manager/ComponentsCurriculares";
 
 // Interface para representar uma Turma
 interface Turma {
@@ -414,6 +416,22 @@ export default function ClassListPage() {
                                 Editar
                               </DropdownMenuItem>
                               <DropdownMenuItem
+                                onClick={() => {
+                                  // Criar uma turma temporária para o ComponentesCurriculares
+                                  const turmaTemp = { 
+                                    id: turma.id, 
+                                    nome_turma: turma.nome || turma.nome_turma || "Turma", 
+                                    serie: turma.serie || "", 
+                                    turno: turma.turno || "" 
+                                  };
+                                  // Trigger do modal de componentes curriculares
+                                  document.dispatchEvent(new CustomEvent('openComponentsModal', { detail: turmaTemp }));
+                                }}
+                              >
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                Componentes Curriculares
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
                                 onClick={() => handleDeleteTurma(turma.id)}
                                 disabled={isDeleting === turma.id}
                                 className="text-destructive focus:text-destructive"
@@ -442,6 +460,9 @@ export default function ClassListPage() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Componente de Gerenciamento de Componentes Curriculares */}
+      <ComponentesCurriculares />
     </div>
   );
 }
