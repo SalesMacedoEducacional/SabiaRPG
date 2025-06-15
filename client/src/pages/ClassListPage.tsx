@@ -64,7 +64,6 @@ import {
   GraduationCap,
   MoreHorizontal
 } from "lucide-react";
-// import ComponentesCurriculares from "@/components/manager/ComponentsCurriculares";
 
 // Interface para representar uma Turma
 interface Turma {
@@ -105,7 +104,6 @@ export default function ClassListPage() {
   const [escolaFilter, setEscolaFilter] = useState<string>("todas");
   const [selectedTurma, setSelectedTurma] = useState<Turma | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showComponentsModal, setShowComponentsModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
   // Buscar turmas (incluir filtro de escola na query)
@@ -191,15 +189,6 @@ export default function ClassListPage() {
     deleteMutation.mutate(turmaId, {
       onSettled: () => setIsDeleting(null)
     });
-  };
-
-  const handleViewStudents = (turmaId: string) => {
-    setLocation(`/turmas/${turmaId}/alunos`);
-  };
-
-  const handleManageComponents = (turma: Turma) => {
-    setSelectedTurma(turma);
-    setShowComponentsModal(true);
   };
 
   // Verificar permissões
@@ -353,16 +342,16 @@ export default function ClassListPage() {
                     return (
                       <TableRow key={turma.id} className="border-accent hover:bg-[#312e2a]/50">
                         <TableCell className="text-white font-medium">
-                          {turma.nome || turma.nome_turma || 'TURMA TESTE'}
+                          {turma.nome || turma.nome_turma}
                         </TableCell>
                         <TableCell className="text-gray-300">
-                          {turma.serie || '1 TESTE'}
+                          {turma.serie}
                         </TableCell>
                         <TableCell className="text-gray-300">
-                          {turmaComEscola.escola_nome || 'Escola não identificada'}
+                          {turmaComEscola.escola_nome}
                         </TableCell>
                         <TableCell className="text-gray-300">
-                          {turma.ano_letivo || 2025}
+                          {turma.ano_letivo}
                         </TableCell>
                         <TableCell className="text-gray-300">
                           <div className="flex items-center gap-1">
@@ -499,78 +488,26 @@ export default function ClassListPage() {
               {selectedTurma.descricao && (
                 <div>
                   <label className="text-sm font-medium text-accent">Descrição</label>
-                  <p className="text-white bg-[#312e2a] p-3 rounded-md">{selectedTurma.descricao}</p>
+                  <p className="text-white">{selectedTurma.descricao}</p>
                 </div>
               )}
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDetailsModal(false)}
+                  className="bg-transparent border-accent text-accent hover:bg-accent hover:text-[#2a2621]"
+                >
+                  Fechar
+                </Button>
                 <Button
                   onClick={() => {
                     setShowDetailsModal(false);
                     handleEdit(selectedTurma.id);
                   }}
-                  className="bg-accent text-[#312e2a] hover:bg-accent/90"
+                  className="bg-accent text-[#2a2621] hover:bg-accent/90"
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Editar
-                </Button>
-                
-                <Button
-                  onClick={() => {
-                    setShowDetailsModal(false);
-                    handleViewStudents(selectedTurma.id);
-                  }}
-                  variant="outline"
-                  className="border-accent text-accent hover:bg-accent hover:text-[#312e2a]"
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Ver Alunos
-                </Button>
-
-                <Button
-                  onClick={() => {
-                    setShowDetailsModal(false);
-                    handleManageComponents(selectedTurma);
-                  }}
-                  variant="outline"
-                  className="border-accent text-accent hover:bg-accent hover:text-[#312e2a]"
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Componentes
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Componentes Curriculares */}
-      <Dialog open={showComponentsModal} onOpenChange={setShowComponentsModal}>
-        <DialogContent className="bg-[#2a2621] border-accent text-white max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-accent">Componentes Curriculares</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Gerencie os componentes curriculares da turma {selectedTurma?.nome || selectedTurma?.nome_turma}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedTurma && (
-            <div className="p-4">
-              <div className="bg-[#1a1815] rounded-lg p-6 border border-accent/20">
-                <h3 className="text-lg font-semibold text-accent mb-4">
-                  Componentes Curriculares
-                </h3>
-                <p className="text-gray-300 mb-4">
-                  Funcionalidade de gerenciamento de componentes curriculares será implementada em breve.
-                </p>
-                <p className="text-sm text-gray-400 mb-6">
-                  Turma: {selectedTurma.nome || selectedTurma.nome_turma}
-                </p>
-                <Button 
-                  onClick={() => setShowComponentsModal(false)}
-                  className="bg-accent text-[#312e2a] hover:bg-[#d4af37]"
-                >
-                  Fechar
+                  Editar Turma
                 </Button>
               </div>
             </div>
