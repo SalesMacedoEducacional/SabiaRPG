@@ -32,6 +32,7 @@ import {
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
 import ManagerProfile from '../components/manager/ManagerProfile';
+import ComponentesCurriculares from '../components/manager/ComponentsCurriculares';
 
 /**
  * Dashboard do Gestor

@@ -661,6 +661,195 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs para gerenciamento de componentes curriculares
+  
+  // GET /api/turmas/{id}/componentes - Listar componentes de uma turma
+  app.get("/api/turmas/:id/componentes", authenticate, async (req, res) => {
+    try {
+      const turmaId = req.params.id;
+      const userId = req.session.userId;
+      
+      // Verificar se é gestor e se tem acesso à turma
+      if (req.session.userRole !== 'manager') {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const { data: componentes, error } = await supabase
+        .from('turma_componentes')
+        .select(`
+          id,
+          ano_serie,
+          componentes!inner(id, nome),
+          usuarios!inner(id, nome)
+        `)
+        .eq('turma_id', turmaId);
+        
+      if (error) {
+        console.error("Erro ao buscar componentes da turma:", error);
+        return res.status(500).json({ message: "Erro ao buscar componentes" });
+      }
+      
+      const componentesFormatados = componentes.map(tc => ({
+        turma_componente_id: tc.id,
+        componente: tc.componentes.nome,
+        professor: tc.usuarios.nome,
+        ano_serie: tc.ano_serie
+      }));
+      
+      res.status(200).json(componentesFormatados);
+    } catch (error) {
+      console.error("Erro ao buscar componentes:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // GET /api/turma_componentes/{id}/planos_aula - Listar planos de aula
+  app.get("/api/turma_componentes/:id/planos_aula", authenticate, async (req, res) => {
+    try {
+      const turmaComponenteId = req.params.id;
+      
+      if (req.session.userRole !== 'manager') {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const { data: planos, error } = await supabase
+        .from('plano_aula')
+        .select('*')
+        .eq('turma_componente_id', turmaComponenteId)
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        console.error("Erro ao buscar planos de aula:", error);
+        return res.status(500).json({ message: "Erro ao buscar planos de aula" });
+      }
+      
+      res.status(200).json(planos);
+    } catch (error) {
+      console.error("Erro ao buscar planos:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // POST /api/turma_componentes - Adicionar componente à turma
+  app.post("/api/turma_componentes", authenticate, async (req, res) => {
+    try {
+      const { turma_id, componente_id, professor_id, ano_serie } = req.body;
+      
+      if (req.session.userRole !== 'manager') {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      if (!turma_id || !componente_id || !professor_id || !ano_serie) {
+        return res.status(400).json({ message: "Todos os campos são obrigatórios" });
+      }
+      
+      const { data: turmaComponente, error } = await supabase
+        .from('turma_componentes')
+        .insert({
+          turma_id,
+          componente_id,
+          professor_id,
+          ano_serie
+        })
+        .select()
+        .single();
+        
+      if (error) {
+        console.error("Erro ao criar turma_componente:", error);
+        return res.status(500).json({ message: "Erro ao adicionar componente" });
+      }
+      
+      res.status(201).json(turmaComponente);
+    } catch (error) {
+      console.error("Erro ao criar componente:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // POST /api/plano_aula - Criar plano de aula
+  app.post("/api/plano_aula", authenticate, async (req, res) => {
+    try {
+      const { turma_componente_id, titulo, conteudo, data_aula } = req.body;
+      
+      if (req.session.userRole !== 'manager') {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      if (!turma_componente_id || !titulo) {
+        return res.status(400).json({ message: "Turma componente e título são obrigatórios" });
+      }
+      
+      const { data: planoAula, error } = await supabase
+        .from('plano_aula')
+        .insert({
+          turma_componente_id,
+          titulo,
+          conteudo: conteudo || '',
+          data_aula: data_aula || null
+        })
+        .select()
+        .single();
+        
+      if (error) {
+        console.error("Erro ao criar plano de aula:", error);
+        return res.status(500).json({ message: "Erro ao criar plano de aula" });
+      }
+      
+      res.status(201).json(planoAula);
+    } catch (error) {
+      console.error("Erro ao criar plano:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // GET /api/componentes - Listar todos os componentes
+  app.get("/api/componentes", authenticate, async (req, res) => {
+    try {
+      const { data: componentes, error } = await supabase
+        .from('componentes')
+        .select('*')
+        .order('nome');
+        
+      if (error) {
+        console.error("Erro ao buscar componentes:", error);
+        return res.status(500).json({ message: "Erro ao buscar componentes" });
+      }
+      
+      res.status(200).json(componentes);
+    } catch (error) {
+      console.error("Erro ao buscar componentes:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // GET /api/professores?turmaId={turmaId} - Listar professores disponíveis
+  app.get("/api/professores", authenticate, async (req, res) => {
+    try {
+      const turmaId = req.query.turmaId;
+      
+      if (req.session.userRole !== 'manager') {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Buscar professores do sistema
+      const { data: professores, error } = await supabase
+        .from('usuarios')
+        .select('id, nome, email')
+        .eq('tipo_usuario', 'professor')
+        .order('nome');
+        
+      if (error) {
+        console.error("Erro ao buscar professores:", error);
+        return res.status(500).json({ message: "Erro ao buscar professores" });
+      }
+      
+      res.status(200).json({ professores });
+    } catch (error) {
+      console.error("Erro ao buscar professores:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
