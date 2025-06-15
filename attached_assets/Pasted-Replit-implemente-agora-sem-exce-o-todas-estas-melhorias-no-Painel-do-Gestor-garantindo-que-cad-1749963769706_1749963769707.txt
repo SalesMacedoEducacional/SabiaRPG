@@ -1,0 +1,59 @@
+Replit, implemente agora, sem exceção, todas estas melhorias no Painel do Gestor, garantindo que cada ajuste seja salvo e reflita imediatamente o estado real do banco:
+
+Botão “Voltar ao Dashboard”
+
+Na tela de Gerenciamento de Turmas, faça o botão “Voltar ao Dashboard” redirecionar à rota /dashboard do painel do gestor.
+
+Listagem de Turmas Filtrada
+
+Em Turmas, carregue todas as turmas da tabela turmas onde escola_id esteja entre as escolas vinculadas a session.user.id.
+
+Aplique filtro automático por escola de vínculo.
+
+Menu Lateral – Componentes
+
+Adicione no sidebar uma opção Componentes logo abaixo de Turmas.
+
+Card “Ações Rápidas” – Gerenciar Componentes
+
+No card de Ações Rápidas, inclua o botão Gerenciar Componentes que abre o modal de seleção de turma e exibição/edição de componentes.
+
+Cabeçalho – Logomarca
+
+Insira a logomarca “Sabiá RPG Gestor” no cabeçalho, mantendo proporções e alinhamento do design atual.
+
+Pesquisa Global
+
+Habilite o campo de busca no topo para filtrar páginas e funcionalidades conforme termos digitados.
+
+Ícone de Perfil
+
+Ative o click no ícone de perfil para abrir um pop-up com dados do usuário (usuarios), mostrando nome, e-mail, papel e vínculo de escola.
+
+Adicione botão Editar Perfil que carrega formulário de edição dos dados básicos e salva alterações de imediato.
+
+Menu “Escolas” – Pop-up Detalhes
+
+Permita clicar em qualquer escola listada para abrir um pop-up com todos os detalhes da escola (escolas).
+
+No pop-up, insira botão Ver Turmas que exibe a contagem de turmas vinculadas.
+
+Exclusão em Professores, Alunos e Usuários
+
+Em Professores, Alunos e Usuários, adicione ícone/botão Excluir em cada registro.
+
+Ao confirmar exclusão, execute o DELETE na tabela correta (perfis_* e usuarios) e atualize a lista sem recarregar a página.
+
+Edição Persistente
+
+Em Professores, Alunos e Usuários, garanta que o botão Salvar dispare a atualização em perfis_* e em usuarios via API e persista no banco.
+
+Refresh Automático
+
+Após qualquer edição ou exclusão, recarregue automaticamente os dados da tela atual para refletir o estado real do banco.
+
+Padronização de Cores dos Botões “Novo”
+
+Uniformize a cor dos botões “Novo Professor”, “Novo Aluno” e “Novo Usuário” às cores da paleta oficial do sistema #bf7918, substituindo quaisquer tons divergentes.
+
+Implemente todas essas tarefas imediatamente para que o painel do gestor esteja completo, funcional e totalmente consistente com o design e o banco de dados.

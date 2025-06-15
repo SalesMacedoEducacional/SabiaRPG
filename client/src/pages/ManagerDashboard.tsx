@@ -26,8 +26,19 @@ import {
   Bell, 
   AlertCircle,
   FileText,
-  ChevronRight
+  ChevronRight,
+  Search,
+  Library
 } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 // Importações dos componentes de abas
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
@@ -79,65 +90,167 @@ export default function ManagerDashboard() {
       {/* Header */}
       <header className="bg-[#312e26] border-b border-accent shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center py-3">
-          <div>
-            <h1 className="text-2xl font-bold text-white">DASHBOARD DO GESTOR</h1>
-            <p className="text-accent text-sm">
-              Bem-vindo, gestor!
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl font-bold text-[#bf7918]">🦉</div>
+              <div>
+                <h1 className="text-xl font-bold text-white">SABIÁ RPG</h1>
+                <p className="text-xs text-accent">GESTOR</p>
+              </div>
+            </div>
           </div>
-          <button 
-            className="manager-button flex items-center gap-1"
-            onClick={handleLogout}
-          >
-            <LogOut size={14} /> Sair
-          </button>
+          
+          <div className="flex items-center gap-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Pesquisar..."
+                className="pl-8 w-64 bg-[#4a4639] border-accent text-white placeholder:text-white/70"
+              />
+            </div>
+            
+            {/* Profile Icon */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 rounded-full bg-[#4a4639] hover:bg-accent/20">
+                  <User className="h-4 w-4 text-white" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-80 bg-[#312e26] border-accent" align="end">
+                <DropdownMenuLabel className="text-white">Perfil do Usuário</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-accent" />
+                <div className="p-4">
+                  <div className="space-y-2 text-sm text-white">
+                    <div><strong>Nome:</strong> {user?.nome || user?.email}</div>
+                    <div><strong>E-mail:</strong> {user?.email}</div>
+                    <div><strong>Papel:</strong> {user?.role === 'manager' ? 'Gestor' : user?.role}</div>
+                    <div><strong>ID:</strong> {user?.id}</div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button 
+                      size="sm" 
+                      className="bg-[#bf7918] hover:bg-[#a66717] text-white"
+                      onClick={() => setActiveTab('profile')}
+                    >
+                      Editar Perfil
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-accent text-white hover:bg-accent/20"
+                      onClick={handleLogout}
+                    >
+                      <LogOut size={14} className="mr-1" />
+                      Sair
+                    </Button>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
       
       {/* Main content */}
       <main className="container mx-auto px-0 py-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 gap-0 bg-[#4a4639] border-b border-accent">
-            <TabsTrigger 
-              value="overview" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
-            >
-              <span className="flex items-center text-white">
-                <Home size={14} className="mr-1.5" />
-                Visão Geral
-              </span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="reports" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
-            >
-              <span className="flex items-center text-white">
-                <FileBarChart2 size={14} className="mr-1.5" />
-                Relatórios
-              </span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="settings" 
-              className="flex items-center justify-center py-2 rounded-none border-r border-accent data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
-            >
-              <span className="flex items-center text-white">
-                <Settings size={14} className="mr-1.5" />
-                Configurações
-              </span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="profile" 
-              className="flex items-center justify-center py-2 rounded-none data-[state=active]:bg-[#312e26] data-[state=active]:border-b-2 data-[state=active]:border-b-accent"
-            >
-              <span className="flex items-center text-white">
-                <User size={14} className="mr-1.5" />
-                Meu Perfil
-              </span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex">
+          {/* Sidebar Navigation */}
+          <div className="w-64 bg-[#4a4639] border-r border-accent min-h-screen">
+            <div className="p-4">
+              <h2 className="text-lg font-semibold text-white mb-4">GESTÃO</h2>
+              <nav className="space-y-2">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`w-full flex items-center px-3 py-2 text-left rounded-md transition-colors ${
+                    activeTab === 'overview' 
+                      ? 'bg-[#312e26] text-white border-l-4 border-[#bf7918]' 
+                      : 'text-white/70 hover:bg-[#312e26] hover:text-white'
+                  }`}
+                >
+                  <Home size={16} className="mr-3" />
+                  Visão Geral
+                </button>
+                
+                <button
+                  onClick={() => navigate('/school-registration')}
+                  className="w-full flex items-center px-3 py-2 text-left rounded-md transition-colors text-white/70 hover:bg-[#312e26] hover:text-white"
+                >
+                  <School size={16} className="mr-3" />
+                  Escolas
+                </button>
+                
+                <button
+                  onClick={() => navigate('/turmas')}
+                  className="w-full flex items-center px-3 py-2 text-left rounded-md transition-colors text-white/70 hover:bg-[#312e26] hover:text-white"
+                >
+                  <BookOpen size={16} className="mr-3" />
+                  Turmas
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab('components')}
+                  className={`w-full flex items-center px-3 py-2 text-left rounded-md transition-colors ${
+                    activeTab === 'components' 
+                      ? 'bg-[#312e26] text-white border-l-4 border-[#bf7918]' 
+                      : 'text-white/70 hover:bg-[#312e26] hover:text-white'
+                  }`}
+                >
+                  <Library size={16} className="mr-3" />
+                  Componentes
+                </button>
+                
+                <button
+                  onClick={() => navigate('/users')}
+                  className="w-full flex items-center px-3 py-2 text-left rounded-md transition-colors text-white/70 hover:bg-[#312e26] hover:text-white"
+                >
+                  <Users size={16} className="mr-3" />
+                  Usuários
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab('reports')}
+                  className={`w-full flex items-center px-3 py-2 text-left rounded-md transition-colors ${
+                    activeTab === 'reports' 
+                      ? 'bg-[#312e26] text-white border-l-4 border-[#bf7918]' 
+                      : 'text-white/70 hover:bg-[#312e26] hover:text-white'
+                  }`}
+                >
+                  <FileBarChart2 size={16} className="mr-3" />
+                  Relatórios
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`w-full flex items-center px-3 py-2 text-left rounded-md transition-colors ${
+                    activeTab === 'settings' 
+                      ? 'bg-[#312e26] text-white border-l-4 border-[#bf7918]' 
+                      : 'text-white/70 hover:bg-[#312e26] hover:text-white'
+                  }`}
+                >
+                  <Settings size={16} className="mr-3" />
+                  Configurações
+                </button>
+              </nav>
+            </div>
+          </div>
+          
+          {/* Main Content Area */}
+          <div className="flex-1">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="hidden">
+                <TabsList className="grid grid-cols-4 gap-0 bg-[#4a4639] border-b border-accent">
+                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                  <TabsTrigger value="components">Componentes</TabsTrigger>
+                  <TabsTrigger value="reports">Relatórios</TabsTrigger>
+                  <TabsTrigger value="settings">Configurações</TabsTrigger>
+                  <TabsTrigger value="profile">Perfil</TabsTrigger>
+                </TabsList>
+              </div>
           
           {/* Tab de Visão Geral */}
-          <TabsContent value="overview">
+          <TabsContent value="overview" className="p-6">
             {/* Primeira linha: estatísticas básicas */}
             <div className="grid grid-cols-4 gap-4 mb-4">
               <EscolasVinculadasCard />
@@ -552,7 +665,24 @@ export default function ManagerDashboard() {
               </div>
             </div>
           </TabsContent>
-        </Tabs>
+          
+          {/* Tab de Componentes */}
+          <TabsContent value="components" className="p-6">
+            <div className="bg-[#312e26] border border-[#D47C06] rounded-md overflow-hidden mb-4">
+              <div className="bg-[#4a4639] p-3 border-b border-[#D47C06]">
+                <h3 className="text-lg font-medium text-white">Gerenciar Componentes Curriculares</h3>
+                <p className="text-sm text-white/70">
+                  Gerencie os componentes curriculares de todas as turmas
+                </p>
+              </div>
+              <div className="p-4">
+                <ComponentesCurriculares />
+              </div>
+            </div>
+          </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </main>
     </div>
   );
