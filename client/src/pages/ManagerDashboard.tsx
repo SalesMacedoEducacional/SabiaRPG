@@ -103,7 +103,7 @@ export default function ManagerDashboard() {
                 <div className="absolute right-0 mt-2 w-48 bg-[#4a4639] border border-[#D47C06] rounded-md shadow-lg z-50">
                   <div className="p-3 border-b border-[#D47C06]">
                     <p className="text-white text-sm font-medium">{user.email}</p>
-                    <p className="text-white/70 text-xs">{user.perfil}</p>
+                    <p className="text-white/70 text-xs">Gestor</p>
                   </div>
                   <div className="py-2">
                     <button
