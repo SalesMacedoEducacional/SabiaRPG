@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { 
   Table,
   TableBody,
@@ -67,6 +68,7 @@ export default function UsersList() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: usersData, isLoading, error, refetch } = useQuery<UsersResponse>({
     queryKey: ['/api/users/manager'],
@@ -280,7 +282,10 @@ export default function UsersList() {
             Gerencie todos os usuários do sistema
           </p>
         </div>
-        <Button className="bg-accent hover:bg-accent/80 text-primary">
+        <Button 
+          className="bg-accent hover:bg-accent/80 text-primary"
+          onClick={() => setLocation('/user-registration')}
+        >
           <Plus size={16} className="mr-2" />
           Novo Usuário
         </Button>
