@@ -83,11 +83,8 @@ export function registerClassRoutes(
         
         // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
         if (req.user && req.user.role === 'manager') {
-          // Log para depuração
+          console.log('=== NOVA LÓGICA DE FILTRO EXECUTANDO ===');
           console.log('Buscando escolas para o gestor. ID do gestor:', req.user.id);
-          
-          // Não usaremos a sessão para encontrar a escola do gestor
-          console.log('Buscando escolas para o gestor logado com ID:', req.user.id);
           
           // Buscamos todas as escolas
           let { data: escolasGestor, error: escolasError } = await supabase
@@ -100,24 +97,21 @@ export function registerClassRoutes(
           }
           
           console.log(`Total de escolas encontradas: ${escolasGestor?.length || 0}`);
-          console.log('ID do usuário autenticado:', req.user.id);
-          
-          // Garantimos que o gestor só veja as turmas das escolas que ele gerencia
-          console.log('Verificando escola vinculada ao gestor:', req.user.id);
+          console.log('Todas as escolas:', escolasGestor?.map(e => ({ id: e.id, nome: e.nome, gestor_id: e.gestor_id })));
           
           // Filtrar escolas que o gestor gerencia
           const escolasDoGestor = escolasGestor?.filter(escola => escola.gestor_id === req.user.id) || [];
-          console.log(`Escolas gerenciadas pelo usuário: ${escolasDoGestor.length}`);
-          console.log(`Escolas do gestor:`, escolasDoGestor.map(e => e.nome));
+          console.log(`FILTRO APLICADO - Escolas gerenciadas pelo usuário ${req.user.id}: ${escolasDoGestor.length}`);
+          console.log(`Escolas do gestor:`, escolasDoGestor.map(e => ({ id: e.id, nome: e.nome })));
           
           if (escolasDoGestor.length === 0) {
-            console.log('Gestor não possui escolas vinculadas');
+            console.log('FILTRO RESULTADO: Gestor não possui escolas vinculadas - retornando array vazio');
             return res.status(200).json([]);
           }
           
           // Obter IDs das escolas do gestor
           const escolaIds = escolasDoGestor.map(escola => escola.id);
-          console.log('IDs das escolas do gestor:', escolaIds);
+          console.log('IDs das escolas que serão filtradas para turmas:', escolaIds);
           
           // Buscar turmas apenas das escolas gerenciadas pelo gestor
           const { data: turmas, error } = await supabase
@@ -127,9 +121,14 @@ export function registerClassRoutes(
             .order('nome');
             
           if (error) {
-            console.error('Erro ao buscar turmas:', error);
+            console.error('Erro ao buscar turmas filtradas:', error);
             return res.status(500).json({ message: 'Erro ao buscar turmas' });
           }
+          
+          console.log(`RESULTADO FILTRO: Encontradas ${turmas?.length || 0} turmas das escolas do gestor`);
+          turmas?.forEach(turma => {
+            console.log(`- Turma: ${turma.nome} (ID: ${turma.id}) da escola: ${turma.escola_id}`);
+          });
           
           // Mapear os dados da tabela para o formato esperado pelo frontend
           const turmasFormatadas = turmas?.map(turma => ({
@@ -137,7 +136,7 @@ export function registerClassRoutes(
             nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
           }));
           
-          console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
+          console.log(`=== RETORNANDO ${turmasFormatadas?.length || 0} TURMAS FILTRADAS ===`);
             
           return res.status(200).json(turmasFormatadas);
         } else {
@@ -221,7 +220,7 @@ export function registerClassRoutes(
         console.log('Verificando existência da escola com ID:', escola_id);
         const { data: escolaExistente, error: escolaError } = await supabase
           .from('escolas')
-          .select('id, nome, gestor_id, ativo')
+          .select('id, nome, gestor_id')
           .eq('id', escola_id)
           .single();
           
@@ -237,13 +236,7 @@ export function registerClassRoutes(
           });
         }
 
-        if (!escolaExistente.ativo) {
-          return res.status(400).json({ 
-            message: 'Não é possível cadastrar turmas em uma escola inativa.',
-            field: 'escola_id',
-            escola_nome: escolaExistente.nome
-          });
-        }
+        // Remover verificação de escola ativa (coluna não existe)
 
         // Se o usuário for gestor, verifica se ele é gestor da escola informada
         if (req.user && req.user.role === 'manager') {
