@@ -58,7 +58,7 @@ const turmaSchema = z.object({
 type TurmaFormValues = z.infer<typeof turmaSchema>;
 
 export default function ClassRegistration() {
-  const { toast } = useToast();
+  const toast = useStandardToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,11 +115,7 @@ export default function ClassRegistration() {
     try {
       // Validação adicional: garantir que escola foi selecionada
       if (!data.escola_id || data.escola_id.trim() === "") {
-        toast({
-          title: "Escola obrigatória",
-          description: "Você deve selecionar uma escola antes de cadastrar a turma",
-          variant: "destructive",
-        });
+        toast.error("Escola obrigatória", "Você deve selecionar uma escola antes de cadastrar a turma");
         setIsSubmitting(false);
         return;
       }
@@ -176,11 +172,7 @@ export default function ClassRegistration() {
       queryClient.invalidateQueries({ queryKey: ['/api/turmas'] });
       
       // Exibir mensagem de sucesso
-      toast({
-        title: "Turma cadastrada com sucesso",
-        description: `A turma "${data.nome_turma}" foi vinculada à escola "${escolaValida.nome}" com sucesso`,
-        variant: "default",
-      });
+      toast.classCreated(data.nome_turma, escolaValida.nome);
       
       // Redirecionar para a lista de turmas
       setLocation("/manager/classes");
