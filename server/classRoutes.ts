@@ -108,6 +108,7 @@ export function registerClassRoutes(
           // Filtrar escolas que o gestor gerencia
           const escolasDoGestor = escolasGestor?.filter(escola => escola.gestor_id === req.user.id) || [];
           console.log(`Escolas gerenciadas pelo usuário: ${escolasDoGestor.length}`);
+          console.log(`Escolas do gestor:`, escolasDoGestor.map(e => e.nome));
           
           if (escolasDoGestor.length === 0) {
             console.log('Gestor não possui escolas vinculadas');
@@ -217,17 +218,22 @@ export function registerClassRoutes(
         }
 
         // Verificar se a escola existe
+        console.log('Verificando existência da escola com ID:', escola_id);
         const { data: escolaExistente, error: escolaError } = await supabase
           .from('escolas')
           .select('id, nome, gestor_id, ativo')
           .eq('id', escola_id)
           .single();
           
+        console.log('Resultado da consulta escola:', { escolaExistente, escolaError });
+          
         if (escolaError || !escolaExistente) {
+          console.log('Erro: Escola não encontrada ou erro na consulta');
           return res.status(400).json({ 
             message: 'A escola especificada não existe ou não está acessível.',
             field: 'escola_id',
-            escola_id: escola_id
+            escola_id: escola_id,
+            error_details: escolaError?.message
           });
         }
 
