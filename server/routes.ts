@@ -679,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .select(`
           id,
           ano_serie,
-          componentes!inner(id, nome),
+          componentes_disciplinas!inner(id, nome),
           usuarios!inner(id, nome)
         `)
         .eq('turma_id', turmaId);
@@ -691,7 +691,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const componentesFormatados = componentes.map(tc => ({
         turma_componente_id: tc.id,
-        componente: tc.componentes.nome,
+        componente: tc.componentes_disciplinas.nome,
         professor: tc.usuarios.nome,
         ano_serie: tc.ano_serie
       }));
@@ -802,11 +802,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GET /api/componentes - Listar todos os componentes
+  // GET /api/componentes - Listar todos os componentes/disciplinas
   app.get("/api/componentes", authenticate, async (req, res) => {
     try {
       const { data: componentes, error } = await supabase
-        .from('componentes')
+        .from('componentes_disciplinas')
         .select('*')
         .order('nome');
         

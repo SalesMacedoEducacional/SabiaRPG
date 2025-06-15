@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { toast } from '@/lib/toast-utils';
+import * as toast from '@/lib/toast-utils';
 import { Loader2, Plus, BookOpen, Calendar } from 'lucide-react';
 
 interface Turma {
