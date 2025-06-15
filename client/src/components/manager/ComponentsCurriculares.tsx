@@ -59,7 +59,8 @@ export default function ComponentesCurriculares() {
     ano_serie: '' 
   });
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient();  
+  const toastUtils = useStandardToast();
 
   // Query para buscar turmas do gestor
   const { data: turmas, isLoading: isLoadingTurmas } = useQuery({
