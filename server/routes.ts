@@ -634,6 +634,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
   };
 
+  // Rota para buscar dados específicos do usuário para notificações
+  app.get("/api/usuarios/:id", authenticate, async (req, res) => {
+    try {
+      const userId = req.params.id;
+      
+      // Verificar se é o próprio usuário ou se tem permissão
+      if (userId !== req.session.userId && !["manager", "admin"].includes(req.session.userRole!)) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const { data: usuario, error } = await supabase
+        .from('usuarios')
+        .select('nome, email')
+        .eq('id', userId)
+        .single();
+        
+      if (error || !usuario) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      res.status(200).json(usuario);
+    } catch (error) {
+      console.error("Erro ao buscar dados do usuário:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {

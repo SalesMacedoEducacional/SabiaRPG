@@ -172,37 +172,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      // Debug: logs para verificar dados recebidos
-      console.log("Dados do usuário no login:", data);
-      console.log("fullName:", data.fullName);
-      console.log("username:", data.username);
-      console.log("email:", data.email);
-      
-      // Criar nome de exibição inteligente
-      let displayName = 'usuário';
-      
-      if (data.fullName) {
-        // Se tem nome completo, usar ele
-        displayName = data.fullName;
-        console.log("Usando fullName:", displayName);
-      } else if (data.username) {
-        // Se tem username, usar ele
-        displayName = data.username;
-        console.log("Usando username:", displayName);
-      } else if (data.email) {
-        // Se só tem email, criar um nome amigável baseado no email
-        const emailPart = data.email.split('@')[0];
-        // Capitalizar primeira letra e substituir pontos/underscores por espaços
-        displayName = emailPart
-          .replace(/[._]/g, ' ')
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-        console.log("Usando email processado:", displayName);
-      }
-      
-      console.log("Nome final para notificação:", displayName);
-      toast.loginSuccess(displayName);
+      // Buscar nome completo do usuário no banco de dados e exibir notificação
+      setTimeout(async () => {
+        try {
+          const response = await apiRequest('GET', `/api/usuarios/${data.id}`);
+          const usuario = await response.json();
+          
+          if (usuario && usuario.nome) {
+            // Exibir notificação com nome completo do banco
+            toast.success(`Login realizado com sucesso! Bem-vindo de volta, ${usuario.nome}!`);
+          } else {
+            // Fallback caso não encontre nome no banco
+            toast.success('Login realizado com sucesso! Bem-vindo de volta!');
+          }
+        } catch (error) {
+          console.error('Erro ao buscar dados do usuário:', error);
+          // Fallback em caso de erro
+          toast.success('Login realizado com sucesso! Bem-vindo de volta!');
+        }
+      }, 100);
     },
     onError: (error: any) => {
       toast.error("Falha no login", error.message || "Credenciais inválidas. Por favor, tente novamente.");
