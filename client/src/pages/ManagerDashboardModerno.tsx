@@ -106,6 +106,35 @@ export default function ManagerDashboardModerno() {
     setActiveMenu(menu);
     setMobileMenuOpen(false);
   };
+
+  // Event listener for components modal
+  useEffect(() => {
+    const handleOpenComponentsModal = () => {
+      setActiveMenu("components");
+      setMobileMenuOpen(false);
+    };
+
+    window.addEventListener('openComponentsModal', handleOpenComponentsModal);
+
+    return () => {
+      window.removeEventListener('openComponentsModal', handleOpenComponentsModal);
+    };
+  }, []);
+
+  // Close profile popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showProfilePopup) {
+        const target = event.target as Element;
+        if (!target.closest('[data-profile-popup]')) {
+          setShowProfilePopup(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showProfilePopup]);
   
   return (
     <div className="min-h-screen flex flex-col bg-[#312e26]">
@@ -153,7 +182,7 @@ export default function ManagerDashboardModerno() {
               </div>
               
               {/* Profile Button with Dropdown */}
-              <div className="relative">
+              <div className="relative" data-profile-popup>
                 <button 
                   onClick={() => setShowProfilePopup(!showProfilePopup)}
                   className="flex items-center gap-2 p-1.5 hover:bg-[#3a3730] rounded-md text-white"
@@ -167,7 +196,7 @@ export default function ManagerDashboardModerno() {
 
                 {/* Profile Popup */}
                 {showProfilePopup && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-[#312e26] border border-accent rounded-lg shadow-xl z-50">
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-[#312e26] border border-accent rounded-lg shadow-xl z-50" data-profile-popup>
                     <div className="p-4 border-b border-accent">
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 rounded-full bg-accent text-white flex items-center justify-center">
