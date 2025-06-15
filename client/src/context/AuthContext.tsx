@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { useStandardToast } from '@/lib/toast-utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserPermissions, hasPermission as checkPermission } from '@/lib/permissions';
 
@@ -40,7 +40,7 @@ interface RegisterData {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { toast } = useToast();
+  const toast = useStandardToast();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -172,17 +172,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      toast({
-        title: "Login bem-sucedido!",
-        description: `Bem-vindo de volta, ${data.username}!`,
-      });
+      // Usar nome completo se disponível, senão usar username
+      const userName = data.fullName || data.username || 'usuário';
+      toast.loginSuccess(userName);
     },
     onError: (error: any) => {
-      toast({
-        title: "Falha no login",
-        description: error.message || "Credenciais inválidas. Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      toast.error("Falha no login", error.message || "Credenciais inválidas. Por favor, tente novamente.");
     },
   });
 
@@ -194,17 +189,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['/api/auth/me'], data);
-      toast({
-        title: "Registro bem-sucedido!",
-        description: `Bem-vindo, ${data.username}!`,
-      });
+      const userName = data.fullName || data.username || 'usuário';
+      toast.success("Registro bem-sucedido!", `Bem-vindo, ${userName}!`);
     },
     onError: (error: any) => {
-      toast({
-        title: "Falha no registro",
-        description: error.message || "Não foi possível criar sua conta. Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      toast.error("Falha no registro", error.message || "Não foi possível criar sua conta. Por favor, tente novamente.");
     },
   });
 
@@ -216,17 +205,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     onSuccess: () => {
       queryClient.setQueryData(['/api/auth/me'], null);
       queryClient.invalidateQueries();
-      toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso.",
-      });
+      toast.logoutSuccess();
     },
     onError: () => {
-      toast({
-        title: "Erro ao fazer logout",
-        description: "Ocorreu um erro ao tentar sair. Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      toast.error("Erro ao fazer logout", "Ocorreu um erro ao tentar sair. Por favor, tente novamente.");
     },
   });
 
