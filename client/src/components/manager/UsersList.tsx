@@ -283,10 +283,10 @@ export default function UsersList() {
           </p>
         </div>
         <Button 
-          className="bg-[#C5A572] hover:bg-[#B3956A] text-white border border-[#D4A054] shadow-md transition-colors"
+          className="bg-gradient-to-r from-[#D4A054] to-[#C5A572] hover:from-[#C5A572] hover:to-[#B3956A] text-white font-medium px-6 py-2 rounded-lg shadow-lg transition-all duration-200 flex items-center gap-2"
           onClick={() => setLocation('/user-registration')}
         >
-          <Plus size={16} className="mr-2" />
+          <Plus size={16} />
           Novo Usuário
         </Button>
       </div>
