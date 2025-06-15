@@ -172,9 +172,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      // Usar nome completo se disponível, senão usar username
-      const userName = data.fullName || data.username || 'usuário';
-      toast.loginSuccess(userName);
+      // Criar nome de exibição inteligente
+      let displayName = 'usuário';
+      
+      if (data.fullName) {
+        // Se tem nome completo, usar ele
+        displayName = data.fullName;
+      } else if (data.username) {
+        // Se tem username, usar ele
+        displayName = data.username;
+      } else if (data.email) {
+        // Se só tem email, criar um nome amigável baseado no email
+        const emailPart = data.email.split('@')[0];
+        // Capitalizar primeira letra e substituir pontos/underscores por espaços
+        displayName = emailPart
+          .replace(/[._]/g, ' ')
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+      
+      toast.loginSuccess(displayName);
     },
     onError: (error: any) => {
       toast.error("Falha no login", error.message || "Credenciais inválidas. Por favor, tente novamente.");
