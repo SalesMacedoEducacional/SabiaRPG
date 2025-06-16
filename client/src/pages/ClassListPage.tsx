@@ -224,7 +224,7 @@ export default function ClassListPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setLocation("/gestor-dashboard")}
+              onClick={() => setLocation("/manager")}
               className="flex items-center gap-2 bg-[#2a2621] border-accent text-accent hover:bg-accent hover:text-[#2a2621]"
             >
               <ArrowLeft className="h-4 w-4" />
