@@ -195,7 +195,12 @@ export default function ClassRegistration() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="sabia-bg">
+      <div className="sabia-decorative-corner top-left"></div>
+      <div className="sabia-decorative-corner top-right"></div>
+      <div className="sabia-decorative-corner bottom-left"></div>
+      <div className="sabia-decorative-corner bottom-right"></div>
+      <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Button
@@ -489,6 +494,7 @@ export default function ClassRegistration() {
           </p>
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }
