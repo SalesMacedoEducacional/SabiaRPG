@@ -296,6 +296,66 @@ export function registerClassRoutes(
   );
 
   /**
+   * Rota para obter contagem de turmas ativas
+   * Específica para gestores e suas escolas vinculadas
+   */
+  app.get('/api/turmas/count',
+    authenticate,
+    requireRole(['manager', 'admin', 'teacher']),
+    async (req: Request, res: Response) => {
+      try {
+        console.log(`=== CONTAGEM DE TURMAS ATIVAS ===`);
+        console.log(`User role: ${req.user?.role}`);
+        
+        let query = supabase
+          .from('turmas')
+          .select('*', { count: 'exact', head: true })
+          .eq('ativo', true);
+
+        // Se for gestor, filtrar apenas pelas escolas vinculadas
+        if (req.user?.role === 'gestor' || req.user?.role === 'manager') {
+          console.log(`Buscando escolas para gestor: ${req.user.id}`);
+          
+          // Buscar escolas vinculadas ao gestor
+          const { data: escolasGestor, error: escolasError } = await supabase
+            .from('escolas')
+            .select('id')
+            .eq('gestor_id', req.user.id);
+            
+          if (escolasError) {
+            console.error('Erro ao buscar escolas do gestor:', escolasError);
+            return res.status(500).json({ message: 'Erro ao buscar escolas do gestor' });
+          }
+          
+          if (!escolasGestor || escolasGestor.length === 0) {
+            console.log('Nenhuma escola encontrada para o gestor');
+            return res.status(200).json({ count: 0 });
+          }
+          
+          const escolaIds = escolasGestor.map(escola => escola.id);
+          console.log(`Escolas encontradas: ${escolaIds.length}`);
+          
+          query = query.in('escola_id', escolaIds);
+        }
+
+        const { count, error } = await query;
+        
+        if (error) {
+          console.error('Erro ao contar turmas ativas:', error);
+          return res.status(500).json({ message: 'Erro ao contar turmas ativas' });
+        }
+
+        console.log(`Total de turmas ativas: ${count}`);
+        return res.status(200).json({ count: count || 0 });
+        
+      } catch (error) {
+        console.error('Erro ao buscar contagem de turmas:', error);
+        return res.status(500).json({ message: 'Erro ao buscar contagem de turmas' });
+      }
+    }
+  );
+
+  /**
    * Rota para obter detalhes de uma turma específica
    * Acessível para gestores, professores e administradores
    */
@@ -545,63 +605,4 @@ export function registerClassRoutes(
     }
   );
 
-  /**
-   * Rota para obter contagem de turmas ativas
-   * Específica para gestores e suas escolas vinculadas
-   */
-  app.get('/api/turmas/count',
-    authenticate,
-    requireRole(['manager', 'admin', 'teacher']),
-    async (req: Request, res: Response) => {
-      try {
-        console.log(`=== CONTAGEM DE TURMAS ATIVAS ===`);
-        console.log(`User role: ${req.user?.role}`);
-        
-        let query = supabase
-          .from('turmas')
-          .select('*', { count: 'exact', head: true })
-          .eq('ativo', true);
-
-        // Se for gestor, filtrar apenas pelas escolas vinculadas
-        if (req.user?.role === 'gestor' || req.user?.role === 'manager') {
-          console.log(`Buscando escolas para gestor: ${req.user.id}`);
-          
-          // Buscar escolas vinculadas ao gestor
-          const { data: escolasGestor, error: escolasError } = await supabase
-            .from('escolas')
-            .select('id')
-            .eq('gestor_id', req.user.id);
-            
-          if (escolasError) {
-            console.error('Erro ao buscar escolas do gestor:', escolasError);
-            return res.status(500).json({ message: 'Erro ao buscar escolas do gestor' });
-          }
-          
-          if (!escolasGestor || escolasGestor.length === 0) {
-            console.log('Nenhuma escola encontrada para o gestor');
-            return res.status(200).json({ count: 0 });
-          }
-          
-          const escolaIds = escolasGestor.map(escola => escola.id);
-          console.log(`Escolas encontradas: ${escolaIds.length}`);
-          
-          query = query.in('escola_id', escolaIds);
-        }
-
-        const { count, error } = await query;
-        
-        if (error) {
-          console.error('Erro ao contar turmas ativas:', error);
-          return res.status(500).json({ message: 'Erro ao contar turmas ativas' });
-        }
-
-        console.log(`Total de turmas ativas: ${count}`);
-        return res.status(200).json({ count: count || 0 });
-        
-      } catch (error) {
-        console.error('Erro ao buscar contagem de turmas:', error);
-        return res.status(500).json({ message: 'Erro ao buscar contagem de turmas' });
-      }
-    }
-  );
 }
