@@ -205,14 +205,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
+    <div className="sabia-login-bg flex items-center justify-center p-4">
+      <div className="sabia-login-content max-w-md w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
             <img 
               src="/assets/sabia-logo.png" 
               alt="Logomarca SABIÁ RPG" 
-              className="logo logo-lg"
+              className="sabia-login-logo logo logo-lg"
             />
           </div>
           <h1 className="font-medieval text-4xl text-accent mb-2">SABIÁ RPG</h1>
@@ -231,7 +231,7 @@ const Login: React.FC = () => {
           </AlertDescription>
         </Alert>
         
-        <Card className="bg-dark-light border-primary">
+        <Card className="sabia-login-card">
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
             <CardHeader>
               {(activeTab === 'login' || activeTab === 'register') ? (
@@ -266,7 +266,7 @@ const Login: React.FC = () => {
                       id="email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...loginForm.register('email')}
                     />
                     {loginForm.formState.errors.email && (
@@ -291,7 +291,7 @@ const Login: React.FC = () => {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="bg-dark border-primary text-parchment pr-10"
+                        className="sabia-login-input pr-10"
                         {...loginForm.register('password')}
                       />
                       <button 

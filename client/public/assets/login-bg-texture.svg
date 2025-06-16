@@ -1,0 +1,148 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Medieval stone texture pattern -->
+    <pattern id="stoneTexture" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+      <rect width="120" height="120" fill="#312e26"/>
+      <path d="M0,30 L60,30 L60,90 L0,90 Z" fill="#3c3830" opacity="0.6"/>
+      <path d="M60,0 L120,0 L120,60 L60,60 Z" fill="#3c3830" opacity="0.4"/>
+      <path d="M0,90 L60,90 L60,120 L0,120 Z" fill="#3c3830" opacity="0.3"/>
+      <path d="M60,60 L120,60 L120,120 L60,120 Z" fill="#3c3830" opacity="0.5"/>
+      <!-- Stone texture lines -->
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#8c7851" stroke-width="0.5" opacity="0.7"/>
+      <line x1="60" y1="0" x2="120" y2="0" stroke="#8c7851" stroke-width="0.5" opacity="0.7"/>
+      <line x1="60" y1="60" x2="60" y2="0" stroke="#8c7851" stroke-width="0.5" opacity="0.7"/>
+      <line x1="0" y1="90" x2="60" y2="90" stroke="#8c7851" stroke-width="0.5" opacity="0.7"/>
+    </pattern>
+
+    <!-- Futuristic circuit pattern -->
+    <pattern id="circuitPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+      <rect width="200" height="200" fill="transparent"/>
+      <!-- Circuit lines -->
+      <path d="M20,20 L80,20 L80,80 L180,80" stroke="#8c7851" stroke-width="1" fill="none" opacity="0.4"/>
+      <path d="M180,20 L120,20 L120,180 L20,180" stroke="#d4a054" stroke-width="0.8" fill="none" opacity="0.3"/>
+      <path d="M100,0 L100,100 L200,100" stroke="#8c7851" stroke-width="0.6" fill="none" opacity="0.3"/>
+      <!-- Circuit nodes -->
+      <circle cx="80" cy="20" r="2" fill="#d4a054" opacity="0.6"/>
+      <circle cx="120" cy="80" r="2" fill="#d4a054" opacity="0.5"/>
+      <circle cx="100" cy="100" r="1.5" fill="#8c7851" opacity="0.4"/>
+      <!-- Hexagonal tech elements -->
+      <polygon points="160,40 170,50 170,70 160,80 150,70 150,50" fill="none" stroke="#d4a054" stroke-width="0.5" opacity="0.3"/>
+      <polygon points="40,140 50,150 50,170 40,180 30,170 30,150" fill="none" stroke="#8c7851" stroke-width="0.5" opacity="0.2"/>
+    </pattern>
+
+    <!-- Ancient runes pattern -->
+    <pattern id="runePattern" x="0" y="0" width="300" height="300" patternUnits="userSpaceOnUse">
+      <rect width="300" height="300" fill="transparent"/>
+      <!-- Faded runic symbols -->
+      <text x="50" y="80" font-family="serif" font-size="24" fill="#8c7851" opacity="0.15" transform="rotate(15 50 80)">ᚱᚢᚾᛖ</text>
+      <text x="200" y="180" font-family="serif" font-size="20" fill="#d4a054" opacity="0.12" transform="rotate(-10 200 180)">ᛊᚨᛒᛁᚨ</text>
+      <text x="100" y="250" font-family="serif" font-size="18" fill="#8c7851" opacity="0.1" transform="rotate(25 100 250)">ᚱᛈᚷ</text>
+    </pattern>
+
+    <!-- Parchment texture -->
+    <pattern id="parchmentTexture" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="transparent"/>
+      <circle cx="20" cy="30" r="0.5" fill="#f5e6cb" opacity="0.1"/>
+      <circle cx="70" cy="80" r="0.8" fill="#f5e6cb" opacity="0.08"/>
+      <circle cx="90" cy="20" r="0.6" fill="#f5e6cb" opacity="0.09"/>
+      <circle cx="40" cy="90" r="0.4" fill="#f5e6cb" opacity="0.1"/>
+    </pattern>
+
+    <!-- Amber light points -->
+    <pattern id="amberLights" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
+      <rect width="400" height="400" fill="transparent"/>
+      <circle cx="100" cy="100" r="1" fill="#d4a054" opacity="0.6">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="300" cy="200" r="0.8" fill="#d4a054" opacity="0.5">
+        <animate attributeName="opacity" values="0.2;0.7;0.2" dur="6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="50" cy="350" r="1.2" fill="#d4a054" opacity="0.4">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="350" cy="50" r="0.6" fill="#8c7851" opacity="0.3">
+        <animate attributeName="opacity" values="0.1;0.5;0.1" dur="7s" repeatCount="indefinite"/>
+      </circle>
+    </pattern>
+
+    <!-- Central area mask for clean login space -->
+    <radialGradient id="centralMask" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="black" stop-opacity="0"/>
+      <stop offset="70%" stop-color="black" stop-opacity="0"/>
+      <stop offset="85%" stop-color="black" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="black" stop-opacity="0.3"/>
+    </radialGradient>
+
+    <!-- Main background gradient -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e26"/>
+      <stop offset="25%" stop-color="#3c3830"/>
+      <stop offset="50%" stop-color="#312e26"/>
+      <stop offset="75%" stop-color="#3c3830"/>
+      <stop offset="100%" stop-color="#312e26"/>
+    </linearGradient>
+
+    <!-- Vignette effect -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="70%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#312e26" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="1920" height="1080" fill="url(#mainGradient)"/>
+  
+  <!-- Stone texture layer -->
+  <rect width="1920" height="1080" fill="url(#stoneTexture)" opacity="0.6"/>
+  
+  <!-- Parchment texture -->
+  <rect width="1920" height="1080" fill="url(#parchmentTexture)"/>
+  
+  <!-- Circuit pattern layer -->
+  <rect width="1920" height="1080" fill="url(#circuitPattern)"/>
+  
+  <!-- Ancient runes layer -->
+  <rect width="1920" height="1080" fill="url(#runePattern)"/>
+  
+  <!-- Amber light points -->
+  <rect width="1920" height="1080" fill="url(#amberLights)"/>
+  
+  <!-- Decorative corner elements -->
+  <g opacity="0.3">
+    <!-- Top-left medieval corner -->
+    <path d="M0,0 L150,0 L120,30 L30,30 L30,120 L0,150 Z" fill="#8c7851" opacity="0.2"/>
+    <path d="M20,20 L130,20 L130,130 L20,130 Z" fill="none" stroke="#d4a054" stroke-width="1" opacity="0.4"/>
+    
+    <!-- Top-right futuristic corner -->
+    <g transform="translate(1770,0)">
+      <polygon points="0,0 150,0 150,30 120,30 120,120 150,150 0,150 30,120 30,30" fill="#8c7851" opacity="0.2"/>
+      <polygon points="40,40 110,40 110,50 100,50 100,100 110,110 40,110 50,100 50,50" fill="none" stroke="#d4a054" stroke-width="0.8" opacity="0.4"/>
+    </g>
+    
+    <!-- Bottom-left circuit corner -->
+    <g transform="translate(0,930)">
+      <path d="M0,0 L30,30 L30,120 L120,120 L150,150 L0,150 Z" fill="#8c7851" opacity="0.2"/>
+      <circle cx="75" cy="75" r="25" fill="none" stroke="#d4a054" stroke-width="1" opacity="0.3"/>
+    </g>
+    
+    <!-- Bottom-right medieval corner -->
+    <g transform="translate(1770,930)">
+      <path d="M150,0 L120,30 L30,30 L30,120 L0,150 L150,150 Z" fill="#8c7851" opacity="0.2"/>
+      <rect x="40" y="40" width="70" height="70" fill="none" stroke="#d4a054" stroke-width="1" opacity="0.4"/>
+    </g>
+  </g>
+  
+  <!-- Central clean area mask -->
+  <rect width="1920" height="1080" fill="url(#centralMask)"/>
+  
+  <!-- Vignette overlay -->
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+  
+  <!-- Subtle medieval manuscript lines -->
+  <g opacity="0.1">
+    <line x1="0" y1="270" x2="1920" y2="290" stroke="#f5e6cb" stroke-width="0.5"/>
+    <line x1="0" y1="540" x2="1920" y2="560" stroke="#f5e6cb" stroke-width="0.3"/>
+    <line x1="0" y1="810" x2="1920" y2="830" stroke="#f5e6cb" stroke-width="0.4"/>
+  </g>
+</svg>
