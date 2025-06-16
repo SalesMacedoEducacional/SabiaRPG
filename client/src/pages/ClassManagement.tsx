@@ -250,7 +250,7 @@ export default function ClassManagement() {
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex items-center mb-6">
         <Button 
-          onClick={() => setLocation("/dashboard")} 
+          onClick={() => setLocation("/manager")} 
           variant="outline" 
           className="mr-4 bg-transparent border-primary text-parchment hover:bg-dark-light"
         >

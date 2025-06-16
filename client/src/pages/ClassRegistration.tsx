@@ -190,7 +190,7 @@ export default function ClassRegistration() {
 
   // Se não for gestor ou admin, redirecionar para o dashboard
   if (user && user.role !== 'manager' && user.role !== 'admin') {
-    setLocation("/dashboard");
+    setLocation("/manager");
     return null;
   }
 
@@ -457,7 +457,7 @@ export default function ClassRegistration() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setLocation("/manager-dashboard")}
+                  onClick={() => setLocation("/manager")}
                   disabled={isSubmitting}
                 >
                   Cancelar
