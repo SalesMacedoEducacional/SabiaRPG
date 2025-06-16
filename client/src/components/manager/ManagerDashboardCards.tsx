@@ -191,35 +191,49 @@ export function TotalProfessoresCard() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Buscar professores e escolas em paralelo
-        const [professoresResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/professores"),
-          apiRequest("GET", "/api/escolas/gestor")
-        ]);
-        
-        const professoresData = await professoresResponse.json();
-        const escolasData = await escolasResponse.json();
-        
-        setTotalProfessores(professoresData.total || 0);
-        setProfessores(professoresData.professores || []);
-        setEscolas(escolasData || []);
-      } catch (error) {
-        console.error("Erro ao buscar professores:", error);
-        toast({
-          title: "Erro ao carregar professores",
-          description: "Não foi possível carregar as informações de professores",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Buscar count de professores e escolas em paralelo
+      const [professoresResponse, escolasResponse] = await Promise.all([
+        apiRequest("GET", "/api/professores/count"),
+        apiRequest("GET", "/api/escolas/gestor")
+      ]);
+      
+      const professoresData = await professoresResponse.json();
+      const escolasData = await escolasResponse.json();
+      
+      setTotalProfessores(professoresData.count || 0);
+      setEscolas(escolasData || []);
+    } catch (error) {
+      console.error("Erro ao buscar professores:", error);
+      toast({
+        title: "Erro ao carregar professores",
+        description: "Não foi possível carregar as informações de professores",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const fetchProfessoresDetalhes = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/professores");
+      const data = await response.json();
+      setProfessores(data.professores || []);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes dos professores:", error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes dos professores",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [toast]);
 
@@ -246,7 +260,10 @@ export function TotalProfessoresCard() {
               variant="outline" 
               size="sm" 
               className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsModalOpen(true);
+                fetchProfessoresDetalhes();
+              }}
               disabled={totalProfessores === 0}
             >
               <Search className="h-3 w-3 mr-1" /> Ver Detalhes
@@ -476,30 +493,54 @@ export function TotalTurmasCard() {
   const { toast } = useToast();
   const [totalTurmas, setTotalTurmas] = useState<number>(0);
   const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Buscar count de turmas ativas e escolas em paralelo
+      const [turmasResponse, escolasResponse] = await Promise.all([
+        apiRequest("GET", "/api/turmas/count"),
+        apiRequest("GET", "/api/escolas/gestor")
+      ]);
+      
+      const turmasData = await turmasResponse.json();
+      const escolasData = await escolasResponse.json();
+      
+      setTotalTurmas(turmasData.count || 0);
+      setEscolas(escolasData || []);
+    } catch (error) {
+      console.error("Erro ao buscar turmas:", error);
+      toast({
+        title: "Erro ao carregar turmas",
+        description: "Não foi possível carregar as informações de turmas",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTurmasDetalhes = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/turmas");
+      const data = await response.json();
+      setTurmas(Array.isArray(data) ? data : data.turmas || []);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes das turmas:", error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes das turmas",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await apiRequest("GET", "/api/turmas");
-        const data = await response.json();
-        
-        setTotalTurmas(data.total || 0);
-        setTurmas(data.turmas || []);
-      } catch (error) {
-        console.error("Erro ao buscar turmas:", error);
-        toast({
-          title: "Erro ao carregar turmas",
-          description: "Não foi possível carregar as informações de turmas",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, [toast]);
 
@@ -526,7 +567,10 @@ export function TotalTurmasCard() {
               variant="outline" 
               size="sm" 
               className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsModalOpen(true);
+                fetchTurmasDetalhes();
+              }}
               disabled={totalTurmas === 0}
             >
               <Search className="h-3 w-3 mr-1" /> Ver Detalhes
