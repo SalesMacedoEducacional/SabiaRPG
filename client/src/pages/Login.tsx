@@ -235,9 +235,9 @@ const Login: React.FC = () => {
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
             <CardHeader>
               {(activeTab === 'login' || activeTab === 'register') ? (
-                <TabsList className="grid grid-cols-2 w-full bg-dark">
-                  <TabsTrigger value="login" className="font-medieval">Entrar</TabsTrigger>
-                  <TabsTrigger value="register" className="font-medieval">Registrar</TabsTrigger>
+                <TabsList className="sabia-login-tabs grid grid-cols-2 w-full">
+                  <TabsTrigger value="login" className="sabia-login-tab-trigger font-medieval">Entrar</TabsTrigger>
+                  <TabsTrigger value="register" className="sabia-login-tab-trigger font-medieval">Registrar</TabsTrigger>
                 </TabsList>
               ) : (
                 <div className="flex justify-between items-center">
@@ -363,23 +363,23 @@ const Login: React.FC = () => {
                   <div className="space-y-2">
                     <Label>Método de recuperação</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2 bg-dark p-3 rounded border border-primary">
+                      <div className="sabia-recovery-option flex items-center space-x-2">
                         <input
                           type="radio"
                           id="email-method"
                           value="email"
-                          className="accent-accent"
+                          className="sabia-radio-input"
                           {...forgotPasswordForm.register('recoveryMethod')}
                           defaultChecked
                         />
                         <Label htmlFor="email-method" className="cursor-pointer">Email</Label>
                       </div>
-                      <div className="flex items-center space-x-2 bg-dark p-3 rounded border border-primary">
+                      <div className="sabia-recovery-option flex items-center space-x-2">
                         <input
                           type="radio"
                           id="sms-method"
                           value="sms"
-                          className="accent-accent"
+                          className="sabia-radio-input"
                           {...forgotPasswordForm.register('recoveryMethod')}
                         />
                         <Label htmlFor="sms-method" className="cursor-pointer">SMS</Label>

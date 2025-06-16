@@ -635,4 +635,140 @@
       0 2px 4px rgba(0, 0, 0, 0.2),
       inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  /* Enhanced Tab Styling with Golden Selection Indicators */
+  .sabia-login-tabs {
+    background: rgba(60, 56, 48, 0.8);
+    border: 1px solid #8c7851;
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .sabia-login-tab-trigger {
+    background: transparent;
+    color: #f5e6cb;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sabia-login-tab-trigger:hover {
+    background: rgba(212, 160, 84, 0.1);
+    color: #d4a054;
+    border-color: rgba(212, 160, 84, 0.3);
+  }
+
+  .sabia-login-tab-trigger[data-state="active"] {
+    background: linear-gradient(135deg, 
+      rgba(212, 160, 84, 0.15) 0%, 
+      rgba(140, 120, 81, 0.1) 100%
+    );
+    color: #d4a054;
+    border-color: #d4a054;
+    box-shadow: 
+      0 0 8px rgba(212, 160, 84, 0.3),
+      inset 0 1px 0 rgba(245, 230, 203, 0.1);
+  }
+
+  .sabia-login-tab-trigger[data-state="active"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      #d4a054 20%, 
+      #f5e6cb 50%, 
+      #d4a054 80%, 
+      transparent 100%
+    );
+    animation: golden-shimmer 2s ease-in-out infinite;
+  }
+
+  .sabia-login-tab-trigger[data-state="active"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      #d4a054 20%, 
+      #f5e6cb 50%, 
+      #d4a054 80%, 
+      transparent 100%
+    );
+    animation: golden-shimmer 2s ease-in-out infinite reverse;
+  }
+
+  @keyframes golden-shimmer {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  /* Radio button styling for recovery method selection */
+  .sabia-recovery-option {
+    background: rgba(60, 56, 48, 0.9);
+    border: 2px solid #8c7851;
+    border-radius: 6px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .sabia-recovery-option:hover {
+    border-color: #d4a054;
+    background: rgba(212, 160, 84, 0.1);
+  }
+
+  .sabia-recovery-option input[type="radio"]:checked + label,
+  .sabia-recovery-option:has(input[type="radio"]:checked) {
+    border-color: #d4a054;
+    background: linear-gradient(135deg, 
+      rgba(212, 160, 84, 0.15) 0%, 
+      rgba(140, 120, 81, 0.1) 100%
+    );
+    box-shadow: 
+      0 0 8px rgba(212, 160, 84, 0.3),
+      inset 0 1px 0 rgba(245, 230, 203, 0.1);
+  }
+
+  /* Custom radio button styling */
+  .sabia-radio-input {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #8c7851;
+    border-radius: 50%;
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .sabia-radio-input:checked {
+    border-color: #d4a054;
+    background: radial-gradient(circle, #d4a054 30%, transparent 30%);
+    box-shadow: 0 0 4px rgba(212, 160, 84, 0.4);
+  }
+
+  .sabia-radio-input:checked::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: #d4a054;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(212, 160, 84, 0.6);
+  }
 }
