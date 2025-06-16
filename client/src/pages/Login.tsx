@@ -624,7 +624,7 @@ const Login: React.FC = () => {
                         id="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="bg-dark border-primary text-parchment pr-10"
+                        className="sabia-login-input pr-10"
                         {...registerForm.register('confirmPassword')}
                       />
                       <button 
