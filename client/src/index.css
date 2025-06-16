@@ -4,6 +4,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Background global da plataforma */
+body {
+  background-image: url('@assets/6011873_1750038868468.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Fallback para elementos com fundo específico */
+.platform-background {
+  background-image: url('@assets/6011873_1750038868468.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 :root {
   /* Sistema de cores unificado para Sabiá RPG - Nova Paleta Clara */
 

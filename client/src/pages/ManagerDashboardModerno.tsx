@@ -137,7 +137,7 @@ export default function ManagerDashboardModerno() {
   }, [showProfilePopup]);
   
   return (
-    <div className="min-h-screen flex flex-col bg-[#312e26]">
+    <div className="min-h-screen flex flex-col bg-black/20 backdrop-blur-sm">
       {/* Top Navigation Bar */}
       <header className="bg-[#312e26] border-b border-accent shadow-lg z-10">
         <div className="h-16 px-4 flex items-center justify-between">

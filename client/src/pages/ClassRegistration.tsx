@@ -195,8 +195,9 @@ export default function ClassRegistration() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-black/20 backdrop-blur-sm">
+      <div className="container mx-auto py-6">
+        <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -489,6 +490,7 @@ export default function ClassRegistration() {
           </p>
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }

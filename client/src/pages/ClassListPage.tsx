@@ -216,7 +216,7 @@ export default function ClassListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#312e2a]">
+    <div className="min-h-screen bg-black/20 backdrop-blur-sm">
       {/* Header */}
       <div className="border-b border-accent p-6">
         <div className="flex items-center justify-between">
