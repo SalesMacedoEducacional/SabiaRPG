@@ -82,8 +82,14 @@ export function registerClassRoutes(
         const { escola_id } = req.query;
         console.log('Query params recebidos:', req.query);
         
+        // Debugging: verificar qual é o papel do usuário
+        console.log('=== DEBUG USER ROLE ===');
+        console.log('req.user:', req.user);
+        console.log('req.user.role:', req.user?.role);
+        console.log('typeof req.user.role:', typeof req.user?.role);
+        
         // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
-        if (req.user && req.user.role === 'manager') {
+        if (req.user && (req.user.role === 'manager' || req.user.role === 'gestor')) {
           console.log('=== NOVA LÓGICA DE FILTRO EXECUTANDO ===');
           console.log('Buscando escolas para o gestor. ID do gestor:', req.user.id);
           
