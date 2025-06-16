@@ -71,8 +71,7 @@ export function registerClassRoutes(
   );
 
   /**
-   * Rota para listar todas as turmas de uma escola
-   * Acessível apenas para gestores
+   * Rota para listar turmas com filtro por escola
    */
   app.get('/api/turmas', 
     authenticate,
@@ -80,108 +79,54 @@ export function registerClassRoutes(
     async (req: Request, res: Response) => {
       try {
         const { escola_id } = req.query;
-        console.log('Query params recebidos:', req.query);
+        console.log('=== NOVA ROTA /api/turmas ===');
+        console.log('Query params:', req.query);
+        console.log('User role:', req.user?.role);
         
-        // Debugging: verificar qual é o papel do usuário
-        console.log('=== DEBUG USER ROLE ===');
-        console.log('req.user:', req.user);
-        console.log('req.user.role:', req.user?.role);
-        console.log('typeof req.user.role:', typeof req.user?.role);
+        // Buscar escolas do gestor
+        const { data: escolasGestor, error: escolasError } = await supabase
+          .from('escolas')
+          .select('id, nome, gestor_id')
+          .eq('gestor_id', req.user?.id);
+          
+        if (escolasError) {
+          console.error('Erro ao buscar escolas:', escolasError);
+          return res.status(500).json({ message: 'Erro ao buscar escolas' });
+        }
+
+        if (!escolasGestor || escolasGestor.length === 0) {
+          console.log('Gestor sem escolas vinculadas');
+          return res.status(200).json([]);
+        }
+
+        let escolaIds = escolasGestor.map(escola => escola.id);
         
-        // Se o usuário for gestor, verifica se ele está tentando acessar turmas de uma escola que ele gerencia
-        if (req.user && (req.user.role === 'manager' || req.user.role === 'gestor')) {
-          console.log('=== NOVA LÓGICA DE FILTRO EXECUTANDO ===');
-          console.log('Buscando escolas para o gestor. ID do gestor:', req.user.id);
-          
-          // Buscamos todas as escolas
-          let { data: escolasGestor, error: escolasError } = await supabase
-            .from('escolas')
-            .select('id, nome, gestor_id');
-            
-          if (escolasError) {
-            console.error('Erro ao verificar escolas do gestor:', escolasError);
-            return res.status(500).json({ message: 'Erro ao verificar escolas do gestor' });
-          }
-          
-          console.log(`Total de escolas encontradas: ${escolasGestor?.length || 0}`);
-          console.log('Todas as escolas:', escolasGestor?.map(e => ({ id: e.id, nome: e.nome, gestor_id: e.gestor_id })));
-          
-          // Filtrar escolas que o gestor gerencia
-          const escolasDoGestor = escolasGestor?.filter(escola => escola.gestor_id === req.user.id) || [];
-          console.log(`FILTRO APLICADO - Escolas gerenciadas pelo usuário ${req.user.id}: ${escolasDoGestor.length}`);
-          console.log(`Escolas do gestor:`, escolasDoGestor.map(e => ({ id: e.id, nome: e.nome })));
-          
-          if (escolasDoGestor.length === 0) {
-            console.log('FILTRO RESULTADO: Gestor não possui escolas vinculadas - retornando array vazio');
+        // Filtrar por escola específica se solicitado
+        if (escola_id && escola_id !== 'todas') {
+          if (escolaIds.includes(escola_id as string)) {
+            escolaIds = [escola_id as string];
+            console.log('Filtrando por escola específica:', escola_id);
+          } else {
+            console.log('Escola não pertence ao gestor');
             return res.status(200).json([]);
           }
-          
-          // Obter IDs das escolas do gestor
-          let escolaIds = escolasDoGestor.map(escola => escola.id);
-          
-          // Se uma escola específica foi solicitada, filtrar apenas por ela
-          if (escola_id && escola_id !== 'todas') {
-            console.log(`Filtro por escola específica solicitado: ${escola_id}`);
-            // Verificar se a escola solicitada está entre as escolas do gestor
-            if (escolaIds.includes(escola_id)) {
-              escolaIds = [escola_id];
-              console.log('Escola válida para o gestor - filtrando apenas por ela');
-            } else {
-              console.log('Escola solicitada não pertence ao gestor - retornando vazio');
-              return res.status(200).json([]);
-            }
-          }
-          
-          console.log('IDs das escolas que serão filtradas para turmas:', escolaIds);
-          
-          // Buscar turmas apenas das escolas gerenciadas pelo gestor
-          const { data: turmas, error } = await supabase
-            .from('turmas')
-            .select('*')
-            .in('escola_id', escolaIds)
-            .order('nome');
-            
-          if (error) {
-            console.error('Erro ao buscar turmas filtradas:', error);
-            return res.status(500).json({ message: 'Erro ao buscar turmas' });
-          }
-          
-          console.log(`RESULTADO FILTRO: Encontradas ${turmas?.length || 0} turmas das escolas do gestor`);
-          turmas?.forEach(turma => {
-            console.log(`- Turma: ${turma.nome} (ID: ${turma.id}) da escola: ${turma.escola_id}`);
-          });
-          
-          // Mapear os dados da tabela para o formato esperado pelo frontend
-          const turmasFormatadas = turmas?.map(turma => ({
-            ...turma,
-            nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
-          }));
-          
-          console.log(`=== RETORNANDO ${turmasFormatadas?.length || 0} TURMAS FILTRADAS ===`);
-            
-          return res.status(200).json(turmasFormatadas);
-        } else {
-          // Para administradores, também busca todas as turmas (ignorando filtragem por escola)
-          const { data: turmas, error } = await supabase
-            .from('turmas')
-            .select('*')
-            .order('nome');
-          
-          if (error) {
-            console.error('Erro ao buscar turmas:', error);
-            return res.status(500).json({ message: 'Erro ao buscar turmas' });
-          }
-          
-          // Mapear os dados da tabela para o formato esperado pelo frontend
-          const turmasFormatadas = turmas?.map(turma => ({
-            ...turma,
-            nome_turma: turma.nome, // Adicionar campo nome_turma mantendo o campo original nome
-          }));
-          
-          console.log(`Retornando ${turmasFormatadas?.length || 0} turmas para o frontend`);
-            
-          return res.status(200).json(turmasFormatadas);
         }
+
+        // Buscar turmas
+        const { data: turmas, error } = await supabase
+          .from('turmas')
+          .select('*')
+          .in('escola_id', escolaIds)
+          .order('nome');
+          
+        if (error) {
+          console.error('Erro ao buscar turmas:', error);
+          return res.status(500).json({ message: 'Erro ao buscar turmas' });
+        }
+
+        console.log(`Retornando ${turmas?.length || 0} turmas filtradas`);
+        return res.status(200).json(turmas || []);
+        
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
         return res.status(500).json({ message: 'Erro ao buscar turmas' });
