@@ -318,7 +318,7 @@ const Login: React.FC = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-accent hover:bg-accent-dark text-dark font-bold"
+                    className="w-full sabia-login-button"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Carregando...' : 'Entrar'}
