@@ -46,9 +46,12 @@ interface Professor {
     nome: string;
     cpf: string;
     telefone: string;
+    email?: string;
   };
   escola_id?: string;
   escola_nome?: string;
+  disciplinas?: string[];
+  ativo?: boolean;
 }
 
 interface Aluno {
@@ -307,8 +310,9 @@ export function TotalProfessoresCard() {
               <TableHeader className="bg-[#43341c]">
                 <TableRow>
                   <TableHead className="text-white">Nome do Professor</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
+                  <TableHead className="text-white">Email</TableHead>
                   <TableHead className="text-white">Telefone</TableHead>
+                  <TableHead className="text-white">Disciplinas</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
                 </TableRow>
               </TableHeader>
@@ -322,14 +326,19 @@ export function TotalProfessoresCard() {
                     professoresFiltrados.map((professor) => (
                       <TableRow key={professor.id} className="hover:bg-[#43341c]">
                         <TableCell className="text-white font-medium">{professor.usuarios.nome}</TableCell>
-                        <TableCell className="text-white">{professor.usuarios.cpf}</TableCell>
+                        <TableCell className="text-white">{professor.usuarios.email || "Não informado"}</TableCell>
                         <TableCell className="text-white">{professor.usuarios.telefone || "Não informado"}</TableCell>
+                        <TableCell className="text-white">
+                          {professor.disciplinas && professor.disciplinas.length > 0 
+                            ? professor.disciplinas.join(", ") 
+                            : "Não informado"}
+                        </TableCell>
                         <TableCell className="text-white">{professor.escola_nome || "Não informado"}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
                         {filtroEscola === "todas" ? "Nenhum professor encontrado" : "Nenhum professor encontrado para esta escola"}
                       </TableCell>
                     </TableRow>
@@ -633,23 +642,29 @@ export function TotalTurmasCard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {turmas.length > 0 ? (
-                  turmas.map((turma) => (
-                    <TableRow key={turma.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{turma.nome}</TableCell>
-                      <TableCell className="text-white">{turma.serie}</TableCell>
-                      <TableCell className="text-white">{turma.turno}</TableCell>
-                      <TableCell className="text-white">{turma.ano_letivo}</TableCell>
-                      <TableCell className="text-white">{turma.total_alunos}</TableCell>
+                {(() => {
+                  const turmasFiltradas = filtroEscola === "todas" 
+                    ? turmas 
+                    : turmas.filter(turma => turma.escola_id === filtroEscola);
+                  
+                  return turmasFiltradas.length > 0 ? (
+                    turmasFiltradas.map((turma) => (
+                      <TableRow key={turma.id} className="hover:bg-[#43341c]">
+                        <TableCell className="text-white font-medium">{turma.nome}</TableCell>
+                        <TableCell className="text-white">{turma.serie}</TableCell>
+                        <TableCell className="text-white">{turma.turno}</TableCell>
+                        <TableCell className="text-white">{turma.ano_letivo}</TableCell>
+                        <TableCell className="text-white">{turma.total_alunos || 0}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                        {filtroEscola === "todas" ? "Nenhuma turma encontrada" : "Nenhuma turma encontrada para esta escola"}
+                      </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                      Nenhuma turma encontrada
-                    </TableCell>
-                  </TableRow>
-                )}
+                  );
+                })()}
               </TableBody>
             </Table>
           </ScrollArea>
