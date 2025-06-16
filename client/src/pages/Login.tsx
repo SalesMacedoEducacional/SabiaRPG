@@ -235,9 +235,9 @@ const Login: React.FC = () => {
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
             <CardHeader>
               {(activeTab === 'login' || activeTab === 'register') ? (
-                <TabsList className="sabia-tabs-list grid grid-cols-2 w-full">
-                  <TabsTrigger value="login" className="sabia-tab-trigger sabia-tab-entrar font-medieval">Entrar</TabsTrigger>
-                  <TabsTrigger value="register" className="sabia-tab-trigger sabia-tab-registrar font-medieval">Registrar</TabsTrigger>
+                <TabsList className="grid grid-cols-2 w-full bg-dark">
+                  <TabsTrigger value="login" className="font-medieval">Entrar</TabsTrigger>
+                  <TabsTrigger value="register" className="font-medieval">Registrar</TabsTrigger>
                 </TabsList>
               ) : (
                 <div className="flex justify-between items-center">
