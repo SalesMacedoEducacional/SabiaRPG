@@ -195,23 +195,27 @@ export default function ClassRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-black/20 backdrop-blur-sm">
+    <div className="sabia-bg">
+      <div className="sabia-decorative-corner top-left"></div>
+      <div className="sabia-decorative-corner top-right"></div>
+      <div className="sabia-decorative-corner bottom-left"></div>
+      <div className="sabia-decorative-corner bottom-right"></div>
       <div className="container mx-auto py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLocation("/manager")}
-              className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
-            </Button>
-            <h1 className="text-2xl font-bold ml-2">Cadastro de Nova Turma</h1>
-          </div>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLocation("/manager")}
+            className="bg-[#4a4639] border border-[#D47C06] text-white hover:bg-[#57533f] flex items-center"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
+          </Button>
+          <h1 className="text-2xl font-bold ml-2">Cadastro de Nova Turma</h1>
         </div>
+      </div>
 
-        <Card>
+      <Card className="sabia-content-area">
         <CardHeader>
           <div className="flex items-center space-x-2">
             <BookCopy className="h-5 w-5 text-primary" />
@@ -489,7 +493,7 @@ export default function ClassRegistration() {
             * Campos obrigatórios
           </p>
         </CardFooter>
-        </Card>
+      </Card>
       </div>
     </div>
   );

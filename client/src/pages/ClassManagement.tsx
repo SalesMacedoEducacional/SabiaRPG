@@ -247,9 +247,8 @@ export default function ClassManagement() {
   const escolaSelecionadaNome = escolas.find(e => e.id === selectedEscola)?.nome || "Selecione uma escola";
 
   return (
-    <div className="min-h-screen bg-black/20 backdrop-blur-sm">
-      <div className="container mx-auto py-6 px-4 md:px-6">
-        <div className="flex items-center mb-6">
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="flex items-center mb-6">
         <Button 
           onClick={() => setLocation("/manager")} 
           variant="outline" 
@@ -611,7 +610,6 @@ export default function ClassManagement() {
           </Form>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }

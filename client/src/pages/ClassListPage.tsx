@@ -216,28 +216,34 @@ export default function ClassListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black/20 backdrop-blur-sm">
+    <div className="sabia-bg">
+      <div className="sabia-decorative-corner top-left"></div>
+      <div className="sabia-decorative-corner top-right"></div>
+      <div className="sabia-decorative-corner bottom-left"></div>
+      <div className="sabia-decorative-corner bottom-right"></div>
       {/* Header */}
-      <div className="border-b border-accent p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLocation("/manager")}
-              className="flex items-center gap-2 bg-[#2a2621] border-accent text-accent hover:bg-accent hover:text-[#2a2621]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar ao Dashboard
-            </Button>
-            <h1 className="text-2xl font-bold text-white">GERENCIAMENTO DE TURMAS</h1>
+      <div className="sabia-content-area m-4 mb-6">
+        <div className="border-b border-accent p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLocation("/manager")}
+                className="flex items-center gap-2 bg-transparent border-accent text-accent hover:bg-accent hover:text-[#2a2621]"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar ao Dashboard
+              </Button>
+              <h1 className="text-2xl font-bold text-parchment-light">GERENCIAMENTO DE TURMAS</h1>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="px-4 pb-6 space-y-6">
         {/* Filtros */}
-        <Card className="mb-6 bg-[#2a2621] border-accent">
+        <Card className="sabia-content-area border-accent">
           <CardHeader>
             <CardTitle className="text-accent flex items-center gap-2">
               <School className="h-5 w-5" />
