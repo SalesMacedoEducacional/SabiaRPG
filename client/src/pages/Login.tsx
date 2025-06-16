@@ -352,7 +352,7 @@ const Login: React.FC = () => {
                       id="recovery-email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...forgotPasswordForm.register('email')}
                     />
                     {forgotPasswordForm.formState.errors.email && (
@@ -423,7 +423,7 @@ const Login: React.FC = () => {
                       id="verification-code"
                       type="text"
                       placeholder="Insira o código recebido"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...resetPasswordForm.register('code')}
                     />
                     {resetPasswordForm.formState.errors.code && (
@@ -438,7 +438,7 @@ const Login: React.FC = () => {
                         id="new-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="bg-dark border-primary text-parchment pr-10"
+                        className="sabia-login-input pr-10"
                         {...resetPasswordForm.register('password')}
                       />
                       <button 
