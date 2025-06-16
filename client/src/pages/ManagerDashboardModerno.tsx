@@ -137,11 +137,7 @@ export default function ManagerDashboardModerno() {
   }, [showProfilePopup]);
   
   return (
-    <div className="sabia-bg flex flex-col">
-      <div className="sabia-decorative-corner top-left"></div>
-      <div className="sabia-decorative-corner top-right"></div>
-      <div className="sabia-decorative-corner bottom-left"></div>
-      <div className="sabia-decorative-corner bottom-right"></div>
+    <div className="min-h-screen flex flex-col bg-[#312e26]">
       {/* Top Navigation Bar */}
       <header className="bg-[#312e26] border-b border-accent shadow-lg z-10">
         <div className="h-16 px-4 flex items-center justify-between">
@@ -469,7 +465,7 @@ export default function ManagerDashboardModerno() {
         </aside>
         
         {/* Main Content */}
-        <main className={`flex-1 overflow-y-auto p-4`}>
+        <main className={`flex-1 overflow-y-auto bg-[#27241c] p-4`}>
           {/* Page headings and main content */}
           {activeMenu === "overview" && (
             <div className="space-y-6">

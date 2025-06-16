@@ -5,60 +5,49 @@
 @tailwind utilities;
 
 :root {
-  /* Sistema de cores oficial Sabiá RPG - Paleta Medieval */
+  /* Sistema de cores unificado para Sabiá RPG - Nova Paleta Clara */
 
-  /* Cores Primárias Oficiais */
-  --primary: #d4a054;
-  --primary-hover: #c2903d;
-  --primary-pressed: #a87c33;
-  --primary-contrast: #312e26;
+  /* Cores Primárias e de Ação */
+  --primary: #A6936C;
+  --primary-hover: #8F7D59;
+  --primary-pressed: #7A6A4A;
+  --primary-contrast: #312E26;
 
-  --secondary: #8c7851;
-  --secondary-hover: #7a6a4a;
-  --secondary-pressed: #68583c;
-  --secondary-contrast: #f5e6cb;
+  --secondary: #3498DB;
+  --secondary-hover: #2980B9;
+  --secondary-pressed: #1F6DA5;
+  --secondary-contrast: #F5F2EC;
 
-  --accent: #d4a054;
-  --accent-hover: #c2903d;
-  --accent-contrast: #312e26;
+  --danger: #C0392B;
+  --danger-hover: #A93226;
+  --danger-contrast: #F5F2EC;
 
-  --danger: #8b3a3a;
-  --danger-hover: #7a3030;
-  --danger-contrast: #f5e6cb;
+  --success: #27AE60;
+  --success-hover: #229954;
+  --success-contrast: #F5F2EC;
 
-  --success: #5a6b3a;
-  --success-hover: #4a5b2a;
-  --success-contrast: #f5e6cb;
+  --warning: #D4A054;
+  --warning-hover: #C2903D;
+  --warning-contrast: #312E26;
 
-  --warning: #d4a054;
-  --warning-hover: #c2903d;
-  --warning-contrast: #312e26;
-
-  /* Cores de Fundo Oficiais */
-  --background-primary: #312e26;
-  --background-secondary: #3c3830;
-  --background-card: #2a2621;
-  --background-elevated: #423f37;
-  --background-input: #3c3830;
-  
-  /* Texturas de Pergaminho */
-  --parchment-light: #f5e6cb;
-  --parchment-medium: #e8d4a6;
-  --parchment-dark: #d4a054;
+  /* Cores de Fundo */
+  --background-base: #F5F2EC;
+  --background-elevated: #E0DCD1;
+  --background-card: #E8E4DA;
+  --background-input: #F0EDE8;
 
   /* Cores de Texto */
-  --text-primary: #f5e6cb;
-  --text-secondary: #d4a054;
-  --text-muted: #8c7851;
-  --text-subtle: #68583c;
-  --text-heading: #f5e6cb;
-  --text-accent: #d4a054;
+  --text-heading: #312E26;
+  --text-default: #433D33;
+  --text-muted: #5A5346;
+  --text-subtle: #7A7367;
+  --text-link: #B37F32;
+  --text-link-hover: #D4A054;
 
   /* Cores de Borda */
-  --border-primary: #8c7851;
-  --border-secondary: #d4a054;
-  --border-focus: #d4a054;
-  --border-card: #8c7851;
+  --border-default: #A6936C;
+  --border-focus: #D4A054;
+  --border-card: #C5B99D;
 
   /* Cores de Gráficos */
   --graph-purple: #9C59B6;
@@ -197,168 +186,6 @@
 
   .manager-action-button {
     @apply flex items-center text-[#D9D6D0] hover:bg-[#4a4639] p-2 transition-colors rounded;
-  }
-
-  /* Sistema de Plano de Fundo Responsivo Sabiá RPG */
-  .sabia-bg {
-    position: relative;
-    min-height: 100vh;
-    background: linear-gradient(135deg, 
-      var(--background-primary) 0%, 
-      var(--background-secondary) 30%, 
-      var(--background-primary) 70%, 
-      #2a2621 100%
-    );
-    
-    /* Textura de pergaminho base */
-    background-image: 
-      radial-gradient(circle at 25% 25%, rgba(212, 160, 84, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(140, 120, 81, 0.02) 0%, transparent 50%),
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 2px,
-        rgba(245, 230, 203, 0.005) 2px,
-        rgba(245, 230, 203, 0.005) 4px
-      );
-    
-    background-size: 300px 300px, 200px 200px, 10px 10px;
-    background-position: 0 0, 100px 100px, 0 0;
-  }
-
-  .sabia-bg::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: -1;
-    
-    /* Elementos decorativos medievais */
-    background-image: 
-      /* Mapa estilizado no canto superior esquerdo */
-      radial-gradient(circle at 10% 15%, rgba(212, 160, 84, 0.08) 0%, transparent 25%),
-      /* Dado D20 no canto superior direito */
-      radial-gradient(circle at 90% 10%, rgba(140, 120, 81, 0.06) 0%, transparent 20%),
-      /* Pergaminho no canto inferior esquerdo */
-      radial-gradient(ellipse at 15% 85%, rgba(245, 230, 203, 0.04) 0%, transparent 30%),
-      /* Bússola no canto inferior direito */
-      radial-gradient(circle at 85% 90%, rgba(212, 160, 84, 0.05) 0%, transparent 25%);
-    
-    background-size: 400px 400px, 300px 300px, 350px 350px, 280px 280px;
-    background-repeat: no-repeat;
-  }
-
-  .sabia-bg::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: -1;
-    
-    /* Vinheta sutil nas bordas */
-    background: radial-gradient(ellipse at center, 
-      transparent 0%, 
-      transparent 60%, 
-      rgba(49, 46, 38, 0.1) 80%, 
-      rgba(49, 46, 38, 0.2) 100%
-    );
-  }
-
-  /* Área central de conteúdo com alto contraste */
-  .sabia-content-area {
-    position: relative;
-    z-index: 1;
-    background: rgba(42, 38, 33, 0.95);
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
-    backdrop-filter: blur(2px);
-    box-shadow: 
-      0 4px 20px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(212, 160, 84, 0.1);
-  }
-
-  /* Elementos decorativos para pontos de ancoragem */
-  .sabia-decorative-corner {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(45deg, 
-      transparent 30%, 
-      rgba(212, 160, 84, 0.1) 50%, 
-      transparent 70%
-    );
-    border: 1px solid rgba(140, 120, 81, 0.2);
-    border-radius: 4px;
-    pointer-events: none;
-  }
-
-  .sabia-decorative-corner.top-left {
-    top: 20px;
-    left: 20px;
-    transform: rotate(-45deg);
-  }
-
-  .sabia-decorative-corner.top-right {
-    top: 20px;
-    right: 20px;
-    transform: rotate(45deg);
-  }
-
-  .sabia-decorative-corner.bottom-left {
-    bottom: 20px;
-    left: 20px;
-    transform: rotate(-135deg);
-  }
-
-  .sabia-decorative-corner.bottom-right {
-    bottom: 20px;
-    right: 20px;
-    transform: rotate(135deg);
-  }
-
-  /* Responsividade para diferentes tamanhos de tela */
-  @media (max-width: 768px) {
-    .sabia-bg::before {
-      background-size: 250px 250px, 200px 200px, 220px 220px, 180px 180px;
-    }
-    
-    .sabia-decorative-corner {
-      width: 40px;
-      height: 40px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sabia-bg::before {
-      background-size: 180px 180px, 150px 150px, 160px 160px, 130px 130px;
-    }
-    
-    .sabia-decorative-corner {
-      width: 30px;
-      height: 30px;
-    }
-  }
-
-  /* Ajustes para modo escuro consistente */
-  body.dark {
-    background: var(--background-primary);
-    color: var(--text-primary);
-  }
-
-  /* Animações sutis para elementos decorativos */
-  @keyframes medieval-glow {
-    0%, 100% { opacity: 0.05; }
-    50% { opacity: 0.15; }
-  }
-
-  .sabia-bg::before {
-    animation: medieval-glow 8s ease-in-out infinite;
   }
 
   .manager-action-button>svg {
