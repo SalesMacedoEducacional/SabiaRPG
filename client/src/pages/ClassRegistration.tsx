@@ -215,7 +215,7 @@ export default function ClassRegistration() {
         </div>
       </div>
 
-      <Card>
+      <Card className="sabia-content-area">
         <CardHeader>
           <div className="flex items-center space-x-2">
             <BookCopy className="h-5 w-5 text-primary" />
