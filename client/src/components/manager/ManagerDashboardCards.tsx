@@ -8,7 +8,8 @@ import {
   BookOpen, 
   Search,
   Building,
-  Filter
+  Filter,
+  Settings
 } from "lucide-react";
 import {
   Dialog,
@@ -563,18 +564,32 @@ export function TotalTurmasCard() {
             <div className="text-3xl font-bold text-white mt-2">{totalTurmas}</div>
             <div className="text-xs text-accent mt-1">Distribuídas em todas as escolas</div>
             
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
-              onClick={() => {
-                setIsModalOpen(true);
-                fetchTurmasDetalhes();
-              }}
-              disabled={totalTurmas === 0}
-            >
-              <Search className="h-3 w-3 mr-1" /> Ver Detalhes
-            </Button>
+            <div className="flex gap-2 mt-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#57533f] transition-colors"
+                onClick={() => {
+                  setIsModalOpen(true);
+                  fetchTurmasDetalhes();
+                }}
+                disabled={totalTurmas === 0}
+              >
+                <Search className="h-3 w-3 mr-1" /> Ver Detalhes
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-[#8c7851] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#a08962] transition-colors"
+                onClick={() => {
+                  // Navegar para a página de gerenciamento de componentes curriculares
+                  window.location.href = '/manager/componentes';
+                }}
+              >
+                <Settings className="h-3 w-3 mr-1" /> Gerenciar Componentes
+              </Button>
+            </div>
           </>
         )}
       </div>
@@ -589,6 +604,22 @@ export function TotalTurmasCard() {
               Lista de turmas nas escolas sob sua gestão
             </DialogDescription>
           </DialogHeader>
+          
+          <div className="mb-4">
+            <Select value={filtroEscola} onValueChange={setFiltroEscola}>
+              <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectValue placeholder="Filtrar por escola" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#312e26] border-[#D47C06]">
+                <SelectItem value="todas" className="text-white">Todas as escolas</SelectItem>
+                {escolas.map((escola) => (
+                  <SelectItem key={escola.id} value={escola.id} className="text-white">
+                    {escola.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           
           <ScrollArea className="max-h-[60vh]">
             <Table className="border-collapse">

@@ -1840,6 +1840,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rota para contagem de professores
+  app.get("/api/professores/count", authenticate, authorize(["manager", "admin", "teacher"]), async (req, res) => {
+    try {
+      console.log(`=== CONTAGEM DE PROFESSORES ATIVOS ===`);
+      console.log(`User role: ${req.session?.userRole}`);
+      
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      // Se for gestor, filtrar apenas pelas escolas vinculadas
+      if (req.session?.userRole === 'gestor' || req.session?.userRole === 'manager') {
+        console.log(`Buscando escolas para gestor: ${userId}`);
+        
+        // Buscar escolas vinculadas ao gestor
+        const { data: escolasGestor, error: escolasError } = await supabase
+          .from('escolas')
+          .select('id')
+          .eq('gestor_id', userId);
+          
+        if (escolasError) {
+          console.error('Erro ao buscar escolas do gestor:', escolasError);
+          return res.status(500).json({ message: 'Erro ao buscar escolas do gestor' });
+        }
+        
+        if (!escolasGestor || escolasGestor.length === 0) {
+          console.log('Nenhuma escola encontrada para o gestor');
+          return res.status(200).json({ count: 0 });
+        }
+        
+        const escolaIds = escolasGestor.map(escola => escola.id);
+        console.log(`Escolas encontradas: ${escolaIds.length}`);
+        
+        // Contar professores vinculados às escolas do gestor
+        const { count, error } = await supabase
+          .from('perfis_professor')
+          .select('*', { count: 'exact', head: true })
+          .in('escola_id', escolaIds);
+          
+        if (error) {
+          console.error('Erro ao contar professores:', error);
+          return res.status(500).json({ message: 'Erro ao contar professores' });
+        }
+
+        console.log(`Total de professores ativos: ${count}`);
+        return res.status(200).json({ count: count || 0 });
+      }
+
+      // Para admin ou teacher, contar todos os professores
+      const { count, error } = await supabase
+        .from('perfis_professor')
+        .select('*', { count: 'exact', head: true });
+        
+      if (error) {
+        console.error('Erro ao contar professores:', error);
+        return res.status(500).json({ message: 'Erro ao contar professores' });
+      }
+
+      console.log(`Total de professores ativos: ${count}`);
+      return res.status(200).json({ count: count || 0 });
+      
+    } catch (error) {
+      console.error('Erro ao buscar contagem de professores:', error);
+      return res.status(500).json({ message: 'Erro ao buscar contagem de professores' });
+    }
+  });
+
   app.get("/api/alunos", authenticate, authorize(["manager"]), async (req, res) => {
     try {
       console.log("Verificando permissão: Papel do usuário (gestor/manager), Papéis permitidos: manager");
