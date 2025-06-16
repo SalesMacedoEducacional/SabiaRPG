@@ -462,7 +462,7 @@ const Login: React.FC = () => {
                         id="confirm-new-password"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="bg-dark border-primary text-parchment pr-10"
+                        className="sabia-login-input pr-10"
                         {...resetPasswordForm.register('confirmPassword')}
                       />
                       <button 
@@ -497,7 +497,7 @@ const Login: React.FC = () => {
                       id="register-email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('email')}
                     />
                     {registerForm.formState.errors.email && (
@@ -511,7 +511,7 @@ const Login: React.FC = () => {
                       id="username"
                       type="text"
                       placeholder="Seu nome de usuário"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('username')}
                     />
                     {registerForm.formState.errors.username && (
@@ -525,7 +525,7 @@ const Login: React.FC = () => {
                       id="fullName"
                       type="text"
                       placeholder="Seu nome completo"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('fullName')}
                     />
                     {registerForm.formState.errors.fullName && (
@@ -539,7 +539,7 @@ const Login: React.FC = () => {
                       id="phone"
                       type="tel"
                       placeholder="(99) 99999-9999"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('phone')}
                     />
                     {registerForm.formState.errors.phone && (
@@ -552,7 +552,7 @@ const Login: React.FC = () => {
                     <Input
                       id="birthDate"
                       type="date"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('birthDate')}
                     />
                     {registerForm.formState.errors.birthDate && (
@@ -566,7 +566,7 @@ const Login: React.FC = () => {
                       id="enrollment"
                       type="text"
                       placeholder="Número de matrícula"
-                      className="bg-dark border-primary text-parchment"
+                      className="sabia-login-input"
                       {...registerForm.register('enrollment')}
                     />
                     {registerForm.formState.errors.enrollment && (
@@ -600,7 +600,7 @@ const Login: React.FC = () => {
                         id="register-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="bg-dark border-primary text-parchment pr-10"
+                        className="sabia-login-input pr-10"
                         {...registerForm.register('password')}
                       />
                       <button 
