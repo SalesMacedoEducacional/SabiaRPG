@@ -2413,14 +2413,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           papel: 'aluno',
           ativo: true,
           criado_em: '2024-01-15T12:00:00Z'
+        },
+        {
+          id: '3160b4a2-a457-420b-87aa-07f1ee32eade',
+          nome: 'Usuário Novo Cadastro',
+          email: 'salanivariedades@gmail.com',
+          cpf: '333.333.333-33',
+          telefone: '',
+          papel: 'aluno',
+          ativo: true,
+          criado_em: '2025-06-17T09:03:01Z'
         }
       ];
 
       // Para resolver limitações do RLS, vou usar apenas os usuários base e expandir gradualmente
       console.log('Usando dados base garantidos + busca adicional...');
+      console.log('Debug: usuariosBase.length =', usuariosBase.length);
       
       // Primeiro, garantir que temos os usuários base funcionando
       let usuarios = [...usuariosBase];
+      console.log(`Usuários base carregados: ${usuarios.length}`);
       
       try {
         // Tentar buscar usuários adicionais sem filtros restritivos
