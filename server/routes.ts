@@ -2503,7 +2503,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const disponivel = !usuarioExistente || usuarioExistente.length === 0;
       
-      console.log(`Disponível: ${disponivel}`);
+      console.log(`Resultado da consulta - Registros encontrados: ${usuarioExistente?.length || 0}`);
+      console.log(`Campo ${campo} com valor ${valorNormalizado} - Disponível: ${disponivel}`);
       
       res.json({
         disponivel,

@@ -139,7 +139,7 @@ export default function UserRegistration() {
         [campo]: { 
           valid: disponivel, 
           checking: false, 
-          error: disponivel ? '' : `${campo.toUpperCase()} já cadastrado no sistema`,
+          error: disponivel ? '' : `${campo === 'cpf' ? 'CPF' : campo === 'email' ? 'E-mail' : 'Telefone'} já cadastrado no sistema`,
           checked: true
         }
       }));
