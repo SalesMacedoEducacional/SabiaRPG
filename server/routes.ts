@@ -2389,53 +2389,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let usuariosError = null;
       
       try {
-        // Buscar todos os usuários reais do banco usando consulta SQL direta para contornar RLS
-        const { data: usuariosReais, error } = await supabase.rpc('get_all_usuarios_for_manager');
+        console.log('Buscando usuários reais usando função SQL...');
         
-        // Se a função RPC não existir, usar consulta padrão
-        if (error?.code === '42883') {
-          console.log('Função RPC não existe, usando consulta padrão...');
-          const { data: usuariosPadrao, error: errorPadrao } = await supabase
-            .from('usuarios')
-            .select('*')
-            .order('criado_em', { ascending: false });
+        // Usar função SQL que contorna limitações RLS
+        const { data: usuariosReais, error: errorPrincipal } = await supabase
+          .rpc('get_all_usuarios_for_manager');
+        
+        usuariosError = errorPrincipal;
+        
+        if (usuariosReais && usuariosReais.length > 0) {
+          usuarios = usuariosReais.map((usuario: any) => ({
+            id: usuario.id,
+            nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
+            email: usuario.email,
+            cpf: usuario.cpf || '',
+            telefone: usuario.telefone || '',
+            papel: usuario.papel,
+            ativo: usuario.ativo ?? true,
+            criado_em: usuario.criado_em
+          }));
           
-          usuariosError = errorPadrao;
-          
-          if (usuariosPadrao && usuariosPadrao.length > 0) {
-            usuarios = usuariosPadrao.map(usuario => ({
-              id: usuario.id,
-              nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
-              email: usuario.email,
-              cpf: usuario.cpf || '',
-              telefone: usuario.telefone || '',
-              papel: usuario.papel,
-              ativo: usuario.ativo ?? true,
-              criado_em: usuario.criado_em
-            }));
-          }
+          console.log(`Usuários reais encontrados no banco: ${usuarios.length}`);
         } else {
-          usuariosError = error;
-          
-          if (usuariosReais && usuariosReais.length > 0) {
-            usuarios = usuariosReais.map(usuario => ({
-              id: usuario.id,
-              nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
-              email: usuario.email,
-              cpf: usuario.cpf || '',
-              telefone: usuario.telefone || '',
-              papel: usuario.papel,
-              ativo: usuario.ativo ?? true,
-              criado_em: usuario.criado_em
-            }));
+          console.log('Nenhum usuário encontrado no banco de dados');
+          if (errorPrincipal) {
+            console.log('Erro SQL:', errorPrincipal.message);
           }
+          usuarios = [];
         }
-        
-        console.log(`Total de usuários reais encontrados: ${usuarios.length}`);
         
       } catch (error) {
         console.error('Erro ao buscar usuários do banco:', error);
         usuariosError = error;
+        usuarios = [];
       }
 
       // Mapear usuários com escolas baseado no papel, sem mapeamentos fixos
