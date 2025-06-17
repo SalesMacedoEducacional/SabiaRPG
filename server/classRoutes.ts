@@ -316,23 +316,24 @@ export function registerClassRoutes(
         if (req.user?.role === 'gestor' || req.user?.role === 'manager') {
           console.log(`Buscando escolas para gestor: ${req.user.id}`);
           
-          // Buscar escolas vinculadas ao gestor
-          const { data: escolasGestor, error: escolasError } = await supabase
-            .from('escolas')
-            .select('id')
-            .eq('gestor_id', req.user.id);
+          // Buscar escolas vinculadas ao gestor através da tabela perfis_gestor
+          const { data: perfilData, error: escolasError } = await supabase
+            .from('perfis_gestor')
+            .select('escola_id')
+            .eq('usuario_id', req.user.id)
+            .eq('ativo', true);
             
           if (escolasError) {
             console.error('Erro ao buscar escolas do gestor:', escolasError);
             return res.status(500).json({ message: 'Erro ao buscar escolas do gestor' });
           }
           
-          if (!escolasGestor || escolasGestor.length === 0) {
+          if (!perfilData || perfilData.length === 0) {
             console.log('Nenhuma escola encontrada para o gestor');
             return res.status(200).json({ count: 0 });
           }
           
-          const escolaIds = escolasGestor.map(escola => escola.id);
+          const escolaIds = perfilData.map(perfil => perfil.escola_id);
           console.log(`Escolas encontradas: ${escolaIds.length}`);
           
           query = query.in('escola_id', escolaIds);
