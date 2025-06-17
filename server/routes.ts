@@ -2374,7 +2374,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ========== ENDPOINTS COMPLETOS DE GESTÃO DE USUÁRIOS ==========
   
   // GET - Buscar todos os usuários com escolas vinculadas
-  app.get("/api/usuarios", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios", async (req, res) => {
+    // Verificar autenticação via sessão
+    if (!req.session?.userId) {
+      console.log('Usuário não autenticado via sessão ou Supabase Auth');
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    // Verificar se o usuário tem papel de gestor ou admin
+    const userRole = req.session.userRole;
+    if (!['manager', 'admin'].includes(userRole)) {
+      console.log(`Usuário sem permissão. Papel: ${userRole}`);
+      return res.status(403).json({ message: 'Acesso negado' });
+    }
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
@@ -2470,7 +2482,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET - Contadores de usuários por papel
-  app.get("/api/usuarios/contadores", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios/contadores", async (req, res) => {
+    // Verificar autenticação via sessão
+    if (!req.session?.userId) {
+      console.log('Usuário não autenticado via sessão');
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    // Verificar se o usuário tem papel de gestor ou admin
+    const userRole = req.session.userRole;
+    if (!['manager', 'admin'].includes(userRole)) {
+      console.log(`Usuário sem permissão. Papel: ${userRole}`);
+      return res.status(403).json({ message: 'Acesso negado' });
+    }
     try {
       console.log("=== CALCULANDO CONTADORES DE USUÁRIOS ===");
       
@@ -2532,7 +2556,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET - Buscar usuário específico com detalhes completos
-  app.get("/api/usuarios/:id", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios/:id", async (req, res) => {
+    // Verificar autenticação via sessão
+    if (!req.session?.userId) {
+      console.log('Usuário não autenticado via sessão');
+      return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    // Verificar se o usuário tem papel de gestor ou admin
+    const userRole = req.session.userRole;
+    if (!['manager', 'admin'].includes(userRole)) {
+      console.log(`Usuário sem permissão. Papel: ${userRole}`);
+      return res.status(403).json({ message: 'Acesso negado' });
+    }
     try {
       const { id } = req.params;
       console.log(`=== BUSCANDO DETALHES DO USUÁRIO: ${id} ===`);
