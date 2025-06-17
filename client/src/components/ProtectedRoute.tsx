@@ -26,19 +26,36 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Importante: manter todos os hooks sempre na mesma ordem
   const auth = useAuth();
-  const { user, isLoading, hasPermission } = auth;
+  const { user, isLoading, hasPermission, escolasVinculadas, verificarEscolasGestor } = auth;
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Managers should always have access to their dashboard - they manage schools through perfis_gestor table
+  // Verificar escolas vinculadas para gestores
   useEffect(() => {
-    // For managers accessing the dashboard, we don't need to check escola_id
-    // as they are linked to schools through the perfis_gestor table
-    if (user?.role === 'manager' && path === '/manager') {
+    if (user?.role === 'manager') {
+      setCheckingSchools(true);
+      
+      // Se não tem escolas vinculadas, verificar no servidor
+      if (escolasVinculadas.length === 0) {
+        verificarEscolasGestor().then(() => {
+          setCheckingSchools(false);
+          // Após verificar, decidir se tem escolas
+          setHasSchools(escolasVinculadas.length > 0);
+        }).catch(() => {
+          setCheckingSchools(false);
+          setHasSchools(false);
+        });
+      } else {
+        // Já tem escolas vinculadas
+        setHasSchools(true);
+        setCheckingSchools(false);
+      }
+    } else {
+      // Não é gestor, não precisa verificar escolas
       setHasSchools(true);
       setCheckingSchools(false);
     }
-  }, [user, path]);
+  }, [user, escolasVinculadas, verificarEscolasGestor]);
   
   // Calcular se tem todas as permissões necessárias (fazendo aqui para evitar hooks condicionais)
   const hasAllPermissions = permissions.length === 0 ? true : 

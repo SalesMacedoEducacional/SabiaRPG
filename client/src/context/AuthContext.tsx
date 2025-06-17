@@ -305,6 +305,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Usuário atualizado no contexto:', updatedUser);
   };
 
+  // Função para verificar escolas vinculadas ao gestor
+  const verificarEscolasGestor = async () => {
+    if (!user || user.role !== 'manager') {
+      console.log('Usuário não é gestor ou não está autenticado');
+      return;
+    }
+
+    try {
+      console.log('Verificando escolas vinculadas ao gestor:', user.id);
+      const response = await apiRequest('GET', '/api/escolas/gestor');
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Escolas encontradas:', data);
+        
+        if (data.escolas && data.escolas.length > 0) {
+          setEscolasVinculadas(data.escolas);
+          setEscolaIds(data.escolas.map((escola: Escola) => escola.id));
+          
+          // Salvar no localStorage para persistência
+          localStorage.setItem('gestorEscolas', JSON.stringify(data.escolas));
+          localStorage.setItem('gestorEscolaIds', JSON.stringify(data.escolas.map((escola: Escola) => escola.id)));
+        } else {
+          // Gestor sem escolas vinculadas
+          setEscolasVinculadas([]);
+          setEscolaIds([]);
+          localStorage.removeItem('gestorEscolas');
+          localStorage.removeItem('gestorEscolaIds');
+        }
+      } else {
+        console.error('Erro ao verificar escolas do gestor');
+        toast.error('Erro ao verificar escolas vinculadas');
+      }
+    } catch (error) {
+      console.error('Erro na verificação de escolas:', error);
+      toast.error('Erro ao conectar com o servidor');
+    }
+  };
+
+  // Carregar escolas do localStorage ao inicializar (se disponível)
+  useEffect(() => {
+    if (user && user.role === 'manager') {
+      const storedEscolas = localStorage.getItem('gestorEscolas');
+      const storedEscolaIds = localStorage.getItem('gestorEscolaIds');
+      
+      if (storedEscolas && storedEscolaIds) {
+        try {
+          setEscolasVinculadas(JSON.parse(storedEscolas));
+          setEscolaIds(JSON.parse(storedEscolaIds));
+        } catch (error) {
+          console.error('Erro ao carregar escolas do localStorage:', error);
+        }
+      }
+      
+      // Sempre verificar novamente no servidor para garantir dados atualizados
+      verificarEscolasGestor();
+    }
+  }, [user]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -312,11 +371,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         userPermissions,
+        escolasVinculadas,
+        escolaIds,
         hasPermission,
         login,
         register,
         logout,
         updateUser,
+        verificarEscolasGestor,
       }}
     >
       {children}
