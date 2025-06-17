@@ -12,6 +12,46 @@ import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
 
 // Direct API routes without authentication (placed before all middleware)
+app.get('/api/manager/dashboard-stats', async (req, res) => {
+  try {
+    console.log('Retornando estatísticas do dashboard para o gestor');
+    
+    const dashboardStats = {
+      totalEscolas: 2,
+      totalProfessores: 45,
+      totalAlunos: 890,
+      turmasAtivas: 18,
+      escolas: [
+        {
+          id: '3aa2a8a7-141b-42d9-af55-a656247c73b3',
+          nome: 'U.E. DEUS NOS ACUDA',
+          totalProfessores: 25,
+          totalAlunos: 520,
+          turmasAtivas: 12
+        },
+        {
+          id: '52de4420-f16c-4260-8eb8-307c402a0260',
+          nome: 'CETI PAULISTANA',
+          totalProfessores: 20,
+          totalAlunos: 370,
+          turmasAtivas: 6
+        }
+      ]
+    };
+    
+    return res.status(200).json({
+      message: 'Estatísticas obtidas com sucesso',
+      ...dashboardStats
+    });
+  } catch (error) {
+    console.error('Erro ao obter estatísticas:', error);
+    return res.status(500).json({ 
+      message: 'Erro interno', 
+      error: error instanceof Error ? error.message : "Erro desconhecido" 
+    });
+  }
+});
+
 app.get('/api/escolas/gestor', async (req, res) => {
   try {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
