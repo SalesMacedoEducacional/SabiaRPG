@@ -2481,11 +2481,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Validações de unicidade - verificar se CPF, EMAIL ou TELEFONE já existem
+      const telefoneNormalizado = telefone ? telefone.replace(/\D/g, '') : '';
+      const cpfNormalizado = cpf ? cpf.replace(/\D/g, '') : '';
+      
+      console.log('=== VALIDAÇÃO DE UNICIDADE ===');
+      console.log('Email:', email);
+      console.log('CPF normalizado:', cpfNormalizado);
+      console.log('Telefone normalizado:', telefoneNormalizado);
+      
+      // Verificar duplicatas no banco
+      const { data: usuariosExistentes, error: errorCheck } = await supabase
+        .from('usuarios')
+        .select('email, cpf, telefone')
+        .or(`email.eq.${email},cpf.eq.${cpfNormalizado},telefone.eq.${telefoneNormalizado}`);
+      
+      if (errorCheck) {
+        console.error('Erro ao verificar duplicatas:', errorCheck);
+        return res.status(500).json({ 
+          erro: 'Erro ao validar dados únicos',
+          detalhe: errorCheck.message 
+        });
+      }
+      
+      // Verificar conflitos específicos
+      if (usuariosExistentes && usuariosExistentes.length > 0) {
+        const conflitos = [];
+        
+        for (const usuario of usuariosExistentes) {
+          if (usuario.email === email) {
+            conflitos.push('E-mail já cadastrado no sistema');
+          }
+          if (usuario.cpf === cpfNormalizado) {
+            conflitos.push('CPF já cadastrado no sistema');
+          }
+          if (usuario.telefone === telefoneNormalizado) {
+            conflitos.push('Telefone já cadastrado no sistema');
+          }
+        }
+        
+        if (conflitos.length > 0) {
+          console.log('Conflitos encontrados:', conflitos);
+          return res.status(400).json({
+            erro: 'Dados duplicados encontrados',
+            conflitos: conflitos
+          });
+        }
+      }
+      
+      console.log('Validação de unicidade passou - nenhum conflito encontrado');
+
       // Hash da senha
       const senhaHash = await bcrypt.hash(senha, 10);
-
-      // Preparar dados reais do usuário (normalizando telefone)
-      const telefoneNormalizado = telefone ? telefone.replace(/\D/g, '') : '';
       
       const novoUsuario = {
         id: crypto.randomUUID(),
@@ -2494,7 +2541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         telefone: telefoneNormalizado,
         data_nascimento: data_nascimento || null,
         papel,
-        cpf: cpf || '',
+        cpf: cpfNormalizado,
         senha_hash: senhaHash,
         ativo: true,
         criado_em: new Date().toISOString()

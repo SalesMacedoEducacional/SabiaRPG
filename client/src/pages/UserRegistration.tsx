@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserPlus, ArrowRight, Calendar } from "lucide-react";
+import { Loader2, UserPlus, ArrowRight, Calendar, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -92,6 +92,7 @@ export default function UserRegistration() {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
   const [showSchoolSelection, setShowSchoolSelection] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Formulário com validação rigorosa em tempo real
   const form = useForm<UserFormData>({
@@ -297,13 +298,29 @@ export default function UserRegistration() {
       // Refresh automático centralizado após cadastro
       await refreshAfterCreate("usuário");
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no cadastro:", error);
       
-      // Erro (≥400) - Exibir mensagem e NÃO limpar formulário
+      // Limpar erros anteriores
+      setValidationErrors([]);
+      
+      let errorMessage = "Erro ao processar cadastro";
+      let errors: string[] = [];
+      
+      // Verificar se é erro de validação de unicidade
+      if (error?.response?.data?.conflitos) {
+        errors = error.response.data.conflitos;
+        errorMessage = "Dados já cadastrados no sistema";
+        setValidationErrors(errors);
+      } else if (error?.response?.data?.erro) {
+        errorMessage = error.response.data.erro;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao cadastrar usuário",
-        description: error instanceof Error ? error.message : "Erro ao processar cadastro",
+        description: errorMessage,
         variant: "destructive",
       });
       
@@ -381,6 +398,24 @@ export default function UserRegistration() {
         </CardHeader>
 
         <CardContent className="pb-4 p-6">
+          {/* Exibir erros de validação de unicidade */}
+          {validationErrors.length > 0 && (
+            <div className="mb-6 p-4 border border-red-400 rounded-md bg-red-50">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+                <h3 className="text-red-800 font-semibold">Dados já cadastrados</h3>
+              </div>
+              <ul className="text-red-700 space-y-1">
+                {validationErrors.map((error, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="w-1 h-1 bg-red-600 rounded-full"></span>
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
           {!showSchoolSelection ? (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
