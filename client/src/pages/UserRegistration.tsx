@@ -242,7 +242,7 @@ export default function UserRegistration() {
       }
       
       // Enviar formulário para a API
-      const response = await apiRequest("POST", "/api/users", formData, true);
+      const response = await apiRequest("POST", "/api/usuarios", formData, true);
       
       if (!response.ok) {
         const errorData = await response.json();

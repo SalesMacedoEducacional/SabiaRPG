@@ -2465,6 +2465,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST - Cadastrar novo usuário
+  app.post("/api/usuarios", async (req, res) => {
+    console.log('Cadastrando novo usuário via sessão:', req.session?.userId);
+    try {
+      console.log("=== CADASTRANDO NOVO USUÁRIO ===");
+      console.log('Dados recebidos:', req.body);
+      
+      const { nome_completo, email, telefone, data_nascimento, papel, cpf, numero_matricula, turma_id } = req.body;
+      
+      // Validações básicas
+      if (!nome_completo || !email || !papel) {
+        return res.status(400).json({ 
+          erro: 'Campos obrigatórios faltando',
+          detalhes: 'Nome, email e papel são obrigatórios'
+        });
+      }
+
+      // Verificar se email já existe
+      const { data: usuarioExistente } = await supabase
+        .from('usuarios')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+      if (usuarioExistente) {
+        return res.status(400).json({ 
+          erro: 'Email já cadastrado',
+          detalhes: 'Este email já está em uso por outro usuário'
+        });
+      }
+
+      // Preparar dados para inserção
+      const novoUsuario = {
+        nome: nome_completo,
+        email,
+        telefone: telefone || '',
+        data_nascimento: data_nascimento ? new Date(data_nascimento) : null,
+        papel,
+        cpf: cpf || '',
+        ativo: true,
+        criado_em: new Date().toISOString()
+      };
+
+      console.log('Inserindo usuário:', novoUsuario);
+
+      // Inserir usuário no banco
+      const { data: usuarioInserido, error } = await supabase
+        .from('usuarios')
+        .insert([novoUsuario])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao inserir usuário:', error);
+        return res.status(500).json({ 
+          erro: 'Erro ao salvar usuário',
+          detalhes: error.message
+        });
+      }
+
+      console.log('Usuário inserido com sucesso:', usuarioInserido.id);
+
+      // Para alunos, vinculá-lo à turma se fornecida
+      if (papel === 'aluno' && turma_id && numero_matricula) {
+        try {
+          const { error: alunoError } = await supabase
+            .from('alunos')
+            .insert([{
+              usuario_id: usuarioInserido.id,
+              turma_id,
+              numero_matricula,
+              criado_em: new Date().toISOString()
+            }]);
+
+          if (alunoError) {
+            console.warn('Erro ao vincular aluno à turma:', alunoError.message);
+          } else {
+            console.log('Aluno vinculado à turma com sucesso');
+          }
+        } catch (alunoErr) {
+          console.warn('Erro no vínculo aluno-turma:', alunoErr);
+        }
+      }
+
+      res.status(201).json({ 
+        sucesso: true,
+        usuario: usuarioInserido,
+        mensagem: 'Usuário cadastrado com sucesso'
+      });
+      
+    } catch (error) {
+      console.error('Erro crítico ao cadastrar usuário:', error);
+      res.status(500).json({ 
+        erro: 'Erro interno do servidor', 
+        detalhes: error instanceof Error ? error.message : 'Erro desconhecido'
+      });
+    }
+  });
+
   // GET - Contadores de usuários por papel
   app.get("/api/usuarios/contadores", async (req, res) => {
     console.log('Usuário já autenticado via sessão:', req.session?.userId);
