@@ -2379,7 +2379,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
-      // Buscar todos os usuários reais com nomes válidos ou CPF preenchido
+      // Buscar todos os usuários reais com CPF preenchido
+      console.log('Executando consulta Supabase para buscar usuários...');
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select(`
@@ -2394,6 +2395,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `)
         .not('cpf', 'is', null)
         .order('criado_em', { ascending: false });
+      
+      console.log('Resultado da consulta Supabase:');
+      console.log('- Total de usuários retornados:', usuarios?.length || 0);
+      console.log('- Erro na consulta:', usuariosError);
+      if (usuarios && usuarios.length > 0) {
+        console.log('- Primeiros 3 usuários:', usuarios.slice(0, 3).map(u => ({ id: u.id, nome: u.nome, email: u.email, cpf: u.cpf })));
+      }
 
       if (usuariosError) {
         console.error('Erro ao buscar usuários:', usuariosError);
@@ -2428,7 +2436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const mapeamento = usuarioEscolaMap[usuario.id as string];
         
         if (mapeamento) {
-          console.log(`${usuario.nome} vinculado a: ${mapeamento.escolaNome}`);
+          console.log(`${usuario.nome || usuario.email || 'Usuário sem nome'} vinculado a: ${mapeamento.escolaNome}`);
           
           return {
             ...usuario,
@@ -2440,13 +2448,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }]
           };
         } else {
-          console.log(`${usuario.nome} sem vínculo específico - usando Geral`);
+          // Para novos usuários sem mapeamento específico, usar escola padrão baseada no papel
+          let escolaPadrao = { escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', escolaNome: 'U.E. DEUS NOS ACUDA' };
+          
+          if (usuario.papel === 'gestor' || usuario.papel === 'professor') {
+            escolaPadrao = { escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', escolaNome: 'CETI PAULISTANA' };
+          }
+          
+          console.log(`${usuario.nome || usuario.email || 'Usuário sem nome'} sem mapeamento específico - vinculado automaticamente a: ${escolaPadrao.escolaNome}`);
           
           return {
             ...usuario,
-            escola_id: null,
-            escola_nome: 'Geral',
-            escolas_vinculadas: []
+            escola_id: escolaPadrao.escolaId,
+            escola_nome: escolaPadrao.escolaNome,
+            escolas_vinculadas: [{ 
+              id: escolaPadrao.escolaId, 
+              nome: escolaPadrao.escolaNome 
+            }]
           };
         }
       });
