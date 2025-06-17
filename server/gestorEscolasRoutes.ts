@@ -22,28 +22,47 @@ export function registerGestorEscolasRoutes(app: Express) {
         return res.status(401).json({ message: "Gestor não identificado" });
       }
       
-      // Buscar escolas através da tabela de vínculos perfis_gestor
-      const { data: perfilsGestor, error } = await supabase
+      // Primeiro buscar os IDs das escolas vinculadas
+      const { data: perfisGestor, error: perfisError } = await supabase
         .from('perfis_gestor')
-        .select(`
-          escola_id,
-          escolas!inner (
-            id,
-            nome,
-            codigo_escola,
-            tipo,
-            modalidade_ensino,
-            cidade,
-            estado,
-            zona_geografica,
-            endereco_completo,
-            telefone,
-            email_institucional,
-            criado_em
-          )
-        `)
+        .select('escola_id')
         .eq('usuario_id', gestorId)
         .eq('ativo', true);
+        
+      if (perfisError) {
+        console.error("Erro ao buscar perfis do gestor:", perfisError);
+        return res.status(500).json({ 
+          message: "Erro ao buscar vínculos do gestor", 
+          error: perfisError.message 
+        });
+      }
+      
+      if (!perfisGestor || perfisGestor.length === 0) {
+        console.log("Nenhum vínculo de escola encontrado para o gestor");
+        return res.status(200).json([]);
+      }
+      
+      const escolaIds = perfisGestor.map((p: any) => p.escola_id);
+      console.log("IDs das escolas vinculadas:", escolaIds);
+      
+      // Buscar dados completos das escolas
+      const { data: escolasData, error } = await supabase
+        .from('escolas')
+        .select(`
+          id,
+          nome,
+          codigo_escola,
+          tipo,
+          modalidade_ensino,
+          cidade,
+          estado,
+          zona_geografica,
+          endereco_completo,
+          telefone,
+          email_institucional,
+          criado_em
+        `)
+        .in('id', escolaIds);
       
       if (error) {
         console.error("Erro na consulta SQL:", error);
@@ -53,14 +72,11 @@ export function registerGestorEscolasRoutes(app: Express) {
         });
       }
       
-      // Extrair escolas dos perfis vinculados
-      const escolas = perfilsGestor?.map(perfil => perfil.escolas) || [];
-      
-      console.log(`DADOS REAIS: ${escolas.length} escolas encontradas no banco`);
-      console.log("Escolas:", escolas.map((e: any) => e.nome) || []);
+      console.log(`DADOS REAIS: ${escolas?.length || 0} escolas encontradas no banco`);
+      console.log("Escolas:", escolas?.map((e: any) => e.nome) || []);
       
       // Retornar APENAS dados autênticos do banco
-      return res.status(200).json(escolas);
+      return res.status(200).json(escolas || []);
     } catch (error) {
       console.error("Erro interno:", error);
       return res.status(500).json({ 
