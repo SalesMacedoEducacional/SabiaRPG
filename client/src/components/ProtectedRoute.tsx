@@ -26,40 +26,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Importante: manter todos os hooks sempre na mesma ordem
   const auth = useAuth();
-  const { user, isLoading, hasPermission, escolasVinculadas, verificarEscolasGestor } = auth;
+  const { user, isLoading, hasPermission } = auth;
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Verificar escolas vinculadas para gestores
+  // Managers should always have access to their dashboard - they manage schools through perfis_gestor table
   useEffect(() => {
-    if (user?.role === 'manager') {
-      setCheckingSchools(true);
-      
-      // Verificar escolas vinculadas no servidor
-      verificarEscolasGestor().then(() => {
-        setCheckingSchools(false);
-        // Após verificar, decidir se tem escolas baseado no contexto atualizado
-        const hasLinkedSchools = escolasVinculadas.length > 0;
-        setHasSchools(hasLinkedSchools);
-        
-        console.log('Escolas vinculadas verificadas:', escolasVinculadas.length);
-      }).catch(() => {
-        setCheckingSchools(false);
-        setHasSchools(false);
-      });
-    } else {
-      // Não é gestor, não precisa verificar escolas
+    // For managers accessing the dashboard, we don't need to check escola_id
+    // as they are linked to schools through the perfis_gestor table
+    if (user?.role === 'manager' && path === '/manager') {
       setHasSchools(true);
       setCheckingSchools(false);
     }
-  }, [user, verificarEscolasGestor]);
-
-  // Atualizar hasSchools quando escolasVinculadas mudar
-  useEffect(() => {
-    if (user?.role === 'manager' && !checkingSchools) {
-      setHasSchools(escolasVinculadas.length > 0);
-    }
-  }, [escolasVinculadas, user, checkingSchools]);
+  }, [user, path]);
   
   // Calcular se tem todas as permissões necessárias (fazendo aqui para evitar hooks condicionais)
   const hasAllPermissions = permissions.length === 0 ? true : 
@@ -113,33 +92,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         </Route>
       );
     }
-    // Se for gestor, verifica se tem escolas vinculadas
+    // Se for gestor, redireciona para dashboard de gestor
     else if (user.role === 'manager') {
-      if (checkingSchools) {
-        // Ainda verificando escolas, mostrar loading
-        return (
-          <Route path={path}>
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="mt-4">Verificando escolas vinculadas...</p>
-              </div>
-            </div>
-          </Route>
-        );
-      }
-      
-      if (!hasSchools) {
-        // Gestor sem escolas vinculadas, redirecionar para cadastro
-        console.log('Redirecionando gestor sem escolas para cadastro:', user.email);
-        return (
-          <Route path={path}>
-            <Redirect to="/manager/school-registration" />
-          </Route>
-        );
-      }
-      
-      // Gestor com escolas, redirecionar para dashboard
       console.log('Redirecionando gestor para /manager');
       localStorage.setItem('force_manager_dashboard', 'true');
       return (

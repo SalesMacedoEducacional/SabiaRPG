@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-// import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from './AuthContext';
 
 interface GameContextType {
   locations: Location[];
@@ -103,8 +103,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isFirstAccess, setIsFirstAccess] = useState<boolean>(false);
   const [hasDiagnosticCompleted, setHasDiagnosticCompleted] = useState<boolean>(false);
   
-  // Temporarily disable auth dependency to fix circular import
-  const isAuthenticated = false;
+  // Get current auth status from AuthContext
+  const { user, isAuthenticated } = useAuth();
   
   // Fetch locations
   const { data: locations = [], isLoading: locationsLoading } = useQuery<Location[]>({
@@ -158,7 +158,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         const response = await apiRequest('POST', '/api/user-progress', {
           ...data,
-          userId: 1, // Temporary fix for circular dependency
+          userId: user?.id,
         });
         return response.json();
       }
@@ -176,14 +176,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
   });
 
-  // Check if user is on first access - temporarily disabled due to circular dependency
+  // Check if user is on first access
   useEffect(() => {
-    if (userProgress && userDiagnostics) {
+    if (user && userProgress && userDiagnostics) {
       const isFirstTime = userProgress.length === 0;
       setIsFirstAccess(isFirstTime);
       setHasDiagnosticCompleted(userDiagnostics.length > 0);
     }
-  }, [userProgress, userDiagnostics]);
+  }, [user, userProgress, userDiagnostics]);
 
   const updateUserProgress = async (progressData: Partial<UserProgress>) => {
     await updateProgressMutation.mutateAsync(progressData);
@@ -199,7 +199,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     } else {
       await updateProgressMutation.mutateAsync({
-        userId: 1, // Temporary fix for circular dependency
+        userId: user!.id,
         missionId,
         completed: false,
         attempts: 1
@@ -221,7 +221,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     } else {
       await updateProgressMutation.mutateAsync({
-        userId: 1, // Temporary fix for circular dependency
+        userId: user!.id,
         missionId,
         completed: true,
         score,

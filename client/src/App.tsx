@@ -9,7 +9,6 @@ import TeacherDashboard from "@/pages/TeacherDashboard";
 // Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
 import ManagerDashboardModerno from "@/pages/ManagerDashboardModerno";
-import ManagerSchoolRegistration from "@/pages/ManagerSchoolRegistration";
 import SchoolRegistration from "@/pages/SchoolRegistration";
 import UserRegistrationSingle from "@/pages/UserRegistrationSingle";
 import UserManagement from "@/pages/UserManagement";
@@ -115,9 +114,6 @@ function Router() {
           PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
-
-      {/* Rota para gestores cadastrarem sua primeira escola */}
-      <Route path="/manager/school-registration" component={ManagerSchoolRegistration} />
       
       <ProtectedRoute 
         path="/user-registration" 
