@@ -33,8 +33,8 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios u INNER JOIN perfis_aluno pa ON u.id = pa.usuario_id INNER JOIN turmas t ON pa.turma_id = t.id WHERE u.papel = $1 AND t.escola_id = ANY($2)',
-      ['student', escolaIds]
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1',
+      ['student']
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
