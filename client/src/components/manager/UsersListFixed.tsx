@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle, Eye } from 'lucide-react';
+import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle, Eye, UserPlus } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -30,6 +31,7 @@ interface Escola {
 
 export default function UsersListFixed() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -335,9 +337,19 @@ export default function UsersListFixed() {
         </Card>
       </div>
 
-      {/* Filtros */}
+      {/* Header com Filtros e Botão de Cadastro */}
       <Card className="bg-[#312e26] border-[#5a5438]">
         <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+            <h2 className="text-xl font-bold text-accent">Gestão de Usuários</h2>
+            <Button 
+              onClick={() => setLocation('/user-registration')}
+              className="bg-accent hover:bg-accent/90 text-dark font-medium flex items-center gap-2"
+            >
+              <UserPlus className="h-4 w-4" />
+              Cadastrar Novo Usuário
+            </Button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-accent">Buscar</label>
