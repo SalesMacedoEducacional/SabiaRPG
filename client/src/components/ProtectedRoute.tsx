@@ -22,10 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   permissions = [],
   requireAuth = true
 }) => {
-  // BYPASS TEMPORÁRIO PARA DESENVOLVIMENTO - REMOVER EM PRODUÇÃO
-  if (path === '/dashboard-gestor-moderno' || path === '/manager') {
-    return <Route path={path} component={Component} />;
-  }
+
   
   // Importante: manter todos os hooks sempre na mesma ordem
   const auth = useAuth();
@@ -33,43 +30,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Após a adição do campo escola_id no contexto do usuário, não precisamos mais verificar escolas
-  // através de uma chamada separada - podemos verificar diretamente no objeto do usuário
+  // Managers should always have access to their dashboard - they manage schools through perfis_gestor table
   useEffect(() => {
-    // Se estiver carregando o dashboard do gestor, verificar se tem escola vinculada
+    // For managers accessing the dashboard, we don't need to check escola_id
+    // as they are linked to schools through the perfis_gestor table
     if (user?.role === 'manager' && path === '/manager') {
-      setCheckingSchools(true);
-      
-      // Se o usuário já tem o campo escola_id preenchido, não precisa fazer a chamada API
-      if (user.escola_id) {
-        console.log('Gestor já possui escola vinculada:', user.escola_id);
-        setHasSchools(true);
-        setCheckingSchools(false);
-      } else {
-        // Caso não tenha, verificar no servidor por segurança
-        const checkForSchools = async () => {
-          try {
-            const response = await apiRequest('GET', '/api/schools/check-has-schools');
-            
-            if (response.status === 200) {
-              const data = await response.json();
-              setHasSchools(data.hasSchools);
-              console.log('Verificação de escolas:', data);
-            } else {
-              // Em caso de erro, assume que não tem escolas para ser seguro
-              console.warn('Erro ao verificar escolas. Status:', response.status);
-              setHasSchools(false);
-            }
-          } catch (error) {
-            console.error('Erro ao verificar escolas:', error);
-            setHasSchools(false);
-          } finally {
-            setCheckingSchools(false);
-          }
-        };
-        
-        checkForSchools();
-      }
+      setHasSchools(true);
+      setCheckingSchools(false);
     }
   }, [user, path]);
   
@@ -88,15 +55,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
   
-  // Verificação especial para gestores - redireciona para cadastro de escola se não tiver escola vinculada
-  if (user?.role === 'manager' && path === '/manager' && !user.escola_id) {
-    console.log('Gestor sem escola vinculada. Redirecionando para cadastro...');
-    return (
-      <Route path={path}>
-        <Redirect to="/school-registration" />
-      </Route>
-    );
-  }
+  // Managers access their dashboard directly - school associations are managed through perfis_gestor table
+  // No need to redirect to school registration as managers can manage multiple schools
 
   // Verifica autenticação se necessário
   if (requireAuth && !user) {
