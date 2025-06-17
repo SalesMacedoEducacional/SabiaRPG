@@ -2379,7 +2379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
-      // Buscar apenas os 3 usuários reais conforme especificado
+      // Buscar todos os usuários reais com nomes válidos ou CPF preenchido
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select(`
@@ -2392,8 +2392,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ativo,
           criado_em
         `)
-        .in('nome', ['Gestor Teste', 'Professor Teste', 'Aluno Teste'])
-        .order('nome', { ascending: true });
+        .not('cpf', 'is', null)
+        .order('criado_em', { ascending: false });
 
       if (usuariosError) {
         console.error('Erro ao buscar usuários:', usuariosError);
@@ -2403,7 +2403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Mapeamento direto completo dos 3 usuários reais com suas escolas
+      // Mapeamento direto dos usuários conhecidos com suas escolas
       const usuarioEscolaMap: Record<string, { escolaId: string; escolaNome: string }> = {
         '72e7feef-0741-46ec-bdb4-68dcdfc6defe': { 
           escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', 
@@ -2417,6 +2417,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', 
           escolaNome: 'U.E. DEUS NOS ACUDA' 
         }, // Aluno Teste
+        '3160b4a2-a457-420b-87aa-07f1ee32eade': { 
+          escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', 
+          escolaNome: 'U.E. DEUS NOS ACUDA' 
+        }, // Novo usuário criado
       };
 
       // Mapear usuários com suas escolas usando dados reais fornecidos
