@@ -2422,19 +2422,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               escolaId = perfilGestor.escola_id;
             }
           } else if (usuario.papel === 'teacher' || usuario.papel === 'professor') {
-            // Buscar escola_id diretamente do perfil_professor
+            // Buscar escola_id diretamente da tabela perfis_professor
             console.log(`Buscando escola para professor: ${usuario.nome} (ID: ${usuario.id})`);
-            const { data: perfilProfessor, error: profError } = await supabase
+            const { data: perfisProf } = await supabase
               .from('perfis_professor')
               .select('escola_id')
-              .eq('usuario_id', usuario.id)
-              .maybeSingle();
+              .eq('usuario_id', usuario.id);
 
-            console.log(`Perfil professor encontrado:`, perfilProfessor);
-            console.log(`Erro na busca do perfil:`, profError);
+            console.log(`Perfis encontrados:`, perfisProf);
 
-            if (perfilProfessor?.escola_id) {
-              escolaId = perfilProfessor.escola_id;
+            if (perfisProf && perfisProf.length > 0) {
+              escolaId = perfisProf[0].escola_id;
               console.log(`Escola ID encontrada para ${usuario.nome}: ${escolaId}`);
             } else {
               console.log(`Nenhuma escola encontrada para professor ${usuario.nome}`);
