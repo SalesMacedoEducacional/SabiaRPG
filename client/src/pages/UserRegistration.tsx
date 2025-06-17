@@ -193,24 +193,34 @@ export default function UserRegistration() {
 
   // Função de envio do formulário
   const onSubmit = async (data: UserFormData) => {
+    console.log("=== INICIANDO SUBMISSÃO ===");
+    console.log("Dados recebidos:", data);
+    console.log("Papel selecionado:", data.papel);
+    console.log("Show school selection:", showSchoolSelection);
+    console.log("Escolas selecionadas:", escolasSelecionadas);
+    
     // Para professores e gestores, verificar se precisamos ir para seleção de escolas
     if ((data.papel === "professor" || data.papel === "gestor") && !showSchoolSelection && escolasSelecionadas.length === 0) {
+      console.log("Redirecionando para seleção de escolas");
       goToSchoolSelection();
       return;
     }
 
+    console.log("Prosseguindo com submissão...");
     setIsSubmitting(true);
     
     try {
-      console.log('Dados do formulário antes do envio:', data);
+      console.log('=== PREPARANDO DADOS PARA ENVIO ===')
       
       const formData = new FormData();
       
       // Adicionar campos básicos comuns a todos os papéis
       formData.append("nome_completo", data.nome_completo);
       formData.append("email", data.email);
-      formData.append("telefone", data.telefone);
-      formData.append("data_nascimento", data.data_nascimento.toISOString());
+      formData.append("telefone", data.telefone || "");
+      if (data.data_nascimento) {
+        formData.append("data_nascimento", data.data_nascimento.toISOString());
+      }
       formData.append("papel", data.papel);
       
       // CPF é obrigatório para todos os papéis
@@ -231,23 +241,38 @@ export default function UserRegistration() {
       }
       
       // Log do FormData para debug
-      console.log('FormData entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+      console.log('=== CONTEÚDO DO FORMDATA ===');
+      const formDataEntries: any[] = [];
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+        formDataEntries.push({ key, value });
+      });
+      console.log('Total de campos:', formDataEntries.length);
       
       // Adicionar imagem de perfil se disponível
       if (data.imagem_perfil) {
         formData.append("imagem_perfil", data.imagem_perfil);
       }
       
+      console.log("=== ENVIANDO REQUISIÇÃO PARA SERVIDOR ===");
+      
       // Enviar formulário para a API
       const response = await apiRequest("POST", "/api/usuarios", formData, true);
       
+      console.log("Resposta do servidor:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erro ao cadastrar usuário");
+        const errorData = await response.json().catch(() => ({ message: "Erro desconhecido" }));
+        console.error("Erro na resposta do servidor:", errorData);
+        throw new Error(errorData.erro || errorData.message || "Erro ao cadastrar usuário");
       }
+      
+      const responseData = await response.json();
+      console.log("Usuário cadastrado com sucesso:", responseData);
       
       toast({
         title: "Usuário cadastrado com sucesso!",
@@ -259,13 +284,18 @@ export default function UserRegistration() {
       setFormStep(0);
       
     } catch (error) {
-      console.error("Erro ao cadastrar usuário:", error);
+      console.error("=== ERRO COMPLETO ===");
+      console.error("Tipo:", typeof error);
+      console.error("Mensagem:", error instanceof Error ? error.message : String(error));
+      console.error("Stack:", error instanceof Error ? error.stack : "N/A");
+      
       toast({
         title: "Erro ao cadastrar usuário",
         description: error instanceof Error ? error.message : "Ocorreu um erro ao processar sua solicitação",
         variant: "destructive",
       });
     } finally {
+      console.log("=== FINALIZANDO SUBMISSÃO ===");
       setIsSubmitting(false);
     }
   };

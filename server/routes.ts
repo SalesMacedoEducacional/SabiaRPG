@@ -2510,7 +2510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Inserindo usuário:', novoUsuario);
 
-      // Inserir usuário no banco
+      // Inserir usuário no banco usando service role para bypass RLS
       const { data: usuarioInserido, error } = await supabase
         .from('usuarios')
         .insert([novoUsuario])
