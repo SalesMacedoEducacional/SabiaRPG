@@ -39,8 +39,7 @@ export function registerManagerRoutes(
               zona_geografica,
               endereco,
               telefone,
-              email_institucional,
-              ativo
+              email_institucional
             )
           `)
           .eq('usuario_id', userId)
