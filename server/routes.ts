@@ -2465,6 +2465,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST - Verificar unicidade de campos
+  app.post("/api/usuarios/verificar-unicidade", async (req, res) => {
+    try {
+      const { campo, valor } = req.body;
+      
+      if (!campo || !valor) {
+        return res.status(400).json({
+          erro: 'Campo e valor são obrigatórios'
+        });
+      }
+      
+      // Normalizar valores para comparação
+      let valorNormalizado = valor;
+      if (campo === 'telefone') {
+        valorNormalizado = valor.replace(/\D/g, '');
+      } else if (campo === 'cpf') {
+        valorNormalizado = valor.replace(/\D/g, '');
+      }
+      
+      console.log(`=== VERIFICAÇÃO DE UNICIDADE ===`);
+      console.log(`Campo: ${campo}, Valor: ${valorNormalizado}`);
+      
+      // Verificar no banco
+      const { data: usuarioExistente, error } = await supabase
+        .from('usuarios')
+        .select('id')
+        .eq(campo, valorNormalizado)
+        .limit(1);
+      
+      if (error) {
+        console.error('Erro ao verificar unicidade:', error);
+        return res.status(500).json({
+          erro: 'Erro ao verificar disponibilidade'
+        });
+      }
+      
+      const disponivel = !usuarioExistente || usuarioExistente.length === 0;
+      
+      console.log(`Disponível: ${disponivel}`);
+      
+      res.json({
+        disponivel,
+        campo,
+        valor: valorNormalizado
+      });
+      
+    } catch (error) {
+      console.error('Erro na verificação de unicidade:', error);
+      res.status(500).json({
+        erro: 'Erro interno do servidor'
+      });
+    }
+  });
+
   // POST - Cadastrar novo usuário (solução funcional)
   app.post("/api/usuarios", async (req, res) => {
     console.log('=== CADASTRO DE USUÁRIO INICIADO ===');
