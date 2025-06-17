@@ -115,36 +115,34 @@ export default function UserRegistration() {
   // Observar todos os campos para validação rigorosa em tempo real
   const watchedFields = form.watch();
   
-  // Validação baseada na etapa atual do formulário
+  // Validação simplificada baseada na etapa atual do formulário
   const isFormValid = () => {
-    const { formState } = form;
-    const hasErrors = Object.keys(formState.errors).length > 0;
+    const values = form.getValues();
     
     if (formStep === 0) {
-      // Primeira etapa - apenas campos básicos
-      return !!(watchedFields.nome_completo && 
-                watchedFields.email && 
-                watchedFields.telefone && 
-                watchedFields.data_nascimento && 
-                watchedFields.papel && 
-                watchedFields.cpf && 
-                watchedFields.senha) && !hasErrors;
+      // Primeira etapa - campos básicos obrigatórios
+      return !!(values.nome_completo?.trim() && 
+                values.email?.trim() && 
+                values.telefone?.trim() && 
+                values.data_nascimento && 
+                values.papel && 
+                values.cpf?.trim() && 
+                values.senha?.trim());
     } else if (formStep === 1) {
-      // Segunda etapa - incluir campos específicos do papel
-      const basicFieldsValid = !!(watchedFields.nome_completo && 
-                                 watchedFields.email && 
-                                 watchedFields.telefone && 
-                                 watchedFields.data_nascimento && 
-                                 watchedFields.papel && 
-                                 watchedFields.cpf && 
-                                 watchedFields.senha);
+      // Segunda etapa - incluir campos específicos por papel
+      const basicValid = !!(values.nome_completo?.trim() && 
+                           values.email?.trim() && 
+                           values.telefone?.trim() && 
+                           values.data_nascimento && 
+                           values.papel && 
+                           values.cpf?.trim() && 
+                           values.senha?.trim());
       
-      let roleSpecificValid = true;
-      if (watchedFields.papel === "aluno") {
-        roleSpecificValid = !!(watchedFields.turma_id && watchedFields.numero_matricula);
+      if (values.papel === "aluno") {
+        return basicValid && !!(values.turma_id?.trim() && values.numero_matricula?.trim()) && !isSubmitting;
       }
       
-      return basicFieldsValid && roleSpecificValid && !hasErrors && !isSubmitting;
+      return basicValid && !isSubmitting;
     }
     
     return false;

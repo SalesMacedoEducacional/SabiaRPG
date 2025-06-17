@@ -2484,7 +2484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash da senha
       const senhaHash = await bcrypt.hash(senha, 10);
 
-      // Preparar dados reais do usuário
+      // Preparar dados reais do usuário (sem atualizado_em que não existe na tabela)
       const novoUsuario = {
         id: crypto.randomUUID(),
         nome: nome_completo,
@@ -2495,8 +2495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cpf: cpf || '',
         senha_hash: senhaHash,
         ativo: true,
-        criado_em: new Date().toISOString(),
-        atualizado_em: new Date().toISOString()
+        criado_em: new Date().toISOString()
       };
 
       console.log('Inserindo usuário real:', { ...novoUsuario, senha_hash: '[HASH]' });
