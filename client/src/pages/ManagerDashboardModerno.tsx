@@ -297,8 +297,8 @@ export default function ManagerDashboardModerno() {
                 </button>
                 
                 <button 
-                  onClick={() => handleMenuSelect("users")}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md ${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"}`}
+                  onClick={() => navigate('/usuarios')}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-white hover:bg-[#3a3730]"
                 >
                   <Users size={18} />
                   <span>Usuários</span>

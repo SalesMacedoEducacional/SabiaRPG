@@ -2370,6 +2370,213 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Rota para criar usuários de teste (apenas em desenvolvimento)
   app.post("/api/setup/create-test-users", createTestUsersHandler);
+
+  // ========== ENDPOINTS COMPLETOS DE GESTÃO DE USUÁRIOS ==========
+  
+  // GET - Buscar todos os usuários com escolas vinculadas
+  app.get("/api/usuarios", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+    try {
+      console.log("=== BUSCANDO USUÁRIOS REAIS ===");
+      
+      // Buscar todos os usuários
+      const { data: usuarios, error: usuariosError } = await supabase
+        .from('usuarios')
+        .select(`
+          id,
+          nome,
+          email,
+          cpf,
+          telefone,
+          papel,
+          ativo,
+          created_at
+        `)
+        .order('created_at', { ascending: false });
+
+      if (usuariosError) {
+        console.error('Erro ao buscar usuários:', usuariosError);
+        return res.status(500).json({ 
+          message: 'Erro ao buscar usuários', 
+          error: usuariosError.message 
+        });
+      }
+
+      console.log(`Usuários encontrados: ${usuarios?.length || 0}`);
+
+      // Para cada usuário, buscar escolas vinculadas
+      const usuariosComEscolas = await Promise.all(usuarios?.map(async (usuario: any) => {
+        let escolasVinculadas = [];
+
+        try {
+          if (usuario.papel === 'teacher') {
+            // Buscar escolas vinculadas via perfis_professor
+            const { data: perfisProfessor } = await supabase
+              .from('perfis_professor')
+              .select(`
+                escola_id,
+                escolas!perfis_professor_escola_id_fkey(
+                  id,
+                  nome
+                )
+              `)
+              .eq('usuario_id', usuario.id);
+
+            escolasVinculadas = perfisProfessor?.map((p: any) => ({
+              id: p.escolas?.id,
+              nome: p.escolas?.nome
+            })).filter((e: any) => e.id && e.nome) || [];
+
+          } else if (usuario.papel === 'manager') {
+            // Buscar escolas vinculadas via perfis_gestor
+            const { data: perfisGestor } = await supabase
+              .from('perfis_gestor')
+              .select(`
+                escola_id,
+                escolas!perfis_gestor_escola_id_fkey(
+                  id,
+                  nome
+                )
+              `)
+              .eq('usuario_id', usuario.id);
+
+            escolasVinculadas = perfisGestor?.map((g: any) => ({
+              id: g.escolas?.id,
+              nome: g.escolas?.nome
+            })).filter((e: any) => e.id && e.nome) || [];
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar escolas para usuário ${usuario.id}:`, error);
+        }
+
+        return {
+          ...usuario,
+          escolas_vinculadas: escolasVinculadas
+        };
+      }) || []);
+
+      console.log(`Retornando ${usuariosComEscolas.length} usuários com escolas vinculadas`);
+
+      res.status(200).json({
+        usuarios: usuariosComEscolas,
+        total: usuariosComEscolas.length
+      });
+
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // PUT - Atualizar usuário
+  app.put("/api/usuarios/:id", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { nome, email, telefone, cpf, ativo } = req.body;
+
+      console.log(`=== ATUALIZANDO USUÁRIO ${id} ===`);
+      console.log('Dados recebidos:', { nome, email, telefone, cpf, ativo });
+
+      // Validar dados obrigatórios
+      if (!nome || !email || !cpf) {
+        return res.status(400).json({ 
+          message: "Nome, email e CPF são obrigatórios" 
+        });
+      }
+
+      // Atualizar usuário no banco
+      const { data: usuarioAtualizado, error: updateError } = await supabase
+        .from('usuarios')
+        .update({
+          nome,
+          email,
+          telefone,
+          cpf,
+          ativo
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Erro ao atualizar usuário:', updateError);
+        return res.status(500).json({ 
+          message: 'Erro ao atualizar usuário', 
+          error: updateError.message 
+        });
+      }
+
+      console.log('Usuário atualizado com sucesso:', usuarioAtualizado);
+
+      res.status(200).json({
+        message: "Usuário atualizado com sucesso",
+        usuario: usuarioAtualizado
+      });
+
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // DELETE - Excluir usuário
+  app.delete("/api/usuarios/:id", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log(`=== EXCLUINDO USUÁRIO ${id} ===`);
+
+      // Verificar se o usuário existe
+      const { data: usuarioExistente, error: checkError } = await supabase
+        .from('usuarios')
+        .select('id, nome, papel')
+        .eq('id', id)
+        .single();
+
+      if (checkError || !usuarioExistente) {
+        return res.status(404).json({ 
+          message: "Usuário não encontrado" 
+        });
+      }
+
+      console.log(`Usuário encontrado: ${usuarioExistente.nome} (${usuarioExistente.papel})`);
+
+      // Excluir registros relacionados primeiro
+      if (usuarioExistente.papel === 'teacher') {
+        await supabase
+          .from('perfis_professor')
+          .delete()
+          .eq('usuario_id', id);
+      } else if (usuarioExistente.papel === 'manager') {
+        await supabase
+          .from('perfis_gestor')
+          .delete()
+          .eq('usuario_id', id);
+      }
+
+      // Excluir o usuário
+      const { error: deleteError } = await supabase
+        .from('usuarios')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        console.error('Erro ao excluir usuário:', deleteError);
+        return res.status(500).json({ 
+          message: 'Erro ao excluir usuário', 
+          error: deleteError.message 
+        });
+      }
+
+      console.log('Usuário excluído com sucesso');
+
+      res.status(200).json({
+        message: `Usuário "${usuarioExistente.nome}" excluído com sucesso`
+      });
+
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
   
   const httpServer = createServer(app);
   return httpServer;
