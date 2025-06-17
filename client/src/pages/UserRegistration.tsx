@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/context/AuthContext";
+import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 
 // Componentes UI
 import {
@@ -109,6 +110,32 @@ export default function UserRegistration() {
   });
 
   const papel = form.watch("papel");
+  
+  // Observar todos os campos para validação rigorosa em tempo real
+  const watchedFields = form.watch();
+  
+  // Validação rigorosa - todos os campos obrigatórios
+  const isFormValid = () => {
+    const { formState } = form;
+    const hasErrors = Object.keys(formState.errors).length > 0;
+    
+    // Verificar campos obrigatórios básicos
+    const basicFieldsValid = !!(watchedFields.nome_completo && 
+                               watchedFields.email && 
+                               watchedFields.telefone && 
+                               watchedFields.data_nascimento && 
+                               watchedFields.papel && 
+                               watchedFields.cpf && 
+                               watchedFields.senha);
+    
+    // Validação específica por papel
+    let roleSpecificValid = true;
+    if (watchedFields.papel === "aluno") {
+      roleSpecificValid = !!(watchedFields.turma_id && watchedFields.numero_matricula);
+    }
+    
+    return basicFieldsValid && roleSpecificValid && !hasErrors && !isSubmitting;
+  };
 
   // Carregar turmas e escolas disponíveis
   useEffect(() => {
@@ -194,13 +221,13 @@ export default function UserRegistration() {
     });
   };
 
-  // Função de envio do formulário com validação rigorosa e refresh automático
+  // Função de submissão com validação rigorosa e refresh automático
   const onSubmit = async (data: UserFormData) => {
-    console.log("=== INICIANDO SUBMISSÃO RIGOROSA ===");
+    console.log("=== SUBMISSÃO RIGOROSA INICIADA ===");
     setIsSubmitting(true);
     
     try {
-      // Preparar payload completo baseado no papel selecionado
+      // Payload completo baseado nos dados necessários por papel
       const payload = {
         nome_completo: data.nome_completo,
         email: data.email,
@@ -208,25 +235,17 @@ export default function UserRegistration() {
         data_nascimento: data.data_nascimento?.toISOString().split('T')[0],
         papel: data.papel,
         cpf: data.cpf,
-        escola_id: data.escola_id,
         senha: data.senha,
-        perfil_foto_url: data.perfil_foto_url || "",
         // Campos específicos por papel
         ...(data.papel === "aluno" && {
           turma_id: data.turma_id,
           numero_matricula: data.numero_matricula,
         }),
-        ...(data.papel === "professor" && {
-          escolas_selecionadas: data.escolas_selecionadas || [],
-        }),
-        ...(data.papel === "gestor" && {
-          escolas_selecionadas: data.escolas_selecionadas || [],
-        }),
       };
 
-      console.log("Payload completo:", payload);
+      console.log("Enviando payload:", payload);
       
-      // Enviar via POST com tratamento de resposta
+      // Usar await api.post() dentro de try/catch
       const response = await apiRequest("POST", "/api/usuarios", payload);
       
       if (!response.ok) {
@@ -235,51 +254,47 @@ export default function UserRegistration() {
       }
       
       const responseData = await response.json();
-      console.log("Usuário cadastrado com sucesso:", responseData);
       
-      // Sucesso (201 Created)
+      // 201 Created - Sucesso
       toast({
         title: "Usuário cadastrado com sucesso!",
         description: `${data.nome_completo} foi adicionado ao sistema.`,
         variant: "default",
       });
       
-      // Limpeza completa do formulário
+      // Limpeza completa do formulário (resetForm)
       form.reset({
         nome_completo: "",
         email: "",
         telefone: "",
         papel: undefined,
         cpf: "",
-        escola_id: "",
         senha: "",
-        perfil_foto_url: "",
         turma_id: "",
         numero_matricula: "",
-        escolas_selecionadas: [],
+        escola_id: "",
       });
       
-      // Reset de estados locais
+      // Reset estados locais
       setSelectedDate(undefined);
       setEscolasSelecionadas([]);
       setFormStep(0);
       setShowSchoolSelection(false);
       
-      // Refresh automático de todas as listas e dashboards
+      // Refresh automático em todas as listas/dashboards
       await refreshAllData();
       
     } catch (error) {
-      console.error("=== ERRO NO CADASTRO ===");
-      console.error("Mensagem:", error instanceof Error ? error.message : String(error));
+      console.error("Erro no cadastro:", error);
       
-      // Tratamento de erro - exibir mensagem e não limpar formulário
+      // Erro (≥400) - Exibir mensagem e NÃO limpar formulário
       toast({
         title: "Erro ao cadastrar usuário",
-        description: error instanceof Error ? error.message : "Erro desconhecido ao processar cadastro",
+        description: error instanceof Error ? error.message : "Erro ao processar cadastro",
         variant: "destructive",
       });
       
-      // NÃO limpar o formulário em caso de erro - manter valores para correção
+      // Manter valores no formulário para correção
     } finally {
       setIsSubmitting(false);
     }
@@ -486,7 +501,7 @@ export default function UserRegistration() {
                       name="cpf"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-parchment font-medium">CPF</FormLabel>
+                          <FormLabel className="text-parchment font-medium">CPF *</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="123.456.789-00" 
@@ -498,9 +513,26 @@ export default function UserRegistration() {
                               className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
                             />
                           </FormControl>
-                          <FormDescription className="text-parchment-dark">
-                            O CPF será usado como senha temporária inicial
-                          </FormDescription>
+                          <FormMessage className="text-destructive" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="senha"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-parchment font-medium">Senha *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="Digite uma senha (mínimo 6 caracteres)"
+                              value={field.value}
+                              onChange={field.onChange}
+                              className="border-primary bg-dark text-parchment placeholder:text-parchment-dark focus:border-accent focus:ring-accent"
+                            />
+                          </FormControl>
                           <FormMessage className="text-destructive" />
                         </FormItem>
                       )}
@@ -598,8 +630,8 @@ export default function UserRegistration() {
                       </Button>
                       <Button
                         type="submit"
-                        className="w-1/2 bg-accent hover:bg-accent-dark text-white border border-primary shadow-md"
-                        disabled={isSubmitting}
+                        className="w-1/2 bg-accent hover:bg-accent-dark text-white border border-primary shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSubmitting || !isFormValid()}
                       >
                         {isSubmitting ? (
                           <>
