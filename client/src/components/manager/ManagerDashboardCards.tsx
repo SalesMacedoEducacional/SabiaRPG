@@ -78,6 +78,8 @@ interface Turma {
   ano_letivo: number;
   turno: string;
   total_alunos: number;
+  escola_id?: string;
+  escola_nome?: string;
 }
 
 // Componente para o card de total de escolas
@@ -162,7 +164,7 @@ export function TotalEscolasCard() {
                   escolas.map((escola) => (
                     <TableRow key={escola.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{escola.nome}</TableCell>
-                      <TableCell className="text-white">{escola.cidades?.nome || escola.cidade}</TableCell>
+                      <TableCell className="text-white">{escola.cidade}</TableCell>
                     </TableRow>
                   ))
                 ) : (
@@ -210,8 +212,19 @@ export function TotalProfessoresCard() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [toast]);
+    // Listeners para refresh automático
+    const handleRefresh = () => {
+      refreshStats();
+    };
+
+    window.addEventListener('refreshAllData', handleRefresh);
+    window.addEventListener('refreshSchoolData', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshAllData', handleRefresh);
+      window.removeEventListener('refreshSchoolData', handleRefresh);
+    };
+  }, [refreshStats]);
 
   return (
     <>
@@ -328,44 +341,44 @@ export function TotalProfessoresCard() {
 // Componente para o card de total de alunos
 export function TotalAlunosCard() {
   const { toast } = useToast();
-  const [totalAlunos, setTotalAlunos] = useState<number>(0);
+  const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [escolas, setEscolas] = useState<Escola[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
+  // Usar dados do contexto de escolas
+  const totalAlunos = dashboardStats?.totalAlunos || 0;
+  const escolas = escolasVinculadas || [];
+
+  const fetchAlunosDetalhes = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/alunos");
+      const data = await response.json();
+      setAlunos(data.alunos || []);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes dos alunos:", error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes dos alunos",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Buscar alunos e escolas em paralelo
-        const [alunosResponse, escolasResponse] = await Promise.all([
-          apiRequest("GET", "/api/alunos"),
-          apiRequest("GET", "/api/escolas/gestor")
-        ]);
-        
-        const alunosData = await alunosResponse.json();
-        const escolasData = await escolasResponse.json();
-        
-        setTotalAlunos(alunosData.total || 0);
-        setAlunos(alunosData.alunos || []);
-        setEscolas(escolasData || []);
-      } catch (error) {
-        console.error("Erro ao buscar alunos:", error);
-        toast({
-          title: "Erro ao carregar alunos",
-          description: "Não foi possível carregar as informações de alunos",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
+    // Listeners para refresh automático
+    const handleRefresh = () => {
+      refreshStats();
     };
 
-    fetchData();
-  }, [toast]);
+    window.addEventListener('refreshAllData', handleRefresh);
+    window.addEventListener('refreshSchoolData', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshAllData', handleRefresh);
+      window.removeEventListener('refreshSchoolData', handleRefresh);
+    };
+  }, [refreshStats]);
 
   return (
     <>
@@ -390,7 +403,10 @@ export function TotalAlunosCard() {
               variant="outline" 
               size="sm" 
               className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsModalOpen(true);
+                fetchAlunosDetalhes();
+              }}
               disabled={totalAlunos === 0}
             >
               <Search className="h-3 w-3 mr-1" /> Ver Detalhes
@@ -473,39 +489,14 @@ export function TotalAlunosCard() {
 // Componente para o card de total de turmas
 export function TotalTurmasCard() {
   const { toast } = useToast();
-  const [totalTurmas, setTotalTurmas] = useState<number>(0);
+  const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [escolas, setEscolas] = useState<Escola[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Buscar count de turmas ativas e escolas em paralelo
-      const [turmasResponse, escolasResponse] = await Promise.all([
-        apiRequest("GET", "/api/turmas/count"),
-        apiRequest("GET", "/api/escolas/gestor")
-      ]);
-      
-      const turmasData = await turmasResponse.json();
-      const escolasData = await escolasResponse.json();
-      
-      setTotalTurmas(turmasData.count || 0);
-      setEscolas(escolasData || []);
-    } catch (error) {
-      console.error("Erro ao buscar turmas:", error);
-      toast({
-        title: "Erro ao carregar turmas",
-        description: "Não foi possível carregar as informações de turmas",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Usar dados do contexto de escolas
+  const totalTurmas = dashboardStats?.turmasAtivas || 0;
+  const escolas = escolasVinculadas || [];
 
   const fetchTurmasDetalhes = async () => {
     try {
@@ -523,8 +514,19 @@ export function TotalTurmasCard() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [toast]);
+    // Listeners para refresh automático
+    const handleRefresh = () => {
+      refreshStats();
+    };
+
+    window.addEventListener('refreshAllData', handleRefresh);
+    window.addEventListener('refreshSchoolData', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshAllData', handleRefresh);
+      window.removeEventListener('refreshSchoolData', handleRefresh);
+    };
+  }, [refreshStats]);
 
   return (
     <>
