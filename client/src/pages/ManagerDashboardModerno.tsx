@@ -63,9 +63,11 @@ export default function ManagerDashboardModerno() {
     dashboardStats, 
     isLoading: schoolLoading, 
     error: schoolError, 
-    refreshStats,
-    hasEscolasVinculadas 
+    refreshStats
   } = useSchool();
+  
+  // Calcular se tem escolas vinculadas
+  const hasEscolasVinculadas = escolasVinculadas && escolasVinculadas.length > 0;
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [activeMenu, setActiveMenu] = useState("overview");
