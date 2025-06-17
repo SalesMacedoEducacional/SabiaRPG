@@ -53,17 +53,17 @@ export default function UsersList() {
     try {
       setIsLoading(true);
       console.log("Carregando usuários...");
-      const response = await apiRequest("GET", "/api/usuarios");
-      console.log("Resposta completa da API:", response);
+      const response = await apiRequest("GET", "/api/users/manager");
+      console.log("Resposta da API usuários:", response);
       
-      // Extrair dados da resposta - pode estar em response.usuarios ou diretamente no response
-      let usuariosData = [];
       if (response && typeof response === 'object') {
-        usuariosData = response.usuarios || response.data || (Array.isArray(response) ? response : []);
+        const usuariosData = (response as any).usuarios || [];
+        console.log(`${usuariosData.length} usuários encontrados`);
+        setUsuarios(usuariosData);
+      } else {
+        console.warn("Resposta inesperada da API");
+        setUsuarios([]);
       }
-      
-      console.log("Dados extraídos dos usuários:", usuariosData);
-      setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
       setUsuarios([]);
@@ -98,18 +98,35 @@ export default function UsersList() {
 
   const fetchContadores = async () => {
     try {
-      console.log("Carregando contadores...");
-      const data = await apiRequest("GET", "/api/usuarios/contadores");
+      console.log("Calculando contadores a partir dos usuários carregados...");
       
-      console.log("Contadores recebidos:", data);
-      setTotalUsuarios(data.total || 0);
-      setUsuariosAtivos(data.ativos || 0);
-      setProfessores(data.professores || 0);
-      setAlunos(data.alunos || 0);
-      setGestores(data.gestores || 0);
-      setUsuariosInativos(data.inativos || 0);
+      if (usuarios.length > 0) {
+        const total = usuarios.length;
+        const ativos = usuarios.filter(u => u.ativo).length;
+        const professoresCount = usuarios.filter(u => ['teacher', 'professor'].includes(u.papel)).length;
+        const alunosCount = usuarios.filter(u => ['student', 'aluno'].includes(u.papel)).length;
+        const gestoresCount = usuarios.filter(u => ['manager', 'gestor'].includes(u.papel)).length;
+        const inativos = usuarios.filter(u => !u.ativo).length;
+        
+        console.log("Contadores calculados:", { total, ativos, professoresCount, alunosCount, gestoresCount, inativos });
+        
+        setTotalUsuarios(total);
+        setUsuariosAtivos(ativos);
+        setProfessores(professoresCount);
+        setAlunos(alunosCount);
+        setGestores(gestoresCount);
+        setUsuariosInativos(inativos);
+      } else {
+        console.log("Nenhum usuário carregado para calcular contadores");
+        setTotalUsuarios(0);
+        setUsuariosAtivos(0);
+        setProfessores(0);
+        setAlunos(0);
+        setGestores(0);
+        setUsuariosInativos(0);
+      }
     } catch (error) {
-      console.error("Erro ao buscar contadores:", error);
+      console.error("Erro ao calcular contadores:", error);
     }
   };
 
@@ -243,10 +260,18 @@ export default function UsersList() {
   };
 
   useEffect(() => {
-    fetchUsuarios();
-    fetchEscolas();
-    fetchContadores();
+    const loadData = async () => {
+      await fetchUsuarios();
+      await fetchEscolas();
+      // fetchContadores será executado após usuários carregarem
+    };
+    loadData();
   }, []);
+
+  useEffect(() => {
+    // Recalcular contadores sempre que usuários mudarem
+    fetchContadores();
+  }, [usuarios]);
 
   const usuariosFiltrados = filtrarUsuarios();
 
