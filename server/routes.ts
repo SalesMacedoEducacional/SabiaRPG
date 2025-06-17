@@ -2380,7 +2380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
       // Buscar todos os usuários reais com CPF preenchido
-      console.log('Executando consulta Supabase para buscar usuários...');
+      console.log('Executando consulta Supabase para buscar todos os usuários...');
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select(`
@@ -2394,7 +2394,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           criado_em
         `)
         .not('cpf', 'is', null)
-        .order('criado_em', { ascending: false });
+        .not('cpf', 'eq', '')
+        .order('criado_em', { ascending: false })
+        .limit(50);
       
       console.log('Resultado da consulta Supabase:');
       console.log('- Total de usuários retornados:', usuarios?.length || 0);
