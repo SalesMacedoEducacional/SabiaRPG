@@ -47,30 +47,27 @@ interface Turma {
   serie: string;
 }
 
-// Schema de validação do formulário com todos os campos
+// Schema de validação rigorosa - todos os campos obrigatórios
 const userSchema = z.object({
-  nome_completo: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
-  email: z.string().email("E-mail inválido"),
-  telefone: z.string().min(14, "Formato de telefone inválido").max(15, "Formato de telefone inválido"),
+  nome_completo: z.string().min(3, "Nome completo é obrigatório (mínimo 3 caracteres)"),
+  email: z.string().email("E-mail válido é obrigatório"),
+  telefone: z.string().min(14, "Telefone é obrigatório"),
   data_nascimento: z.date({
-    required_error: "A data de nascimento é obrigatória",
+    required_error: "Data de nascimento é obrigatória",
   }),
   papel: z.enum(["aluno", "professor", "gestor"], {
-    required_error: "Selecione o perfil do usuário",
+    required_error: "Papel é obrigatório",
   }),
-  cpf: z.string().min(11, "CPF deve ter pelo menos 11 caracteres"),
-  imagem_perfil: z.instanceof(File).optional(),
+  cpf: z.string().min(14, "CPF é obrigatório"),
+  senha: z.string().min(6, "Senha é obrigatória (mínimo 6 caracteres)"),
   // Campos condicionais
   turma_id: z.string().optional(),
   numero_matricula: z.string().optional(),
-  escolas_selecionadas: z.array(z.string()).optional(),
+  escola_id: z.string().optional(),
 }).refine(
   (data) => {
     if (data.papel === "aluno") {
-      return data.turma_id && data.numero_matricula && data.cpf;
-    }
-    if (data.papel === "professor" || data.papel === "gestor") {
-      return data.cpf && data.cpf.length >= 11;
+      return data.turma_id && data.numero_matricula;
     }
     return true;
   },
@@ -94,14 +91,20 @@ export default function UserRegistration() {
   const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
   const [showSchoolSelection, setShowSchoolSelection] = useState(false);
 
-  // Inicializar formulário com react-hook-form e validação de zod
+  // Formulário com validação rigorosa em tempo real
   const form = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
+    mode: "onChange",
     defaultValues: {
       nome_completo: "",
       email: "",
       telefone: "",
       papel: undefined,
+      cpf: "",
+      senha: "",
+      turma_id: "",
+      numero_matricula: "",
+      escola_id: "",
     },
   });
 
@@ -191,112 +194,120 @@ export default function UserRegistration() {
     });
   };
 
-  // Função de envio do formulário
+  // Função de envio do formulário com validação rigorosa e refresh automático
   const onSubmit = async (data: UserFormData) => {
-    console.log("=== INICIANDO SUBMISSÃO ===");
-    console.log("Dados recebidos:", data);
-    console.log("Papel selecionado:", data.papel);
-    console.log("Show school selection:", showSchoolSelection);
-    console.log("Escolas selecionadas:", escolasSelecionadas);
-    
-    // Para professores e gestores, verificar se precisamos ir para seleção de escolas
-    if ((data.papel === "professor" || data.papel === "gestor") && !showSchoolSelection && escolasSelecionadas.length === 0) {
-      console.log("Redirecionando para seleção de escolas");
-      goToSchoolSelection();
-      return;
-    }
-
-    console.log("Prosseguindo com submissão...");
+    console.log("=== INICIANDO SUBMISSÃO RIGOROSA ===");
     setIsSubmitting(true);
     
     try {
-      console.log('=== PREPARANDO DADOS PARA ENVIO ===')
-      
-      const formData = new FormData();
-      
-      // Adicionar campos básicos comuns a todos os papéis
-      formData.append("nome_completo", data.nome_completo);
-      formData.append("email", data.email);
-      formData.append("telefone", data.telefone || "");
-      if (data.data_nascimento) {
-        formData.append("data_nascimento", data.data_nascimento.toISOString());
-      }
-      formData.append("papel", data.papel);
-      
-      // CPF é obrigatório para todos os papéis
-      if (data.cpf) {
-        console.log('Adicionando CPF ao FormData:', data.cpf);
-        formData.append("cpf", data.cpf);
-      }
+      // Preparar payload completo baseado no papel selecionado
+      const payload = {
+        nome_completo: data.nome_completo,
+        email: data.email,
+        telefone: data.telefone,
+        data_nascimento: data.data_nascimento?.toISOString().split('T')[0],
+        papel: data.papel,
+        cpf: data.cpf,
+        escola_id: data.escola_id,
+        senha: data.senha,
+        perfil_foto_url: data.perfil_foto_url || "",
+        // Campos específicos por papel
+        ...(data.papel === "aluno" && {
+          turma_id: data.turma_id,
+          numero_matricula: data.numero_matricula,
+        }),
+        ...(data.papel === "professor" && {
+          escolas_selecionadas: data.escolas_selecionadas || [],
+        }),
+        ...(data.papel === "gestor" && {
+          escolas_selecionadas: data.escolas_selecionadas || [],
+        }),
+      };
 
-      // Adicionar campos específicos com base no papel selecionado
-      if (data.papel === "aluno" && data.turma_id && data.numero_matricula) {
-        formData.append("turma_id", data.turma_id);
-        formData.append("numero_matricula", data.numero_matricula);
-      }
-
-      // Adicionar escolas selecionadas para professores e gestores
-      if ((data.papel === "professor" || data.papel === "gestor") && escolasSelecionadas.length > 0) {
-        formData.append("escolas_selecionadas", JSON.stringify(escolasSelecionadas));
-      }
+      console.log("Payload completo:", payload);
       
-      // Log do FormData para debug
-      console.log('=== CONTEÚDO DO FORMDATA ===');
-      const formDataEntries: any[] = [];
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-        formDataEntries.push({ key, value });
-      });
-      console.log('Total de campos:', formDataEntries.length);
-      
-      // Adicionar imagem de perfil se disponível
-      if (data.imagem_perfil) {
-        formData.append("imagem_perfil", data.imagem_perfil);
-      }
-      
-      console.log("=== ENVIANDO REQUISIÇÃO PARA SERVIDOR ===");
-      
-      // Enviar formulário para a API
-      const response = await apiRequest("POST", "/api/usuarios", formData, true);
-      
-      console.log("Resposta do servidor:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      });
+      // Enviar via POST com tratamento de resposta
+      const response = await apiRequest("POST", "/api/usuarios", payload);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Erro desconhecido" }));
-        console.error("Erro na resposta do servidor:", errorData);
+        const errorData = await response.json().catch(() => ({ erro: "Erro desconhecido" }));
         throw new Error(errorData.erro || errorData.message || "Erro ao cadastrar usuário");
       }
       
       const responseData = await response.json();
       console.log("Usuário cadastrado com sucesso:", responseData);
       
+      // Sucesso (201 Created)
       toast({
         title: "Usuário cadastrado com sucesso!",
-        description: "O novo usuário foi adicionado ao sistema.",
+        description: `${data.nome_completo} foi adicionado ao sistema.`,
+        variant: "default",
       });
       
-      // Opções após cadastro
-      form.reset();
+      // Limpeza completa do formulário
+      form.reset({
+        nome_completo: "",
+        email: "",
+        telefone: "",
+        papel: undefined,
+        cpf: "",
+        escola_id: "",
+        senha: "",
+        perfil_foto_url: "",
+        turma_id: "",
+        numero_matricula: "",
+        escolas_selecionadas: [],
+      });
+      
+      // Reset de estados locais
+      setSelectedDate(undefined);
+      setEscolasSelecionadas([]);
       setFormStep(0);
+      setShowSchoolSelection(false);
+      
+      // Refresh automático de todas as listas e dashboards
+      await refreshAllData();
       
     } catch (error) {
-      console.error("=== ERRO COMPLETO ===");
-      console.error("Tipo:", typeof error);
+      console.error("=== ERRO NO CADASTRO ===");
       console.error("Mensagem:", error instanceof Error ? error.message : String(error));
-      console.error("Stack:", error instanceof Error ? error.stack : "N/A");
       
+      // Tratamento de erro - exibir mensagem e não limpar formulário
       toast({
         title: "Erro ao cadastrar usuário",
-        description: error instanceof Error ? error.message : "Ocorreu um erro ao processar sua solicitação",
+        description: error instanceof Error ? error.message : "Erro desconhecido ao processar cadastro",
         variant: "destructive",
       });
+      
+      // NÃO limpar o formulário em caso de erro - manter valores para correção
     } finally {
-      console.log("=== FINALIZANDO SUBMISSÃO ===");
       setIsSubmitting(false);
+    }
+  };
+
+  // Função para refresh automático de todos os dados
+  const refreshAllData = async () => {
+    try {
+      // Recarregar turmas
+      const turmasResponse = await apiRequest("GET", "/api/turmas");
+      if (turmasResponse.ok) {
+        const turmasData = await turmasResponse.json();
+        setTurmas(turmasData);
+      }
+
+      // Recarregar escolas
+      const escolasResponse = await apiRequest("GET", "/api/escolas/todas");
+      if (escolasResponse.ok) {
+        const escolasData = await escolasResponse.json();
+        setEscolas(escolasData);
+      }
+
+      // Disparar evento customizado para refresh de outros componentes
+      window.dispatchEvent(new CustomEvent('refreshUserData'));
+      
+      console.log("Refresh automático de dados concluído");
+    } catch (error) {
+      console.error("Erro no refresh automático:", error);
     }
   };
 

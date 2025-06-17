@@ -1,0 +1,72 @@
+
+
+Replit, ajuste imediatamente o fluxo de cadastro de novos usuários conforme abaixo:
+
+Validação front-end rígida
+
+Marque todos os campos (nome, email, senha, cpf, data_nascimento, telefone, papel, escola_id, perfil_foto_url) como obrigatórios.
+
+Bloqueie o botão “Cadastrar” enquanto algum estiver vazio ou inválido e exiba erros inline.
+
+Envio de payload completo
+
+Altere a chamada POST /usuarios para enviar exatamente OS DADOS NECESSÁRIOS DEFINIDOS EM CADA FORMULARIO DE ACORDO PAPEL:
+
+Use await api.post() dentro de try/catch para garantir o envio e captura de erros.
+
+Tratamento de resposta
+
+201 Created:
+a) Exiba “Usuário cadastrado com sucesso: [nome]”.
+b) Chame resetForm() para limpar todos os campos.
+c) Dispare refresh() em todas as listas, tabelas e dashboards de usuário.
+
+Erro (≥400):
+a) Exiba a mensagem de erro vinda da resposta.
+b) Não limpe o formulário — mantenha os valores para correção.
+
+Sincronização back-end
+
+Assegure que, após o INSERT em usuarios, o trigger correto (sync_user_to_aluno, sync_user_to_professor ou sync_user_to_gestor) seja acionado conforme papel.
+
+Verifique no log do Supabase e no console de rede que o perfil correspondente foi criado/atualizado.
+
+Refresh em todas as ações
+
+Garanta refresh() automático após todo cadastro, edição ou exclusão de usuário, mantendo as views sempre sincronizadas.
+
+Implemente agora este commit e teste o cadastro completo no UI e no banco até funcionar 100%.
+
+
+
+
+
+
+ rEPLIT implemente o seguinte tratamento em toda a plataforma, sem exceção:
+
+Refresh automático de dados
+
+Após toda ação de cadastro (POST), atualização (PUT/PATCH) ou exclusão (DELETE), dispare imediatamente uma recarga (refresh) dos dados exibidos nas listas, tabelas e cards da interface, garantindo que o usuário veja os valores atuais do banco.
+
+Limpeza de campos de formulário
+
+Depois que um cadastro for concluído com sucesso, limpe todos os campos do formulário correspondente (inputs, selects, checkboxes, etc.), retornando-os ao estado inicial em branco ou com valor padrão.
+
+Fluxo de tratamento de erros
+
+Se ocorrer erro em qualquer ação, exiba mensagem adequada e não limpe o formulário nem faça refresh.
+
+Onde aplicar
+
+Em todos os componentes e serviços de CRUD (escolas, turmas, professores, alunos, usuários e componentes curriculares), garantindo comportamento padronizado em cada tela.
+
+Detalhes técnicos
+
+Utilize o hook ou interceptor de API existente para centralizar o refresh após respostas de sucesso.
+
+Nos componentes de formulário, chame a função resetForm() (ou equivalente) logo após o await api.save() resolve sem erro.
+
+Em ações assíncronas, aguarde a promise de resposta antes de limpar o formulário e recarregar os dados.
+
+—
+Implemente exatamente este tratamento em toda a base de código, de modo que não haja formulário com valores residuais nem listas desatualizadas após operações de CRUD.
