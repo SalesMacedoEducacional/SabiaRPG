@@ -18,6 +18,7 @@ interface Usuario {
   papel: 'admin' | 'manager' | 'teacher' | 'student' | 'gestor' | 'professor' | 'aluno';
   ativo: boolean;
   criado_em: string;
+  escola_id?: string;
   escola_nome?: string;
   escolas_vinculadas?: { id: string; nome: string }[];
 }
