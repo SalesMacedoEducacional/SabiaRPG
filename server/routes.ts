@@ -1795,54 +1795,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas.map(escola => escola.id);
 
-      // Buscar todos os professores da tabela usuarios
-      const { data: professores, error: professoresError } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          cpf,
-          telefone,
-          email
-        `)
-        .eq('papel', 'professor');
+      // Contar professores reais vinculados às escolas do gestor através da tabela perfis_professor
+      const { count, error: professoresError } = await supabase
+        .from('perfis_professor')
+        .select('*', { count: 'exact', head: true })
+        .in('escola_id', escolaIds)
+        .eq('ativo', true);
 
       if (professoresError) {
-        console.error('Erro ao buscar professores:', professoresError);
-        return res.status(500).json({ message: 'Erro ao buscar professores', error: professoresError.message });
+        console.error('Erro ao contar professores:', professoresError);
+        return res.status(500).json({ message: 'Erro ao contar professores', error: professoresError.message });
       }
 
-      // Buscar nomes das escolas para exibição
-      const { data: escolasNomes } = await supabase
-        .from('escolas')
-        .select('id, nome')
-        .in('id', escolaIds);
-
-      // Formatar dados para o frontend - distribuir professores entre as escolas do gestor
-      const professoresFormatados = professores?.map((prof, index) => {
-        const escolaIndex = index % escolaIds.length;
-        const escolaId = escolaIds[escolaIndex];
-        const escolaNome = escolasNomes?.find(e => e.id === escolaId)?.nome || 'Escola não informada';
-        
-        return {
-          id: prof.id,
-          usuarios: {
-            nome: prof.nome || 'Nome não informado',
-            cpf: prof.cpf || 'CPF não informado', 
-            telefone: prof.telefone || 'Telefone não informado',
-            email: prof.email || 'Email não informado'
-          },
-          escola_id: escolaId,
-          escola_nome: escolaNome,
-          disciplinas: ['Matemática', 'Português'], // Dados simulados até implementação completa
-          ativo: true
-        };
-      }) || [];
-
-      res.status(200).json({ 
-        total: professoresFormatados.length, 
-        professores: professoresFormatados 
-      });
+      console.log(`DADOS REAIS: ${count || 0} professores encontrados nas escolas do gestor`);
+      return res.status(200).json({ count: count || 0 });
     } catch (error) {
       console.error("Erro ao buscar professores:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
