@@ -568,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Converter papel para formato da aplicação
         let role = "student";
         if (userData.papel === "professor") role = "teacher";
-        if (userData.papel === "gestor") role = "manager";
+        if (userData.papel === "manager") role = "manager";
         
         // Verificar se o papel do usuário está na lista de papéis permitidos
         if (!roles.includes(role)) {
@@ -619,7 +619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Converter papel para formato da aplicação
         let role = "student";
         if (userData.papel === "professor") role = "teacher";
-        if (userData.papel === "gestor") role = "manager";
+        if (userData.papel === "manager") role = "manager";
         
         // Verificar se o papel do usuário está na lista de papéis permitidos
         if (!roles.includes(role)) {
@@ -1163,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Converter papel do usuário para formato da aplicação
       let role = "student";
       if (userData.papel === "professor") role = "teacher";
-      if (userData.papel === "gestor") role = "manager";
+      if (userData.papel === "manager") role = "manager";
       
       // Construir resposta do usuário
       const userResponse = {
