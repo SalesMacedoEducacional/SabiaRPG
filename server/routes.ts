@@ -2421,14 +2421,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } else if (usuario.papel === 'teacher' || usuario.papel === 'professor') {
             // Buscar escola_id diretamente do perfil_professor
-            const { data: perfilProfessor } = await supabase
+            console.log(`Buscando escola para professor: ${usuario.nome} (ID: ${usuario.id})`);
+            const { data: perfilProfessor, error: profError } = await supabase
               .from('perfis_professor')
               .select('escola_id')
               .eq('usuario_id', usuario.id)
               .single();
 
+            console.log(`Perfil professor encontrado:`, perfilProfessor);
+            console.log(`Erro na busca do perfil:`, profError);
+
             if (perfilProfessor?.escola_id) {
               escolaId = perfilProfessor.escola_id;
+              console.log(`Escola ID encontrada para ${usuario.nome}: ${escolaId}`);
+            } else {
+              console.log(`Nenhuma escola encontrada para professor ${usuario.nome}`);
             }
           } else if (usuario.papel === 'student' || usuario.papel === 'aluno') {
             // Para alunos, buscar via turmas
@@ -2449,11 +2456,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           // Buscar dados da escola se temos o ID
           if (escolaId) {
-            const { data: escola } = await supabase
+            console.log(`Buscando dados da escola com ID: ${escolaId}`);
+            const { data: escola, error: escolaError } = await supabase
               .from('escolas')
               .select('id, nome')
               .eq('id', escolaId)
               .single();
+
+            console.log(`Escola encontrada:`, escola);
+            console.log(`Erro na busca da escola:`, escolaError);
 
             if (escola) {
               escolasVinculadas = [escola];
