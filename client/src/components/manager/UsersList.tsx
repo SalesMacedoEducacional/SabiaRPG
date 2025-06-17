@@ -51,12 +51,12 @@ export default function UsersList() {
   const fetchUsuarios = async () => {
     try {
       setIsLoading(true);
-      const response = await apiRequest("GET", "/api/usuarios");
-      const data = await response.json();
+      console.log("Carregando usuários...");
+      const data = await apiRequest("GET", "/api/usuarios");
       
       if (data.usuarios) {
+        console.log("Usuários carregados:", data.usuarios.length);
         setUsuarios(data.usuarios);
-        calculateCounters(data.usuarios);
       }
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
@@ -72,8 +72,9 @@ export default function UsersList() {
 
   const fetchEscolas = async () => {
     try {
-      const response = await apiRequest("GET", "/api/escolas/gestor");
-      const data = await response.json();
+      console.log("Carregando escolas...");
+      const data = await apiRequest("GET", "/api/escolas/gestor");
+      console.log("Escolas carregadas:", data.length);
       setEscolas(data || []);
     } catch (error) {
       console.error("Erro ao buscar escolas:", error);
@@ -82,9 +83,10 @@ export default function UsersList() {
 
   const fetchContadores = async () => {
     try {
-      const response = await apiRequest("GET", "/api/usuarios/contadores");
-      const data = await response.json();
+      console.log("Carregando contadores...");
+      const data = await apiRequest("GET", "/api/usuarios/contadores");
       
+      console.log("Contadores recebidos:", data);
       setTotalUsuarios(data.total || 0);
       setUsuariosAtivos(data.ativos || 0);
       setProfessores(data.professores || 0);

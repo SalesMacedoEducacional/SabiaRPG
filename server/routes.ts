@@ -2447,10 +2447,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (perfilProfessor?.escola) {
               escolasVinculadas = [perfilProfessor.escola];
             }
+          } else if (usuario.papel === 'student' || usuario.papel === 'aluno') {
+            // Buscar escolas vinculadas ao aluno
+            const { data: perfilAluno } = await supabase
+              .from('perfis_aluno')
+              .select(`
+                escola_id,
+                escola:escola_id (
+                  id,
+                  nome
+                )
+              `)
+              .eq('usuario_id', usuario.id)
+              .single();
+
+            if (perfilAluno?.escola) {
+              escolasVinculadas = [perfilAluno.escola];
+            }
           }
 
           return {
             ...usuario,
+            escola_nome: escolasVinculadas.length > 0 
+              ? escolasVinculadas.map(e => e.nome).join(', ')
+              : 'Geral',
             escolas_vinculadas: escolasVinculadas
           };
         })
