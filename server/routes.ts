@@ -2389,27 +2389,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let usuariosError = null;
       
       try {
-        // Buscar todos os usuários reais do banco
-        const { data: usuariosReais, error } = await supabase
-          .from('usuarios')
-          .select('*')
-          .not('cpf', 'is', null)
-          .not('cpf', 'eq', '')
-          .order('criado_em', { ascending: false });
+        // Buscar todos os usuários reais do banco usando consulta SQL direta para contornar RLS
+        const { data: usuariosReais, error } = await supabase.rpc('get_all_usuarios_for_manager');
         
-        usuariosError = error;
-        
-        if (usuariosReais && usuariosReais.length > 0) {
-          usuarios = usuariosReais.map(usuario => ({
-            id: usuario.id,
-            nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
-            email: usuario.email,
-            cpf: usuario.cpf,
-            telefone: usuario.telefone || '',
-            papel: usuario.papel,
-            ativo: usuario.ativo ?? true,
-            criado_em: usuario.criado_em
-          }));
+        // Se a função RPC não existir, usar consulta padrão
+        if (error?.code === '42883') {
+          console.log('Função RPC não existe, usando consulta padrão...');
+          const { data: usuariosPadrao, error: errorPadrao } = await supabase
+            .from('usuarios')
+            .select('*')
+            .order('criado_em', { ascending: false });
+          
+          usuariosError = errorPadrao;
+          
+          if (usuariosPadrao && usuariosPadrao.length > 0) {
+            usuarios = usuariosPadrao.map(usuario => ({
+              id: usuario.id,
+              nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
+              email: usuario.email,
+              cpf: usuario.cpf || '',
+              telefone: usuario.telefone || '',
+              papel: usuario.papel,
+              ativo: usuario.ativo ?? true,
+              criado_em: usuario.criado_em
+            }));
+          }
+        } else {
+          usuariosError = error;
+          
+          if (usuariosReais && usuariosReais.length > 0) {
+            usuarios = usuariosReais.map(usuario => ({
+              id: usuario.id,
+              nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
+              email: usuario.email,
+              cpf: usuario.cpf || '',
+              telefone: usuario.telefone || '',
+              papel: usuario.papel,
+              ativo: usuario.ativo ?? true,
+              criado_em: usuario.criado_em
+            }));
+          }
         }
         
         console.log(`Total de usuários reais encontrados: ${usuarios.length}`);
