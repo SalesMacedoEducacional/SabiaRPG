@@ -209,6 +209,7 @@ export default function UsersList() {
   useEffect(() => {
     fetchUsuarios();
     fetchEscolas();
+    fetchContadores();
   }, []);
 
   const usuariosFiltrados = filtrarUsuarios();
@@ -386,6 +387,14 @@ export default function UsersList() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => handleViewUserDetails(usuario.id)}
+                            className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleEditUser(usuario)}
                             className="border-[#D47C06] text-[#D47C06] hover:bg-[#D47C06] hover:text-white"
                           >
@@ -465,6 +474,117 @@ export default function UsersList() {
                 </Button>
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Detalhes do Usuário */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="bg-[#312e26] border-[#D47C06] text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary">Detalhes do Usuário</DialogTitle>
+          </DialogHeader>
+          {usuarioDetalhes && (
+            <div className="space-y-6">
+              {/* Informações Básicas */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-accent">Nome Completo</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    {usuarioDetalhes.nome}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-accent">Email</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    {usuarioDetalhes.email}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-accent">CPF</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    {usuarioDetalhes.cpf}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-accent">Telefone</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    {usuarioDetalhes.telefone || 'Não informado'}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-accent">Papel</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    <Badge variant={getPapelBadge(usuarioDetalhes.papel).variant}>
+                      {getPapelBadge(usuarioDetalhes.papel).label}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-accent">Status</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    <Badge variant={usuarioDetalhes.ativo ? "default" : "secondary"}>
+                      {usuarioDetalhes.ativo ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Escolas Vinculadas */}
+              {usuarioDetalhes.escolas_vinculadas && usuarioDetalhes.escolas_vinculadas.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-accent">Escolas Vinculadas</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    <div className="flex flex-wrap gap-2">
+                      {usuarioDetalhes.escolas_vinculadas.map((escola: any) => (
+                        <Badge key={escola.id} variant="outline" className="text-accent">
+                          <School className="h-3 w-3 mr-1" />
+                          {escola.nome}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Detalhes Específicos do Perfil */}
+              {usuarioDetalhes.detalhes_perfil && Object.keys(usuarioDetalhes.detalhes_perfil).length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-accent">Informações do Perfil</Label>
+                  <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {Object.entries(usuarioDetalhes.detalhes_perfil).map(([key, value]) => {
+                        if (key === 'id' || key === 'usuario_id' || key === 'escola_id' || key === 'escolas_vinculadas') return null;
+                        return (
+                          <div key={key} className="flex justify-between">
+                            <span className="text-accent capitalize">{key.replace('_', ' ')}:</span>
+                            <span className="text-white">{String(value) || 'N/A'}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Data de Criação */}
+              <div className="space-y-2">
+                <Label className="text-accent">Criado em</Label>
+                <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
+                  {new Date(usuarioDetalhes.criado_em).toLocaleString('pt-BR')}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDetailDialogOpen(false)}
+                  className="border-[#D47C06] text-[#D47C06] hover:bg-[#D47C06] hover:text-white"
+                >
+                  Fechar
                 </Button>
               </div>
             </div>
