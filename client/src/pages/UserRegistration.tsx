@@ -89,14 +89,17 @@ export default function UserRegistration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [escolas, setEscolas] = useState<any[]>([]);
+  const [formStep, setFormStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date>();
+  const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
+  const [showSchoolSelection, setShowSchoolSelection] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
   // Estados de validação de unicidade
   const [unicityValidation, setUnicityValidation] = useState({
-    cpf: { valid: true, checking: false, error: '' },
-    email: { valid: true, checking: false, error: '' },
-    telefone: { valid: true, checking: false, error: '' }
+    cpf: { valid: false, checking: false, error: '' },
+    email: { valid: false, checking: false, error: '' },
+    telefone: { valid: false, checking: false, error: '' }
   });
 
   // Formulário com validação rigorosa em tempo real
@@ -121,7 +124,47 @@ export default function UserRegistration() {
   // Observar todos os campos para validação rigorosa em tempo real
   const watchedFields = form.watch();
   
-  // Validação do formulário - simples e funcional
+  // Função para validar unicidade de um campo
+  const validateUnicity = async (campo: string, valor: string) => {
+    if (!valor || valor.trim() === '') return;
+    
+    // Marcar como checando
+    setUnicityValidation(prev => ({
+      ...prev,
+      [campo]: { ...prev[campo], checking: true, error: '' }
+    }));
+    
+    try {
+      const response = await apiRequest('POST', '/api/usuarios/verificar-unicidade', {
+        campo,
+        valor: valor.trim()
+      });
+      
+      const { disponivel } = response as any;
+      
+      setUnicityValidation(prev => ({
+        ...prev,
+        [campo]: { 
+          valid: disponivel, 
+          checking: false, 
+          error: disponivel ? '' : `${campo.toUpperCase()} já cadastrado no sistema`
+        }
+      }));
+      
+    } catch (error) {
+      console.error('Erro na validação de unicidade:', error);
+      setUnicityValidation(prev => ({
+        ...prev,
+        [campo]: { 
+          valid: false, 
+          checking: false, 
+          error: 'Erro ao verificar disponibilidade'
+        }
+      }));
+    }
+  };
+
+  // Validação completa do formulário
   const isFormValid = () => {
     const values = form.getValues();
     
@@ -134,12 +177,23 @@ export default function UserRegistration() {
                                values.cpf?.trim() && 
                                values.senha?.trim());
     
-    // Para alunos, validar campos específicos
-    if (values.papel === "aluno") {
-      return basicFieldsValid && !!(values.turma_id?.trim() && values.numero_matricula?.trim()) && !isSubmitting;
+    // Validar unicidade dos campos críticos
+    const unicityValid = unicityValidation.cpf.valid && 
+                        unicityValidation.email.valid && 
+                        unicityValidation.telefone.valid;
+    
+    if (formStep === 0) {
+      return basicFieldsValid && unicityValid;
+    } else if (formStep === 1) {
+      let roleSpecificValid = true;
+      if (values.papel === "aluno") {
+        roleSpecificValid = !!(values.turma_id?.trim() && values.numero_matricula?.trim());
+      }
+      
+      return basicFieldsValid && unicityValid && roleSpecificValid && !isSubmitting;
     }
     
-    return basicFieldsValid && !isSubmitting;
+    return false;
   };
 
   // Carregar turmas e escolas disponíveis
