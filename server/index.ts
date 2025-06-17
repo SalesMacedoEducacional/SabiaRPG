@@ -19,31 +19,30 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    // Buscar escolas com consultas simples no Supabase
-    const { data: escolas } = await supabase
-      .from('escolas')
-      .select('*')
-      .in('id', escolaIds);
+    // Buscar dados reais do banco usando PostgreSQL direto
+    const escolasResult = await executeQuery(
+      'SELECT * FROM escolas WHERE id = ANY($1)',
+      [escolaIds]
+    );
+    const escolas = escolasResult.rows;
     
-    // Contar professores através dos perfis
-    const { count: totalProfessores } = await supabase
-      .from('perfis_professor')
-      .select('id', { count: 'exact', head: true })
-      .in('escola_id', escolaIds)
-      .eq('ativo', true);
+    const professoresResult = await executeQuery(
+      'SELECT COUNT(*) as count FROM perfis_professor WHERE escola_id = ANY($1) AND ativo = true',
+      [escolaIds]
+    );
+    const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
-    // Contar alunos através das turmas
-    const { count: totalAlunos } = await supabase
-      .from('usuarios')
-      .select('id', { count: 'exact', head: true })
-      .eq('papel', 'student');
+    const alunosResult = await executeQuery(
+      'SELECT COUNT(*) as count FROM usuarios u INNER JOIN perfis_aluno pa ON u.id = pa.usuario_id INNER JOIN turmas t ON pa.turma_id = t.id WHERE u.papel = $1 AND t.escola_id = ANY($2)',
+      ['student', escolaIds]
+    );
+    const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
-    // Contar turmas ativas
-    const { count: turmasAtivas } = await supabase
-      .from('turmas')
-      .select('id', { count: 'exact', head: true })
-      .in('escola_id', escolaIds)
-      .eq('ativo', true);
+    const turmasResult = await executeQuery(
+      'SELECT COUNT(*) as count FROM turmas WHERE escola_id = ANY($1) AND ativo = true',
+      [escolaIds]
+    );
+    const turmasAtivas = parseInt(turmasResult.rows[0]?.count || '0');
     
     console.log('Contadores reais do banco:', {
       escolas: escolas?.length || 0,
