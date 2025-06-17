@@ -51,21 +51,35 @@ export default function UsersListFixed() {
   const carregarUsuarios = async () => {
     try {
       setIsLoading(true);
-      console.log("🔄 Carregando usuários...");
+      console.log("CARREGANDO USUARIOS - INICIO");
       
       const response = await apiRequest("GET", "/api/usuarios");
-      console.log("📋 Resposta completa da API:", response);
+      console.log("RESPOSTA RAW:", response);
       
-      if (response && (response as any).usuarios) {
-        const usuariosData = (response as any).usuarios;
-        console.log(`✅ ${usuariosData.length} usuários carregados:`, usuariosData);
-        setUsuarios(usuariosData);
+      // Extrair dados do Response object
+      const responseData = await response.json();
+      console.log("DADOS EXTRAIDOS DO JSON:", responseData);
+      
+      let usuariosData = [];
+      
+      if (responseData && Array.isArray(responseData)) {
+        usuariosData = responseData;
+      } else if (responseData && responseData.usuarios && Array.isArray(responseData.usuarios)) {
+        usuariosData = responseData.usuarios;
+      } else if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        usuariosData = responseData.data;
       } else {
-        console.error("❌ Formato de resposta inválido:", response);
-        setUsuarios([]);
+        console.error("FORMATO NAO RECONHECIDO:", responseData);
+        usuariosData = [];
       }
+      
+      console.log("USUARIOS FINAIS:", usuariosData);
+      console.log("QUANTIDADE FINAL:", usuariosData.length);
+      
+      setUsuarios(usuariosData);
+      
     } catch (error) {
-      console.error("💥 Erro ao carregar usuários:", error);
+      console.error("ERRO TOTAL:", error);
       setUsuarios([]);
       toast({
         title: "Erro ao carregar usuários",
@@ -79,7 +93,9 @@ export default function UsersListFixed() {
 
   const carregarEscolas = async () => {
     try {
-      const data = await apiRequest("GET", "/api/escolas/gestor");
+      const response = await apiRequest("GET", "/api/escolas/gestor");
+      const data = await response.json();
+      
       if (Array.isArray(data)) {
         setEscolas(data);
       } else {
@@ -226,12 +242,18 @@ export default function UsersListFixed() {
     }
   };
 
-  // Debug logs
-  console.log("🔍 ESTADO ATUAL:");
-  console.log("- Usuários carregados:", usuarios.length);
-  console.log("- Usuários filtrados:", usuariosFiltrados.length);
-  console.log("- Carregando:", isLoading);
-  console.log("- Contadores:", { totalUsuarios, usuariosAtivos, professores, alunos, gestores });
+  // Debug logs críticos
+  console.log("=== ESTADO CRÍTICO DO COMPONENTE ===");
+  console.log("- Array usuarios:", usuarios);
+  console.log("- Tamanho usuarios:", usuarios.length);
+  console.log("- Array usuariosFiltrados:", usuariosFiltrados);
+  console.log("- Tamanho usuariosFiltrados:", usuariosFiltrados.length);
+  console.log("- IsLoading:", isLoading);
+  console.log("- Contadores calculados:", { totalUsuarios, usuariosAtivos, professores, alunos, gestores });
+  console.log("- Busca atual:", busca);
+  console.log("- Filtro escola:", filtroEscola);
+  console.log("- Filtro papel:", filtroPapel);
+  console.log("=====================================");
 
   return (
     <div className="space-y-6">
