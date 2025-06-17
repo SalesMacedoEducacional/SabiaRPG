@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowLeft, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
@@ -12,8 +12,16 @@ import { apiRequest } from "@/lib/queryClient";
 
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -118,22 +126,56 @@ export default function UserRegistrationSingle() {
       try {
         // Carregar turmas
         const turmasResponse = await apiRequest("GET", "/api/turmas");
-        if (turmasResponse) {
-          setTurmas(Array.isArray(turmasResponse) ? turmasResponse : []);
+        if (turmasResponse.ok) {
+          const turmasData = await turmasResponse.json();
+          setTurmas(Array.isArray(turmasData) ? turmasData : []);
         }
 
         // Carregar escolas
         const escolasResponse = await apiRequest("GET", "/api/escolas/todas");
-        if (escolasResponse) {
-          setEscolas(Array.isArray(escolasResponse) ? escolasResponse : []);
+        if (escolasResponse.ok) {
+          const escolasData = await escolasResponse.json();
+          setEscolas(Array.isArray(escolasData) ? escolasData : []);
         }
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar algumas informações necessárias.",
+          variant: "destructive",
+        });
       }
     };
 
     fetchData();
-  }, []);
+  }, [toast]);
+
+  // Aplicar máscaras
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    if (value.length <= 10) {
+      value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
+      value = value.replace(/(\d)(\d{4})$/, "$1-$2");
+    } else {
+      value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
+      value = value.replace(/(\d)(\d{4})$/, "$1-$2");
+    }
+    
+    form.setValue("telefone", value);
+  };
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    value = value.replace(/^(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    value = value.replace(/\.(\d{3})(\d)/, ".$1-$2");
+    
+    form.setValue("cpf", value);
+  };
 
   // Submissão do formulário
   const onSubmit = async (data: UserFormData) => {
@@ -147,10 +189,9 @@ export default function UserRegistrationSingle() {
     }
 
     setIsSubmitting(true);
+    setValidationErrors([]);
     
-    try {
-      console.log("Dados do formulário:", data);
-      
+    try {      
       const payload = {
         nome_completo: data.nome_completo,
         email: data.email,
@@ -164,12 +205,14 @@ export default function UserRegistrationSingle() {
           numero_matricula: data.numero_matricula,
         }),
       };
-
-      console.log("Enviando payload:", payload);
       
       const response = await apiRequest("POST", "/api/usuarios", payload);
       
-      // Sucesso
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ erro: "Erro desconhecido" }));
+        throw new Error(errorData.erro || errorData.message || "Erro ao cadastrar usuário");
+      }
+      
       toast({
         title: "Usuário cadastrado com sucesso!",
         description: `${data.nome_completo} foi adicionado ao sistema.`,
@@ -189,17 +232,13 @@ export default function UserRegistrationSingle() {
           numero_matricula: "",
           escola_id: "",
         });
-        
         setSelectedDate(undefined);
       });
       
-      // Refresh automático
       await refreshAfterCreate("usuário");
       
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
-      
-      setValidationErrors([]);
       
       let errorMessage = "Erro ao processar cadastro";
       let errors: string[] = [];
@@ -225,18 +264,66 @@ export default function UserRegistrationSingle() {
     }
   };
 
+  // Verificar permissão de acesso
+  useEffect(() => {
+    if (user && user.role !== 'manager') {
+      toast({
+        title: "Acesso negado",
+        description: "Você não tem permissão para acessar esta página.",
+        variant: "destructive",
+      });
+      setLocation("/");
+    }
+  }, [user, setLocation, toast]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#312e26] via-[#3c3830] to-[#8c7851] p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-[#f5e6cb] rounded-lg shadow-xl p-8 border-2 border-[#d4a054]">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-[#312e26] mb-2">
-              Cadastro de Novo Usuário
-            </h1>
-            <p className="text-[#8c7851]">
-              Preencha todos os campos para criar um novo usuário no sistema
-            </p>
+    <div className="container mx-auto p-4 max-w-4xl min-h-screen py-10">
+      <div className="mb-8 border-b border-primary/40 pb-4">
+        <h1 className="text-3xl font-bold mb-2 text-parchment font-medieval">CADASTRO DE USUÁRIOS</h1>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setLocation("/manager")}
+            className="border-primary text-parchment hover:bg-dark-light"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
+      </div>
+
+      <Card className="w-full border border-primary shadow-md bg-dark-light">
+        <CardHeader className="space-y-1 border-b border-primary/60 bg-dark">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-dark p-3 rounded-full border border-accent">
+              <UserPlus className="h-10 w-10 text-accent" />
+            </div>
           </div>
+          <CardTitle className="text-2xl text-center text-parchment font-medieval">Cadastrar Novo Usuário</CardTitle>
+          <CardDescription className="text-center text-parchment-dark">
+            Preencha os dados do novo usuário para cadastrá-lo na plataforma SABIÁ RPG
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pb-4 p-6">
+          {/* Exibir erros de validação */}
+          {validationErrors.length > 0 && (
+            <div className="mb-6 p-4 border border-red-400 rounded-md bg-red-50">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+                <h3 className="text-red-800 font-semibold">Dados já cadastrados</h3>
+              </div>
+              <ul className="text-red-700 space-y-1">
+                {validationErrors.map((error, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="w-1 h-1 bg-red-600 rounded-full"></span>
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -246,16 +333,16 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="nome_completo"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#312e26] font-semibold">Nome Completo</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Nome Completo *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Digite o nome completo" 
                           {...field}
-                          className="border-[#8c7851] focus:border-[#d4a054]"
+                          className="border-primary bg-dark text-parchment focus:ring-accent"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -265,17 +352,17 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#312e26] font-semibold">Email</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Email *</FormLabel>
                       <FormControl>
                         <Input 
                           type="email"
                           placeholder="exemplo@email.com" 
                           {...field}
-                          className="border-[#8c7851] focus:border-[#d4a054]"
+                          className="border-primary bg-dark text-parchment focus:ring-accent"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -285,16 +372,17 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="telefone"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#312e26] font-semibold">Telefone</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Telefone *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="(99) 99999-9999" 
                           {...field}
-                          className="border-[#8c7851] focus:border-[#d4a054]"
+                          onChange={handlePhoneChange}
+                          className="border-primary bg-dark text-parchment focus:ring-accent"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -475,15 +563,22 @@ export default function UserRegistrationSingle() {
                 <Button
                   type="submit"
                   disabled={!isFormValid() || isSubmitting}
-                  className="w-full max-w-md bg-[#8c7851] hover:bg-[#d4a054] text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300"
+                  className="w-full max-w-md bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300"
                 >
-                  {isSubmitting ? "Cadastrando..." : "Cadastrar Usuário"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Cadastrando...
+                    </>
+                  ) : (
+                    "Cadastrar Usuário"
+                  )}
                 </Button>
               </div>
             </form>
           </Form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
