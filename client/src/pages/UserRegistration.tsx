@@ -115,27 +115,39 @@ export default function UserRegistration() {
   // Observar todos os campos para validação rigorosa em tempo real
   const watchedFields = form.watch();
   
-  // Validação rigorosa - todos os campos obrigatórios
+  // Validação baseada na etapa atual do formulário
   const isFormValid = () => {
     const { formState } = form;
     const hasErrors = Object.keys(formState.errors).length > 0;
     
-    // Verificar campos obrigatórios básicos
-    const basicFieldsValid = !!(watchedFields.nome_completo && 
-                               watchedFields.email && 
-                               watchedFields.telefone && 
-                               watchedFields.data_nascimento && 
-                               watchedFields.papel && 
-                               watchedFields.cpf && 
-                               watchedFields.senha);
-    
-    // Validação específica por papel
-    let roleSpecificValid = true;
-    if (watchedFields.papel === "aluno") {
-      roleSpecificValid = !!(watchedFields.turma_id && watchedFields.numero_matricula);
+    if (formStep === 0) {
+      // Primeira etapa - apenas campos básicos
+      return !!(watchedFields.nome_completo && 
+                watchedFields.email && 
+                watchedFields.telefone && 
+                watchedFields.data_nascimento && 
+                watchedFields.papel && 
+                watchedFields.cpf && 
+                watchedFields.senha) && !hasErrors;
+    } else if (formStep === 1) {
+      // Segunda etapa - incluir campos específicos do papel
+      const basicFieldsValid = !!(watchedFields.nome_completo && 
+                                 watchedFields.email && 
+                                 watchedFields.telefone && 
+                                 watchedFields.data_nascimento && 
+                                 watchedFields.papel && 
+                                 watchedFields.cpf && 
+                                 watchedFields.senha);
+      
+      let roleSpecificValid = true;
+      if (watchedFields.papel === "aluno") {
+        roleSpecificValid = !!(watchedFields.turma_id && watchedFields.numero_matricula);
+      }
+      
+      return basicFieldsValid && roleSpecificValid && !hasErrors && !isSubmitting;
     }
     
-    return basicFieldsValid && roleSpecificValid && !hasErrors && !isSubmitting;
+    return false;
   };
 
   // Carregar turmas e escolas disponíveis

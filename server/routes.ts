@@ -2471,17 +2471,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Dados recebidos:', req.body);
     
     try {
-      const { nome_completo, email, telefone, data_nascimento, papel, cpf } = req.body;
+      const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha, turma_id, numero_matricula, escola_id } = req.body;
       
       // Validações básicas
-      if (!nome_completo || !email || !papel) {
+      if (!nome_completo || !email || !papel || !senha) {
         return res.status(400).json({ 
           erro: 'Campos obrigatórios faltando',
-          detalhes: 'Nome, email e papel são obrigatórios'
+          detalhes: 'Nome, email, papel e senha são obrigatórios'
         });
       }
 
-      // Simular inserção bem-sucedida para teste
+      // Hash da senha
+      const senhaHash = await bcrypt.hash(senha, 10);
+
+      // Preparar dados reais do usuário
       const novoUsuario = {
         id: crypto.randomUUID(),
         nome: nome_completo,
@@ -2490,50 +2493,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data_nascimento: data_nascimento || null,
         papel,
         cpf: cpf || '',
+        senha_hash: senhaHash,
         ativo: true,
-        criado_em: new Date().toISOString()
+        criado_em: new Date().toISOString(),
+        atualizado_em: new Date().toISOString()
       };
 
-      console.log('Usuário preparado para inserção:', novoUsuario);
+      console.log('Inserindo usuário real:', { ...novoUsuario, senha_hash: '[HASH]' });
 
-      // Tentar inserir na tabela temporária
-      try {
-        const { data: usuarioInserido, error } = await supabase
-          .from('usuarios_temp')
-          .insert([novoUsuario])
-          .select()
-          .single();
+      // Inserir no banco de dados real
+      const { data: usuarioInserido, error } = await supabase
+        .from('usuarios')
+        .insert([novoUsuario])
+        .select()
+        .single();
 
-        if (error) {
-          console.error('Erro específico do Supabase:', error);
-          // Se falhar, retornar sucesso simulado para o frontend
-          return res.status(201).json({ 
-            sucesso: true,
-            usuario: novoUsuario,
-            mensagem: 'Usuário cadastrado com sucesso (simulado)',
-            detalhes: 'Inserção simulada devido a restrições do banco'
-          });
-        }
-
-        console.log('Usuário inserido com sucesso no banco:', usuarioInserido.id);
-
-        return res.status(201).json({ 
-          sucesso: true,
-          usuario: usuarioInserido,
-          mensagem: 'Usuário cadastrado com sucesso'
-        });
-
-      } catch (dbError) {
-        console.error('Erro na tentativa de inserção:', dbError);
-        
-        // Retornar sucesso simulado para o frontend
-        return res.status(201).json({ 
-          sucesso: true,
-          usuario: novoUsuario,
-          mensagem: 'Usuário cadastrado com sucesso (simulado)',
-          detalhes: 'Cadastro processado com sucesso'
+      if (error) {
+        console.error('Erro ao inserir usuário:', error);
+        return res.status(500).json({ 
+          erro: 'Erro ao cadastrar usuário',
+          detalhes: error.message
         });
       }
+
+      console.log('Usuário inserido com sucesso:', usuarioInserido.id);
+
+      // Criar registros específicos baseados no papel
+      if (papel === 'aluno' && turma_id && numero_matricula) {
+        const { error: alunoError } = await supabase
+          .from('alunos')
+          .insert([{
+            id: crypto.randomUUID(),
+            usuario_id: usuarioInserido.id,
+            turma_id,
+            numero_matricula,
+            escola_id: escola_id || null,
+            ativo: true
+          }]);
+
+        if (alunoError) {
+          console.error('Erro ao criar registro de aluno:', alunoError);
+        }
+      } else if (papel === 'professor' && escola_id) {
+        const { error: professorError } = await supabase
+          .from('professores')
+          .insert([{
+            id: crypto.randomUUID(),
+            usuario_id: usuarioInserido.id,
+            escola_id,
+            ativo: true
+          }]);
+
+        if (professorError) {
+          console.error('Erro ao criar registro de professor:', professorError);
+        }
+      } else if (papel === 'gestor' && escola_id) {
+        const { error: gestorError } = await supabase
+          .from('gestores')
+          .insert([{
+            id: crypto.randomUUID(),
+            usuario_id: usuarioInserido.id,
+            escola_id,
+            ativo: true
+          }]);
+
+        if (gestorError) {
+          console.error('Erro ao criar registro de gestor:', gestorError);
+        }
+      }
+
+      return res.status(201).json({ 
+        sucesso: true,
+        usuario: {
+          id: usuarioInserido.id,
+          nome: usuarioInserido.nome,
+          email: usuarioInserido.email,
+          papel: usuarioInserido.papel
+        },
+        mensagem: 'Usuário cadastrado com sucesso'
+      });
       
     } catch (error) {
       console.error('Erro crítico no endpoint:', error);
