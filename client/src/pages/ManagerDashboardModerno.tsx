@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
+import { useSchool } from '@/context/SchoolContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
   TotalEscolasCard, 
@@ -57,6 +58,14 @@ import {
  */
 export default function ManagerDashboardModerno() {
   const { user, logout } = useAuth();
+  const { 
+    escolasVinculadas, 
+    dashboardStats, 
+    isLoading: schoolLoading, 
+    error: schoolError, 
+    refreshStats,
+    hasEscolasVinculadas 
+  } = useSchool();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [activeMenu, setActiveMenu] = useState("overview");
@@ -91,9 +100,41 @@ export default function ManagerDashboardModerno() {
       window.location.href = "/auth";
     }
   }, [user]);
+
+  // Verificação de escolas vinculadas e tratamento de erros
+  useEffect(() => {
+    if (schoolError && schoolError.includes('não possui escolas vinculadas')) {
+      toast({
+        title: "Nenhuma escola vinculada",
+        description: "Você não possui escolas vinculadas. Será redirecionado para o cadastro de escola.",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        navigate('/school-registration');
+      }, 2000);
+    } else if (schoolError) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: schoolError,
+        variant: "destructive",
+      });
+    }
+  }, [schoolError, navigate, toast]);
   
   if (!user) {
     return null;
+  }
+
+  // Exibir loader enquanto carrega dados das escolas
+  if (schoolLoading && !dashboardStats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando dados das escolas vinculadas...</p>
+        </div>
+      </div>
+    );
   }
 
   // Toggle do sidebar

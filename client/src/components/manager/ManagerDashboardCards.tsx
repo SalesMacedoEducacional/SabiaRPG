@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSchool } from "@/context/SchoolContext";
 import { apiRequest } from "@/lib/queryClient";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { 
@@ -83,37 +84,17 @@ interface Turma {
 export function TotalEscolasCard() {
   const { toast } = useToast();
   const { refreshAll } = useAutoRefresh();
-  const [totalEscolas, setTotalEscolas] = useState<number>(0);
-  const [escolas, setEscolas] = useState<Escola[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiRequest("GET", "/api/escolas");
-      const data = await response.json();
-      
-      setTotalEscolas(data.total || 0);
-      setEscolas(data.escolas || []);
-    } catch (error) {
-      console.error("Erro ao buscar escolas:", error);
-      toast({
-        title: "Erro ao carregar escolas",
-        description: "Não foi possível carregar as informações de escolas",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Usar dados do contexto de escolas
+  const totalEscolas = dashboardStats?.totalEscolas || 0;
+  const escolas = escolasVinculadas || [];
 
   useEffect(() => {
-    fetchData();
-
     // Listeners para refresh automático
     const handleRefresh = () => {
-      fetchData();
+      refreshStats();
     };
 
     window.addEventListener('refreshAllData', handleRefresh);
@@ -123,7 +104,7 @@ export function TotalEscolasCard() {
       window.removeEventListener('refreshAllData', handleRefresh);
       window.removeEventListener('refreshSchoolData', handleRefresh);
     };
-  }, [toast]);
+  }, [refreshStats]);
 
   return (
     <>
@@ -204,39 +185,14 @@ export function TotalEscolasCard() {
 export function TotalProfessoresCard() {
   const { toast } = useToast();
   const { refreshAll } = useAutoRefresh();
-  const [totalProfessores, setTotalProfessores] = useState<number>(0);
+  const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const [professores, setProfessores] = useState<Professor[]>([]);
-  const [escolas, setEscolas] = useState<Escola[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Buscar count de professores e escolas em paralelo
-      const [professoresResponse, escolasResponse] = await Promise.all([
-        apiRequest("GET", "/api/professores/count"),
-        apiRequest("GET", "/api/escolas/gestor")
-      ]);
-      
-      const professoresData = await professoresResponse.json();
-      const escolasData = await escolasResponse.json();
-      
-      setTotalProfessores(professoresData.count || 0);
-      setEscolas(escolasData || []);
-    } catch (error) {
-      console.error("Erro ao buscar professores:", error);
-      toast({
-        title: "Erro ao carregar professores",
-        description: "Não foi possível carregar as informações de professores",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Usar dados do contexto de escolas
+  const totalProfessores = dashboardStats?.totalProfessores || 0;
+  const escolas = escolasVinculadas || [];
 
   const fetchProfessoresDetalhes = async () => {
     try {
