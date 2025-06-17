@@ -53,14 +53,20 @@ export default function UsersList() {
     try {
       setIsLoading(true);
       console.log("Carregando usuários...");
-      const data = await apiRequest("GET", "/api/usuarios");
+      const response = await apiRequest("GET", "/api/usuarios");
+      console.log("Resposta completa da API:", response);
       
-      if (data.usuarios) {
-        console.log("Usuários carregados:", data.usuarios.length);
-        setUsuarios(data.usuarios);
+      // Extrair dados da resposta - pode estar em response.usuarios ou diretamente no response
+      let usuariosData = [];
+      if (response && typeof response === 'object') {
+        usuariosData = response.usuarios || response.data || (Array.isArray(response) ? response : []);
       }
+      
+      console.log("Dados extraídos dos usuários:", usuariosData);
+      setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
+      setUsuarios([]);
       toast({
         title: "Erro ao carregar usuários",
         description: "Não foi possível carregar a lista de usuários",
@@ -75,10 +81,18 @@ export default function UsersList() {
     try {
       console.log("Carregando escolas...");
       const data = await apiRequest("GET", "/api/escolas/gestor");
-      console.log("Escolas carregadas:", data.length);
-      setEscolas(data || []);
+      console.log("Escolas recebidas:", data);
+      
+      // Garantir que sempre temos um array
+      if (Array.isArray(data)) {
+        setEscolas(data);
+      } else {
+        console.warn("Dados de escolas não são um array:", data);
+        setEscolas([]);
+      }
     } catch (error) {
       console.error("Erro ao buscar escolas:", error);
+      setEscolas([]);
     }
   };
 
@@ -319,7 +333,8 @@ export default function UsersList() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                   <SelectItem value="todas">Todas as escolas</SelectItem>
-                  {escolas.map((escola) => (
+                  <SelectItem value="geral">Geral</SelectItem>
+                  {Array.isArray(escolas) && escolas.map((escola) => (
                     <SelectItem key={escola.id} value={escola.id}>
                       {escola.nome}
                     </SelectItem>
