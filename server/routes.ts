@@ -2374,7 +2374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ========== ENDPOINTS COMPLETOS DE GESTÃO DE USUÁRIOS ==========
   
   // GET - Buscar todos os usuários com escolas vinculadas
-  app.get("/api/usuarios", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
@@ -2470,7 +2470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET - Contadores de usuários por papel
-  app.get("/api/usuarios/contadores", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios/contadores", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
     try {
       console.log("=== CALCULANDO CONTADORES DE USUÁRIOS ===");
       
@@ -2532,7 +2532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET - Buscar usuário específico com detalhes completos
-  app.get("/api/usuarios/:id", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+  app.get("/api/usuarios/:id", authenticateCustom, requireRole(["admin", "manager"]), async (req, res) => {
     try {
       const { id } = req.params;
       console.log(`=== BUSCANDO DETALHES DO USUÁRIO: ${id} ===`);
@@ -2553,60 +2553,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let escolasVinculadas = [];
 
       if (usuario.papel === 'manager') {
-        const { data: perfilGestor } = await supabase
+        console.log('Buscando detalhes do gestor...');
+        
+        // Buscar perfil do gestor
+        const { data: perfilGestor, error: gestorError } = await supabase
           .from('perfis_gestor')
-          .select(`
-            *,
-            escolas:escolas_vinculadas (
-              id,
-              nome,
-              endereco,
-              telefone
-            )
-          `)
-          .eq('usuario_id', id)
-          .single();
-
-        if (perfilGestor) {
-          detalhesEspecificos = perfilGestor;
-          if (perfilGestor.escolas_vinculadas) {
-            const { data: escolas } = await supabase
-              .from('escolas')
-              .select('id, nome, endereco, telefone')
-              .in('id', perfilGestor.escolas_vinculadas);
-            escolasVinculadas = escolas || [];
-          }
-        }
-      } else if (usuario.papel === 'teacher') {
-        const { data: perfilProfessor } = await supabase
-          .from('perfis_professor')
-          .select(`
-            *,
-            escola:escola_id (
-              id,
-              nome,
-              endereco,
-              telefone
-            )
-          `)
-          .eq('usuario_id', id)
-          .single();
-
-        if (perfilProfessor) {
-          detalhesEspecificos = perfilProfessor;
-          if (perfilProfessor.escola) {
-            escolasVinculadas = [perfilProfessor.escola];
-          }
-        }
-      } else if (usuario.papel === 'student') {
-        const { data: perfilAluno } = await supabase
-          .from('perfis_aluno')
           .select('*')
           .eq('usuario_id', id)
           .single();
 
-        if (perfilAluno) {
+        if (perfilGestor && !gestorError) {
+          detalhesEspecificos = perfilGestor;
+          console.log('Perfil do gestor encontrado:', perfilGestor);
+          
+          // Buscar escolas vinculadas através da tabela de relacionamento
+          const { data: vinculosEscolas, error: vinculosError } = await supabase
+            .from('escolas_vinculadas')
+            .select(`
+              escolas (
+                id,
+                nome,
+                endereco,
+                telefone,
+                email
+              )
+            `)
+            .eq('gestor_id', perfilGestor.id);
+
+          if (vinculosEscolas && !vinculosError) {
+            escolasVinculadas = vinculosEscolas.map(v => v.escolas).filter(Boolean);
+            console.log('Escolas vinculadas encontradas:', escolasVinculadas);
+          }
+        }
+      } else if (usuario.papel === 'teacher') {
+        console.log('Buscando detalhes do professor...');
+        
+        const { data: perfilProfessor, error: professorError } = await supabase
+          .from('perfis_professor')
+          .select(`
+            *,
+            escolas (
+              id,
+              nome,
+              endereco,
+              telefone,
+              email
+            )
+          `)
+          .eq('usuario_id', id)
+          .single();
+
+        if (perfilProfessor && !professorError) {
+          detalhesEspecificos = perfilProfessor;
+          if (perfilProfessor.escolas) {
+            escolasVinculadas = [perfilProfessor.escolas];
+          }
+          console.log('Perfil do professor encontrado:', perfilProfessor);
+        }
+      } else if (usuario.papel === 'student') {
+        console.log('Buscando detalhes do aluno...');
+        
+        const { data: perfilAluno, error: alunoError } = await supabase
+          .from('perfis_aluno')
+          .select(`
+            *,
+            escolas (
+              id,
+              nome,
+              endereco,
+              telefone,
+              email
+            )
+          `)
+          .eq('usuario_id', id)
+          .single();
+
+        if (perfilAluno && !alunoError) {
           detalhesEspecificos = perfilAluno;
+          if (perfilAluno.escolas) {
+            escolasVinculadas = [perfilAluno.escolas];
+          }
+          console.log('Perfil do aluno encontrado:', perfilAluno);
         }
       }
 

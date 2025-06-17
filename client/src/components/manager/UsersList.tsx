@@ -506,7 +506,7 @@ export default function UsersList() {
                 <div className="space-y-2">
                   <Label className="text-accent">CPF</Label>
                   <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
-                    {usuarioDetalhes.cpf}
+                    {usuarioDetalhes.cpf || 'Não informado'}
                   </div>
                 </div>
                 <div className="space-y-2">
