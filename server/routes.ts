@@ -2382,148 +2382,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Criar lista completa de usuários combinando dados conhecidos e novos cadastros
       console.log('Montando lista completa de usuários com dados reais...');
       
-      // Lista de usuários base conhecidos + novos usuários do banco
-      const usuariosBase = [
-        {
-          id: '72e7feef-0741-46ec-bdb4-68dcdfc6defe',
-          nome: 'Gestor Teste',
-          email: 'gestor@sabiarpg.edu.br',
-          cpf: '000.000.000-44',
-          telefone: '(86) 99999-0001',
-          papel: 'gestor',
-          ativo: true,
-          criado_em: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: '4813f089-70f1-4c27-995f-6badc90a4359',
-          nome: 'Professor Teste',
-          email: 'professor@sabiarpg.edu.br',
-          cpf: '000.000.000-22',
-          telefone: '(86) 99999-0002',
-          papel: 'professor',
-          ativo: true,
-          criado_em: '2024-01-15T11:00:00Z'
-        },
-        {
-          id: 'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982',
-          nome: 'Aluno Teste',
-          email: 'aluno@sabiarpg.edu.br',
-          cpf: '000.000.000-25',
-          telefone: '(86) 99999-0003',
-          papel: 'aluno',
-          ativo: true,
-          criado_em: '2024-01-15T12:00:00Z'
-        },
-        {
-          id: '3160b4a2-a457-420b-87aa-07f1ee32eade',
-          nome: 'Usuário Novo Cadastro',
-          email: 'salanivariedades@gmail.com',
-          cpf: '333.333.333-33',
-          telefone: '',
-          papel: 'aluno',
-          ativo: true,
-          criado_em: '2025-06-17T09:03:01Z'
-        }
-      ];
-
-      // Para resolver limitações do RLS, vou usar apenas os usuários base e expandir gradualmente
-      console.log('Usando dados base garantidos + busca adicional...');
-      console.log('Debug: usuariosBase.length =', usuariosBase.length);
+      // Buscar APENAS usuários reais do banco de dados, sem dados fictícios
+      console.log('Buscando apenas usuários reais do banco de dados...');
       
-      // Primeiro, garantir que temos os usuários base funcionando
-      let usuarios = [...usuariosBase];
-      console.log(`Usuários base carregados: ${usuarios.length}`);
+      let usuarios = [];
+      let usuariosError = null;
       
       try {
-        // Tentar buscar usuários adicionais sem filtros restritivos
-        const { data: usuariosAdicionais } = await supabase
+        // Buscar todos os usuários reais do banco
+        const { data: usuariosReais, error } = await supabase
           .from('usuarios')
           .select('*')
-          .limit(50);
+          .not('cpf', 'is', null)
+          .not('cpf', 'eq', '')
+          .order('criado_em', { ascending: false });
         
-        if (usuariosAdicionais && usuariosAdicionais.length > 0) {
-          const idsBase = new Set(usuariosBase.map(u => u.id));
-          
-          usuariosAdicionais.forEach(usuarioDB => {
-            // Só adicionar se não estiver nos usuários base e tiver CPF válido
-            if (!idsBase.has(usuarioDB.id) && usuarioDB.cpf && usuarioDB.cpf.trim() !== '') {
-              usuarios.push({
-                id: usuarioDB.id,
-                nome: usuarioDB.nome || `Usuário ${usuarioDB.email?.split('@')[0] || 'Sem Nome'}`,
-                email: usuarioDB.email,
-                cpf: usuarioDB.cpf,
-                telefone: usuarioDB.telefone || '',
-                papel: usuarioDB.papel,
-                ativo: usuarioDB.ativo ?? true,
-                criado_em: usuarioDB.criado_em
-              });
-            }
-          });
+        usuariosError = error;
+        
+        if (usuariosReais && usuariosReais.length > 0) {
+          usuarios = usuariosReais.map(usuario => ({
+            id: usuario.id,
+            nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
+            email: usuario.email,
+            cpf: usuario.cpf,
+            telefone: usuario.telefone || '',
+            papel: usuario.papel,
+            ativo: usuario.ativo ?? true,
+            criado_em: usuario.criado_em
+          }));
         }
-      } catch (error) {
-        console.warn('Erro ao buscar usuários adicionais, usando apenas base:', error);
-      }
-      
-      console.log(`Total de usuários retornados: ${usuarios.length}`);
-      
-      const usuariosError = null; // Não tratar como erro crítico
-
-      // Mapeamento direto dos usuários conhecidos com suas escolas
-      const usuarioEscolaMap: Record<string, { escolaId: string; escolaNome: string }> = {
-        '72e7feef-0741-46ec-bdb4-68dcdfc6defe': { 
-          escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', 
-          escolaNome: 'CETI PAULISTANA' 
-        }, // Gestor Teste
-        '4813f089-70f1-4c27-995f-6badc90a4359': { 
-          escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', 
-          escolaNome: 'CETI PAULISTANA' 
-        }, // Professor Teste
-        'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982': { 
-          escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', 
-          escolaNome: 'U.E. DEUS NOS ACUDA' 
-        }, // Aluno Teste
-        '3160b4a2-a457-420b-87aa-07f1ee32eade': { 
-          escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', 
-          escolaNome: 'U.E. DEUS NOS ACUDA' 
-        }, // Novo usuário criado
-      };
-
-      // Mapear usuários com suas escolas usando dados reais fornecidos
-      const usuariosComEscolas = usuarios.map(usuario => {
-        const mapeamento = usuarioEscolaMap[usuario.id as string];
         
-        if (mapeamento) {
-          console.log(`${usuario.nome || usuario.email || 'Usuário sem nome'} vinculado a: ${mapeamento.escolaNome}`);
-          
-          return {
-            ...usuario,
-            escola_id: mapeamento.escolaId,
-            escola_nome: mapeamento.escolaNome,
-            escolas_vinculadas: [{ 
-              id: mapeamento.escolaId, 
-              nome: mapeamento.escolaNome 
-            }]
+        console.log(`Total de usuários reais encontrados: ${usuarios.length}`);
+        
+      } catch (error) {
+        console.error('Erro ao buscar usuários do banco:', error);
+        usuariosError = error;
+      }
+
+      // Mapear usuários com escolas baseado no papel, sem mapeamentos fixos
+      const usuariosComEscolas = usuarios.map(usuario => {
+        // Definir escola baseada no papel do usuário
+        let escolaVinculo;
+        
+        if (usuario.papel === 'gestor' || usuario.papel === 'professor') {
+          escolaVinculo = { 
+            escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', 
+            escolaNome: 'CETI PAULISTANA' 
           };
         } else {
-          // Para novos usuários sem mapeamento específico, usar escola padrão baseada no papel
-          let escolaPadrao = { escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', escolaNome: 'U.E. DEUS NOS ACUDA' };
-          
-          if (usuario.papel === 'gestor' || usuario.papel === 'professor') {
-            escolaPadrao = { escolaId: '52de4420-f16c-4260-8eb8-307c402a0260', escolaNome: 'CETI PAULISTANA' };
-          }
-          
-          console.log(`${usuario.nome || usuario.email || 'Usuário sem nome'} sem mapeamento específico - vinculado automaticamente a: ${escolaPadrao.escolaNome}`);
-          
-          return {
-            ...usuario,
-            escola_id: escolaPadrao.escolaId,
-            escola_nome: escolaPadrao.escolaNome,
-            escolas_vinculadas: [{ 
-              id: escolaPadrao.escolaId, 
-              nome: escolaPadrao.escolaNome 
-            }]
+          // aluno ou outros papéis
+          escolaVinculo = { 
+            escolaId: '3aa2a8a7-141b-42d9-af55-a656247c73b3', 
+            escolaNome: 'U.E. DEUS NOS ACUDA' 
           };
         }
+        
+        console.log(`${usuario.nome || usuario.email || 'Usuário sem nome'} (${usuario.papel}) vinculado a: ${escolaVinculo.escolaNome}`);
+        
+        return {
+          ...usuario,
+          escola_id: escolaVinculo.escolaId,
+          escola_nome: escolaVinculo.escolaNome,
+          escolas_vinculadas: [{ 
+            id: escolaVinculo.escolaId, 
+            nome: escolaVinculo.escolaNome 
+          }]
+        };
       });
 
       console.log(`Usuários encontrados: ${usuariosComEscolas.length}`);
