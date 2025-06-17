@@ -2508,9 +2508,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         criado_em: new Date().toISOString()
       };
 
-      console.log('Inserindo usuário:', novoUsuario);
+      console.log('Inserindo usuário diretamente:', novoUsuario);
 
-      // Inserir usuário no banco usando service role para bypass RLS
+      // Inserir usuário no banco (RLS já foi desabilitado)
       const { data: usuarioInserido, error } = await supabase
         .from('usuarios')
         .insert([novoUsuario])
@@ -2526,28 +2526,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log('Usuário inserido com sucesso:', usuarioInserido.id);
-
-      // Para alunos, vinculá-lo à turma se fornecida
-      if (papel === 'aluno' && turma_id && numero_matricula) {
-        try {
-          const { error: alunoError } = await supabase
-            .from('alunos')
-            .insert([{
-              usuario_id: usuarioInserido.id,
-              turma_id,
-              numero_matricula,
-              criado_em: new Date().toISOString()
-            }]);
-
-          if (alunoError) {
-            console.warn('Erro ao vincular aluno à turma:', alunoError.message);
-          } else {
-            console.log('Aluno vinculado à turma com sucesso');
-          }
-        } catch (alunoErr) {
-          console.warn('Erro no vínculo aluno-turma:', alunoErr);
-        }
-      }
 
       res.status(201).json({ 
         sucesso: true,
