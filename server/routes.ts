@@ -2389,9 +2389,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           telefone,
           papel,
           ativo,
-          created_at
+          criado_em
         `)
-        .order('created_at', { ascending: false });
+        .order('criado_em', { ascending: false });
 
       if (usuariosError) {
         console.error('Erro ao buscar usuários:', usuariosError);

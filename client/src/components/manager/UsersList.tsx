@@ -1,689 +1,440 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Search, Eye, Edit, Plus, Users, Trash2 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
-interface User {
+interface Usuario {
   id: string;
   nome: string;
   email: string;
   cpf: string;
-  papel: string;
-  escola_nome: string;
+  telefone?: string;
+  papel: 'admin' | 'manager' | 'teacher' | 'student';
   ativo: boolean;
   criado_em: string;
-  telefone?: string;
-  data_nascimento?: string;
-  endereco?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
+  escolas_vinculadas?: { id: string; nome: string }[];
 }
 
-interface UsersResponse {
-  total: number;
-  usuarios: User[];
+interface Escola {
+  id: string;
+  nome: string;
 }
-
-const editUserSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("Email inválido"),
-  telefone: z.string().optional(),
-  cpf: z.string().optional(),
-  ativo: z.boolean(),
-});
-
-type EditUserForm = z.infer<typeof editUserSchema>;
 
 export default function UsersList() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSchool, setSelectedSchool] = useState('all');
-  const [selectedRole, setSelectedRole] = useState('all');
-  const [viewUser, setViewUser] = useState<User | null>(null);
-  const [editUser, setEditUser] = useState<User | null>(null);
-  const [showViewDialog, setShowViewDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [, setLocation] = useLocation();
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+  const [filtroPapel, setFiltroPapel] = useState<string>("todos");
+  const [busca, setBusca] = useState<string>("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
 
-  const { data: usersData, isLoading, error, refetch } = useQuery<UsersResponse>({
-    queryKey: ['/api/users/manager'],
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    gcTime: 0, // Remove do cache imediatamente
-    refetchInterval: false,
-    retry: false,
-  });
+  // Estados dos contadores
+  const [totalUsuarios, setTotalUsuarios] = useState(0);
+  const [usuariosAtivos, setUsuariosAtivos] = useState(0);
+  const [professores, setProfessores] = useState(0);
+  const [alunos, setAlunos] = useState(0);
+  const [gestores, setGestores] = useState(0);
+  const [usuariosInativos, setUsuariosInativos] = useState(0);
 
-  const { data: schoolsData } = useQuery<any>({
-    queryKey: ['/api/escolas/gestor']
-  });
-
-  const editForm = useForm<EditUserForm>({
-    resolver: zodResolver(editUserSchema),
-    defaultValues: {
-      nome: "",
-      email: "",
-      telefone: "",
-      cpf: "",
-      ativo: true,
-    },
-  });
-
-  const updateUserMutation = useMutation({
-    mutationFn: async (data: { id: string; userData: EditUserForm }) => {
-      console.log('Enviando dados para atualização:', data);
-      const result = await apiRequest('PUT', `/api/users/${data.id}`, data.userData);
-      console.log('Resposta da API de atualização:', result);
-      return result;
-    },
-    onSuccess: async (data, variables) => {
-      console.log('Atualização bem-sucedida');
+  const fetchUsuarios = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiRequest("GET", "/api/usuarios");
+      const data = await response.json();
       
-      // Forçar atualização imediata dos dados
-      queryClient.setQueryData(['/api/users/manager'], (oldData: UsersResponse | undefined) => {
-        if (!oldData) return oldData;
-        
-        const updatedUsers = oldData.usuarios.map(user => 
-          user.id === variables.id 
-            ? { ...user, ...variables.userData }
-            : user
-        );
-        
-        return { ...oldData, usuarios: updatedUsers };
-      });
-      
-      // Invalidar cache e recarregar dados do servidor
-      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
-      
-      setShowEditDialog(false);
-      setEditUser(null);
-      
+      if (data.usuarios) {
+        setUsuarios(data.usuarios);
+        calculateCounters(data.usuarios);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
       toast({
-        title: "Sucesso",
-        description: "Usuário atualizado com sucesso!",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao atualizar usuário",
+        title: "Erro ao carregar usuários",
+        description: "Não foi possível carregar a lista de usuários",
         variant: "destructive",
       });
-    },
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      return apiRequest('DELETE', `/api/users/${userId}`);
-    },
-    onSuccess: async (data, userId) => {
-      console.log('Exclusão bem-sucedida');
-      
-      // Forçar atualização imediata dos dados
-      queryClient.setQueryData(['/api/users/manager'], (oldData: UsersResponse | undefined) => {
-        if (!oldData) return oldData;
-        
-        const filteredUsers = oldData.usuarios.filter(user => user.id !== userId);
-        
-        return { 
-          ...oldData, 
-          usuarios: filteredUsers,
-          total: filteredUsers.length 
-        };
-      });
-      
-      // Invalidar cache e recarregar dados do servidor
-      await queryClient.invalidateQueries({ queryKey: ['/api/users/manager'] });
-      
-      setShowDeleteDialog(false);
-      setUserToDelete(null);
-      toast({
-        title: "Sucesso",
-        description: "Usuário excluído com sucesso!",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao excluir usuário",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const filteredUsers = usersData?.usuarios?.filter(user => {
-    const matchesSearch = (user?.nome || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (user?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (user?.cpf || '').includes(searchTerm);
-    
-    const matchesSchool = selectedSchool === 'all' || (user?.escola_nome || '') === selectedSchool;
-    const matchesRole = selectedRole === 'all' || (user?.papel || '') === selectedRole;
-    
-    return matchesSearch && matchesSchool && matchesRole;
-  }) || [];
-
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'gestor':
-        return 'bg-purple-600';
-      case 'professor':
-        return 'bg-blue-600';
-      case 'aluno':
-        return 'bg-green-600';
-      default:
-        return 'bg-gray-600';
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'gestor':
-        return 'Gestor';
-      case 'professor':
-        return 'Professor';
-      case 'aluno':
-        return 'Aluno';
-      default:
-        return role;
+  const fetchEscolas = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/escolas/todas");
+      const data = await response.json();
+      setEscolas(data || []);
+    } catch (error) {
+      console.error("Erro ao buscar escolas:", error);
     }
   };
 
-  const handleViewUser = (user: User) => {
-    setViewUser(user);
-    setShowViewDialog(true);
+  const calculateCounters = (usuarios: Usuario[]) => {
+    setTotalUsuarios(usuarios.length);
+    setUsuariosAtivos(usuarios.filter(u => u.ativo).length);
+    setProfessores(usuarios.filter(u => u.papel === 'teacher').length);
+    setAlunos(usuarios.filter(u => u.papel === 'student').length);
+    setGestores(usuarios.filter(u => u.papel === 'manager').length);
+    setUsuariosInativos(usuarios.filter(u => !u.ativo).length);
   };
 
-  const handleEditUser = (user: User) => {
-    setEditUser(user);
-    editForm.reset({
-      nome: user.nome || "",
-      email: user.email || "",
-      telefone: user.telefone || "",
-      cpf: user.cpf || "",
-      ativo: user.ativo,
+  const handleEditUser = async (usuario: Usuario) => {
+    setUsuarioEditando(usuario);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveUser = async () => {
+    if (!usuarioEditando) return;
+
+    try {
+      const response = await apiRequest("PUT", `/api/usuarios/${usuarioEditando.id}`, {
+        nome: usuarioEditando.nome,
+        email: usuarioEditando.email,
+        telefone: usuarioEditando.telefone,
+        cpf: usuarioEditando.cpf,
+        ativo: usuarioEditando.ativo
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Usuário atualizado",
+          description: "As informações do usuário foram salvas com sucesso",
+        });
+        setIsEditDialogOpen(false);
+        setUsuarioEditando(null);
+        fetchUsuarios();
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível salvar as alterações",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Tem certeza que deseja excluir o usuário "${userName}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    try {
+      const response = await apiRequest("DELETE", `/api/usuarios/${userId}`);
+      
+      if (response.ok) {
+        toast({
+          title: "Usuário excluído",
+          description: `O usuário "${userName}" foi removido do sistema`,
+        });
+        fetchUsuarios();
+      }
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir o usuário",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filtrarUsuarios = () => {
+    return usuarios.filter(usuario => {
+      const matchEscola = filtroEscola === "todas" || 
+        usuario.escolas_vinculadas?.some(escola => escola.id === filtroEscola);
+      const matchPapel = filtroPapel === "todos" || usuario.papel === filtroPapel;
+      const matchBusca = busca === "" || 
+        usuario.nome.toLowerCase().includes(busca.toLowerCase()) ||
+        usuario.email.toLowerCase().includes(busca.toLowerCase()) ||
+        usuario.cpf.includes(busca);
+      
+      return matchEscola && matchPapel && matchBusca;
     });
-    setShowEditDialog(true);
   };
 
-  const handleDeleteUser = (user: User) => {
-    setUserToDelete(user);
-    setShowDeleteDialog(true);
+  const getPapelBadge = (papel: string) => {
+    const badges = {
+      admin: { label: "Admin", variant: "destructive" as const },
+      manager: { label: "Gestor", variant: "secondary" as const },
+      teacher: { label: "Professor", variant: "default" as const },
+      student: { label: "Aluno", variant: "outline" as const }
+    };
+    return badges[papel as keyof typeof badges] || { label: papel, variant: "outline" as const };
   };
 
-  const onSubmitEdit = (data: EditUserForm) => {
-    if (editUser) {
-      updateUserMutation.mutate({
-        id: editUser.id,
-        userData: data,
-      });
-    }
-  };
+  useEffect(() => {
+    fetchUsuarios();
+    fetchEscolas();
+  }, []);
 
-  const confirmDelete = () => {
-    if (userToDelete) {
-      deleteUserMutation.mutate(userToDelete.id);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="border-destructive">
-        <CardContent className="pt-6">
-          <p className="text-destructive">Erro ao carregar usuários</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const usuariosFiltrados = filtrarUsuarios();
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Users className="text-accent" size={24} />
-            Usuários
+          <h1 className="text-2xl font-bold text-white mb-2">
+            <Users className="inline h-6 w-6 mr-2" />
+            USUÁRIOS
           </h1>
-          <p className="text-white/70">
-            Gerencie todos os usuários do sistema
-          </p>
+          <p className="text-accent">Gerencie todos os usuários do sistema</p>
         </div>
         <Button 
-          className="bg-gradient-to-r from-[#D4A054] to-[#C5A572] hover:from-[#C5A572] hover:to-[#B3956A] text-white font-medium px-6 py-2 rounded-lg shadow-lg transition-all duration-200 flex items-center gap-2"
-          onClick={() => setLocation('/user-registration')}
+          className="bg-[#D47C06] hover:bg-[#B8650A] text-white"
+          onClick={() => window.location.href = '/user-registration'}
         >
-          <Plus size={16} />
           Novo Usuário
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-accent">{usersData?.total || 0}</p>
-              <p className="text-white/70">Total de Usuários</p>
-            </div>
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-white">{totalUsuarios}</div>
+            <div className="text-sm text-accent">Total de Usuários</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-400">
-                {filteredUsers.filter(u => u.ativo).length}
-              </p>
-              <p className="text-white/70">Usuários Ativos</p>
-            </div>
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-green-400">{usuariosAtivos}</div>
+            <div className="text-sm text-accent">Usuários Ativos</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-400">
-                {filteredUsers.filter(u => u.papel === 'professor').length}
-              </p>
-              <p className="text-white/70">Professores</p>
-            </div>
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-blue-400">{professores}</div>
+            <div className="text-sm text-accent">Professores</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-400">
-                {filteredUsers.filter(u => u.papel === 'aluno').length}
-              </p>
-              <p className="text-white/70">Alunos</p>
-            </div>
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-yellow-400">{alunos}</div>
+            <div className="text-sm text-accent">Alunos</div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-purple-400">
-                {filteredUsers.filter(u => u.papel === 'gestor').length}
-              </p>
-              <p className="text-white/70">Gestores</p>
-            </div>
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-purple-400">{gestores}</div>
+            <div className="text-sm text-accent">Gestores</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#2a2520] border-primary/20">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-red-400">
-                {filteredUsers.filter(u => !u.ativo).length}
-              </p>
-              <p className="text-white/70">Usuários Inativos</p>
-            </div>
+        <Card className="bg-[#4a4639] border-[#D47C06]">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-red-400">{usuariosInativos}</div>
+            <div className="text-sm text-accent">Usuários Inativos</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" size={16} />
-          <Input
-            placeholder="Buscar por nome, email ou CPF..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-[#2a2520] border-primary/20 text-white placeholder:text-white/50"
-          />
-        </div>
-        <Select value={selectedSchool} onValueChange={setSelectedSchool}>
-          <SelectTrigger className="w-full md:w-48 bg-[#2a2520] border-primary/20 text-white">
-            <SelectValue placeholder="Todas as escolas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as escolas</SelectItem>
-            {schoolsData?.map((school: any) => (
-              <SelectItem key={school.id} value={school.nome}>
-                {school.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedRole} onValueChange={setSelectedRole}>
-          <SelectTrigger className="w-full md:w-48 bg-[#2a2520] border-primary/20 text-white">
-            <SelectValue placeholder="Todos os papéis" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os papéis</SelectItem>
-            <SelectItem value="gestor">Gestor</SelectItem>
-            <SelectItem value="professor">Professor</SelectItem>
-            <SelectItem value="aluno">Aluno</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Table */}
-      <Card className="bg-[#2a2520] border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-white">
-            Lista de Usuários ({filteredUsers.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border border-primary/20">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-primary/20 hover:bg-primary/5">
-                  <TableHead className="text-white">Nome</TableHead>
-                  <TableHead className="text-white">Email</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
-                  <TableHead className="text-white">Papel</TableHead>
-                  <TableHead className="text-white">Escola</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
-                  <TableHead className="text-white">Criado em</TableHead>
-                  <TableHead className="text-white text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center text-white/70 py-8">
-                      Nenhum usuário encontrado
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5">
-                      <TableCell className="text-white font-medium">
-                        {user.nome || 'Nome não informado'}
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        {user.email || 'Email não informado'}
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        {user.cpf || '000.000.000-00'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${getRoleBadgeColor(user.papel)} text-white`}>
-                          {getRoleLabel(user.papel)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        {user.escola_nome || 'Geral'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${user.ativo ? 'bg-green-400' : 'bg-red-400'}`} />
-                          <Badge variant={user.ativo ? "default" : "secondary"} className={user.ativo ? "bg-green-600" : "bg-red-600"}>
-                            {user.ativo ? "Ativo" : "Inativo"}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-white/70">
-                        {new Date(user.criado_em).toLocaleDateString('pt-BR')}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-white/70 hover:text-accent hover:bg-primary/10 h-8 w-8 p-0"
-                            onClick={() => handleViewUser(user)}
-                            title="Visualizar usuário"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-white/70 hover:text-accent hover:bg-primary/10 h-8 w-8 p-0"
-                            onClick={() => handleEditUser(user)}
-                            title="Editar usuário"
-                          >
-                            <Edit size={16} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-white/70 hover:text-red-400 hover:bg-red-400/10 h-8 w-8 p-0"
-                            onClick={() => handleDeleteUser(user)}
-                            title="Excluir usuário"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+      {/* Filtros */}
+      <Card className="bg-[#4a4639] border-[#D47C06]">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-white">Buscar</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-accent" />
+                <Input
+                  placeholder="Buscar por nome, email ou CPF..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-10 bg-[#312e26] border-[#D47C06] text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-white">Todas as escolas</Label>
+              <Select value={filtroEscola} onValueChange={setFiltroEscola}>
+                <SelectTrigger className="bg-[#312e26] border-[#D47C06] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+                  <SelectItem value="todas">Todas as escolas</SelectItem>
+                  {escolas.map((escola) => (
+                    <SelectItem key={escola.id} value={escola.id}>
+                      {escola.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-white">Todos os papéis</Label>
+              <Select value={filtroPapel} onValueChange={setFiltroPapel}>
+                <SelectTrigger className="bg-[#312e26] border-[#D47C06] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+                  <SelectItem value="todos">Todos os papéis</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="manager">Gestor</SelectItem>
+                  <SelectItem value="teacher">Professor</SelectItem>
+                  <SelectItem value="student">Aluno</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* View User Dialog */}
-      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
-        <DialogContent className="bg-[#2a2520] border-primary/20 text-white">
+      {/* Lista de Usuários */}
+      <Card className="bg-[#4a4639] border-[#D47C06]">
+        <CardHeader>
+          <CardTitle className="text-white">Lista de Usuários ({usuariosFiltrados.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8 text-accent">Carregando usuários...</div>
+          ) : usuariosFiltrados.length === 0 ? (
+            <div className="text-center py-8 text-accent">Nenhum usuário encontrado</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#D47C06]">
+                    <th className="text-left py-3 px-4 text-white">Nome</th>
+                    <th className="text-left py-3 px-4 text-white">Email</th>
+                    <th className="text-left py-3 px-4 text-white">CPF</th>
+                    <th className="text-left py-3 px-4 text-white">Papel</th>
+                    <th className="text-left py-3 px-4 text-white">Escola</th>
+                    <th className="text-left py-3 px-4 text-white">Status</th>
+                    <th className="text-left py-3 px-4 text-white">Criado em</th>
+                    <th className="text-center py-3 px-4 text-white">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuariosFiltrados.map((usuario) => (
+                    <tr key={usuario.id} className="border-b border-[#5a5438] hover:bg-[#43341c]">
+                      <td className="py-3 px-4 text-white font-medium">{usuario.nome}</td>
+                      <td className="py-3 px-4 text-accent">{usuario.email}</td>
+                      <td className="py-3 px-4 text-accent">{usuario.cpf}</td>
+                      <td className="py-3 px-4">
+                        <Badge variant={getPapelBadge(usuario.papel).variant}>
+                          {getPapelBadge(usuario.papel).label}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        {usuario.escolas_vinculadas?.length ? (
+                          <div className="flex flex-wrap gap-1">
+                            {usuario.escolas_vinculadas.map((escola) => (
+                              <Badge key={escola.id} variant="outline" className="text-xs">
+                                <School className="h-3 w-3 mr-1" />
+                                {escola.nome}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-accent">Geral</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge variant={usuario.ativo ? "default" : "secondary"}>
+                          {usuario.ativo ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 text-accent">
+                        {new Date(usuario.criado_em).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex gap-2 justify-center">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditUser(usuario)}
+                            className="border-[#D47C06] text-[#D47C06] hover:bg-[#D47C06] hover:text-white"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteUser(usuario.id, usuario.nome)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-[#312e26] border-[#D47C06] text-white">
           <DialogHeader>
-            <DialogTitle>Detalhes do Usuário</DialogTitle>
+            <DialogTitle className="text-primary">Editar Usuário</DialogTitle>
           </DialogHeader>
-          {viewUser && (
+          {usuarioEditando && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-white/70">Nome</label>
-                  <p className="text-white">{viewUser.nome}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Email</label>
-                  <p className="text-white">{viewUser.email}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">CPF</label>
-                  <p className="text-white">{viewUser.cpf}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Telefone</label>
-                  <p className="text-white">{viewUser.telefone || 'Não informado'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Papel</label>
-                  <Badge className={`${getRoleBadgeColor(viewUser.papel)} text-white`}>
-                    {getRoleLabel(viewUser.papel)}
-                  </Badge>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Status</label>
-                  <Badge variant={viewUser.ativo ? "default" : "secondary"} className={viewUser.ativo ? "bg-green-600" : "bg-red-600"}>
-                    {viewUser.ativo ? "Ativo" : "Inativo"}
-                  </Badge>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Escola</label>
-                  <p className="text-white">{viewUser.escola_nome || 'Geral'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-white/70">Criado em</label>
-                  <p className="text-white">{new Date(viewUser.criado_em).toLocaleDateString('pt-BR')}</p>
-                </div>
+              <div>
+                <Label>Nome</Label>
+                <Input
+                  value={usuarioEditando.nome}
+                  onChange={(e) => setUsuarioEditando({...usuarioEditando, nome: e.target.value})}
+                  className="bg-[#4a4639] border-[#D47C06] text-white"
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input
+                  value={usuarioEditando.email}
+                  onChange={(e) => setUsuarioEditando({...usuarioEditando, email: e.target.value})}
+                  className="bg-[#4a4639] border-[#D47C06] text-white"
+                />
+              </div>
+              <div>
+                <Label>Telefone</Label>
+                <Input
+                  value={usuarioEditando.telefone || ""}
+                  onChange={(e) => setUsuarioEditando({...usuarioEditando, telefone: e.target.value})}
+                  className="bg-[#4a4639] border-[#D47C06] text-white"
+                />
+              </div>
+              <div>
+                <Label>CPF</Label>
+                <Input
+                  value={usuarioEditando.cpf}
+                  onChange={(e) => setUsuarioEditando({...usuarioEditando, cpf: e.target.value})}
+                  className="bg-[#4a4639] border-[#D47C06] text-white"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="ativo"
+                  checked={usuarioEditando.ativo}
+                  onChange={(e) => setUsuarioEditando({...usuarioEditando, ativo: e.target.checked})}
+                  className="rounded border-[#D47C06]"
+                />
+                <Label htmlFor="ativo">Usuário ativo</Label>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={handleSaveUser} className="bg-[#D47C06] hover:bg-[#B8650A]">
+                  Salvar
+                </Button>
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancelar
+                </Button>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-[#2a2520] border-primary/20 text-white">
-          <DialogHeader>
-            <DialogTitle>Editar Usuário</DialogTitle>
-          </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="nome"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Nome Completo</FormLabel>
-                      <FormControl>
-                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="Digite o nome completo" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">E-mail</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="exemplo@email.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="cpf"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">CPF</FormLabel>
-                      <FormControl>
-                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="000.000.000-00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="telefone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Telefone</FormLabel>
-                      <FormControl>
-                        <Input {...field} className="bg-[#1a1713] border-primary/20 text-white placeholder:text-white/50" placeholder="(00) 00000-0000" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {/* Campos removidos para simplificar e corrigir TypeScript */}
-                <FormField
-                  control={editForm.control}
-                  name="ativo"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-4 bg-[#1a1713]">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-white font-medium">Status do Usuário</FormLabel>
-                        <div className="text-sm text-white/70">
-                          Usuário ativo no sistema
-                        </div>
-                      </div>
-                      <FormControl>
-                        <input
-                          type="checkbox"
-                          checked={field.value}
-                          onChange={field.onChange}
-                          className="h-4 w-4 accent-primary"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <DialogFooter className="gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowEditDialog(false)}
-                  className="border-primary/30 text-white hover:bg-primary/10 font-medium px-6 py-2"
-                  disabled={updateUserMutation.isPending}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-accent hover:bg-accent/90 text-primary font-medium px-6 py-2"
-                  disabled={updateUserMutation.isPending}
-                >
-                  {updateUserMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete User Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-[#2a2520] border-primary/20 text-white">
-          <DialogHeader>
-            <DialogTitle>Confirmar Exclusão</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-white/70">
-              Tem certeza que deseja excluir o usuário <strong>{userToDelete?.nome}</strong>?
-            </p>
-            <p className="text-red-400 text-sm mt-2">
-              Esta ação não pode ser desfeita.
-            </p>
-          </div>
-          <DialogFooter className="gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-              className="border-primary/30 text-white hover:bg-primary/10 font-medium px-6 py-2"
-              disabled={deleteUserMutation.isPending}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2"
-              disabled={deleteUserMutation.isPending}
-            >
-              {deleteUserMutation.isPending ? "Excluindo..." : "Confirmar Exclusão"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

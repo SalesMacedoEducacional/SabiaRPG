@@ -297,8 +297,8 @@ export default function ManagerDashboardModerno() {
                 </button>
                 
                 <button 
-                  onClick={() => navigate('/usuarios')}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-white hover:bg-[#3a3730]"
+                  onClick={() => handleMenuSelect("users")}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md ${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"}`}
                 >
                   <Users size={18} />
                   <span>Usuários</span>
@@ -391,8 +391,8 @@ export default function ManagerDashboardModerno() {
               </button>
               
               <button 
-                onClick={() => navigate('/usuarios')}
-                className="text-white hover:bg-[#3a3730] w-full flex items-center rounded-md px-2.5 py-2"
+                onClick={() => setActiveMenu("users")}
+                className={`${activeMenu === "users" ? "bg-[#3a3730] text-accent" : "text-white hover:bg-[#3a3730]"} w-full flex items-center rounded-md px-2.5 py-2`}
               >
                 <Users size={18} className="flex-shrink-0" />
                 {sidebarOpen && <span className="ml-2">Usuários</span>}

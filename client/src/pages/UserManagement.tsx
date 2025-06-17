@@ -18,7 +18,7 @@ interface Usuario {
   telefone?: string;
   papel: 'admin' | 'manager' | 'teacher' | 'student';
   ativo: boolean;
-  created_at: string;
+  criado_em: string;
   escolas_vinculadas?: { id: string; nome: string }[];
 }
 
@@ -349,7 +349,7 @@ export default function UserManagement() {
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-accent">
-                          {new Date(usuario.created_at).toLocaleDateString('pt-BR')}
+                          {new Date(usuario.criado_em).toLocaleDateString('pt-BR')}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex gap-2 justify-center">
