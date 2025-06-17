@@ -16,9 +16,10 @@ interface Usuario {
   email: string;
   cpf: string;
   telefone?: string;
-  papel: 'admin' | 'manager' | 'teacher' | 'student';
+  papel: 'admin' | 'manager' | 'teacher' | 'student' | 'gestor' | 'professor' | 'aluno';
   ativo: boolean;
   criado_em: string;
+  escola_nome?: string;
   escolas_vinculadas?: { id: string; nome: string }[];
 }
 
@@ -109,8 +110,9 @@ export default function UsersList() {
 
   const handleViewUserDetails = async (usuarioId: string) => {
     try {
-      const response = await apiRequest("GET", `/api/usuarios/${usuarioId}`);
-      const data = await response.json();
+      console.log("Carregando detalhes do usuário:", usuarioId);
+      const data = await apiRequest("GET", `/api/usuarios/${usuarioId}`);
+      console.log("Detalhes recebidos:", data);
       setUsuarioDetalhes(data);
       setIsDetailDialogOpen(true);
     } catch (error) {
@@ -185,14 +187,32 @@ export default function UsersList() {
   };
 
   const filtrarUsuarios = () => {
+    if (!usuarios || usuarios.length === 0) return [];
+    
     return usuarios.filter(usuario => {
+      // Filtro por escola
       const matchEscola = filtroEscola === "todas" || 
-        usuario.escolas_vinculadas?.some(escola => escola.id === filtroEscola);
-      const matchPapel = filtroPapel === "todos" || usuario.papel === filtroPapel;
+        (usuario.escola_nome && usuario.escola_nome !== 'Geral' && 
+         usuario.escolas_vinculadas?.some(escola => escola.id === filtroEscola)) ||
+        (usuario.escola_nome === 'Geral' && filtroEscola === "geral");
+      
+      // Filtro por papel - mapear papéis corretamente
+      const papelMap: { [key: string]: string[] } = {
+        'todos': ['admin', 'manager', 'teacher', 'student', 'gestor', 'professor', 'aluno'],
+        'gestor': ['manager', 'gestor'],
+        'professor': ['teacher', 'professor'],
+        'aluno': ['student', 'aluno'],
+        'admin': ['admin']
+      };
+      const matchPapel = filtroPapel === "todos" || 
+        papelMap[filtroPapel]?.includes(usuario.papel) || 
+        usuario.papel === filtroPapel;
+      
+      // Filtro por busca
       const matchBusca = busca === "" || 
-        usuario.nome.toLowerCase().includes(busca.toLowerCase()) ||
-        usuario.email.toLowerCase().includes(busca.toLowerCase()) ||
-        usuario.cpf.includes(busca);
+        usuario.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+        usuario.email?.toLowerCase().includes(busca.toLowerCase()) ||
+        usuario.cpf?.includes(busca);
       
       return matchEscola && matchPapel && matchBusca;
     });
