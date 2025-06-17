@@ -53,7 +53,7 @@ export default function UsersList() {
     try {
       setIsLoading(true);
       console.log("Carregando usuários...");
-      const response = await apiRequest("GET", "/api/users/manager");
+      const response = await apiRequest("GET", "/api/usuarios");
       console.log("Resposta da API usuários:", response);
       
       if (response && typeof response === 'object') {
@@ -275,6 +275,13 @@ export default function UsersList() {
 
   const usuariosFiltrados = filtrarUsuarios();
 
+  // Debug logs
+  console.log("=== DEBUG RENDER ===");
+  console.log("Total usuarios:", usuarios.length);
+  console.log("Usuarios filtrados:", usuariosFiltrados.length);
+  console.log("IsLoading:", isLoading);
+  console.log("Usuarios array:", usuarios);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -412,7 +419,14 @@ export default function UsersList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {usuariosFiltrados.map((usuario) => (
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-8 text-white">
+                        Carregando usuários...
+                      </td>
+                    </tr>
+                  ) : usuariosFiltrados.length > 0 ? (
+                    usuariosFiltrados.map((usuario) => (
                     <tr key={usuario.id} className="border-b border-[#5a5438] hover:bg-[#43341c]">
                       <td className="py-3 px-4 text-white font-medium">{usuario.nome}</td>
                       <td className="py-3 px-4 text-accent">{usuario.email}</td>
@@ -472,7 +486,14 @@ export default function UsersList() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="text-center py-8 text-accent">
+                        Nenhum usuário encontrado.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
