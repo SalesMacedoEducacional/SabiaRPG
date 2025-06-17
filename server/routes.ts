@@ -2636,8 +2636,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (alunoError) {
           console.error('Erro ao criar registro de aluno:', alunoError);
         }
-      } else if (papel === 'professor') {
-        console.log('Professor criado com sucesso. Perfil específico pode ser configurado posteriormente.');
+      } else if (papel === 'professor' && escola_id) {
+        const { error: professorError } = await supabase
+          .from('professores')
+          .insert([{
+            id: crypto.randomUUID(),
+            usuario_id: usuarioInserido.id,
+            escola_id,
+            ativo: true
+          }]);
+
+        if (professorError) {
+          console.error('Erro ao criar registro de professor:', professorError);
+        }
       } else if (papel === 'gestor' && escola_id) {
         const { error: gestorError } = await supabase
           .from('gestores')
