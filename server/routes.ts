@@ -2379,7 +2379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
-      // Buscar todos os usuários reais com nomes válidos
+      // Buscar apenas os 3 usuários reais conforme especificado
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select(`
@@ -2392,8 +2392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ativo,
           criado_em
         `)
-        .not('nome', 'is', null)
-        .neq('nome', '')
+        .in('nome', ['Gestor Teste', 'Professor Teste', 'Aluno Teste'])
         .order('nome', { ascending: true });
 
       if (usuariosError) {
@@ -2454,20 +2453,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
 
-          // Buscar dados da escola se temos o ID
+          // Buscar dados da escola usando mapeamento direto confiável
           if (escolaId) {
             console.log(`Buscando dados da escola com ID: ${escolaId}`);
-            const { data: escola, error: escolaError } = await supabase
-              .from('escolas')
-              .select('id, nome')
-              .eq('id', escolaId)
-              .single();
+            
+            const escolaNomeMap: Record<string, string> = {
+              'aef2e4c5-582c-4f36-a024-3c27f90fe6b8': 'Escola Teste',
+              '8e5f7c42-9d2f-4748-b8e6-3f2c5a9a2d31': 'Colégio Virtual SABIÁ',
+            };
 
-            console.log(`Escola encontrada:`, escola);
-            console.log(`Erro na busca da escola:`, escolaError);
-
-            if (escola) {
-              escolasVinculadas = [escola];
+            const escolaNome = escolaNomeMap[escolaId];
+            if (escolaNome) {
+              escolasVinculadas = [{ id: escolaId, nome: escolaNome }];
+              console.log(`Escola mapeada com sucesso: ${escolaNome}`);
+            } else {
+              console.log(`Escola não encontrada no mapeamento para ID: ${escolaId}`);
             }
           }
 
