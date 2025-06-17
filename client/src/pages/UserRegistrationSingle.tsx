@@ -327,6 +327,35 @@ export default function UserRegistrationSingle() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Perfil do Usuário - PRIMEIRO CAMPO */}
+              <div className="border border-accent/60 rounded-md p-6 bg-dark-light shadow-lg">
+                <FormField
+                  control={form.control}
+                  name="papel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-accent font-semibold text-lg">Perfil do Usuário *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-accent bg-dark text-parchment focus:ring-accent h-12 text-lg">
+                            <SelectValue placeholder="Selecione o perfil" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-dark border border-accent text-parchment">
+                          <SelectItem value="aluno" className="focus:bg-dark-light focus:text-parchment text-lg py-3">Aluno</SelectItem>
+                          <SelectItem value="professor" className="focus:bg-dark-light focus:text-parchment text-lg py-3">Professor</SelectItem>
+                          <SelectItem value="gestor" className="focus:bg-dark-light focus:text-parchment text-lg py-3">Gestor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-parchment-dark text-sm mt-2">
+                        O perfil determina as permissões do usuário na plataforma
+                      </FormDescription>
+                      <FormMessage className="text-destructive" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Nome Completo */}
                 <FormField
@@ -433,13 +462,14 @@ export default function UserRegistrationSingle() {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0 bg-dark border border-primary" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) => date > new Date()}
                             initialFocus
+                            className="bg-dark text-parchment"
                           />
                         </PopoverContent>
                       </Popover>
@@ -448,27 +478,31 @@ export default function UserRegistrationSingle() {
                   )}
                 />
 
-                {/* Papel */}
+                {/* Número de Matrícula - Campo Padrão Bloqueado */}
                 <FormField
                   control={form.control}
-                  name="papel"
+                  name="numero_matricula"
                   render={({ field }) => (
                     <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
-                      <FormLabel className="text-parchment font-medium">Perfil do Usuário *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
-                            <SelectValue placeholder="Selecione o perfil" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-dark border border-primary text-parchment">
-                          <SelectItem value="aluno" className="focus:bg-dark-light focus:text-parchment">Aluno</SelectItem>
-                          <SelectItem value="professor" className="focus:bg-dark-light focus:text-parchment">Professor</SelectItem>
-                          <SelectItem value="gestor" className="focus:bg-dark-light focus:text-parchment">Gestor</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription className="text-parchment-dark">
-                        O perfil determina as permissões do usuário na plataforma
+                      <FormLabel className="text-parchment font-medium">
+                        Número de Matrícula {form.watch("papel") === "aluno" ? "*" : ""}
+                      </FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder={form.watch("papel") === "aluno" ? "Digite o número de matrícula" : "Disponível apenas para alunos"} 
+                          {...field}
+                          disabled={form.watch("papel") !== "aluno"}
+                          className={cn(
+                            "border-primary bg-dark text-parchment focus:ring-accent",
+                            form.watch("papel") !== "aluno" && "opacity-50 cursor-not-allowed"
+                          )}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-parchment-dark text-xs">
+                        {form.watch("papel") === "aluno" 
+                          ? "Número único de matrícula do aluno"
+                          : "Este campo é exclusivo para alunos"
+                        }
                       </FormDescription>
                       <FormMessage className="text-destructive" />
                     </FormItem>
