@@ -66,35 +66,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userData = await response.json();
         console.log('Dados do usuário:', userData);
 
-        // Se o usuário for um gestor, verificar a escola vinculada
+        // Se o usuário for um gestor, verificar imediatamente o vínculo com escolas
         if (userData && userData.role === 'manager') {
           try {
-            // Verificar se já temos um school_id válido em localStorage/sessionStorage
-            const savedSchoolId = sessionStorage.getItem('saved_school_id');
-            if (savedSchoolId && !userData.escola_id) {
-              console.log('Recuperando ID da escola salvo no sessionStorage:', savedSchoolId);
-              userData.escola_id = savedSchoolId;
-            }
+            console.log('Verificando vínculo do gestor com escolas...');
             
-            // Verificar no servidor a escola vinculada
-            const schoolResponse = await apiRequest('GET', '/api/schools/check-manager-school');
+            // Buscar escolas vinculadas diretamente no banco
+            const schoolResponse = await apiRequest('GET', '/api/manager/dashboard-stats');
+            
             if (schoolResponse.ok) {
-              const schoolData = await schoolResponse.json();
+              const dashboardData = await schoolResponse.json();
               
-              if (schoolData.hasSchool && schoolData.school && schoolData.school.id) {
-                console.log('Escola encontrada para o gestor:', schoolData.school.id);
+              if (dashboardData.escolas && dashboardData.escolas.length > 0) {
+                console.log('Escolas vinculadas encontradas:', dashboardData.escolas.length);
                 
-                // Atualizar o ID da escola no usuário
-                userData.escola_id = schoolData.school.id;
+                // Se há apenas uma escola, definir como escola_id principal
+                if (dashboardData.escolas.length === 1) {
+                  userData.escola_id = dashboardData.escolas[0].id;
+                  sessionStorage.setItem('saved_school_id', dashboardData.escolas[0].id);
+                  sessionStorage.setItem('saved_school_name', dashboardData.escolas[0].nome || '');
+                }
                 
-                // Salvar no sessionStorage também
-                sessionStorage.setItem('saved_school_id', schoolData.school.id);
-                sessionStorage.setItem('saved_school_name', schoolData.school.nome || '');
-                sessionStorage.setItem('saved_school_code', schoolData.school.codigo_escola || '');
+                // Marcar que o gestor tem escolas vinculadas
+                localStorage.removeItem('manager_needs_school');
+                sessionStorage.setItem('manager_has_schools', 'true');
+              } else {
+                console.log('Gestor não possui escolas vinculadas');
+                // Marcar que precisa cadastrar escola
+                localStorage.setItem('manager_needs_school', 'true');
+                sessionStorage.removeItem('manager_has_schools');
               }
+            } else if (schoolResponse.status === 404) {
+              console.log('Nenhuma escola vinculada encontrada');
+              localStorage.setItem('manager_needs_school', 'true');
+              sessionStorage.removeItem('manager_has_schools');
             }
           } catch (error) {
-            console.error('Erro ao verificar escola do gestor:', error);
+            console.error('Erro ao verificar escolas vinculadas:', error);
+            // Em caso de erro, assumir que precisa verificar
+            localStorage.setItem('manager_needs_school', 'true');
           }
         }
         
@@ -127,47 +137,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Salvar no localStorage para persistência
       localStorage.setItem('auth_user', JSON.stringify(data));
       
-      // Se o usuário for um gestor, verificar se há uma escola associada
+      // Se o usuário for um gestor, verificar imediatamente as escolas vinculadas
       if (data.role === 'manager') {
         try {
-          // Verificar escola vinculada
-          const schoolResponse = await apiRequest('GET', '/api/schools/check-manager-school');
-          if (schoolResponse.ok) {
-            const schoolData = await schoolResponse.json();
+          console.log('Verificando escolas vinculadas após login...');
+          
+          // Buscar escolas vinculadas usando a API de dashboard
+          const dashboardResponse = await apiRequest('GET', '/api/manager/dashboard-stats');
+          
+          if (dashboardResponse.ok) {
+            const dashboardData = await dashboardResponse.json();
             
-            // Se encontrou escola, atualizar o contexto do usuário com o ID da escola
-            if (schoolData.hasSchool && schoolData.school && schoolData.school.id) {
-              console.log('Escola encontrada para o gestor após login:', schoolData.school.id);
+            if (dashboardData.escolas && dashboardData.escolas.length > 0) {
+              console.log(`Gestor possui ${dashboardData.escolas.length} escola(s) vinculada(s)`);
               
-              // Atualizar o contexto e localStorage com o ID da escola
+              // Atualizar dados do usuário com informações da escola principal
               const updatedUserData = {
                 ...data,
-                escola_id: schoolData.school.id
+                escola_id: dashboardData.escolas[0].id // Usar primeira escola como principal
               };
               
               // Atualizar cache e localStorage
               queryClient.setQueryData(['/api/auth/me'], updatedUserData);
               localStorage.setItem('auth_user', JSON.stringify(updatedUserData));
               
-              // Salvar dados básicos no sessionStorage também
-              sessionStorage.setItem('saved_school_id', schoolData.school.id);
-              sessionStorage.setItem('saved_school_name', schoolData.school.nome || '');
-              sessionStorage.setItem('saved_school_code', schoolData.school.codigo_escola || '');
+              // Salvar informações das escolas
+              sessionStorage.setItem('saved_school_id', dashboardData.escolas[0].id);
+              sessionStorage.setItem('saved_school_name', dashboardData.escolas[0].nome || '');
+              sessionStorage.setItem('manager_has_schools', 'true');
               
-              // Redirecionamento para o dashboard do gestor será feito pela página de login
+              // Remover flag de necessidade de escola
+              localStorage.removeItem('manager_needs_school');
             } else {
-              // Escola não encontrada - Definir flag para redirecionamento ao formulário de escola
-              console.log('Gestor não possui escola vinculada, será redirecionado para cadastro de escola');
+              console.log('Gestor não possui escolas vinculadas');
               localStorage.setItem('manager_needs_school', 'true');
+              sessionStorage.removeItem('manager_has_schools');
             }
+          } else if (dashboardResponse.status === 404) {
+            console.log('Nenhuma escola encontrada para o gestor');
+            localStorage.setItem('manager_needs_school', 'true');
+            sessionStorage.removeItem('manager_has_schools');
           } else {
-            // Erro na verificação ou escola não encontrada
-            console.log('Gestor não possui escola vinculada ou houve erro na verificação');
+            console.log('Erro ao verificar escolas do gestor');
             localStorage.setItem('manager_needs_school', 'true');
           }
         } catch (error) {
-          console.error('Erro ao verificar escola do gestor após login:', error);
-          // Por segurança, também marcar para redirecionamento
+          console.error('Erro ao verificar escolas do gestor após login:', error);
           localStorage.setItem('manager_needs_school', 'true');
         }
       }

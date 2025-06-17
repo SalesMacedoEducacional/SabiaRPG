@@ -30,15 +30,68 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [checkingSchools, setCheckingSchools] = useState(false);
   const [hasSchools, setHasSchools] = useState(true); // Assume true para evitar redirecionamento desnecessário
   
-  // Managers should always have access to their dashboard - they manage schools through perfis_gestor table
+  // Verificação específica para gestores - checar se possuem escolas vinculadas
   useEffect(() => {
-    // For managers accessing the dashboard, we don't need to check escola_id
-    // as they are linked to schools through the perfis_gestor table
-    if (user?.role === 'manager' && path === '/manager') {
-      setHasSchools(true);
+    if (user?.role === 'manager') {
+      setCheckingSchools(true);
+      
+      // Verificar flags no localStorage para decisão rápida
+      const needsSchool = localStorage.getItem('manager_needs_school');
+      const hasSchoolsFlag = sessionStorage.getItem('manager_has_schools');
+      
+      if (needsSchool === 'true') {
+        console.log('Gestor precisa cadastrar escola');
+        setHasSchools(false);
+        setCheckingSchools(false);
+      } else if (hasSchoolsFlag === 'true') {
+        console.log('Gestor possui escolas vinculadas');
+        setHasSchools(true);
+        setCheckingSchools(false);
+      } else {
+        // Verificar no servidor se não há informação local
+        console.log('Verificando escolas vinculadas no servidor...');
+        checkManagerSchools();
+      }
+    } else {
       setCheckingSchools(false);
     }
   }, [user, path]);
+
+  const checkManagerSchools = async () => {
+    try {
+      const response = await fetch('/api/manager/dashboard-stats', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.escolas && data.escolas.length > 0) {
+          console.log('Escolas encontradas para o gestor');
+          sessionStorage.setItem('manager_has_schools', 'true');
+          localStorage.removeItem('manager_needs_school');
+          setHasSchools(true);
+        } else {
+          console.log('Nenhuma escola vinculada encontrada');
+          localStorage.setItem('manager_needs_school', 'true');
+          sessionStorage.removeItem('manager_has_schools');
+          setHasSchools(false);
+        }
+      } else if (response.status === 404) {
+        console.log('Gestor não possui escolas vinculadas');
+        localStorage.setItem('manager_needs_school', 'true');
+        sessionStorage.removeItem('manager_has_schools');
+        setHasSchools(false);
+      } else {
+        console.log('Erro ao verificar escolas');
+        setHasSchools(false);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar escolas do gestor:', error);
+      setHasSchools(false);
+    } finally {
+      setCheckingSchools(false);
+    }
+  };
   
   // Calcular se tem todas as permissões necessárias (fazendo aqui para evitar hooks condicionais)
   const hasAllPermissions = permissions.length === 0 ? true : 
@@ -55,8 +108,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
   
-  // Managers access their dashboard directly - school associations are managed through perfis_gestor table
-  // No need to redirect to school registration as managers can manage multiple schools
+  // Verificação específica para gestores sem escolas vinculadas
+  if (user?.role === 'manager' && !hasSchools && !checkingSchools) {
+    // Se o gestor não tem escolas vinculadas, redirecionar para cadastro de escola
+    if (path !== '/school-registration') {
+      console.log('Redirecionando gestor sem escolas para cadastro');
+      return (
+        <Route path={path}>
+          <Redirect to="/school-registration" />
+        </Route>
+      );
+    }
+  }
 
   // Verifica autenticação se necessário
   if (requireAuth && !user) {

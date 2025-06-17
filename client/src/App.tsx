@@ -24,6 +24,7 @@ import LoginTest from "@/pages/login-test";
 import TesteUsuarioPage from "@/pages/teste-criacao-usuario";
 import TesteCadastroSimplificado from "@/pages/teste-cadastro-simplificado";
 import { GameProvider } from "./context/GameContext";
+import { SchoolProvider } from "@/context/SchoolContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -172,9 +173,11 @@ function App() {
     <TooltipProvider>
       <Toaster />
       <AuthProvider>
-        <GameProvider>
-          <Router />
-        </GameProvider>
+        <SchoolProvider>
+          <GameProvider>
+            <Router />
+          </GameProvider>
+        </SchoolProvider>
       </AuthProvider>
     </TooltipProvider>
   );
