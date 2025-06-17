@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { 
   School, 
   Users, 
@@ -81,33 +82,47 @@ interface Turma {
 // Componente para o card de total de escolas
 export function TotalEscolasCard() {
   const { toast } = useToast();
+  const { refreshAll } = useAutoRefresh();
   const [totalEscolas, setTotalEscolas] = useState<number>(0);
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiRequest("GET", "/api/escolas");
+      const data = await response.json();
+      
+      setTotalEscolas(data.total || 0);
+      setEscolas(data.escolas || []);
+    } catch (error) {
+      console.error("Erro ao buscar escolas:", error);
+      toast({
+        title: "Erro ao carregar escolas",
+        description: "Não foi possível carregar as informações de escolas",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await apiRequest("GET", "/api/escolas");
-        const data = await response.json();
-        
-        setTotalEscolas(data.total || 0);
-        setEscolas(data.escolas || []);
-      } catch (error) {
-        console.error("Erro ao buscar escolas:", error);
-        toast({
-          title: "Erro ao carregar escolas",
-          description: "Não foi possível carregar as informações de escolas",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
+    fetchData();
+
+    // Listeners para refresh automático
+    const handleRefresh = () => {
+      fetchData();
     };
 
-    fetchData();
+    window.addEventListener('refreshAllData', handleRefresh);
+    window.addEventListener('refreshSchoolData', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshAllData', handleRefresh);
+      window.removeEventListener('refreshSchoolData', handleRefresh);
+    };
   }, [toast]);
 
   return (
@@ -188,6 +203,7 @@ export function TotalEscolasCard() {
 // Componente para o card de total de professores
 export function TotalProfessoresCard() {
   const { toast } = useToast();
+  const { refreshAll } = useAutoRefresh();
   const [totalProfessores, setTotalProfessores] = useState<number>(0);
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [escolas, setEscolas] = useState<Escola[]>([]);

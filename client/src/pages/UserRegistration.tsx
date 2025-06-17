@@ -84,6 +84,7 @@ export default function UserRegistration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { refreshAfterCreate, resetForm } = useAutoRefresh();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [escolas, setEscolas] = useState<any[]>([]);
@@ -262,27 +263,29 @@ export default function UserRegistration() {
         variant: "default",
       });
       
-      // Limpeza completa do formulário (resetForm)
-      form.reset({
-        nome_completo: "",
-        email: "",
-        telefone: "",
-        papel: undefined,
-        cpf: "",
-        senha: "",
-        turma_id: "",
-        numero_matricula: "",
-        escola_id: "",
+      // Limpeza completa do formulário usando hook centralizado
+      resetForm(() => {
+        form.reset({
+          nome_completo: "",
+          email: "",
+          telefone: "",
+          papel: undefined,
+          cpf: "",
+          senha: "",
+          turma_id: "",
+          numero_matricula: "",
+          escola_id: "",
+        });
+        
+        // Reset estados locais
+        setSelectedDate(undefined);
+        setEscolasSelecionadas([]);
+        setFormStep(0);
+        setShowSchoolSelection(false);
       });
       
-      // Reset estados locais
-      setSelectedDate(undefined);
-      setEscolasSelecionadas([]);
-      setFormStep(0);
-      setShowSchoolSelection(false);
-      
-      // Refresh automático em todas as listas/dashboards
-      await refreshAllData();
+      // Refresh automático centralizado após cadastro
+      await refreshAfterCreate("usuário");
       
     } catch (error) {
       console.error("Erro no cadastro:", error);
