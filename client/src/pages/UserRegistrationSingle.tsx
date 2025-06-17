@@ -392,16 +392,17 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="cpf"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#312e26] font-semibold">CPF</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">CPF *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="000.000.000-00" 
                           {...field}
-                          className="border-[#8c7851] focus:border-[#d4a054]"
+                          onChange={handleCpfChange}
+                          className="border-primary bg-dark text-parchment focus:ring-accent"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -411,15 +412,15 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="data_nascimento"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-[#312e26] font-semibold">Data de Nascimento</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Data de Nascimento *</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full pl-3 text-left font-normal border-[#8c7851]",
+                                "w-full pl-3 text-left font-normal border-primary bg-dark text-parchment",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -442,7 +443,7 @@ export default function UserRegistrationSingle() {
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -452,21 +453,47 @@ export default function UserRegistrationSingle() {
                   control={form.control}
                   name="papel"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[#312e26] font-semibold">Papel</FormLabel>
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Perfil do Usuário *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="border-[#8c7851] focus:border-[#d4a054]">
-                            <SelectValue placeholder="Selecione o papel" />
+                          <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
+                            <SelectValue placeholder="Selecione o perfil" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="aluno">Aluno</SelectItem>
-                          <SelectItem value="professor">Professor</SelectItem>
-                          <SelectItem value="gestor">Gestor</SelectItem>
+                        <SelectContent className="bg-dark border border-primary text-parchment">
+                          <SelectItem value="aluno" className="focus:bg-dark-light focus:text-parchment">Aluno</SelectItem>
+                          <SelectItem value="professor" className="focus:bg-dark-light focus:text-parchment">Professor</SelectItem>
+                          <SelectItem value="gestor" className="focus:bg-dark-light focus:text-parchment">Gestor</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormDescription className="text-parchment-dark">
+                        O perfil determina as permissões do usuário na plataforma
+                      </FormDescription>
+                      <FormMessage className="text-destructive" />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Senha */}
+                <FormField
+                  control={form.control}
+                  name="senha"
+                  render={({ field }) => (
+                    <FormItem className="border border-primary/40 rounded-md p-4 bg-dark shadow-sm">
+                      <FormLabel className="text-parchment font-medium">Senha *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password"
+                          placeholder="Digite a senha" 
+                          {...field}
+                          className="border-primary bg-dark text-parchment focus:ring-accent"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-parchment-dark">
+                        Mínimo de 6 caracteres
+                      </FormDescription>
+                      <FormMessage className="text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -474,87 +501,57 @@ export default function UserRegistrationSingle() {
 
               {/* Campos específicos para aluno */}
               {form.watch("papel") === "aluno" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-[#d4a054]/20 rounded-lg border border-[#d4a054]">
-                  <h3 className="col-span-full text-lg font-semibold text-[#312e26] mb-2">
+                <div className="border border-accent/40 rounded-md p-6 bg-dark-light shadow-sm space-y-4">
+                  <h3 className="text-lg font-semibold text-accent mb-4 border-b border-accent/30 pb-2">
                     Informações do Aluno
                   </h3>
                   
-                  {/* Turma */}
-                  <FormField
-                    control={form.control}
-                    name="turma_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[#312e26] font-semibold">Turma</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Turma */}
+                    <FormField
+                      control={form.control}
+                      name="turma_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-parchment font-medium">Turma *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
+                                <SelectValue placeholder="Selecione a turma" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-dark border border-primary text-parchment">
+                              {turmas.map((turma) => (
+                                <SelectItem key={turma.id} value={turma.id} className="focus:bg-dark-light focus:text-parchment">
+                                  {turma.nome} - {turma.serie}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage className="text-destructive" />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Número de Matrícula */}
+                    <FormField
+                      control={form.control}
+                      name="numero_matricula"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-parchment font-medium">Número de Matrícula *</FormLabel>
                           <FormControl>
-                            <SelectTrigger className="border-[#8c7851] focus:border-[#d4a054]">
-                              <SelectValue placeholder="Selecione a turma" />
-                            </SelectTrigger>
+                            <Input 
+                              placeholder="Digite o número de matrícula" 
+                              {...field}
+                              className="border-primary bg-dark text-parchment focus:ring-accent"
+                            />
                           </FormControl>
-                          <SelectContent>
-                            {turmas.map((turma) => (
-                              <SelectItem key={turma.id} value={turma.id}>
-                                {turma.nome} - {turma.serie}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Número de Matrícula */}
-                  <FormField
-                    control={form.control}
-                    name="numero_matricula"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[#312e26] font-semibold">Número de Matrícula</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Digite o número de matrícula" 
-                            {...field}
-                            className="border-[#8c7851] focus:border-[#d4a054]"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Senha */}
-              <FormField
-                control={form.control}
-                name="senha"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#312e26] font-semibold">Senha</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="password"
-                        placeholder="Digite a senha" 
-                        {...field}
-                        className="border-[#8c7851] focus:border-[#d4a054]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Mensagens de erro */}
-              {validationErrors.length > 0 && (
-                <div className="p-4 bg-red-100 border border-red-400 rounded-lg">
-                  <h4 className="font-semibold text-red-800 mb-2">Erros encontrados:</h4>
-                  <ul className="list-disc list-inside text-red-700">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
+                          <FormMessage className="text-destructive" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               )}
 
