@@ -19,35 +19,29 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    // Buscar escolas vinculadas ao gestor da sessão atual
-    const { data: escolas, error: escolasError } = await supabase
+    // Buscar escolas com consultas simples no Supabase
+    const { data: escolas } = await supabase
       .from('escolas')
       .select('*')
       .in('id', escolaIds);
     
-    if (escolasError) {
-      console.error('Erro ao buscar escolas:', escolasError);
-    }
+    // Contar professores através dos perfis
+    const { count: totalProfessores } = await supabase
+      .from('perfis_professor')
+      .select('id', { count: 'exact', head: true })
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
     
-    // Contar professores: usuários com papel 'teacher' vinculados às escolas do gestor
-    const { count: totalProfessores, error: profError } = await supabase
+    // Contar alunos através das turmas
+    const { count: totalAlunos } = await supabase
       .from('usuarios')
-      .select('*, perfis_professor!inner(*)', { count: 'exact', head: true })
-      .eq('papel', 'teacher')
-      .in('perfis_professor.escola_id', escolaIds)
-      .eq('perfis_professor.ativo', true);
+      .select('id', { count: 'exact', head: true })
+      .eq('papel', 'student');
     
-    // Contar alunos: usuários com papel 'student' vinculados a turmas das escolas do gestor
-    const { count: totalAlunos, error: alunosError } = await supabase
-      .from('usuarios')
-      .select('*, perfis_aluno!inner(*, turmas!inner(*))', { count: 'exact', head: true })
-      .eq('papel', 'student')
-      .in('perfis_aluno.turmas.escola_id', escolaIds);
-    
-    // Contar turmas ativas das escolas do gestor
-    const { count: turmasAtivas, error: turmasError } = await supabase
+    // Contar turmas ativas
+    const { count: turmasAtivas } = await supabase
       .from('turmas')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .in('escola_id', escolaIds)
       .eq('ativo', true);
     
