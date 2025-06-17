@@ -2402,74 +2402,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Para cada usuário, buscar as escolas vinculadas
+      // Para cada usuário, buscar as escolas vinculadas usando escola_id direto
       const usuariosComEscolas = await Promise.all(
         usuarios.map(async (usuario) => {
           let escolasVinculadas = [];
+          let escolaId = null;
 
           if (usuario.papel === 'manager' || usuario.papel === 'gestor') {
-            // Buscar escolas vinculadas ao gestor
+            // Buscar escola_id diretamente do perfil_gestor
             const { data: perfilGestor } = await supabase
               .from('perfis_gestor')
-              .select('id')
+              .select('escola_id')
               .eq('usuario_id', usuario.id)
               .single();
 
-            if (perfilGestor) {
-              const { data: vinculosEscolas } = await supabase
-                .from('escolas_vinculadas')
-                .select(`
-                  escolas (
-                    id,
-                    nome
-                  )
-                `)
-                .eq('gestor_id', perfilGestor.id);
-
-              if (vinculosEscolas && vinculosEscolas.length > 0) {
-                escolasVinculadas = vinculosEscolas.map(v => v.escolas).filter(Boolean);
-              }
+            if (perfilGestor?.escola_id) {
+              escolaId = perfilGestor.escola_id;
             }
           } else if (usuario.papel === 'teacher' || usuario.papel === 'professor') {
-            // Buscar escolas vinculadas ao professor
+            // Buscar escola_id diretamente do perfil_professor
             const { data: perfilProfessor } = await supabase
               .from('perfis_professor')
-              .select(`
-                escola_id,
-                escola:escola_id (
-                  id,
-                  nome
-                )
-              `)
+              .select('escola_id')
               .eq('usuario_id', usuario.id)
               .single();
 
-            if (perfilProfessor?.escola) {
-              escolasVinculadas = [perfilProfessor.escola];
+            if (perfilProfessor?.escola_id) {
+              escolaId = perfilProfessor.escola_id;
             }
           } else if (usuario.papel === 'student' || usuario.papel === 'aluno') {
-            // Buscar escolas vinculadas ao aluno
-            const { data: perfilAluno } = await supabase
-              .from('perfis_aluno')
+            // Para alunos, buscar via turmas
+            const { data: turmasAluno } = await supabase
+              .from('turmas_alunos')
               .select(`
-                escola_id,
-                escola:escola_id (
-                  id,
-                  nome
+                turmas (
+                  escola_id
                 )
               `)
-              .eq('usuario_id', usuario.id)
+              .eq('aluno_id', usuario.id)
+              .limit(1);
+
+            if (turmasAluno && turmasAluno.length > 0 && turmasAluno[0].turmas?.escola_id) {
+              escolaId = turmasAluno[0].turmas.escola_id;
+            }
+          }
+
+          // Buscar dados da escola se temos o ID
+          if (escolaId) {
+            const { data: escola } = await supabase
+              .from('escolas')
+              .select('id, nome')
+              .eq('id', escolaId)
               .single();
 
-            if (perfilAluno?.escola) {
-              escolasVinculadas = [perfilAluno.escola];
+            if (escola) {
+              escolasVinculadas = [escola];
             }
           }
 
           return {
             ...usuario,
+            escola_id: escolaId,
             escola_nome: escolasVinculadas.length > 0 
-              ? escolasVinculadas.map(e => e.nome).join(', ')
+              ? escolasVinculadas[0].nome
               : 'Geral',
             escolas_vinculadas: escolasVinculadas
           };

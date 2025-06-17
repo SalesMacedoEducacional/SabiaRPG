@@ -152,9 +152,11 @@ export default function UsersListFixed() {
 
     // Filtro por escola
     if (filtroEscola !== "todas") {
-      usuariosFiltrados = usuariosFiltrados.filter(usuario =>
-        usuario.escolas_vinculadas?.some(escola => escola.id === filtroEscola)
-      );
+      usuariosFiltrados = usuariosFiltrados.filter(usuario => {
+        // Verificar se o usuario tem escola_id que corresponde ao filtro
+        return usuario.escola_id === filtroEscola ||
+               usuario.escolas_vinculadas?.some(escola => escola.id === filtroEscola);
+      });
     }
 
     return usuariosFiltrados;
@@ -426,15 +428,11 @@ export default function UsersListFixed() {
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          {usuario.escolas_vinculadas?.length ? (
-                            <div className="flex flex-wrap gap-1">
-                              {usuario.escolas_vinculadas.map((escola) => (
-                                <Badge key={escola.id} variant="outline" className="text-xs">
-                                  <School className="h-3 w-3 mr-1" />
-                                  {escola.nome}
-                                </Badge>
-                              ))}
-                            </div>
+                          {usuario.escola_nome && usuario.escola_nome !== 'Geral' ? (
+                            <Badge variant="outline" className="text-xs">
+                              <School className="h-3 w-3 mr-1" />
+                              {usuario.escola_nome}
+                            </Badge>
                           ) : (
                             <span className="text-accent">Geral</span>
                           )}
