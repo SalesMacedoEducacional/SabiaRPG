@@ -2484,12 +2484,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash da senha
       const senhaHash = await bcrypt.hash(senha, 10);
 
-      // Preparar dados reais do usuário (sem atualizado_em que não existe na tabela)
+      // Preparar dados reais do usuário (normalizando telefone)
+      const telefoneNormalizado = telefone ? telefone.replace(/\D/g, '') : '';
+      
       const novoUsuario = {
         id: crypto.randomUUID(),
         nome: nome_completo,
         email,
-        telefone: telefone || '',
+        telefone: telefoneNormalizado,
         data_nascimento: data_nascimento || null,
         papel,
         cpf: cpf || '',
