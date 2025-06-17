@@ -2487,12 +2487,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`=== VERIFICAÇÃO DE UNICIDADE ===`);
       console.log(`Campo: ${campo}, Valor: ${valorNormalizado}`);
       
-      // Verificar no banco
-      const { data: usuarioExistente, error } = await supabase
+      // Verificar no banco - buscar todos os registros e contar
+      const { data: registros, error } = await supabase
         .from('usuarios')
         .select('id')
-        .eq(campo, valorNormalizado)
-        .limit(1);
+        .eq(campo, campo === 'email' ? valor : valorNormalizado);
       
       if (error) {
         console.error('Erro ao verificar unicidade:', error);
@@ -2501,10 +2500,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const disponivel = !usuarioExistente || usuarioExistente.length === 0;
+      const disponivel = !registros || registros.length === 0;
       
-      console.log(`Resultado da consulta - Registros encontrados: ${usuarioExistente?.length || 0}`);
-      console.log(`Campo ${campo} com valor ${valorNormalizado} - Disponível: ${disponivel}`);
+      console.log(`Registros encontrados: ${registros?.length || 0}`);
+      console.log(`Campo ${campo} com valor ${campo === 'email' ? valor : valorNormalizado} - Disponível: ${disponivel}`);
       
       res.json({
         disponivel,
