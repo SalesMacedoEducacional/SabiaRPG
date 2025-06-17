@@ -22,24 +22,30 @@ export function registerGestorEscolasRoutes(app: Express) {
         return res.status(401).json({ message: "Gestor não identificado" });
       }
       
-      // Buscar escolas diretamente pela coluna gestor_id (relacionamento direto)
-      const { data: escolas, error } = await supabase
-        .from('escolas')
+      // Buscar escolas através da tabela perfis_gestor (relacionamento correto)
+      const { data: perfilData, error } = await supabase
+        .from('perfis_gestor')
         .select(`
-          id,
-          nome,
-          codigo_escola,
-          tipo,
-          modalidade_ensino,
-          cidade,
-          estado,
-          zona_geografica,
-          endereco_completo,
-          telefone,
-          email_institucional,
-          criado_em
+          escola_id,
+          cargo,
+          ativo,
+          escolas:escola_id (
+            id,
+            nome,
+            codigo_escola,
+            tipo,
+            modalidade_ensino,
+            cidade,
+            estado,
+            zona_geografica,
+            endereco_completo,
+            telefone,
+            email_institucional,
+            criado_em
+          )
         `)
-        .eq('gestor_id', gestorId);
+        .eq('usuario_id', gestorId)
+        .eq('ativo', true);
       
       if (error) {
         console.error("Erro na consulta SQL:", error);
