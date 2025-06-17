@@ -2379,31 +2379,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
-      // Buscar todos os usuários reais com CPF preenchido
-      console.log('Executando consulta Supabase para buscar todos os usuários...');
-      const { data: usuarios, error: usuariosError } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          telefone,
-          papel,
-          ativo,
-          criado_em
-        `)
-        .not('cpf', 'is', null)
-        .not('cpf', 'eq', '')
-        .order('criado_em', { ascending: false })
-        .limit(50);
-      
-      console.log('Resultado da consulta Supabase:');
-      console.log('- Total de usuários retornados:', usuarios?.length || 0);
-      console.log('- Erro na consulta:', usuariosError);
-      if (usuarios && usuarios.length > 0) {
-        console.log('- Primeiros 3 usuários:', usuarios.slice(0, 3).map(u => ({ id: u.id, nome: u.nome, email: u.email, cpf: u.cpf })));
-      }
+      // Buscar todos os usuários com consulta SQL direta
+      console.log('Executando consulta SQL direta para todos os usuários...');
+      const { data: usuarios, error: usuariosError } = await supabase.rpc('buscar_todos_usuarios');
 
       if (usuariosError) {
         console.error('Erro ao buscar usuários:', usuariosError);
