@@ -2465,14 +2465,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST - Cadastrar novo usuário
+  // POST - Cadastrar novo usuário (versão simplificada)
   app.post("/api/usuarios", async (req, res) => {
-    console.log('Cadastrando novo usuário via sessão:', req.session?.userId);
+    console.log('=== ENDPOINT CADASTRO USUÁRIO ===');
+    console.log('Dados recebidos:', req.body);
+    
     try {
-      console.log("=== CADASTRANDO NOVO USUÁRIO ===");
-      console.log('Dados recebidos:', req.body);
-      
-      const { nome_completo, email, telefone, data_nascimento, papel, cpf, numero_matricula, turma_id } = req.body;
+      const { nome_completo, email, telefone, data_nascimento, papel, cpf } = req.body;
       
       // Validações básicas
       if (!nome_completo || !email || !papel) {
@@ -2487,7 +2486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from('usuarios')
         .select('id')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
       if (usuarioExistente) {
         return res.status(400).json({ 
@@ -2496,7 +2495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Preparar dados para inserção
+      // Preparar dados básicos para inserção
       const novoUsuario = {
         nome: nome_completo,
         email,
@@ -2504,13 +2503,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data_nascimento: data_nascimento ? new Date(data_nascimento) : null,
         papel,
         cpf: cpf || '',
-        ativo: true,
-        criado_em: new Date().toISOString()
+        ativo: true
       };
 
-      console.log('Inserindo usuário diretamente:', novoUsuario);
+      console.log('Inserindo usuário básico:', novoUsuario);
 
-      // Inserir usuário no banco (RLS já foi desabilitado)
+      // Inserir apenas na tabela usuarios
       const { data: usuarioInserido, error } = await supabase
         .from('usuarios')
         .insert([novoUsuario])
@@ -2525,7 +2523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      console.log('Usuário inserido com sucesso:', usuarioInserido.id);
+      console.log('Usuário cadastrado com sucesso:', usuarioInserido.id);
 
       res.status(201).json({ 
         sucesso: true,
@@ -2534,7 +2532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
     } catch (error) {
-      console.error('Erro crítico ao cadastrar usuário:', error);
+      console.error('Erro crítico:', error);
       res.status(500).json({ 
         erro: 'Erro interno do servidor', 
         detalhes: error instanceof Error ? error.message : 'Erro desconhecido'
