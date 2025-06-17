@@ -1917,43 +1917,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const escolaIds = escolas.map(escola => escola.id);
 
-      // Buscar alunos diretamente da tabela usuarios com papel 'aluno'
-      const { data: alunos, error: alunosError } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nome,
-          cpf,
-          telefone,
-          email
-        `)
-        .eq('papel', 'aluno');
+      // Contar alunos reais da tabela perfis_aluno
+      const { count, error: alunosError } = await supabase
+        .from('perfis_aluno')
+        .select('*', { count: 'exact', head: true });
 
       if (alunosError) {
-        console.error('Erro ao buscar alunos:', alunosError);
-        return res.status(500).json({ message: 'Erro ao buscar alunos', error: alunosError.message });
+        console.error('Erro ao contar alunos:', alunosError);
+        return res.status(500).json({ message: 'Erro ao contar alunos', error: alunosError.message });
       }
 
-      // Formatar dados para o frontend (sem escola específica por enquanto)
-      const alunosFormatados = alunos?.map(aluno => ({
-        id: aluno.id,
-        usuarios: {
-          nome: aluno.nome || 'Nome não informado'
-        },
-        turmas: {
-          nome: 'Não vinculado'
-        },
-        matriculas: {
-          numero_matricula: 'N/A'
-        },
-        escola_id: escolaIds[0] || null, // Assume primeira escola do gestor por padrão
-        escola_nome: escolas[0]?.nome || 'Escola não informada'
-      })) || [];
-
-      res.status(200).json({ 
-        total: alunosFormatados.length, 
-        alunos: alunosFormatados 
-      });
+      console.log(`DADOS REAIS: ${count || 0} alunos encontrados no sistema`);
+      return res.status(200).json({ total: count || 0, alunos: [] });
     } catch (error) {
       console.error("Erro ao buscar alunos:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
