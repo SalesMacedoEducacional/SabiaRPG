@@ -2416,7 +2416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .from('perfis_gestor')
               .select('escola_id')
               .eq('usuario_id', usuario.id)
-              .single();
+              .maybeSingle();
 
             if (perfilGestor?.escola_id) {
               escolaId = perfilGestor.escola_id;
@@ -2428,7 +2428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .from('perfis_professor')
               .select('escola_id')
               .eq('usuario_id', usuario.id)
-              .single();
+              .maybeSingle();
 
             console.log(`Perfil professor encontrado:`, perfilProfessor);
             console.log(`Erro na busca do perfil:`, profError);
