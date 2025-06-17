@@ -94,6 +94,13 @@ export default function UserRegistration() {
   const [escolasSelecionadas, setEscolasSelecionadas] = useState<string[]>([]);
   const [showSchoolSelection, setShowSchoolSelection] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  
+  // Estados de validação de unicidade
+  const [unicityValidation, setUnicityValidation] = useState({
+    cpf: { valid: false, checking: false, error: '' },
+    email: { valid: false, checking: false, error: '' },
+    telefone: { valid: false, checking: false, error: '' }
+  });
 
   // Formulário com validação rigorosa em tempo real
   const form = useForm<UserFormData>({
@@ -117,34 +124,73 @@ export default function UserRegistration() {
   // Observar todos os campos para validação rigorosa em tempo real
   const watchedFields = form.watch();
   
-  // Validação simplificada baseada na etapa atual do formulário
+  // Função para validar unicidade de um campo
+  const validateUnicity = async (campo: string, valor: string) => {
+    if (!valor || valor.trim() === '') return;
+    
+    // Marcar como checando
+    setUnicityValidation(prev => ({
+      ...prev,
+      [campo]: { ...prev[campo], checking: true, error: '' }
+    }));
+    
+    try {
+      const response = await apiRequest('POST', '/api/usuarios/verificar-unicidade', {
+        campo,
+        valor: valor.trim()
+      });
+      
+      const { disponivel } = response as any;
+      
+      setUnicityValidation(prev => ({
+        ...prev,
+        [campo]: { 
+          valid: disponivel, 
+          checking: false, 
+          error: disponivel ? '' : `${campo.toUpperCase()} já cadastrado no sistema`
+        }
+      }));
+      
+    } catch (error) {
+      console.error('Erro na validação de unicidade:', error);
+      setUnicityValidation(prev => ({
+        ...prev,
+        [campo]: { 
+          valid: false, 
+          checking: false, 
+          error: 'Erro ao verificar disponibilidade'
+        }
+      }));
+    }
+  };
+
+  // Validação completa do formulário
   const isFormValid = () => {
     const values = form.getValues();
     
+    // Validar campos básicos obrigatórios
+    const basicFieldsValid = !!(values.nome_completo?.trim() && 
+                               values.email?.trim() && 
+                               values.telefone?.trim() && 
+                               values.data_nascimento && 
+                               values.papel && 
+                               values.cpf?.trim() && 
+                               values.senha?.trim());
+    
+    // Validar unicidade dos campos críticos
+    const unicityValid = unicityValidation.cpf.valid && 
+                        unicityValidation.email.valid && 
+                        unicityValidation.telefone.valid;
+    
     if (formStep === 0) {
-      // Primeira etapa - campos básicos obrigatórios
-      return !!(values.nome_completo?.trim() && 
-                values.email?.trim() && 
-                values.telefone?.trim() && 
-                values.data_nascimento && 
-                values.papel && 
-                values.cpf?.trim() && 
-                values.senha?.trim());
+      return basicFieldsValid && unicityValid;
     } else if (formStep === 1) {
-      // Segunda etapa - incluir campos específicos por papel
-      const basicValid = !!(values.nome_completo?.trim() && 
-                           values.email?.trim() && 
-                           values.telefone?.trim() && 
-                           values.data_nascimento && 
-                           values.papel && 
-                           values.cpf?.trim() && 
-                           values.senha?.trim());
-      
+      let roleSpecificValid = true;
       if (values.papel === "aluno") {
-        return basicValid && !!(values.turma_id?.trim() && values.numero_matricula?.trim()) && !isSubmitting;
+        roleSpecificValid = !!(values.turma_id?.trim() && values.numero_matricula?.trim());
       }
       
-      return basicValid && !isSubmitting;
+      return basicFieldsValid && unicityValid && roleSpecificValid && !isSubmitting;
     }
     
     return false;
@@ -302,7 +348,7 @@ export default function UserRegistration() {
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
       
-      // Limpar erros anteriores
+          // Limpar erros anteriores
       setValidationErrors([]);
       
       let errorMessage = "Erro ao processar cadastro";

@@ -41,7 +41,7 @@ export const useUnicityValidation = () => {
         valor
       });
 
-      const { disponivel } = response as { disponivel: boolean };
+      const { disponivel } = response as any;
 
       setValidationState(prev => ({
         ...prev,
