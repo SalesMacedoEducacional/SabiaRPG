@@ -2379,7 +2379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
-      // Buscar todos os usuários
+      // Buscar todos os usuários reais (sem filtros limitantes)
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select(`
@@ -2392,7 +2392,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ativo,
           criado_em
         `)
-        .order('criado_em', { ascending: false });
+        .not('nome', 'is', null)  // Excluir usuários sem nome
+        .order('nome', { ascending: true });
 
       if (usuariosError) {
         console.error('Erro ao buscar usuários:', usuariosError);
