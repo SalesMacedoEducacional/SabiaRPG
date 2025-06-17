@@ -115,6 +115,9 @@ function Router() {
           PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
+
+      {/* Rota para gestores cadastrarem sua primeira escola */}
+      <Route path="/manager/school-registration" component={ManagerSchoolRegistration} />
       
       <ProtectedRoute 
         path="/user-registration" 
