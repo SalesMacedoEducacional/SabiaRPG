@@ -14,29 +14,54 @@ import { executeQuery } from './database';
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/manager/dashboard-stats', async (req, res) => {
   try {
-    console.log('Retornando estatísticas do dashboard para o gestor');
+    console.log('Buscando estatísticas reais do banco para o gestor');
+    
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    // Buscar dados reais das escolas
+    const { data: escolas, error: escolasError } = await supabase
+      .from('escolas')
+      .select('*')
+      .in('id', escolaIds);
+    
+    if (escolasError) {
+      console.error('Erro ao buscar escolas:', escolasError);
+    }
+    
+    // Contar professores reais
+    const { count: totalProfessores, error: profError } = await supabase
+      .from('perfis_professor')
+      .select('*', { count: 'exact', head: true })
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
+    
+    // Contar alunos reais
+    const { count: totalAlunos, error: alunosError } = await supabase
+      .from('perfis_aluno')
+      .select('*', { count: 'exact', head: true })
+      .in('escola_id', escolaIds);
+    
+    // Contar turmas reais
+    const { count: turmasAtivas, error: turmasError } = await supabase
+      .from('turmas')
+      .select('*', { count: 'exact', head: true })
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
+    
+    console.log('Contadores reais do banco:', {
+      escolas: escolas?.length || 0,
+      professores: totalProfessores || 0,
+      alunos: totalAlunos || 0,
+      turmas: turmasAtivas || 0
+    });
     
     const dashboardStats = {
-      totalEscolas: 2,
-      totalProfessores: 45,
-      totalAlunos: 890,
-      turmasAtivas: 18,
-      escolas: [
-        {
-          id: '3aa2a8a7-141b-42d9-af55-a656247c73b3',
-          nome: 'U.E. DEUS NOS ACUDA',
-          totalProfessores: 25,
-          totalAlunos: 520,
-          turmasAtivas: 12
-        },
-        {
-          id: '52de4420-f16c-4260-8eb8-307c402a0260',
-          nome: 'CETI PAULISTANA',
-          totalProfessores: 20,
-          totalAlunos: 370,
-          turmasAtivas: 6
-        }
-      ]
+      totalEscolas: escolas?.length || 0,
+      totalProfessores: totalProfessores || 0,
+      totalAlunos: totalAlunos || 0,
+      turmasAtivas: turmasAtivas || 0,
+      escolas: escolas || []
     };
     
     return res.status(200).json({
@@ -99,6 +124,96 @@ app.get('/api/escolas/gestor', async (req, res) => {
       message: "Erro interno", 
       error: error instanceof Error ? error.message : "Erro desconhecido" 
     });
+  }
+});
+
+// Endpoint para detalhes de professores das escolas do gestor
+app.get('/api/manager/professores', async (req, res) => {
+  try {
+    console.log('Buscando professores reais das escolas do gestor');
+    
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    const { data: professores, error } = await supabase
+      .from('perfis_professor')
+      .select(`
+        *,
+        usuarios!inner(nome, email),
+        escolas!inner(nome)
+      `)
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
+    
+    if (error) {
+      console.error('Erro ao buscar professores:', error);
+      return res.status(500).json({ message: 'Erro ao buscar professores', error: error.message });
+    }
+    
+    console.log(`Encontrados ${professores?.length || 0} professores reais no banco`);
+    return res.status(200).json(professores || []);
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).json({ message: 'Erro interno', error: error instanceof Error ? error.message : "Erro desconhecido" });
+  }
+});
+
+// Endpoint para detalhes de alunos das escolas do gestor
+app.get('/api/manager/alunos', async (req, res) => {
+  try {
+    console.log('Buscando alunos reais das escolas do gestor');
+    
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    const { data: alunos, error } = await supabase
+      .from('perfis_aluno')
+      .select(`
+        *,
+        usuarios!inner(nome, email),
+        escolas!inner(nome),
+        turmas(nome, serie)
+      `)
+      .in('escola_id', escolaIds);
+    
+    if (error) {
+      console.error('Erro ao buscar alunos:', error);
+      return res.status(500).json({ message: 'Erro ao buscar alunos', error: error.message });
+    }
+    
+    console.log(`Encontrados ${alunos?.length || 0} alunos reais no banco`);
+    return res.status(200).json(alunos || []);
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).json({ message: 'Erro interno', error: error instanceof Error ? error.message : "Erro desconhecido" });
+  }
+});
+
+// Endpoint para detalhes de turmas das escolas do gestor
+app.get('/api/manager/turmas', async (req, res) => {
+  try {
+    console.log('Buscando turmas reais das escolas do gestor');
+    
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    const { data: turmas, error } = await supabase
+      .from('turmas')
+      .select(`
+        *,
+        escolas!inner(nome),
+        perfis_professor(usuarios(nome))
+      `)
+      .in('escola_id', escolaIds)
+      .eq('ativo', true);
+    
+    if (error) {
+      console.error('Erro ao buscar turmas:', error);
+      return res.status(500).json({ message: 'Erro ao buscar turmas', error: error.message });
+    }
+    
+    console.log(`Encontradas ${turmas?.length || 0} turmas reais no banco`);
+    return res.status(200).json(turmas || []);
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).json({ message: 'Erro interno', error: error instanceof Error ? error.message : "Erro desconhecido" });
   }
 });
 
