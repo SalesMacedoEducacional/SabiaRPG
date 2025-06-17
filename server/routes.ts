@@ -2373,92 +2373,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ========== ENDPOINTS COMPLETOS DE GESTÃO DE USUÁRIOS ==========
   
-  // GET - Buscar todos os usuários com escolas vinculadas
+  // GET - Buscar todos os usuários reais do banco de dados
   app.get("/api/usuarios", async (req, res) => {
-    console.log('Usuário já autenticado via sessão:', req.session?.userId);
+    console.log('Usuário autenticado via sessão:', req.session?.userId);
     try {
-      console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
+      console.log("=== BUSCANDO USUÁRIOS REAIS DO BANCO ===");
       
-      // Criar lista completa de usuários combinando dados conhecidos e novos cadastros
-      console.log('Montando lista completa de usuários com dados reais...');
-      
-      // Buscar APENAS usuários reais do banco de dados, sem dados fictícios
-      console.log('Buscando apenas usuários reais do banco de dados...');
+      // Buscar diretamente na tabela usuarios - apenas dados reais
+      console.log('Consultando tabela usuarios...');
       
       let usuarios = [];
       let usuariosError = null;
       
-      try {
-        console.log('Buscando usuários reais do banco de dados...');
-        
-        // Usar consulta SQL direta com bypass de RLS usando service role
-        const { data: usuariosReais, error: errorPrincipal } = await supabase
-          .from('usuarios')
-          .select('id, nome, email, cpf, telefone, papel, ativo, criado_em')
-          .order('criado_em', { ascending: false });
-        
-        console.log('Resultado da consulta:', {
-          dataLength: usuariosReais?.length || 0,
-          hasError: !!errorPrincipal,
-          errorDetails: errorPrincipal?.message || 'Nenhum erro'
+      // Consulta direta no banco sem dados fictícios
+      const { data: usuariosReais, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+      usuariosError = error;
+
+      if (error) {
+        console.error('Erro ao consultar banco:', error.message);
+        return res.status(500).json({ 
+          erro: 'Erro ao acessar banco de dados',
+          detalhes: error.message 
         });
-        
-        usuariosError = errorPrincipal;
-        
-        if (usuariosReais && usuariosReais.length > 0) {
-          usuarios = usuariosReais.map((usuario: any) => ({
-            id: usuario.id,
-            nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
-            email: usuario.email,
-            cpf: usuario.cpf || '',
-            telefone: usuario.telefone || '',
-            papel: usuario.papel,
-            ativo: usuario.ativo ?? true,
-            criado_em: usuario.criado_em
-          }));
-          
-          console.log(`Usuários reais encontrados no banco: ${usuarios.length}`);
-        } else {
-          console.log('Nenhum usuário retornado pela consulta');
-          if (errorPrincipal) {
-            console.log('Erro detalhado:', JSON.stringify(errorPrincipal, null, 2));
-          }
-          
-          // Como fallback, usar apenas usuários realmente cadastrados via formulário
-          // Buscar o último usuário criado (que sabemos que existe)
-          try {
-            const { data: ultimoUsuario } = await supabase
-              .from('usuarios')
-              .select('*')
-              .eq('email', 'salanivariedades@gmail.com')
-              .single();
-            
-            if (ultimoUsuario) {
-              usuarios = [{
-                id: ultimoUsuario.id,
-                nome: ultimoUsuario.nome || 'Usuário Cadastrado',
-                email: ultimoUsuario.email,
-                cpf: ultimoUsuario.cpf || '',
-                telefone: ultimoUsuario.telefone || '',
-                papel: ultimoUsuario.papel,
-                ativo: ultimoUsuario.ativo ?? true,
-                criado_em: ultimoUsuario.criado_em
-              }];
-              console.log('Fallback: encontrado 1 usuário real cadastrado');
-            } else {
-              usuarios = [];
-            }
-          } catch (fallbackError) {
-            console.log('Erro no fallback:', fallbackError);
-            usuarios = [];
-          }
-        }
-        
-      } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
-        usuariosError = error;
-        usuarios = [];
       }
+
+      if (!usuariosReais || usuariosReais.length === 0) {
+        console.log('Nenhum usuário encontrado no banco');
+        return res.json({ usuarios: [], total: 0 });
+      }
+
+      usuarios = usuariosReais.map((usuario: any) => ({
+        id: usuario.id,
+        nome: usuario.nome || `Usuário ${usuario.email?.split('@')[0] || 'Sem Nome'}`,
+        email: usuario.email,
+        cpf: usuario.cpf || '',
+        telefone: usuario.telefone || '',
+        papel: usuario.papel,
+        ativo: usuario.ativo ?? true,
+        criado_em: usuario.criado_em
+      }));
+
+      console.log(`Usuários reais encontrados: ${usuarios.length}`);
 
       // Mapear usuários com escolas baseado no papel, sem mapeamentos fixos
       const usuariosComEscolas = usuarios.map(usuario => {
