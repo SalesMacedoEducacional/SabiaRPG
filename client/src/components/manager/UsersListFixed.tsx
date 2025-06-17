@@ -36,6 +36,9 @@ export default function UsersListFixed() {
   const [filtroPapel, setFiltroPapel] = useState<string>("todos");
   const [busca, setBusca] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null);
+  const [editingUser, setEditingUser] = useState<Usuario | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Estados dos contadores - calcular em tempo real
   const totalUsuarios = usuarios.length;
@@ -96,22 +99,37 @@ export default function UsersListFixed() {
   const filtrarUsuarios = () => {
     let usuariosFiltrados = [...usuarios];
 
-    // Filtro por busca
+    // Filtro por busca inteligente
     if (busca) {
-      const termoBusca = busca.toLowerCase();
-      usuariosFiltrados = usuariosFiltrados.filter(usuario =>
-        usuario.nome.toLowerCase().includes(termoBusca) ||
-        usuario.email.toLowerCase().includes(termoBusca) ||
-        usuario.cpf.includes(termoBusca)
-      );
+      const termoBusca = busca.toLowerCase().trim();
+      usuariosFiltrados = usuariosFiltrados.filter(usuario => {
+        // Detectar padrão de busca
+        const isEmail = termoBusca.includes('@');
+        const isCPF = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/.test(termoBusca) || /^\d{11}$/.test(termoBusca);
+        const isTelefone = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(termoBusca) || /^\d{10,11}$/.test(termoBusca);
+        
+        if (isEmail) {
+          return usuario.email?.toLowerCase().includes(termoBusca);
+        } else if (isCPF) {
+          return usuario.cpf?.replace(/[^\d]/g, '').includes(termoBusca.replace(/[^\d]/g, ''));
+        } else if (isTelefone) {
+          return usuario.telefone?.replace(/[^\d]/g, '').includes(termoBusca.replace(/[^\d]/g, ''));
+        } else {
+          // Busca por nome ou qualquer campo
+          return usuario.nome?.toLowerCase().includes(termoBusca) ||
+                 usuario.email?.toLowerCase().includes(termoBusca) ||
+                 usuario.cpf?.includes(termoBusca) ||
+                 usuario.telefone?.includes(termoBusca);
+        }
+      });
     }
 
     // Filtro por papel
     if (filtroPapel !== "todos") {
       usuariosFiltrados = usuariosFiltrados.filter(usuario => {
-        if (filtroPapel === "gestores") return ['manager', 'gestor', 'admin'].includes(usuario.papel);
-        if (filtroPapel === "professores") return ['teacher', 'professor'].includes(usuario.papel);
-        if (filtroPapel === "alunos") return ['student', 'aluno'].includes(usuario.papel);
+        if (filtroPapel === "gestor") return ['manager', 'gestor', 'admin'].includes(usuario.papel);
+        if (filtroPapel === "professor") return ['teacher', 'professor'].includes(usuario.papel);
+        if (filtroPapel === "aluno") return ['student', 'aluno'].includes(usuario.papel);
         return usuario.papel === filtroPapel;
       });
     }
@@ -165,9 +183,47 @@ export default function UsersListFixed() {
     }
   };
 
+  const handleViewUser = (usuario: Usuario) => {
+    setSelectedUser(usuario);
+    setIsViewDialogOpen(true);
+  };
+
   const handleEditUser = (usuario: Usuario) => {
-    // Implementar edição
-    console.log("Editar usuário:", usuario);
+    setEditingUser({ ...usuario });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+
+    const confirmSave = confirm("Tem certeza que deseja salvar as alterações feitas neste usuário?");
+    if (!confirmSave) return;
+
+    try {
+      await apiRequest("PUT", `/api/usuarios/${editingUser.id}`, {
+        nome: editingUser.nome,
+        email: editingUser.email,
+        telefone: editingUser.telefone,
+        cpf: editingUser.cpf,
+        ativo: editingUser.ativo
+      });
+
+      toast({
+        title: "Usuário atualizado",
+        description: `${editingUser.nome} foi atualizado com sucesso`,
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+      carregarUsuarios(); // Atualizar lista instantaneamente
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      toast({
+        title: "Erro ao atualizar usuário",
+        description: "Não foi possível salvar as alterações",
+        variant: "destructive",
+      });
+    }
   };
 
   // Debug logs
@@ -272,10 +328,10 @@ export default function UsersListFixed() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-accent">Todas as escolas</label>
+              <label className="text-sm font-medium text-accent">Filtrar por Escola</label>
               <Select value={filtroEscola} onValueChange={setFiltroEscola}>
                 <SelectTrigger className="bg-[#3c3830] border-[#5a5438] text-white">
-                  <SelectValue />
+                  <SelectValue placeholder="Todas as escolas" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todas">Todas as escolas</SelectItem>
@@ -289,16 +345,16 @@ export default function UsersListFixed() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-accent">Todos os papéis</label>
+              <label className="text-sm font-medium text-accent">Filtrar por Papel</label>
               <Select value={filtroPapel} onValueChange={setFiltroPapel}>
                 <SelectTrigger className="bg-[#3c3830] border-[#5a5438] text-white">
-                  <SelectValue />
+                  <SelectValue placeholder="Todos os papéis" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos os papéis</SelectItem>
-                  <SelectItem value="gestores">Gestores</SelectItem>
-                  <SelectItem value="professores">Professores</SelectItem>
-                  <SelectItem value="alunos">Alunos</SelectItem>
+                  <SelectItem value="gestor">Gestor</SelectItem>
+                  <SelectItem value="professor">Professor</SelectItem>
+                  <SelectItem value="aluno">Aluno</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -324,10 +380,11 @@ export default function UsersListFixed() {
                 <thead>
                   <tr className="border-b border-[#5a5438]">
                     <th className="text-left py-3 px-4 text-accent font-medium">Nome</th>
-                    <th className="text-left py-3 px-4 text-accent font-medium">Email</th>
+                    <th className="text-left py-3 px-4 text-accent font-medium">E-mail</th>
                     <th className="text-left py-3 px-4 text-accent font-medium">CPF</th>
+                    <th className="text-left py-3 px-4 text-accent font-medium">Telefone</th>
                     <th className="text-left py-3 px-4 text-accent font-medium">Papel</th>
-                    <th className="text-left py-3 px-4 text-accent font-medium">Escolas</th>
+                    <th className="text-left py-3 px-4 text-accent font-medium">Escola de Vínculo</th>
                     <th className="text-left py-3 px-4 text-accent font-medium">Status</th>
                     <th className="text-left py-3 px-4 text-accent font-medium">Criado em</th>
                     <th className="text-center py-3 px-4 text-accent font-medium">Ações</th>
@@ -340,6 +397,7 @@ export default function UsersListFixed() {
                         <td className="py-3 px-4 text-white font-medium">{usuario.nome}</td>
                         <td className="py-3 px-4 text-accent">{usuario.email}</td>
                         <td className="py-3 px-4 text-accent">{usuario.cpf}</td>
+                        <td className="py-3 px-4 text-accent">{usuario.telefone || '-'}</td>
                         <td className="py-3 px-4">
                           <Badge variant={getPapelBadge(usuario.papel).variant}>
                             {getPapelBadge(usuario.papel).label}
@@ -372,8 +430,9 @@ export default function UsersListFixed() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setSelectedUser(usuario)}
+                              onClick={() => handleViewUser(usuario)}
                               className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
+                              title="Ver detalhes"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -382,6 +441,7 @@ export default function UsersListFixed() {
                               variant="outline"
                               onClick={() => handleEditUser(usuario)}
                               className="border-[#D47C06] text-[#D47C06] hover:bg-[#D47C06] hover:text-white"
+                              title="Editar usuário"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -389,6 +449,7 @@ export default function UsersListFixed() {
                               size="sm"
                               variant="destructive"
                               onClick={() => handleDeleteUser(usuario.id, usuario.nome)}
+                              title="Excluir usuário"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -398,7 +459,7 @@ export default function UsersListFixed() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className="text-center py-8 text-accent">
+                      <td colSpan={9} className="text-center py-8 text-accent">
                         Nenhum usuário encontrado.
                       </td>
                     </tr>
@@ -410,33 +471,156 @@ export default function UsersListFixed() {
         </CardContent>
       </Card>
 
-      {/* Dialog de Detalhes */}
-      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent className="bg-[#312e26] border-[#5a5438] text-white">
+      {/* Dialog de Visualização */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="bg-[#312e26] border-[#5a5438] text-white max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes do Usuário</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-white">Detalhes do Usuário</DialogTitle>
           </DialogHeader>
           {selectedUser && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-accent text-sm">Nome:</label>
-                <p className="text-white">{selectedUser.nome}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-accent text-sm font-medium">Nome Completo:</label>
+                  <p className="text-white text-lg">{selectedUser.nome}</p>
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">E-mail:</label>
+                  <p className="text-white">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">CPF:</label>
+                  <p className="text-white">{selectedUser.cpf}</p>
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">Telefone:</label>
+                  <p className="text-white">{selectedUser.telefone || 'Não informado'}</p>
+                </div>
               </div>
-              <div>
-                <label className="text-accent text-sm">Email:</label>
-                <p className="text-white">{selectedUser.email}</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-accent text-sm font-medium">Papel no Sistema:</label>
+                  <div className="mt-1">
+                    <Badge variant={getPapelBadge(selectedUser.papel).variant}>
+                      {getPapelBadge(selectedUser.papel).label}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">Status:</label>
+                  <div className="mt-1">
+                    <Badge variant={selectedUser.ativo ? "default" : "secondary"}>
+                      {selectedUser.ativo ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">Escolas Vinculadas:</label>
+                  {selectedUser.escolas_vinculadas?.length ? (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {selectedUser.escolas_vinculadas.map((escola) => (
+                        <Badge key={escola.id} variant="outline" className="text-xs">
+                          <School className="h-3 w-3 mr-1" />
+                          {escola.nome}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-white">Geral</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">Criado em:</label>
+                  <p className="text-white">{new Date(selectedUser.criado_em).toLocaleDateString('pt-BR')}</p>
+                </div>
               </div>
-              <div>
-                <label className="text-accent text-sm">CPF:</label>
-                <p className="text-white">{selectedUser.cpf}</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-[#312e26] border-[#5a5438] text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Editar Usuário</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-accent text-sm font-medium">Nome Completo:</label>
+                  <Input
+                    value={editingUser.nome}
+                    onChange={(e) => setEditingUser({...editingUser, nome: e.target.value})}
+                    className="bg-[#3c3830] border-[#5a5438] text-white mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">E-mail:</label>
+                  <Input
+                    value={editingUser.email}
+                    onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                    className="bg-[#3c3830] border-[#5a5438] text-white mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">CPF:</label>
+                  <Input
+                    value={editingUser.cpf}
+                    onChange={(e) => setEditingUser({...editingUser, cpf: e.target.value})}
+                    className="bg-[#3c3830] border-[#5a5438] text-white mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-accent text-sm font-medium">Telefone:</label>
+                  <Input
+                    value={editingUser.telefone || ''}
+                    onChange={(e) => setEditingUser({...editingUser, telefone: e.target.value})}
+                    className="bg-[#3c3830] border-[#5a5438] text-white mt-1"
+                    placeholder="Digite o telefone"
+                  />
+                </div>
               </div>
+              
               <div>
-                <label className="text-accent text-sm">Papel:</label>
-                <p className="text-white">{getPapelBadge(selectedUser.papel).label}</p>
+                <label className="text-accent text-sm font-medium">Status do Usuário:</label>
+                <div className="flex items-center space-x-4 mt-2">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      checked={editingUser.ativo}
+                      onChange={() => setEditingUser({...editingUser, ativo: true})}
+                      className="text-accent"
+                    />
+                    <span className="text-white">Ativo</span>
+                  </label>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      checked={!editingUser.ativo}
+                      onChange={() => setEditingUser({...editingUser, ativo: false})}
+                      className="text-accent"
+                    />
+                    <span className="text-white">Inativo</span>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="text-accent text-sm">Status:</label>
-                <p className="text-white">{selectedUser.ativo ? "Ativo" : "Inativo"}</p>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="border-[#5a5438] text-white hover:bg-[#5a5438]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSaveUser}
+                  className="bg-[#D47C06] hover:bg-[#B8650A] text-white"
+                >
+                  Salvar Alterações
+                </Button>
               </div>
             </div>
           )}
