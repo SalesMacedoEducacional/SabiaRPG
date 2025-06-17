@@ -1,0 +1,78 @@
+🔧 PROMPT IMPERATIVO – IMPLEMENTAÇÃO COMPLETA DA GESTÃO DE USUÁRIOS (REPLIT)
+Objetivo:
+Garantir que a tela de usuários do sistema reflita dados reais do banco, com filtros funcionais, contadores dinâmicos, edição persistente, exclusão real e visualização de detalhes via pop-up.
+
+📌 1. CONECTAR TODOS OS FILTROS AO BANCO
+Implemente filtros de usuários baseados nos campos reais do banco.
+
+Filtro por escola vinculada: usando escola_id e fazendo join com a tabela escolas.
+
+Filtro por papel do usuário (aluno, professor, gestor).
+
+Os filtros devem funcionar com dados reais da tabela usuarios e seus vínculos em perfis_*.
+
+📌 2. CONTADORES DINÂMICOS (CARDS)
+Exiba cards com os seguintes contadores:
+
+Total de usuários
+
+Total de alunos
+
+Total de professores
+
+Total de gestores
+
+Os contadores devem fazer SELECT COUNT(*) com filtro por papel no banco de dados.
+
+Os cards devem se atualizar ao aplicar filtros.
+
+📌 3. LISTAGEM COM DADOS REAIS
+A tabela de usuários deve exibir os seguintes dados:
+
+Nome
+
+E-mail
+
+Papel (papel do usuário)
+
+Nome da(s) escola(s) vinculada(s)
+
+Para exibir o nome da escola:
+
+Realize JOIN entre usuarios → perfis_professor/perfis_gestor → escolas
+
+Permitir múltiplas escolas por usuário (caso haja).
+
+📌 4. AÇÕES POR USUÁRIO
+a) Botão Editar:
+
+Ao clicar, abre formulário com dados do usuário preenchidos.
+
+Permite atualizar os campos diretamente no banco via UPDATE.
+
+Ao salvar, a listagem é atualizada automaticamente.
+
+b) Botão Excluir:
+
+Permite deletar usuário da tabela usuarios (e seus vínculos de perfil).
+
+Requere confirmação.
+
+Após exclusão, os dados são removidos do banco e a tabela se atualiza.
+
+c) Ícone “Olho” (🔍):
+
+Abre um pop-up modal com todas as informações do usuário (campos da tabela usuarios + vínculos).
+
+Usar estilo visual semelhante a uma ficha de cadastro.
+
+✅ GARANTIAS
+ Nenhum dado fake. Todos os dados vêm 100% do banco.
+
+ Toda ação de edição ou exclusão deve refletir diretamente no banco de dados (sem mocks).
+
+ Os filtros devem funcionar com os dados reais de escola e papel.
+
+ Os contadores devem ser baseados em queries SQL reais.
+
+ A exibição de escolas na tabela deve mostrar nomes reais, não IDs.

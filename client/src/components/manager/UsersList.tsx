@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle } from 'lucide-react';
+import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -37,6 +37,8 @@ export default function UsersList() {
   const [busca, setBusca] = useState<string>("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [usuarioDetalhes, setUsuarioDetalhes] = useState<any>(null);
 
   // Estados dos contadores
   const [totalUsuarios, setTotalUsuarios] = useState(0);
@@ -70,11 +72,27 @@ export default function UsersList() {
 
   const fetchEscolas = async () => {
     try {
-      const response = await apiRequest("GET", "/api/escolas/todas");
+      const response = await apiRequest("GET", "/api/escolas/gestor");
       const data = await response.json();
       setEscolas(data || []);
     } catch (error) {
       console.error("Erro ao buscar escolas:", error);
+    }
+  };
+
+  const fetchContadores = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/usuarios/contadores");
+      const data = await response.json();
+      
+      setTotalUsuarios(data.total || 0);
+      setUsuariosAtivos(data.ativos || 0);
+      setProfessores(data.professores || 0);
+      setAlunos(data.alunos || 0);
+      setGestores(data.gestores || 0);
+      setUsuariosInativos(data.inativos || 0);
+    } catch (error) {
+      console.error("Erro ao buscar contadores:", error);
     }
   };
 
@@ -85,6 +103,22 @@ export default function UsersList() {
     setAlunos(usuarios.filter(u => u.papel === 'student').length);
     setGestores(usuarios.filter(u => u.papel === 'manager').length);
     setUsuariosInativos(usuarios.filter(u => !u.ativo).length);
+  };
+
+  const handleViewUserDetails = async (usuarioId: string) => {
+    try {
+      const response = await apiRequest("GET", `/api/usuarios/${usuarioId}`);
+      const data = await response.json();
+      setUsuarioDetalhes(data);
+      setIsDetailDialogOpen(true);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do usuário:", error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes do usuário",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditUser = async (usuario: Usuario) => {

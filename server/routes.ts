@@ -2376,7 +2376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // GET - Buscar todos os usuários com escolas vinculadas
   app.get("/api/usuarios", authenticate, authorize(["admin", "manager"]), async (req, res) => {
     try {
-      console.log("=== BUSCANDO USUÁRIOS REAIS ===");
+      console.log("=== BUSCANDO USUÁRIOS REAIS COM ESCOLAS ===");
       
       // Buscar todos os usuários
       const { data: usuarios, error: usuariosError } = await supabase
@@ -2397,73 +2397,229 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Erro ao buscar usuários:', usuariosError);
         return res.status(500).json({ 
           message: 'Erro ao buscar usuários', 
-          error: usuariosError.message 
+          error: usuariosError.message
         });
       }
 
-      console.log(`Usuários encontrados: ${usuarios?.length || 0}`);
+      // Para cada usuário, buscar as escolas vinculadas
+      const usuariosComEscolas = await Promise.all(
+        usuarios.map(async (usuario) => {
+          let escolasVinculadas = [];
 
-      // Para cada usuário, buscar escolas vinculadas
-      const usuariosComEscolas = await Promise.all(usuarios?.map(async (usuario: any) => {
-        let escolasVinculadas = [];
+          if (usuario.papel === 'manager') {
+            // Buscar escolas vinculadas ao gestor
+            const { data: perfilGestor } = await supabase
+              .from('perfis_gestor')
+              .select(`
+                escolas_vinculadas,
+                escolas:escolas_vinculadas (
+                  id,
+                  nome
+                )
+              `)
+              .eq('usuario_id', usuario.id)
+              .single();
 
-        try {
-          if (usuario.papel === 'teacher') {
-            // Buscar escolas vinculadas via perfis_professor
-            const { data: perfisProfessor } = await supabase
+            if (perfilGestor?.escolas_vinculadas) {
+              const { data: escolas } = await supabase
+                .from('escolas')
+                .select('id, nome')
+                .in('id', perfilGestor.escolas_vinculadas);
+              
+              escolasVinculadas = escolas || [];
+            }
+          } else if (usuario.papel === 'teacher') {
+            // Buscar escolas vinculadas ao professor
+            const { data: perfilProfessor } = await supabase
               .from('perfis_professor')
               .select(`
                 escola_id,
-                escolas!perfis_professor_escola_id_fkey(
+                escola:escola_id (
                   id,
                   nome
                 )
               `)
-              .eq('usuario_id', usuario.id);
+              .eq('usuario_id', usuario.id)
+              .single();
 
-            escolasVinculadas = perfisProfessor?.map((p: any) => ({
-              id: p.escolas?.id,
-              nome: p.escolas?.nome
-            })).filter((e: any) => e.id && e.nome) || [];
-
-          } else if (usuario.papel === 'manager') {
-            // Buscar escolas vinculadas via perfis_gestor
-            const { data: perfisGestor } = await supabase
-              .from('perfis_gestor')
-              .select(`
-                escola_id,
-                escolas!perfis_gestor_escola_id_fkey(
-                  id,
-                  nome
-                )
-              `)
-              .eq('usuario_id', usuario.id);
-
-            escolasVinculadas = perfisGestor?.map((g: any) => ({
-              id: g.escolas?.id,
-              nome: g.escolas?.nome
-            })).filter((e: any) => e.id && e.nome) || [];
+            if (perfilProfessor?.escola) {
+              escolasVinculadas = [perfilProfessor.escola];
+            }
           }
-        } catch (error) {
-          console.error(`Erro ao buscar escolas para usuário ${usuario.id}:`, error);
-        }
 
-        return {
-          ...usuario,
-          escolas_vinculadas: escolasVinculadas
-        };
-      }) || []);
+          return {
+            ...usuario,
+            escolas_vinculadas: escolasVinculadas
+          };
+        })
+      );
 
-      console.log(`Retornando ${usuariosComEscolas.length} usuários com escolas vinculadas`);
-
-      res.status(200).json({
+      console.log(`Usuários encontrados: ${usuariosComEscolas.length}`);
+      
+      res.json({ 
         usuarios: usuariosComEscolas,
         total: usuariosComEscolas.length
       });
-
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
+      console.error('Erro ao buscar usuários:', error);
+      res.status(500).json({ 
+        message: 'Erro interno do servidor', 
+        error: error.message 
+      });
+    }
+  });
+
+  // GET - Contadores de usuários por papel
+  app.get("/api/usuarios/contadores", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+    try {
+      console.log("=== CALCULANDO CONTADORES DE USUÁRIOS ===");
+      
+      // Contar total de usuários
+      const { count: totalUsuarios, error: totalError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true });
+
+      // Contar usuários ativos
+      const { count: usuariosAtivos, error: ativosError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('ativo', true);
+
+      // Contar professores
+      const { count: professores, error: professoresError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('papel', 'teacher');
+
+      // Contar alunos
+      const { count: alunos, error: alunosError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('papel', 'student');
+
+      // Contar gestores
+      const { count: gestores, error: gestoresError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('papel', 'manager');
+
+      // Contar usuários inativos
+      const { count: usuariosInativos, error: inativosError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('ativo', false);
+
+      if (totalError || ativosError || professoresError || alunosError || gestoresError || inativosError) {
+        console.error('Erro ao calcular contadores:', { totalError, ativosError, professoresError, alunosError, gestoresError, inativosError });
+        return res.status(500).json({ message: 'Erro ao calcular contadores' });
+      }
+
+      const contadores = {
+        total: totalUsuarios || 0,
+        ativos: usuariosAtivos || 0,
+        professores: professores || 0,
+        alunos: alunos || 0,
+        gestores: gestores || 0,
+        inativos: usuariosInativos || 0
+      };
+
+      console.log('Contadores calculados:', contadores);
+      res.json(contadores);
+    } catch (error) {
+      console.error('Erro ao calcular contadores:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  });
+
+  // GET - Buscar usuário específico com detalhes completos
+  app.get("/api/usuarios/:id", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log(`=== BUSCANDO DETALHES DO USUÁRIO: ${id} ===`);
+      
+      // Buscar dados básicos do usuário
+      const { data: usuario, error: usuarioError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (usuarioError || !usuario) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      // Buscar detalhes específicos do perfil
+      let detalhesEspecificos = {};
+      let escolasVinculadas = [];
+
+      if (usuario.papel === 'manager') {
+        const { data: perfilGestor } = await supabase
+          .from('perfis_gestor')
+          .select(`
+            *,
+            escolas:escolas_vinculadas (
+              id,
+              nome,
+              endereco,
+              telefone
+            )
+          `)
+          .eq('usuario_id', id)
+          .single();
+
+        if (perfilGestor) {
+          detalhesEspecificos = perfilGestor;
+          if (perfilGestor.escolas_vinculadas) {
+            const { data: escolas } = await supabase
+              .from('escolas')
+              .select('id, nome, endereco, telefone')
+              .in('id', perfilGestor.escolas_vinculadas);
+            escolasVinculadas = escolas || [];
+          }
+        }
+      } else if (usuario.papel === 'teacher') {
+        const { data: perfilProfessor } = await supabase
+          .from('perfis_professor')
+          .select(`
+            *,
+            escola:escola_id (
+              id,
+              nome,
+              endereco,
+              telefone
+            )
+          `)
+          .eq('usuario_id', id)
+          .single();
+
+        if (perfilProfessor) {
+          detalhesEspecificos = perfilProfessor;
+          if (perfilProfessor.escola) {
+            escolasVinculadas = [perfilProfessor.escola];
+          }
+        }
+      } else if (usuario.papel === 'student') {
+        const { data: perfilAluno } = await supabase
+          .from('perfis_aluno')
+          .select('*')
+          .eq('usuario_id', id)
+          .single();
+
+        if (perfilAluno) {
+          detalhesEspecificos = perfilAluno;
+        }
+      }
+
+      const usuarioCompleto = {
+        ...usuario,
+        detalhes_perfil: detalhesEspecificos,
+        escolas_vinculadas: escolasVinculadas
+      };
+
+      res.json(usuarioCompleto);
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do usuário:', error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
     }
   });
 
@@ -2548,6 +2704,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (usuarioExistente.papel === 'manager') {
         await supabase
           .from('perfis_gestor')
+          .delete()
+          .eq('usuario_id', id);
+      } else if (usuarioExistente.papel === 'student') {
+        await supabase
+          .from('perfis_aluno')
           .delete()
           .eq('usuario_id', id);
       }
