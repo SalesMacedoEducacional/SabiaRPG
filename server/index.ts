@@ -19,7 +19,7 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    // Buscar dados reais das escolas
+    // Buscar escolas vinculadas ao gestor da sessão atual
     const { data: escolas, error: escolasError } = await supabase
       .from('escolas')
       .select('*')
@@ -29,20 +29,22 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       console.error('Erro ao buscar escolas:', escolasError);
     }
     
-    // Contar professores reais
+    // Contar professores: usuários com papel 'teacher' vinculados às escolas do gestor
     const { count: totalProfessores, error: profError } = await supabase
-      .from('perfis_professor')
-      .select('*', { count: 'exact', head: true })
-      .in('escola_id', escolaIds)
-      .eq('ativo', true);
+      .from('usuarios')
+      .select('*, perfis_professor!inner(*)', { count: 'exact', head: true })
+      .eq('papel', 'teacher')
+      .in('perfis_professor.escola_id', escolaIds)
+      .eq('perfis_professor.ativo', true);
     
-    // Contar alunos reais
+    // Contar alunos: usuários com papel 'student' vinculados a turmas das escolas do gestor
     const { count: totalAlunos, error: alunosError } = await supabase
-      .from('perfis_aluno')
-      .select('*', { count: 'exact', head: true })
-      .in('escola_id', escolaIds);
+      .from('usuarios')
+      .select('*, perfis_aluno!inner(*, turmas!inner(*))', { count: 'exact', head: true })
+      .eq('papel', 'student')
+      .in('perfis_aluno.turmas.escola_id', escolaIds);
     
-    // Contar turmas reais
+    // Contar turmas ativas das escolas do gestor
     const { count: turmasAtivas, error: turmasError } = await supabase
       .from('turmas')
       .select('*', { count: 'exact', head: true })
@@ -127,29 +129,34 @@ app.get('/api/escolas/gestor', async (req, res) => {
   }
 });
 
-// Endpoint para detalhes de professores das escolas do gestor
+// Endpoint para detalhes de professores: usuários com papel 'teacher' das escolas do gestor
 app.get('/api/manager/professores', async (req, res) => {
   try {
-    console.log('Buscando professores reais das escolas do gestor');
+    console.log('Buscando professores (usuários teacher) das escolas do gestor');
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
     const { data: professores, error } = await supabase
-      .from('perfis_professor')
+      .from('usuarios')
       .select(`
         *,
-        usuarios!inner(nome, email),
-        escolas!inner(nome)
+        perfis_professor!inner(
+          escola_id,
+          disciplinas,
+          ativo,
+          escolas(nome)
+        )
       `)
-      .in('escola_id', escolaIds)
-      .eq('ativo', true);
+      .eq('papel', 'teacher')
+      .in('perfis_professor.escola_id', escolaIds)
+      .eq('perfis_professor.ativo', true);
     
     if (error) {
       console.error('Erro ao buscar professores:', error);
       return res.status(500).json({ message: 'Erro ao buscar professores', error: error.message });
     }
     
-    console.log(`Encontrados ${professores?.length || 0} professores reais no banco`);
+    console.log(`Encontrados ${professores?.length || 0} professores (usuários teacher) no banco`);
     return res.status(200).json(professores || []);
   } catch (error) {
     console.error('Erro interno:', error);
@@ -157,29 +164,36 @@ app.get('/api/manager/professores', async (req, res) => {
   }
 });
 
-// Endpoint para detalhes de alunos das escolas do gestor
+// Endpoint para detalhes de alunos: usuários com papel 'student' das turmas das escolas do gestor
 app.get('/api/manager/alunos', async (req, res) => {
   try {
-    console.log('Buscando alunos reais das escolas do gestor');
+    console.log('Buscando alunos (usuários student) das turmas das escolas do gestor');
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
     const { data: alunos, error } = await supabase
-      .from('perfis_aluno')
+      .from('usuarios')
       .select(`
         *,
-        usuarios!inner(nome, email),
-        escolas!inner(nome),
-        turmas(nome, serie)
+        perfis_aluno!inner(
+          turma_id,
+          turmas!inner(
+            nome,
+            serie,
+            escola_id,
+            escolas(nome)
+          )
+        )
       `)
-      .in('escola_id', escolaIds);
+      .eq('papel', 'student')
+      .in('perfis_aluno.turmas.escola_id', escolaIds);
     
     if (error) {
       console.error('Erro ao buscar alunos:', error);
       return res.status(500).json({ message: 'Erro ao buscar alunos', error: error.message });
     }
     
-    console.log(`Encontrados ${alunos?.length || 0} alunos reais no banco`);
+    console.log(`Encontrados ${alunos?.length || 0} alunos (usuários student) no banco`);
     return res.status(200).json(alunos || []);
   } catch (error) {
     console.error('Erro interno:', error);
@@ -187,10 +201,10 @@ app.get('/api/manager/alunos', async (req, res) => {
   }
 });
 
-// Endpoint para detalhes de turmas das escolas do gestor
+// Endpoint para detalhes de turmas ativas das escolas do gestor
 app.get('/api/manager/turmas', async (req, res) => {
   try {
-    console.log('Buscando turmas reais das escolas do gestor');
+    console.log('Buscando turmas ativas das escolas do gestor');
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
@@ -199,7 +213,7 @@ app.get('/api/manager/turmas', async (req, res) => {
       .select(`
         *,
         escolas!inner(nome),
-        perfis_professor(usuarios(nome))
+        usuarios!professor_id(nome, email)
       `)
       .in('escola_id', escolaIds)
       .eq('ativo', true);
@@ -209,7 +223,7 @@ app.get('/api/manager/turmas', async (req, res) => {
       return res.status(500).json({ message: 'Erro ao buscar turmas', error: error.message });
     }
     
-    console.log(`Encontradas ${turmas?.length || 0} turmas reais no banco`);
+    console.log(`Encontradas ${turmas?.length || 0} turmas ativas no banco`);
     return res.status(200).json(turmas || []);
   } catch (error) {
     console.error('Erro interno:', error);
