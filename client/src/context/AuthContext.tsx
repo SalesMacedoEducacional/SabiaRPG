@@ -17,16 +17,29 @@ interface User {
   escola_id?: string; // ID da escola vinculada (principalmente para gestores)
 }
 
+interface Escola {
+  id: string;
+  nome: string;
+  codigo_escola: string;
+  tipo: string;
+  modalidade_ensino: string;
+  cidade: string;
+  estado: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   userPermissions: string[];
+  escolasVinculadas: Escola[];
+  escolaIds: string[];
   hasPermission: (permissionId: string) => boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  verificarEscolasGestor: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -43,6 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const toast = useStandardToast();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
+  const [escolasVinculadas, setEscolasVinculadas] = useState<Escola[]>([]);
+  const [escolaIds, setEscolaIds] = useState<string[]>([]);
 
   // Fetch current user
   const { data: user, isLoading: userLoading } = useQuery<User | null>({
