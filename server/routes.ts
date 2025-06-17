@@ -2467,47 +2467,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // POST - Verificar unicidade de campos
   app.post("/api/usuarios/verificar-unicidade", async (req, res) => {
-    const { campo, valor } = req.body;
-    
-    if (!campo || !valor) {
-      return res.status(400).json({
-        erro: 'Campo e valor são obrigatórios'
+    try {
+      const { campo, valor } = req.body;
+      
+      if (!campo || !valor) {
+        return res.status(400).json({
+          erro: 'Campo e valor são obrigatórios'
+        });
+      }
+      
+      // Normalizar valores para comparação
+      let valorNormalizado = valor;
+      if (campo === 'telefone') {
+        valorNormalizado = valor.replace(/\D/g, '');
+      } else if (campo === 'cpf') {
+        valorNormalizado = valor.replace(/\D/g, '');
+      }
+      
+      console.log(`=== VERIFICAÇÃO DE UNICIDADE ===`);
+      console.log(`Campo: ${campo}, Valor: ${valorNormalizado}`);
+      
+      // Verificar no banco
+      const { data: usuarioExistente, error } = await supabase
+        .from('usuarios')
+        .select('id')
+        .eq(campo, valorNormalizado)
+        .limit(1);
+      
+      if (error) {
+        console.error('Erro ao verificar unicidade:', error);
+        return res.status(500).json({
+          erro: 'Erro ao verificar disponibilidade'
+        });
+      }
+      
+      const disponivel = !usuarioExistente || usuarioExistente.length === 0;
+      
+      console.log(`Disponível: ${disponivel}`);
+      
+      res.json({
+        disponivel,
+        campo,
+        valor: valorNormalizado
+      });
+      
+    } catch (error) {
+      console.error('Erro na verificação de unicidade:', error);
+      res.status(500).json({
+        erro: 'Erro interno do servidor'
       });
     }
-    
-    // Normalizar valores para comparação
-    let valorNormalizado = valor;
-    if (campo === 'telefone') {
-      valorNormalizado = valor.replace(/\D/g, '');
-    } else if (campo === 'cpf') {
-      valorNormalizado = valor.replace(/\D/g, '');
-    }
-    
-    console.log(`=== VERIFICAÇÃO DE UNICIDADE ===`);
-    console.log(`Campo: ${campo}, Valor: ${valorNormalizado}`);
-    
-    // Verificar dados reais do banco usando lista conhecida de emails existentes
-    const emailsExistentes = ['gestor@sabiarpg.com.br', 'aluno@sabiarpg.com.br', 'professor@sabiarpg.com.br', 'gestor@teste.com', 'gestor@sabiarpg.edu.br'];
-    const cpfsExistentes = ['12345678901', '98765432100', '11111111111'];
-    const telefonesExistentes = ['11999999999', '85999999999'];
-    
-    let disponivel = true;
-    
-    if (campo === 'email') {
-      disponivel = !emailsExistentes.includes(valor.toLowerCase());
-    } else if (campo === 'cpf') {
-      disponivel = !cpfsExistentes.includes(valorNormalizado);
-    } else if (campo === 'telefone') {
-      disponivel = !telefonesExistentes.includes(valorNormalizado);
-    }
-    
-    console.log(`Campo ${campo} com valor ${campo === 'email' ? valor : valorNormalizado} - ${disponivel ? 'disponível' : 'indisponível'}`);
-    
-    res.json({
-      disponivel,
-      campo,
-      valor: campo === 'email' ? valor : valorNormalizado
-    });
   });
 
   // POST - Cadastrar novo usuário (solução funcional)
