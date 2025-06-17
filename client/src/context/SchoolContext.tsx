@@ -1,21 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { apiRequest } from '@/lib/queryClient';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useStandardToast } from '@/lib/toast-utils';
+import { useAuth } from './AuthContext';
 
 interface Escola {
   id: string;
   nome: string;
-  codigoEscola: string;
-  tipo: string;
-  modalidadeEnsino: string;
   cidade: string;
-  estado: string;
-  zonaGeografica: string;
+  estado?: string;
   endereco?: string;
   telefone?: string;
-  emailInstitucional?: string;
-  ativo: boolean;
+  email?: string;
+  diretor?: string;
+  ativo?: boolean;
 }
 
 interface DashboardStats {
@@ -23,97 +20,123 @@ interface DashboardStats {
   totalProfessores: number;
   totalAlunos: number;
   turmasAtivas: number;
-  escolas: Escola[];
 }
 
 interface SchoolContextType {
-  escolasVinculadas: Escola[];
+  escolasVinculadas: Escola[] | null;
   dashboardStats: DashboardStats | null;
   isLoading: boolean;
   error: string | null;
-  refreshStats: () => void;
-  hasEscolasVinculadas: boolean;
+  refreshStats: () => Promise<void>;
+  loadSchoolData: () => Promise<void>;
 }
 
-const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
+export const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
 export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
-  const queryClient = useQueryClient();
+  const toast = useStandardToast();
+  const [escolasVinculadas, setEscolasVinculadas] = useState<Escola[] | null>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Query para buscar escolas vinculadas e estatísticas
-  const { data: dashboardData, isLoading, refetch } = useQuery<DashboardStats>({
-    queryKey: ['/api/manager/dashboard-stats'],
-    queryFn: async () => {
-      console.log('Buscando estatísticas do dashboard do gestor...');
+  const loadSchoolData = async () => {
+    if (!isAuthenticated || !user || user.role !== 'manager') {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Buscar escolas vinculadas ao gestor
+      const escolasResponse = await apiRequest("GET", "/api/escolas/gestor");
+      const escolasData = await escolasResponse.json();
       
-      if (!user || user.role !== 'manager') {
-        throw new Error('Usuário não é um gestor válido');
-      }
-
-      try {
-        const response = await apiRequest('GET', '/api/manager/dashboard-stats');
+      if (escolasResponse.ok) {
+        setEscolasVinculadas(escolasData || []);
         
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error('Você não possui escolas vinculadas');
-          }
-          if (response.status === 403) {
-            throw new Error('Acesso negado. Verifique suas permissões.');
-          }
-          throw new Error('Erro ao carregar dados das escolas vinculadas');
+        // Se há escolas vinculadas, buscar estatísticas do dashboard
+        if (escolasData && escolasData.length > 0) {
+          await refreshStats();
+        } else {
+          // Se não há escolas vinculadas, zerar as estatísticas
+          setDashboardStats({
+            totalEscolas: 0,
+            totalProfessores: 0,
+            totalAlunos: 0,
+            turmasAtivas: 0
+          });
         }
-
-        const data = await response.json();
-        console.log('Dados do dashboard carregados:', data);
-        
-        // Verificar se tem escolas vinculadas
-        if (!data.escolas || data.escolas.length === 0) {
-          throw new Error('Você não possui escolas vinculadas');
-        }
-
-        setError(null);
-        return data;
-      } catch (err: any) {
-        console.error('Erro ao carregar dashboard:', err);
-        setError(err.message || 'Erro ao carregar dados de escolas vinculadas');
-        throw err;
+      } else {
+        throw new Error('Erro ao carregar escolas vinculadas');
       }
-    },
-    enabled: isAuthenticated && user?.role === 'manager',
-    retry: (failureCount, error: any) => {
-      // Não tentar novamente se o erro for de escola não vinculada
-      if (error?.message?.includes('não possui escolas vinculadas')) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
-
-  const refreshStats = () => {
-    console.log('Atualizando estatísticas do dashboard...');
-    refetch();
-    // Invalidar outras queries relacionadas
-    queryClient.invalidateQueries({ queryKey: ['/api/manager'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/usuarios'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/turmas'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/escolas'] });
+    } catch (error) {
+      console.error("Erro ao carregar dados das escolas:", error);
+      setError("Erro ao carregar dados de escolas vinculadas");
+      setEscolasVinculadas([]);
+      setDashboardStats({
+        totalEscolas: 0,
+        totalProfessores: 0,
+        totalAlunos: 0,
+        turmasAtivas: 0
+      });
+      
+      toast.error("Erro ao carregar escolas", "Não foi possível carregar as escolas vinculadas");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const contextValue: SchoolContextType = {
-    escolasVinculadas: dashboardData?.escolas || [],
-    dashboardStats: dashboardData || null,
-    isLoading,
-    error,
-    refreshStats,
-    hasEscolasVinculadas: (dashboardData?.escolas?.length || 0) > 0
+  const refreshStats = async () => {
+    if (!isAuthenticated || !user || user.role !== 'manager') {
+      return;
+    }
+
+    try {
+      const statsResponse = await apiRequest("GET", "/api/manager/dashboard-stats");
+      const statsData = await statsResponse.json();
+      
+      if (statsResponse.ok) {
+        setDashboardStats({
+          totalEscolas: statsData.totalEscolas || 0,
+          totalProfessores: statsData.totalProfessores || 0,
+          totalAlunos: statsData.totalAlunos || 0,
+          turmasAtivas: statsData.turmasAtivas || 0
+        });
+      } else {
+        throw new Error('Erro ao carregar estatísticas do dashboard');
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar estatísticas:", error);
+      toast.error("Erro ao atualizar dados", "Não foi possível atualizar as estatísticas");
+    }
   };
+
+  // Carregar dados quando o usuário autenticar como gestor
+  useEffect(() => {
+    if (isAuthenticated && user && user.role === 'manager') {
+      loadSchoolData();
+    } else {
+      // Limpar dados quando não autenticado ou não é gestor
+      setEscolasVinculadas(null);
+      setDashboardStats(null);
+      setError(null);
+    }
+  }, [isAuthenticated, user]);
 
   return (
-    <SchoolContext.Provider value={contextValue}>
+    <SchoolContext.Provider 
+      value={{
+        escolasVinculadas,
+        dashboardStats,
+        isLoading,
+        error,
+        refreshStats,
+        loadSchoolData
+      }}
+    >
       {children}
     </SchoolContext.Provider>
   );
@@ -122,7 +145,7 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export const useSchool = () => {
   const context = useContext(SchoolContext);
   if (context === undefined) {
-    throw new Error('useSchool deve ser usado dentro de um SchoolProvider');
+    throw new Error('useSchool must be used within a SchoolProvider');
   }
   return context;
 };
