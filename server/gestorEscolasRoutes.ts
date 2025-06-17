@@ -72,11 +72,11 @@ export function registerGestorEscolasRoutes(app: Express) {
         });
       }
       
-      console.log(`DADOS REAIS: ${escolas?.length || 0} escolas encontradas no banco`);
-      console.log("Escolas:", escolas?.map((e: any) => e.nome) || []);
+      console.log(`DADOS REAIS: ${escolasData?.length || 0} escolas encontradas no banco`);
+      console.log("Escolas:", escolasData?.map((e: any) => e.nome) || []);
       
       // Retornar APENAS dados autênticos do banco
-      return res.status(200).json(escolas || []);
+      return res.status(200).json(escolasData || []);
     } catch (error) {
       console.error("Erro interno:", error);
       return res.status(500).json({ 
