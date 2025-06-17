@@ -72,6 +72,156 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
   }
 });
 
+// Endpoint para buscar detalhes dos professores
+app.get('/api/professores', async (req, res) => {
+  try {
+    console.log('Buscando detalhes dos professores para o gestor');
+    
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    const professoresResult = await executeQuery(`
+      SELECT 
+        pp.id,
+        pp.escola_id,
+        pp.ativo,
+        u.nome,
+        u.email,
+        u.telefone,
+        u.cpf,
+        e.nome as escola_nome
+      FROM perfis_professor pp
+      INNER JOIN usuarios u ON pp.usuario_id = u.id
+      INNER JOIN escolas e ON pp.escola_id = e.id
+      WHERE pp.escola_id = ANY($1) AND pp.ativo = true AND u.papel = 'teacher'
+      ORDER BY u.nome
+    `, [escolaIds]);
+    
+    const professores = professoresResult.rows.map(prof => ({
+      id: prof.id,
+      usuarios: {
+        nome: prof.nome,
+        email: prof.email,
+        telefone: prof.telefone,
+        cpf: prof.cpf
+      },
+      escola_id: prof.escola_id,
+      escola_nome: prof.escola_nome,
+      disciplinas: [],
+      ativo: prof.ativo
+    }));
+    
+    console.log(`Encontrados ${professores.length} professores`);
+    
+    res.json({
+      message: 'Professores obtidos com sucesso',
+      professores: professores
+    });
+    
+  } catch (error) {
+    console.error('Erro ao buscar professores:', error);
+    res.status(500).json({
+      message: 'Erro ao buscar professores',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para buscar detalhes dos alunos
+app.get('/api/alunos', async (req, res) => {
+  try {
+    console.log('Buscando detalhes dos alunos para o gestor');
+    
+    const alunosResult = await executeQuery(`
+      SELECT 
+        u.id,
+        u.nome,
+        u.email
+      FROM usuarios u
+      WHERE u.papel = 'student'
+      ORDER BY u.nome
+    `, []);
+    
+    const alunos = alunosResult.rows.map(aluno => ({
+      id: aluno.id,
+      usuarios: {
+        nome: aluno.nome
+      },
+      turmas: {
+        nome: 'Aguardando turma'
+      },
+      matriculas: {
+        numero_matricula: 'Não informado'
+      },
+      escola_id: null,
+      escola_nome: 'Aguardando definição'
+    }));
+    
+    console.log(`Encontrados ${alunos.length} alunos`);
+    
+    res.json({
+      message: 'Alunos obtidos com sucesso',
+      alunos: alunos
+    });
+    
+  } catch (error) {
+    console.error('Erro ao buscar alunos:', error);
+    res.status(500).json({
+      message: 'Erro ao buscar alunos',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para buscar detalhes das turmas
+app.get('/api/turmas', async (req, res) => {
+  try {
+    console.log('Buscando detalhes das turmas para o gestor');
+    
+    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
+    
+    const turmasResult = await executeQuery(`
+      SELECT 
+        t.id,
+        t.nome,
+        t.serie,
+        t.ano_letivo,
+        t.turno,
+        t.escola_id,
+        e.nome as escola_nome
+      FROM turmas t
+      INNER JOIN escolas e ON t.escola_id = e.id
+      WHERE t.escola_id = ANY($1) AND t.ativo = true
+      ORDER BY e.nome, t.nome
+    `, [escolaIds]);
+    
+    const turmas = turmasResult.rows.map(turma => ({
+      id: turma.id,
+      nome: turma.nome,
+      serie: turma.serie,
+      ano_letivo: parseInt(turma.ano_letivo),
+      turno: turma.turno,
+      total_alunos: 0,
+      escola_id: turma.escola_id,
+      escola_nome: turma.escola_nome
+    }));
+    
+    console.log(`Encontradas ${turmas.length} turmas`);
+    
+    res.json({
+      message: 'Turmas obtidas com sucesso',
+      turmas: turmas
+    });
+    
+  } catch (error) {
+    console.error('Erro ao buscar turmas:', error);
+    res.status(500).json({
+      message: 'Erro ao buscar turmas',
+      error: error.message
+    });
+  }
+});
+
 app.get('/api/escolas/gestor', async (req, res) => {
   try {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
