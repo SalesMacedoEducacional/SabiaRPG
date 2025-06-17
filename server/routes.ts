@@ -2487,23 +2487,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`=== VERIFICAÇÃO DE UNICIDADE ===`);
       console.log(`Campo: ${campo}, Valor: ${valorNormalizado}`);
       
-      // Verificar no banco - buscar todos os registros e contar
-      const { data: registros, error } = await supabase
-        .from('usuarios')
-        .select('id')
-        .eq(campo, campo === 'email' ? valor : valorNormalizado);
+      // Usar PostgreSQL client direto para garantir precisão
+      const { Client } = require('pg');
+      const client = new Client({
+        connectionString: process.env.DATABASE_URL
+      });
       
-      if (error) {
-        console.error('Erro ao verificar unicidade:', error);
-        return res.status(500).json({
-          erro: 'Erro ao verificar disponibilidade'
+      try {
+        await client.connect();
+        
+        let query, params;
+        const valorBusca = campo === 'email' ? valor : valorNormalizado;
+        
+        if (campo === 'telefone') {
+          // Para telefone, buscar tanto formatado quanto não formatado
+          query = 'SELECT COUNT(*) as total FROM usuarios WHERE telefone = $1 OR telefone = $2';
+          params = [valorNormalizado, valor];
+        } else {
+          // Para email e CPF, busca direta
+          query = `SELECT COUNT(*) as total FROM usuarios WHERE ${campo} = $1`;
+          params = [valorBusca];
+        }
+        
+        console.log(`Executando query: ${query}`);
+        console.log(`Parâmetros: ${JSON.stringify(params)}`);
+        
+        const result = await client.query(query, params);
+        const count = parseInt(result.rows[0].total);
+        const disponivel = count === 0;
+        
+        console.log(`Registros encontrados: ${count}`);
+        console.log(`Campo ${campo} com valor ${valorBusca} - Disponível: ${disponivel}`);
+        
+        await client.end();
+        
+        res.json({
+          disponivel,
+          campo,
+          valor: valorNormalizado
         });
+        return;
+        
+      } catch (error) {
+        console.error('Erro ao verificar unicidade com PostgreSQL:', error);
+        await client.end().catch(() => {});
+        
+        // Fallback para Supabase
+        const { data: registros, error: supabaseError } = await supabase
+          .from('usuarios')
+          .select('id')
+          .eq(campo, campo === 'email' ? valor : valorNormalizado)
+          .limit(1);
+        
+        if (supabaseError) {
+          console.error('Erro no fallback Supabase:', supabaseError);
+          return res.status(500).json({
+            erro: 'Erro ao verificar disponibilidade'
+          });
+        }
+        
+        const disponivel = !registros || registros.length === 0;
+        console.log(`Fallback - Registros encontrados: ${registros?.length || 0}`);
+        console.log(`Campo ${campo} com valor ${campo === 'email' ? valor : valorNormalizado} - Disponível: ${disponivel}`);
       }
-      
-      const disponivel = !registros || registros.length === 0;
-      
-      console.log(`Registros encontrados: ${registros?.length || 0}`);
-      console.log(`Campo ${campo} com valor ${campo === 'email' ? valor : valorNormalizado} - Disponível: ${disponivel}`);
       
       res.json({
         disponivel,
