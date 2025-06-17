@@ -2383,7 +2383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Verificar se o usuário tem papel de gestor ou admin
     const userRole = req.session.userRole;
-    if (!['manager', 'admin'].includes(userRole)) {
+    if (!['manager', 'admin', 'gestor'].includes(userRole)) {
       console.log(`Usuário sem permissão. Papel: ${userRole}`);
       return res.status(403).json({ message: 'Acesso negado' });
     }
@@ -2491,7 +2491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Verificar se o usuário tem papel de gestor ou admin
     const userRole = req.session.userRole;
-    if (!['manager', 'admin'].includes(userRole)) {
+    if (!['manager', 'admin', 'gestor'].includes(userRole)) {
       console.log(`Usuário sem permissão. Papel: ${userRole}`);
       return res.status(403).json({ message: 'Acesso negado' });
     }
@@ -2565,7 +2565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Verificar se o usuário tem papel de gestor ou admin
     const userRole = req.session.userRole;
-    if (!['manager', 'admin'].includes(userRole)) {
+    if (!['manager', 'admin', 'gestor'].includes(userRole)) {
       console.log(`Usuário sem permissão. Papel: ${userRole}`);
       return res.status(403).json({ message: 'Acesso negado' });
     }
