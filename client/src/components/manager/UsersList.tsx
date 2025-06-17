@@ -275,12 +275,13 @@ export default function UsersList() {
 
   const usuariosFiltrados = filtrarUsuarios();
 
-  // Debug logs
-  console.log("=== DEBUG RENDER ===");
-  console.log("Total usuarios:", usuarios.length);
-  console.log("Usuarios filtrados:", usuariosFiltrados.length);
-  console.log("IsLoading:", isLoading);
-  console.log("Usuarios array:", usuarios);
+  // Debug logs detalhados
+  console.log("=== ESTADO ATUAL ===");
+  console.log("Total usuarios carregados:", usuarios.length);
+  console.log("Usuarios após filtros:", usuariosFiltrados.length);
+  console.log("Estado de carregamento:", isLoading);
+  console.log("Array completo de usuarios:", usuarios);
+  console.log("Filtros aplicados - Escola:", filtroEscola, "Papel:", filtroPapel, "Busca:", busca);
 
   return (
     <div className="space-y-6">
