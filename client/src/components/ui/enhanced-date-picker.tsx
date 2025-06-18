@@ -148,7 +148,7 @@ export function EnhancedDatePicker({
         </div>
 
         <PopoverContent 
-          className="w-auto p-0 border-primary bg-dark" 
+          className="w-auto p-0 border-primary bg-dark opacity-100" 
           align="start"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >

@@ -685,24 +685,36 @@ export default function UserRegistration() {
                           name="turma_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-parchment font-medium">Turma</FormLabel>
+                              <FormLabel className="text-parchment font-medium">Turma *</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
+                                disabled={!escolaId}
                               >
                                 <FormControl>
                                   <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
-                                    <SelectValue placeholder="Selecione a turma" />
+                                    <SelectValue 
+                                      placeholder={
+                                        !escolaId 
+                                          ? "Primeiro selecione uma escola" 
+                                          : turmas.length === 0 
+                                            ? "Carregando turmas..." 
+                                            : "Selecione a turma"
+                                      } 
+                                    />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent className="bg-dark border border-primary text-parchment">
                                   {turmas.map((turma) => (
                                     <SelectItem key={turma.id} value={turma.id} className="focus:bg-dark-light focus:text-parchment">
-                                      {turma.nome} ({turma.serie})
+                                      {turma.nome} - {turma.serie} ({turma.turno})
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <FormDescription className="text-parchment-dark">
+                                {!escolaId && "Selecione uma escola primeiro para ver as turmas disponíveis"}
+                              </FormDescription>
                               <FormMessage className="text-destructive" />
                             </FormItem>
                           )}

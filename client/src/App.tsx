@@ -10,7 +10,7 @@ import TeacherDashboard from "@/pages/TeacherDashboard";
 import ManagerDashboard from "@/pages/ManagerDashboard";
 import ManagerDashboardModerno from "@/pages/ManagerDashboardModerno";
 import SchoolRegistration from "@/pages/SchoolRegistration";
-import UserRegistrationSingle from "@/pages/UserRegistrationSingle";
+import UserRegistrationSimple from "@/pages/UserRegistrationSimple";
 import UserManagement from "@/pages/UserManagement";
 import UserManagementAdvanced from "@/components/manager/UserManagement";
 import ClassRegistration from "@/pages/ClassRegistration";
@@ -119,7 +119,7 @@ function Router() {
       
       <ProtectedRoute 
         path="/user-registration" 
-        component={UserRegistrationSingle}
+        component={UserRegistrationSimple}
         permissions={[
           PERMISSIONS.USER_MANAGE_STUDENTS.id,
           PERMISSIONS.USER_MANAGE_TEACHERS.id
