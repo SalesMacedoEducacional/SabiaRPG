@@ -7,6 +7,18 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Configure sessão ANTES dos endpoints
+app.use(session({
+  secret: 'sabia-rpg-session-secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
 // Import supabase for direct API routes
 import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
@@ -504,16 +516,24 @@ const requireAuth = async (req: Request, res: Response, next: Function) => {
 // Middleware para verificar se é gestor
 const requireGestor = async (req: Request, res: Response, next: Function) => {
   try {
+    console.log('=== VERIFICAÇÃO DE AUTENTICAÇÃO GESTOR ===');
+    console.log('Session:', req.session);
+    console.log('Session ID:', req.session?.id);
+    console.log('User ID na sessão:', req.session?.userId);
+    
     const userId = req.session?.userId;
     if (!userId) {
+      console.log('❌ Usuário não autenticado - sem userId na sessão');
       return res.status(401).json({ message: 'Usuário não autenticado' });
     }
 
     const userResult = await executeQuery('SELECT papel FROM usuarios WHERE id = $1', [userId]);
     if (!userResult.rows[0] || userResult.rows[0].papel !== 'gestor') {
+      console.log('❌ Usuário não é gestor:', userResult.rows[0]?.papel);
       return res.status(403).json({ message: 'Acesso negado. Apenas gestores podem gerenciar usuários.' });
     }
 
+    console.log('✅ Verificação de gestor passou');
     next();
   } catch (error) {
     console.error('Erro na verificação de permissão:', error);
@@ -842,17 +862,7 @@ app.post('/api/usuarios', requireGestor, async (req, res) => {
   }
 });
 
-// Configure sessão
-app.use(session({
-  secret: 'sabia-rpg-session-secret',
-  resave: false,
-  saveUninitialized: true,  // Alterado para true para criar sessão para todos os visitantes
-  cookie: {
-    secure: false, // Em produção deveria ser true (HTTPS)
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 horas
-  }
-}));
+// Sessão já configurada no início do arquivo
 
 app.use((req, res, next) => {
   const start = Date.now();
