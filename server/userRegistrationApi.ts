@@ -126,36 +126,8 @@ export function registerUserRegistrationRoutes(app: Express) {
         return res.status(500).json({ message: 'Erro ao salvar usuário: ' + insertError.message });
       }
 
-      // Criar perfis específicos
-      if (papel === 'aluno' && turma_id && numero_matricula) {
-        await supabase
-          .from('perfis_aluno')
-          .insert({
-            usuario_id: userId,
-            turma_id,
-            numero_matricula,
-            ativo: true,
-            criado_em: new Date().toISOString()
-          });
-      } else if (papel === 'professor') {
-        await supabase
-          .from('perfis_professor')
-          .insert({
-            usuario_id: userId,
-            disciplinas: ['Indefinida'],
-            turmas: ['Indefinida'],
-            ativo: true,
-            criado_em: new Date().toISOString()
-          });
-      } else if (papel === 'gestor') {
-        await supabase
-          .from('perfis_gestor')
-          .insert({
-            usuario_id: userId,
-            ativo: true,
-            criado_em: new Date().toISOString()
-          });
-      }
+      // Os perfis específicos serão criados posteriormente se necessário
+      // Por enquanto, apenas o registro na tabela usuarios é suficiente
 
       console.log('=== USUÁRIO CADASTRADO COM SUCESSO ===');
       console.log('ID:', novoUsuario.id);

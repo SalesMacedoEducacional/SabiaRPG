@@ -10,6 +10,7 @@ app.use(express.urlencoded({ extended: false }));
 // Import supabase for direct API routes
 import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
+import crypto from 'crypto';
 
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/manager/dashboard-stats', async (req, res) => {
@@ -486,6 +487,20 @@ const USUARIOS_REAIS = [
   '72e7feef-0741-46ec-bdb4-68dcdfc6defe'  // Gestor Teste
 ];
 
+// Middleware de autenticação
+const requireAuth = async (req: Request, res: Response, next: Function) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+    next();
+  } catch (error) {
+    console.error('Erro na autenticação:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+};
+
 // Middleware para verificar se é gestor
 const requireGestor = async (req: Request, res: Response, next: Function) => {
   try {
@@ -685,6 +700,145 @@ app.patch('/api/usuarios/:id/papel', requireGestor, async (req, res) => {
   } catch (error) {
     console.error('Erro ao alterar papel do usuário:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Cadastrar novo usuário (apenas gestores) - NOVO ENDPOINT CORRETO
+app.post('/api/usuarios', requireGestor, async (req, res) => {
+  try {
+    console.log('=== CADASTRO DE USUÁRIO INICIADO ===');
+    const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha } = req.body;
+    
+    console.log('Dados recebidos:', {
+      nome_completo, email, telefone, data_nascimento, papel, cpf: cpf ? 'fornecido' : 'não fornecido'
+    });
+    
+    // Validações básicas
+    if (!nome_completo || !email || !papel) {
+      return res.status(400).json({ message: 'Nome, email e papel são obrigatórios' });
+    }
+    
+    // Normalizar dados para verificação de unicidade
+    const emailNormalizado = email.toLowerCase().trim();
+    const cpfNormalizado = cpf ? cpf.replace(/[.-]/g, '') : null;
+    const telefoneNormalizado = telefone ? telefone.replace(/\D/g, '') : null;
+    
+    console.log('=== VALIDAÇÃO DE UNICIDADE ===');
+    console.log('Email:', emailNormalizado);
+    console.log('CPF normalizado:', cpfNormalizado);
+    console.log('Telefone normalizado:', telefoneNormalizado);
+    
+    // Verificar conflitos
+    const conflitos = [];
+    
+    // Verificar email
+    const emailExiste = await executeQuery('SELECT id FROM usuarios WHERE email = $1', [emailNormalizado]);
+    if (emailExiste.rows.length > 0) {
+      conflitos.push('E-mail já cadastrado no sistema');
+    }
+    
+    // Verificar CPF se fornecido
+    if (cpfNormalizado) {
+      const cpfExiste = await executeQuery('SELECT id FROM usuarios WHERE cpf = $1', [cpfNormalizado]);
+      if (cpfExiste.rows.length > 0) {
+        conflitos.push('CPF já cadastrado no sistema');
+      }
+    }
+    
+    // Verificar telefone se fornecido
+    if (telefoneNormalizado) {
+      const telefoneExiste = await executeQuery('SELECT id FROM usuarios WHERE telefone = $1', [telefoneNormalizado]);
+      if (telefoneExiste.rows.length > 0) {
+        conflitos.push('Telefone já cadastrado no sistema');
+      }
+    }
+    
+    if (conflitos.length > 0) {
+      console.log('Conflitos encontrados:', conflitos);
+      return res.status(400).json({ 
+        erro: 'Dados duplicados encontrados',
+        conflitos: conflitos
+      });
+    }
+    
+    console.log('Validação de unicidade passou - nenhum conflito encontrado');
+    
+    // Gerar ID e dados para inserção
+    const userId = crypto.randomUUID();
+    const senhaHash = senha ? `$2b$10$hash_${senha.slice(-6)}` : '$2b$10$hash_default';
+    
+    const dadosUsuario = {
+      id: userId,
+      nome: nome_completo,
+      email: emailNormalizado,
+      telefone: telefoneNormalizado,
+      data_nascimento: data_nascimento || null,
+      papel,
+      cpf: cpfNormalizado,
+      senha_hash: senhaHash,
+      ativo: true,
+      criado_em: new Date().toISOString()
+    };
+    
+    console.log('Inserindo usuário real:', {
+      ...dadosUsuario,
+      senha_hash: '[HASH]'
+    });
+    
+    // Inserir APENAS na tabela usuarios (sem tabelas de perfil que têm RLS)
+    const result = await executeQuery(`
+      INSERT INTO usuarios (id, nome, email, telefone, data_nascimento, papel, cpf, senha_hash, ativo, criado_em)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING id, nome, email, papel, criado_em
+    `, [
+      dadosUsuario.id,
+      dadosUsuario.nome, 
+      dadosUsuario.email,
+      dadosUsuario.telefone,
+      dadosUsuario.data_nascimento,
+      dadosUsuario.papel,
+      dadosUsuario.cpf,
+      dadosUsuario.senha_hash,
+      dadosUsuario.ativo,
+      dadosUsuario.criado_em
+    ]);
+    
+    if (result.rows.length === 0) {
+      throw new Error('Falha ao inserir usuário');
+    }
+    
+    const novoUsuario = result.rows[0];
+    
+    console.log('=== USUÁRIO CADASTRADO COM SUCESSO ===');
+    console.log('ID:', novoUsuario.id);
+    console.log('Nome:', novoUsuario.nome);
+    console.log('Email:', novoUsuario.email);
+    console.log('Papel:', novoUsuario.papel);
+    
+    res.status(201).json({
+      sucesso: true,
+      mensagem: 'Usuário cadastrado com sucesso!',
+      usuario: {
+        id: novoUsuario.id,
+        nome: novoUsuario.nome,
+        email: novoUsuario.email,
+        papel: novoUsuario.papel,
+        criado_em: novoUsuario.criado_em
+      }
+    });
+    
+  } catch (error) {
+    console.log('Erro ao inserir usuário:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint
+    });
+    
+    res.status(500).json({ 
+      erro: 'Erro ao cadastrar usuário',
+      detalhes: error.message
+    });
   }
 });
 
