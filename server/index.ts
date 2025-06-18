@@ -27,14 +27,14 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const escolas = escolasResult.rows;
     
     const professoresResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM perfis_professor WHERE escola_id = ANY($1) AND ativo = true',
-      [escolaIds]
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2)',
+      ['teacher', 'professor']
     );
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1',
-      ['student']
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2)',
+      ['student', 'aluno']
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
@@ -82,33 +82,28 @@ app.get('/api/professores', async (req, res) => {
     
     const professoresResult = await executeQuery(`
       SELECT 
-        pp.id,
-        pp.escola_id,
-        pp.ativo,
+        u.id,
         u.nome,
         u.email,
         u.telefone,
-        u.cpf,
-        e.nome as escola_nome
-      FROM perfis_professor pp
-      INNER JOIN usuarios u ON pp.usuario_id = u.id
-      INNER JOIN escolas e ON pp.escola_id = e.id
-      WHERE pp.escola_id = ANY($1) AND pp.ativo = true AND u.papel = 'teacher'
+        u.cpf
+      FROM usuarios u
+      WHERE u.papel = 'professor'
       ORDER BY u.nome
-    `, [escolaIds]);
+    `);
     
     const professores = professoresResult.rows.map(prof => ({
       id: prof.id,
       usuarios: {
-        nome: prof.nome,
+        nome: prof.nome || 'Nome não informado',
         email: prof.email,
         telefone: prof.telefone,
         cpf: prof.cpf
       },
-      escola_id: prof.escola_id,
-      escola_nome: prof.escola_nome,
+      escola_id: null,
+      escola_nome: 'Não vinculado',
       disciplinas: [],
-      ativo: prof.ativo
+      ativo: true
     }));
     
     console.log(`Encontrados ${professores.length} professores`);
