@@ -33,8 +33,8 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2)',
-      ['student', 'aluno']
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1',
+      ['aluno']
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
@@ -133,7 +133,7 @@ app.get('/api/alunos', async (req, res) => {
         u.nome,
         u.email
       FROM usuarios u
-      WHERE u.papel = 'student'
+      WHERE u.papel = 'aluno'
       ORDER BY u.nome
     `, []);
     
