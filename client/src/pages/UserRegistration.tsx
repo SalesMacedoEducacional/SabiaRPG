@@ -250,15 +250,20 @@ export default function UserRegistration() {
 
       console.log("Enviando payload:", payload);
       
-      // Usar await api.post() dentro de try/catch
-      const response = await apiRequest("POST", "/api/usuarios", payload);
+      // Usar o novo endpoint funcional de cadastro
+      const response = await fetch('/api/cadastrar-usuario-direto', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const responseData = await response.json();
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ erro: "Erro desconhecido" }));
-        throw new Error(errorData.erro || errorData.message || "Erro ao cadastrar usuário");
+        throw new Error(responseData.erro || responseData.message || "Erro ao cadastrar usuário");
       }
-      
-      const responseData = await response.json();
       
       // 201 Created - Sucesso
       toast({

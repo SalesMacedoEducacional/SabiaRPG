@@ -727,6 +727,57 @@ app.patch('/api/usuarios/:id/papel', requireGestor, async (req, res) => {
   }
 });
 
+// Endpoint para listar todos os usuários (para o painel do gestor)
+app.get('/api/listar-usuarios', async (req, res) => {
+  try {
+    console.log('=== LISTAGEM DE USUÁRIOS ===');
+    
+    const usuariosResult = await executeQuery(`
+      SELECT 
+        u.id, 
+        u.nome, 
+        u.email, 
+        u.papel, 
+        u.cpf, 
+        u.telefone, 
+        u.data_nascimento, 
+        u.ativo, 
+        u.criado_em,
+        CASE 
+          WHEN u.papel = 'gestor' THEN 'Gestor Escolar'
+          WHEN u.papel = 'professor' THEN 'Professor'
+          WHEN u.papel = 'aluno' THEN 'Aluno'
+          ELSE u.papel
+        END as papel_formatado
+      FROM usuarios u
+      WHERE u.ativo = true
+      ORDER BY u.criado_em DESC
+    `);
+    
+    const usuarios = usuariosResult.rows.map(usuario => ({
+      ...usuario,
+      cpf_formatado: usuario.cpf ? usuario.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : null,
+      telefone_formatado: usuario.telefone ? usuario.telefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') : null,
+      criado_em_formatado: new Date(usuario.criado_em).toLocaleDateString('pt-BR')
+    }));
+    
+    console.log(`Encontrados ${usuarios.length} usuários ativos`);
+    
+    res.json({
+      sucesso: true,
+      total: usuarios.length,
+      usuarios: usuarios
+    });
+    
+  } catch (error) {
+    console.error('Erro ao listar usuários:', error);
+    res.status(500).json({ 
+      erro: 'Erro ao buscar usuários',
+      detalhes: error.message
+    });
+  }
+});
+
 // Endpoint simples para cadastro de usuários (sem dependência de sessão complexa)
 app.post('/api/cadastrar-usuario-direto', async (req, res) => {
   try {
