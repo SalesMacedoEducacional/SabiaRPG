@@ -727,6 +727,73 @@ app.patch('/api/usuarios/:id/papel', requireGestor, async (req, res) => {
   }
 });
 
+// Endpoint para listar escolas (para cadastro de usuários)
+app.get('/api/escolas-cadastro', async (req, res) => {
+  try {
+    console.log('=== LISTAGEM DE ESCOLAS PARA CADASTRO ===');
+    
+    const escolasResult = await executeQuery(`
+      SELECT 
+        id, 
+        nome, 
+        cidade, 
+        estado, 
+        codigo_escola
+      FROM escolas
+      WHERE ativo = true
+      ORDER BY nome ASC
+    `);
+    
+    console.log(`Encontradas ${escolasResult.rows.length} escolas ativas`);
+    
+    res.json({
+      sucesso: true,
+      escolas: escolasResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Erro ao listar escolas:', error);
+    res.status(500).json({ 
+      erro: 'Erro ao buscar escolas',
+      detalhes: error.message
+    });
+  }
+});
+
+// Endpoint para listar turmas por escola (para cadastro de alunos)
+app.get('/api/turmas-por-escola/:escolaId', async (req, res) => {
+  try {
+    const { escolaId } = req.params;
+    console.log(`=== LISTAGEM DE TURMAS PARA ESCOLA: ${escolaId} ===`);
+    
+    const turmasResult = await executeQuery(`
+      SELECT 
+        id, 
+        nome, 
+        serie, 
+        ano_letivo,
+        turno
+      FROM turmas
+      WHERE escola_id = $1 AND ativo = true
+      ORDER BY serie ASC, nome ASC
+    `, [escolaId]);
+    
+    console.log(`Encontradas ${turmasResult.rows.length} turmas ativas para a escola`);
+    
+    res.json({
+      sucesso: true,
+      turmas: turmasResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Erro ao listar turmas:', error);
+    res.status(500).json({ 
+      erro: 'Erro ao buscar turmas',
+      detalhes: error.message
+    });
+  }
+});
+
 // Endpoint para listar todos os usuários (para o painel do gestor)
 app.get('/api/listar-usuarios', async (req, res) => {
   try {

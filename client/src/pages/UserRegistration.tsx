@@ -51,21 +51,21 @@ interface Turma {
 
 // Schema de validação rigorosa - todos os campos obrigatórios
 const userSchema = z.object({
+  papel: z.enum(["aluno", "professor", "gestor"], {
+    required_error: "Papel é obrigatório",
+  }),
+  escola_id: z.string().min(1, "Escola é obrigatória"),
   nome_completo: z.string().min(3, "Nome completo é obrigatório (mínimo 3 caracteres)"),
   email: z.string().email("E-mail válido é obrigatório"),
   telefone: z.string().min(14, "Telefone é obrigatório"),
   data_nascimento: z.date({
     required_error: "Data de nascimento é obrigatória",
   }),
-  papel: z.enum(["aluno", "professor", "gestor"], {
-    required_error: "Papel é obrigatório",
-  }),
   cpf: z.string().min(14, "CPF é obrigatório"),
   senha: z.string().min(6, "Senha é obrigatória (mínimo 6 caracteres)"),
   // Campos condicionais
   turma_id: z.string().optional(),
   numero_matricula: z.string().optional(),
-  escola_id: z.string().optional(),
 }).refine(
   (data) => {
     if (data.papel === "aluno") {
@@ -74,8 +74,8 @@ const userSchema = z.object({
     return true;
   },
   {
-    message: "Preencha todos os campos obrigatórios para o papel selecionado",
-    path: ["papel"],
+    message: "Para alunos: turma e número de matrícula são obrigatórios",
+    path: ["turma_id"],
   }
 );
 
@@ -104,19 +104,20 @@ export default function UserRegistration() {
     resolver: zodResolver(userSchema),
     mode: "onChange",
     defaultValues: {
+      papel: undefined,
+      escola_id: "",
       nome_completo: "",
       email: "",
       telefone: "",
-      papel: undefined,
       cpf: "",
       senha: "",
       turma_id: "",
       numero_matricula: "",
-      escola_id: "",
     },
   });
 
   const papel = form.watch("papel");
+  const escolaId = form.watch("escola_id");
   
   // Observar todos os campos para validação rigorosa em tempo real
   const watchedFields = form.watch();
@@ -142,35 +143,64 @@ export default function UserRegistration() {
     return basicFieldsValid && !isSubmitting;
   };
 
-  // Carregar turmas e escolas disponíveis
+  // Carregar escolas ao montar o componente
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEscolas = async () => {
       try {
-        // Buscar turmas
-        const turmasResponse = await apiRequest("GET", "/api/turmas");
-        if (turmasResponse.ok) {
-          const turmasData = await turmasResponse.json();
-          setTurmas(turmasData);
-        }
-
-        // Buscar escolas disponíveis
-        const escolasResponse = await apiRequest("GET", "/api/escolas/todas");
-        if (escolasResponse.ok) {
-          const escolasData = await escolasResponse.json();
-          setEscolas(escolasData);
+        console.log('Carregando escolas para cadastro...');
+        const response = await fetch('/api/escolas-cadastro');
+        const data = await response.json();
+        
+        if (data.sucesso) {
+          setEscolas(data.escolas);
+          console.log(`${data.escolas.length} escolas carregadas`);
+        } else {
+          throw new Error(data.erro || 'Erro ao carregar escolas');
         }
       } catch (error) {
-        console.error("Erro ao carregar dados:", error);
+        console.error("Erro ao carregar escolas:", error);
         toast({
-          title: "Erro ao carregar dados",
-          description: "Não foi possível obter algumas informações necessárias.",
+          title: "Erro ao carregar escolas",
+          description: "Não foi possível carregar a lista de escolas.",
           variant: "destructive",
         });
       }
     };
 
-    fetchData();
+    fetchEscolas();
   }, [toast]);
+
+  // Carregar turmas quando uma escola for selecionada (apenas para alunos)
+  useEffect(() => {
+    const fetchTurmas = async () => {
+      if (papel === 'aluno' && escolaId) {
+        try {
+          console.log(`Carregando turmas para escola: ${escolaId}`);
+          const response = await fetch(`/api/turmas-por-escola/${escolaId}`);
+          const data = await response.json();
+          
+          if (data.sucesso) {
+            setTurmas(data.turmas);
+            console.log(`${data.turmas.length} turmas carregadas para a escola`);
+          } else {
+            throw new Error(data.erro || 'Erro ao carregar turmas');
+          }
+        } catch (error) {
+          console.error("Erro ao carregar turmas:", error);
+          toast({
+            title: "Erro ao carregar turmas",
+            description: "Não foi possível carregar as turmas da escola selecionada.",
+            variant: "destructive",
+          });
+          setTurmas([]);
+        }
+      } else {
+        setTurmas([]);
+      }
+    };
+
+    fetchTurmas();
+  }, [papel, escolaId, toast]);
 
   // Função para aplicar máscara de telefone
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -456,6 +486,41 @@ export default function UserRegistration() {
                           </Select>
                           <FormDescription className="text-parchment-dark">
                             O perfil determina as permissões do usuário na plataforma
+                          </FormDescription>
+                          <FormMessage className="text-destructive" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="escola_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-parchment font-medium">Escola *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="border-primary bg-dark text-parchment focus:ring-accent">
+                                <SelectValue placeholder="Selecione a escola" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-dark border border-primary text-parchment">
+                              {escolas.map((escola) => (
+                                <SelectItem 
+                                  key={escola.id} 
+                                  value={escola.id}
+                                  className="focus:bg-dark-light focus:text-parchment"
+                                >
+                                  {escola.nome} - {escola.cidade}/{escola.estado}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-parchment-dark">
+                            Todos os usuários devem estar vinculados a uma escola
                           </FormDescription>
                           <FormMessage className="text-destructive" />
                         </FormItem>
