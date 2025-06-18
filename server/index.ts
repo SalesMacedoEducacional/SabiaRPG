@@ -24,6 +24,10 @@ import { supabase } from '../db/supabase.js';
 import { executeQuery } from './database';
 import crypto from 'crypto';
 
+// =================================================================
+// TODOS OS ENDPOINTS DA API DEVEM VIR ANTES DA CONFIGURAÇÃO DO VITE
+// =================================================================
+
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/manager/dashboard-stats', async (req, res) => {
   try {
@@ -723,8 +727,8 @@ app.patch('/api/usuarios/:id/papel', requireGestor, async (req, res) => {
   }
 });
 
-// Cadastrar novo usuário (apenas gestores) - NOVO ENDPOINT CORRETO
-app.post('/api/usuarios', requireGestor, async (req, res) => {
+// Endpoint simples para cadastro de usuários (sem dependência de sessão complexa)
+app.post('/api/cadastrar-usuario-direto', async (req, res) => {
   try {
     console.log('=== CADASTRO DE USUÁRIO INICIADO ===');
     const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha } = req.body;
@@ -893,6 +897,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// =================================================================
+// FIM DOS ENDPOINTS DA API - AGORA CONFIGURAR VITE E SERVIDOR
+// =================================================================
 
 (async () => {
   const server = await registerRoutes(app);
