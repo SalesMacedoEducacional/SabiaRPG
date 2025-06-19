@@ -459,7 +459,6 @@ app.get('/api/professores', async (req, res) => {
         pp.id as perfil_id,
         pp.usuario_id,
         pp.escola_id,
-        pp.turmas,
         pp.ativo,
         u.nome,
         u.email,
@@ -484,7 +483,6 @@ app.get('/api/professores', async (req, res) => {
       escola_id: prof.escola_id,
       escola_nome: prof.escola_nome,
       disciplinas: ['Não informado'],
-      turmas: prof.turmas || ['Não informado'],
       ativo: prof.ativo
     }));
     
