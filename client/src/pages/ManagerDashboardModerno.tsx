@@ -148,6 +148,15 @@ export default function ManagerDashboardModerno() {
   const handleMenuSelect = (menu: string) => {
     setActiveMenu(menu);
     setMobileMenuOpen(false);
+    
+    // Redirecionar para páginas específicas
+    if (menu === "users") {
+      navigate('/usuarios');
+    } else if (menu === "classes") {
+      navigate('/turmas');
+    } else if (menu === "schools") {
+      navigate('/escolas');
+    }
   };
 
   // Event listener for components modal

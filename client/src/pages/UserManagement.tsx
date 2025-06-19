@@ -81,9 +81,9 @@ export default function UserManagement() {
   const calculateCounters = (usuarios: Usuario[]) => {
     setTotalUsuarios(usuarios.length);
     setUsuariosAtivos(usuarios.filter(u => u.ativo).length);
-    setProfessores(usuarios.filter(u => u.papel === 'teacher').length);
-    setAlunos(usuarios.filter(u => u.papel === 'student').length);
-    setGestores(usuarios.filter(u => u.papel === 'manager').length);
+    setProfessores(usuarios.filter(u => u.papel === 'professor').length);
+    setAlunos(usuarios.filter(u => u.papel === 'aluno').length);
+    setGestores(usuarios.filter(u => u.papel === 'gestor').length);
     setUsuariosInativos(usuarios.filter(u => !u.ativo).length);
   };
 
