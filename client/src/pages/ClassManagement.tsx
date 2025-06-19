@@ -284,13 +284,13 @@ export default function ClassManagement() {
               value={selectedEscola}
               onValueChange={setSelectedEscola}
             >
-              <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white hover:bg-[#57533f]">
+              <SelectTrigger className="bg-background-input border-primary text-text-primary hover:bg-background-elevated">
                 <SelectValue placeholder="Todas as escolas" />
               </SelectTrigger>
-              <SelectContent className="bg-[#4a4639] border-[#D47C06]">
-                <SelectItem value="todas" className="text-white hover:bg-[#57533f]">Todas as escolas</SelectItem>
+              <SelectContent className="bg-background-input border-primary">
+                <SelectItem value="todas" className="text-text-primary hover:bg-background-elevated">Todas as escolas</SelectItem>
                 {escolas.map((escola) => (
-                  <SelectItem key={escola.id} value={escola.id} className="text-white hover:bg-[#57533f]">
+                  <SelectItem key={escola.id} value={escola.id} className="text-text-primary hover:bg-background-elevated">
                     {escola.nome}
                   </SelectItem>
                 ))}
@@ -308,15 +308,15 @@ export default function ClassManagement() {
                 placeholder="Nome da turma, série..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent"
+                className="pl-10 bg-background-input border-primary text-text-primary placeholder:text-accent"
               />
             </div>
           </div>
           
           <div className="flex items-end">
-            <div className="bg-[#312e26] border border-[#D47C06] p-4 rounded-lg shadow-sm w-full">
+            <div className="bg-background-primary border border-primary p-4 rounded-lg shadow-sm w-full">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-text-primary">
                   {filteredTurmas.length}
                 </div>
                 <div className="text-sm text-accent">
@@ -356,11 +356,11 @@ export default function ClassManagement() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTurmas.map((turma) => (
-              <Card key={turma.id} className="bg-[#312e26] border border-[#D47C06] hover:border-amber-400 transition-all shadow-md">
+              <Card key={turma.id} className="bg-background-primary border border-primary hover:border-primary-hover transition-all shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-white mb-1">
+                      <CardTitle className="text-lg font-semibold text-text-primary mb-1">
                         {turma.nome}
                       </CardTitle>
                       <CardDescription className="text-accent text-sm">
@@ -371,7 +371,7 @@ export default function ClassManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTurma(turma)}
-                      className="text-primary hover:text-amber-400 hover:bg-[#4a4639]"
+                      className="text-primary hover:text-primary-hover hover:bg-background-elevated"
                     >
                       <PenSquare className="h-4 w-4" />
                     </Button>
@@ -380,22 +380,22 @@ export default function ClassManagement() {
                 
                 <CardContent className="space-y-3">
                   <div className="flex items-center space-x-2 text-sm text-accent">
-                    <GraduationCap className="h-4 w-4 text-[#D47C06]" />
+                    <GraduationCap className="h-4 w-4 text-primary" />
                     <span>{turma.serie}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-sm text-accent">
-                    <CalendarDays className="h-4 w-4 text-[#D47C06]" />
+                    <CalendarDays className="h-4 w-4 text-primary" />
                     <span>Ano Letivo: {turma.ano_letivo}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-sm text-accent">
-                    <Clock className="h-4 w-4 text-[#D47C06]" />
+                    <Clock className="h-4 w-4 text-primary" />
                     <span>Turno: {turma.turno}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-sm text-accent">
-                    <Users className="h-4 w-4 text-[#D47C06]" />
+                    <Users className="h-4 w-4 text-primary" />
                     <span>{turma.total_alunos} alunos</span>
                   </div>
                 </CardContent>
@@ -406,9 +406,9 @@ export default function ClassManagement() {
 
         {/* Dialog para Adicionar/Editar Turma */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent className="sm:max-w-[500px] bg-[#2b2518] border border-[#D47C06]">
+          <DialogContent className="sm:max-w-[500px] bg-background-card border border-primary">
             <DialogHeader>
-              <DialogTitle className="text-white">
+              <DialogTitle className="text-text-primary">
                 {editTurma ? "Editar Turma" : "Nova Turma"}
               </DialogTitle>
               <DialogDescription className="text-accent">
