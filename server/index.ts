@@ -113,32 +113,39 @@ app.get('/api/professores', async (req, res) => {
       });
     }
     
-    // Buscar professores através da tabela usuarios (dados reais disponíveis)
+    // Buscar professores através da tabela perfis_professor
     const professoresResult = await executeQuery(`
       SELECT 
-        u.id,
+        pp.id as perfil_id,
+        pp.usuario_id,
+        pp.escola_id,
+        pp.disciplinas,
+        pp.turmas,
+        pp.ativo,
         u.nome,
         u.email,
         u.cpf,
         u.telefone,
-        u.data_nascimento,
-        u.ativo
-      FROM usuarios u
-      WHERE u.papel = 'professor' AND u.ativo = true
+        e.nome as escola_nome
+      FROM perfis_professor pp
+      JOIN usuarios u ON pp.usuario_id = u.id
+      JOIN escolas e ON pp.escola_id = e.id
+      WHERE pp.escola_id = ANY($1) AND pp.ativo = true
       ORDER BY u.nome
-    `, []);
+    `, [escolaIds]);
     
     const professores = professoresResult.rows.map(prof => ({
-      id: prof.id,
+      id: prof.perfil_id,
       usuarios: {
         nome: prof.nome || 'Nome não informado',
         email: prof.email || 'Não informado',
         telefone: prof.telefone || 'Não informado',
         cpf: prof.cpf || 'Não informado'
       },
-      escola_id: null,
-      escola_nome: 'Aguardando definição',
-      disciplinas: ['Não informado'],
+      escola_id: prof.escola_id,
+      escola_nome: prof.escola_nome,
+      disciplinas: prof.disciplinas || ['Não informado'],
+      turmas: prof.turmas || ['Não informado'],
       ativo: prof.ativo
     }));
     
