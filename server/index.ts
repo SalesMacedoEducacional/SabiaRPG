@@ -36,15 +36,39 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
   try {
     console.log('Buscando estatísticas reais baseadas em perfis_professor, perfis_aluno e turmas');
     
-    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    // Verificar se há sessão ativa
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
     
-    // Buscar escolas do gestor
-    const escolasResult = await executeQuery(
-      'SELECT * FROM escolas WHERE gestor_id = $1',
+    const gestorId = req.session.userId;
+    
+    // Buscar escolas vinculadas ao gestor através da tabela perfis_gestor
+    const perfilGestorResult = await executeQuery(
+      'SELECT escola_id FROM perfis_gestor WHERE usuario_id = $1 AND ativo = true',
       [gestorId]
     );
+    
+    if (perfilGestorResult.rows.length === 0) {
+      console.log('Nenhuma escola vinculada encontrada para o gestor');
+      return res.status(200).json({
+        totalEscolas: 0,
+        totalProfessores: 0,
+        totalAlunos: 0,
+        turmasAtivas: 0,
+        escolas: [],
+        message: 'Nenhuma escola vinculada encontrada'
+      });
+    }
+    
+    const escolaIds = perfilGestorResult.rows.map(row => row.escola_id);
+    
+    // Buscar detalhes das escolas
+    const escolasResult = await executeQuery(
+      'SELECT * FROM escolas WHERE id = ANY($1)',
+      [escolaIds]
+    );
     const escolas = escolasResult.rows;
-    const escolaIds = escolas.map(e => e.id);
     
     // Contar professores através da tabela perfis_professor
     const professoresResult = await executeQuery(
@@ -100,14 +124,19 @@ app.get('/api/professores', async (req, res) => {
   try {
     console.log('Buscando detalhes dos professores REAIS baseado em perfis_professor');
     
-    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    // Verificar se há sessão ativa
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
     
-    // Buscar escolas do gestor primeiro
-    const escolasResult = await executeQuery(`
-      SELECT id FROM escolas WHERE gestor_id = $1
+    const gestorId = req.session.userId;
+    
+    // Buscar escolas do gestor através da tabela perfis_gestor
+    const perfilGestorResult = await executeQuery(`
+      SELECT escola_id FROM perfis_gestor WHERE usuario_id = $1 AND ativo = true
     `, [gestorId]);
     
-    const escolaIds = escolasResult.rows.map(e => e.id);
+    const escolaIds = perfilGestorResult.rows.map(row => row.escola_id);
     
     if (escolaIds.length === 0) {
       return res.json({

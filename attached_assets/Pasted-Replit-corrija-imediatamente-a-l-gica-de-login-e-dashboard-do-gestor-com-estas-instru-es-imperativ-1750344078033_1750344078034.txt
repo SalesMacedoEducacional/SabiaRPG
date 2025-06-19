@@ -1,0 +1,37 @@
+Replit, corrija imediatamente a lógica de login e dashboard do gestor com estas instruções imperativas:
+
+Verificação de vínculo à(s) escola(s)
+
+Ao fazer login como gestor, o sistema deve consultar a tabela usuarios e ler o campo escola_id do usuário autenticado.
+
+Em seguida, buscar todas as escolas vinculadas a esse escola_id (tabela escolas ou perfis_gestor), sem exibir nenhum dado fictício.
+
+Alimentação dos cards de Visão Geral
+
+Total de Escolas Vinculadas: contar exatamente quantas escolas existem para o escola_id do gestor e exibir esse número.
+
+Total de Professores: contar somente os registros em perfis_professor cujo escola_id corresponda ao(s) escola_id(s) do gestor e exibir o total; em “Ver Detalhes” liste nome, CPF, telefone e e-mail reais de cada professor.
+
+Total de Alunos: contar somente os registros em perfis_aluno cujo escola_id corresponda ao(s) escola_id(s) do gestor e exibir o total; em “Ver Detalhes” liste matrícula, turma, CPF, telefone e e-mail de cada aluno.
+
+Total de Turmas Ativas: contar somente os registros em turmas cujo escola_id corresponda ao(s) escola_id(s) do gestor e cujo campo ativo seja true; em “Ver Detalhes” exiba nome da turma, série, modalidade e quantidade de alunos vinculados (contagem de perfis_aluno por turma_id).
+
+Filtros e listagens
+
+Nos menus “Turmas”, “Professores” e “Alunos”, habilite filtro por escola (usando o escola_id do gestor) e exiba apenas os registros vinculados.
+
+Em todos os “Ver Detalhes” e pop-ups, mostrar apenas os dados reais de cada registro; nenhum dado fictício deve ser exibido.
+
+Fluxo de sucesso e erro
+
+Se o gestor não estiver vinculado a nenhuma escola, exibir “Nenhuma escola vinculada encontrada” e zerar todos os contadores.
+
+Se houver qualquer erro de consulta ao banco, interrompa a ação e retorne um log de erro no console com o detalhe da falha, sem exibir dados incorretos ao usuário.
+
+Integração front-end/back-end
+
+Garanta que o front-end faça chamadas à API que consultem as tabelas certas (usuarios, perfis_gestor, escolas, perfis_professor, perfis_aluno, turmas) e atualize o estado React/Vue/Angular com os valores retornados.
+
+Após cada login bem-sucedido, execute o carregamento dos cards e menus antes de renderizar a página, de forma síncrona.
+
+Implemente essas correções de forma completa e imediata: o gestor só deve ver e contar as escolas e dados aos quais ele realmente tem vínculo, e seu dashboard deve refletir exclusivamente esses registros reais.
