@@ -189,7 +189,7 @@ export default function UserRegistrationSimple() {
         
         // Redirect to user management
         setTimeout(() => {
-          setLocation('/manager/users');
+          setLocation('/usuarios');
         }, 1500);
       } else {
         throw new Error(result.erro || 'Erro ao cadastrar usuário');
