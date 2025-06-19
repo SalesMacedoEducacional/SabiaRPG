@@ -3113,7 +3113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Endpoint crítico: Alunos Ativos com dados reais de engajamento
-  app.get("/api/alunos/engajamento", authenticate, authorize(["manager"]), async (req, res) => {
+  app.get("/api/alunos/engajamento", authenticate, authorize(["manager", "gestor"]), async (req, res) => {
     try {
       console.log(`=== CALCULANDO ENGAJAMENTO DE ALUNOS REAIS ===`);
       const gestorId = req.session.userId;
