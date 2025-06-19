@@ -48,35 +48,33 @@ import {
   PenSquare, 
   Users, 
   CalendarDays, 
-  Clock, 
-  BookOpen
+  ArrowLeft,
+  GraduationCap,
+  Clock
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft } from "lucide-react";
 
 interface Escola {
   id: string;
   nome: string;
-  codigo_escola?: string;
+  cidade: string;
+  estado: string;
+  codigo_escola: string;
 }
 
 interface Turma {
   id: string;
-  nome?: string;
-  serie?: string;
-  ano_letivo?: number;
-  escola_id?: string;
+  nome: string;
+  serie: string;
+  ano_letivo: number;
+  turno: string;
   modalidade?: string;
-  turno?: string;
   descricao?: string;
-  total_alunos?: number;
-  ativo?: boolean;
-  // Compatibilidade temporária com dados antigos
-  nome_turma?: string;
-  capacidade?: number;
+  total_alunos: number;
+  escola_id: string;
+  escola_nome: string;
 }
 
-// Esquema para validação do formulário de turma
+// Schema de validação para turma
 const turmaFormSchema = z.object({
   nome: z.string().min(1, "O nome da turma é obrigatório"),
   serie: z.string().min(1, "A série é obrigatória"),
@@ -152,16 +150,16 @@ export default function ClassManagement() {
           setTurmas([]);
         }
       } catch (error) {
-          console.error("Erro ao carregar turmas:", error);
-          toast({
-            title: "Erro",
-            description: "Não foi possível carregar as turmas. Tente novamente mais tarde.",
-            variant: "destructive",
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
+        console.error("Erro ao carregar turmas:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar as turmas. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchTurmas();
   }, [toast]);
@@ -181,437 +179,416 @@ export default function ClassManagement() {
     setShowAddDialog(true);
   };
 
-  // Abrir diálogo para editar turma existente
+  // Abrir diálogo para editar turma
   const handleEditTurma = (turma: Turma) => {
     form.reset({
-      nome: turma.nome || turma.nome_turma || "",
-      serie: turma.serie || "",
-      ano_letivo: turma.ano_letivo || new Date().getFullYear(),
-      turno: turma.turno || "",
+      nome: turma.nome,
+      serie: turma.serie,
+      ano_letivo: turma.ano_letivo,
+      turno: turma.turno,
       modalidade: turma.modalidade || "",
       descricao: turma.descricao || "",
-      escola_id: turma.escola_id || "",
+      escola_id: turma.escola_id,
     });
     setEditTurma(turma);
     setShowAddDialog(true);
   };
 
-  // Enviar formulário de turma (criar/editar)
-  const onSubmit = async (values: z.infer<typeof turmaFormSchema>) => {
+  // Salvar turma (criar ou editar)
+  const handleSaveTurma = async (data: z.infer<typeof turmaFormSchema>) => {
     try {
       if (editTurma) {
-        // Atualizar turma existente
-        await axios.put(`/api/turmas/${editTurma.id}`, values);
+        // Editar turma existente
+        await axios.put(`/api/turmas/${editTurma.id}`, data);
         toast({
           title: "Sucesso",
           description: "Turma atualizada com sucesso!",
         });
       } else {
         // Criar nova turma
-        await axios.post("/api/turmas", values);
+        await axios.post("/api/turmas", data);
         toast({
           title: "Sucesso",
           description: "Turma criada com sucesso!",
         });
       }
-      
-      // Recarregar turmas
-      const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
-      setTurmas(response.data);
+
+      // Recarregar turmas filtradas pela escola selecionada
+      const response = await axios.get("/api/turmas");
+      setTurmas(response.data.turmas || []);
       setShowAddDialog(false);
     } catch (error) {
       console.error("Erro ao salvar turma:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar a turma. Tente novamente mais tarde.",
+        description: "Não foi possível salvar a turma. Tente novamente.",
         variant: "destructive",
       });
     }
   };
 
-  // Filtrar turmas por termo de busca - garantir que turmas é um array
-  const filteredTurmas = Array.isArray(turmas) ? turmas.filter(turma => {
-    if (!turma) return false;
+  // Filtrar turmas baseado na escola selecionada e termo de busca
+  const filteredTurmas = turmas.filter((turma) => {
+    const matchesSearch = turma.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         turma.serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         turma.escola_nome.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Verificar se os campos existem antes de tentar acessá-los
-    const nomeTurma = turma.nome_turma || turma.nome || '';
-    const serie = turma.serie || '';
-    const modalidade = turma.modalidade || '';
+    const matchesSchool = !selectedEscola || turma.escola_id === selectedEscola;
     
-    return (
-      nomeTurma.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      modalidade.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }) : [];
+    return matchesSearch && matchesSchool;
+  });
 
-  // Encontrar nome da escola selecionada
-  const escolaSelecionadaNome = escolas.find(e => e.id === selectedEscola)?.nome || "Selecione uma escola";
+  const escolaSelecionadaNome = escolas.find((e) => e.id === selectedEscola)?.nome || "";
 
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6">
-      <div className="flex items-center mb-6">
-        <Button 
-          onClick={() => setLocation("/manager")} 
-          variant="outline" 
-          className="mr-4 bg-transparent border-primary text-parchment hover:bg-dark-light"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar ao Dashboard
-        </Button>
-        <h1 className="text-2xl font-bold text-parchment">Gerenciamento de Turmas</h1>
-      </div>
-
-      <Card className="mb-6 bg-dark border border-primary">
-        <CardHeader className="border-b border-primary/40 bg-dark">
-          <CardTitle className="text-lg text-parchment flex items-center">
-            <School className="h-5 w-5 mr-2 text-accent" />
-            Escola Selecionada
-          </CardTitle>
-          <CardDescription className="text-parchment-dark">
-            Selecione uma escola para gerenciar suas turmas
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="flex flex-col space-y-4">
-            <Select 
-              value={selectedEscola} 
-              onValueChange={setSelectedEscola}
-              disabled={loading || escolas.length === 0}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/manager-dashboard")}
+              className="flex items-center space-x-2 text-purple-700 hover:text-purple-900"
             >
-              <SelectTrigger className="bg-dark-light border-primary text-parchment">
-                <SelectValue placeholder="Selecione uma escola" />
+              <ArrowLeft className="h-5 w-5" />
+              <span>Voltar ao Dashboard</span>
+            </Button>
+          </div>
+          
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Gerenciamento de Turmas
+            </h1>
+            <p className="text-gray-600">
+              Gerencie as turmas das suas escolas
+            </p>
+          </div>
+          
+          <Button
+            onClick={handleAddTurma}
+            className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Nova Turma</span>
+          </Button>
+        </div>
+
+        {/* Filtros */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Filtrar por Escola
+            </label>
+            <Select
+              value={selectedEscola}
+              onValueChange={setSelectedEscola}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todas as escolas" />
               </SelectTrigger>
-              <SelectContent className="bg-dark border-primary">
-                {escolas.map(escola => (
-                  <SelectItem 
-                    key={escola.id} 
-                    value={escola.id}
-                    className="text-parchment hover:bg-dark-light"
-                  >
+              <SelectContent>
+                <SelectItem value="">Todas as escolas</SelectItem>
+                {escolas.map((escola) => (
+                  <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-between items-center mb-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-parchment-dark" />
-          <Input
-            type="text"
-            placeholder="Pesquisar turmas..."
-            className="pl-9 bg-dark-light border-primary text-parchment"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Button 
-          onClick={handleAddTurma} 
-          className="ml-4 bg-accent hover:bg-accent-dark text-white border border-primary"
-          disabled={!selectedEscola || loading}
-        >
-          <Plus className="h-4 w-4 mr-2" /> Cadastrar Nova Turma
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="text-parchment">Carregando turmas...</div>
-        </div>
-      ) : (
-        <>
-          {filteredTurmas.length === 0 ? (
-            <Card className="bg-dark-light border border-primary/50 text-center p-8">
-              <CardContent className="pt-6">
-                <p className="text-parchment">
-                  {searchTerm ? "Nenhuma turma encontrada com os termos de busca." : "Nenhuma turma cadastrada para esta escola."}
-                </p>
-                <Button 
-                  onClick={handleAddTurma} 
-                  className="mt-4 bg-accent hover:bg-accent-dark text-white border border-primary"
-                  disabled={!selectedEscola}
-                >
-                  <Plus className="h-4 w-4 mr-2" /> Cadastrar Nova Turma
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTurmas.map((turma) => (
-                <Card key={turma.id} className="bg-dark-light border border-primary overflow-hidden">
-                  <CardHeader className="bg-dark pb-2 border-b border-primary/60">
-                    <CardTitle className="text-lg text-parchment flex items-center">
-                      <BookOpen className="h-5 w-5 mr-2 text-accent" />
-                      {turma.nome || turma.nome_turma || 'Turma sem nome'}
-                    </CardTitle>
-                    <CardDescription className="text-xs text-parchment-dark mt-1">
-                      {turma.serie || '—'} - {turma.ano_letivo || '—'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start">
-                        <Clock className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                        <span className="text-parchment">Turno: {turma.turno || '—'}</span>
-                      </div>
-                      <div className="flex items-start">
-                        <BookOpen className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                        <span className="text-parchment">Modalidade: {turma.modalidade || '—'}</span>
-                      </div>
-                      <div className="flex items-start">
-                        <Users className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                        <span className="text-parchment">
-                          Alunos: {turma.total_alunos || 0}
-                        </span>
-                      </div>
-                      {turma.descricao && (
-                        <div className="flex items-start">
-                          <BookOpen className="h-4 w-4 mr-2 text-parchment-dark mt-0.5" />
-                          <span className="text-parchment">
-                            Obs: {turma.descricao}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="border-t border-primary/40 bg-dark pt-3 flex justify-between">
-                    <Button 
-                      size="sm" 
-                      className="text-xs bg-accent hover:bg-accent-dark text-white border border-primary"
-                      onClick={() => handleEditTurma(turma)}
-                    >
-                      <PenSquare className="h-3.5 w-3.5 mr-1" />
-                      Editar Turma
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="text-xs border-primary text-parchment hover:bg-dark-light"
-                      onClick={() => {
-                        // Navegação para detalhes da turma - para implementar futuramente
-                        toast({
-                          title: "Informação",
-                          description: "Funcionalidade de visualizar detalhes será implementada em breve.",
-                        });
-                      }}
-                    >
-                      <Users className="h-3.5 w-3.5 mr-1" />
-                      Ver Alunos
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Diálogo para adicionar/editar turma */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-dark border border-primary text-parchment max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-xl text-accent">
-              {editTurma ? "Editar Turma" : "Cadastrar Nova Turma"}
-            </DialogTitle>
-            <DialogDescription className="text-parchment-dark">
-              {editTurma 
-                ? "Edite as informações da turma selecionada." 
-                : "Preencha as informações para cadastrar uma nova turma."}
-            </DialogDescription>
-          </DialogHeader>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="escola_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Escola</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={loading || escolas.length === 0 || !!editTurma}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="bg-dark-light border-primary text-parchment">
-                          <SelectValue placeholder="Selecione a escola" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-dark border-primary">
-                        {escolas.map(escola => (
-                          <SelectItem 
-                            key={escola.id} 
-                            value={escola.id}
-                            className="text-parchment hover:bg-dark-light"
-                          >
-                            {escola.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Buscar Turmas
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Nome da turma, série..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+          </div>
+          
+          <div className="flex items-end">
+            <div className="bg-white p-4 rounded-lg border shadow-sm w-full">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {filteredTurmas.length}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Turmas encontradas
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de Turmas */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500">Carregando turmas...</div>
+          </div>
+        ) : filteredTurmas.length === 0 ? (
+          <div className="text-center py-12">
+            <GraduationCap className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Nenhuma turma encontrada
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {searchTerm 
+                ? "Nenhuma turma corresponde aos critérios de busca."
+                : "Comece criando sua primeira turma."}
+            </p>
+            {!searchTerm && (
+              <Button
+                onClick={handleAddTurma}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Criar primeira turma
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTurmas.map((turma) => (
+              <Card key={turma.id} className="bg-white hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                        {turma.nome}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-gray-600">
+                        {turma.escola_nome}
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditTurma(turma)}
+                      className="text-purple-600 hover:text-purple-800"
+                    >
+                      <PenSquare className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-3">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <GraduationCap className="h-4 w-4" />
+                    <span>{turma.serie}</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <CalendarDays className="h-4 w-4" />
+                    <span>Ano Letivo: {turma.ano_letivo}</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>Turno: {turma.turno}</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Users className="h-4 w-4" />
+                    <span>{turma.total_alunos} alunos</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Dialog para Adicionar/Editar Turma */}
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>
+                {editTurma ? "Editar Turma" : "Nova Turma"}
+              </DialogTitle>
+              <DialogDescription>
+                {editTurma 
+                  ? "Edite as informações da turma abaixo." 
+                  : "Preencha as informações para criar uma nova turma."}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSaveTurma)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="escola_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Escola</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma escola" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {escolas.map((escola) => (
+                            <SelectItem key={escola.id} value={escola.id}>
+                              {escola.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="nome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-parchment">Nome da Turma</FormLabel>
+                      <FormLabel>Nome da Turma</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Ex: 6º Ano A"
-                          className="bg-dark-light border-primary text-parchment"
-                        />
+                        <Input placeholder="Ex: 3° Ano A" {...field} />
                       </FormControl>
-                      <FormMessage className="text-red-400" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="serie"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Série</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Ex: 6º Ano"
-                          className="bg-dark-light border-primary text-parchment"
-                        />
-                      </FormControl>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="ano_letivo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Ano Letivo</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          className="bg-dark-light border-primary text-parchment"
-                          min={2023}
-                          max={2050}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="turno"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Turno</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="serie"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Série</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Ensino Fundamental">Ensino Fundamental</SelectItem>
+                            <SelectItem value="Ensino Médio">Ensino Médio</SelectItem>
+                            <SelectItem value="EJA">EJA</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="ano_letivo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ano Letivo</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="bg-dark-light border-primary text-parchment">
-                            <SelectValue placeholder="Selecione o turno" />
-                          </SelectTrigger>
+                          <Input
+                            type="number"
+                            min="2023"
+                            max="2030"
+                            {...field}
+                          />
                         </FormControl>
-                        <SelectContent className="bg-dark border-primary">
-                          <SelectItem value="Manhã" className="text-parchment hover:bg-dark-light">Manhã</SelectItem>
-                          <SelectItem value="Tarde" className="text-parchment hover:bg-dark-light">Tarde</SelectItem>
-                          <SelectItem value="Noite" className="text-parchment hover:bg-dark-light">Noite</SelectItem>
-                          <SelectItem value="Integral" className="text-parchment hover:bg-dark-light">Integral</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="modalidade"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Modalidade</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-dark-light border-primary text-parchment">
-                            <SelectValue placeholder="Selecione a modalidade" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-dark border-primary">
-                          <SelectItem value="Ensino Fundamental I" className="text-parchment hover:bg-dark-light">Ensino Fundamental I</SelectItem>
-                          <SelectItem value="Ensino Fundamental II" className="text-parchment hover:bg-dark-light">Ensino Fundamental II</SelectItem>
-                          <SelectItem value="Ensino Médio" className="text-parchment hover:bg-dark-light">Ensino Médio</SelectItem>
-                          <SelectItem value="EJA" className="text-parchment hover:bg-dark-light">EJA</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-                
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="turno"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Turno</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Manhã">Manhã</SelectItem>
+                            <SelectItem value="Tarde">Tarde</SelectItem>
+                            <SelectItem value="Noite">Noite</SelectItem>
+                            <SelectItem value="Integral">Integral</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="modalidade"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Modalidade</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Presencial">Presencial</SelectItem>
+                            <SelectItem value="Remoto">Remoto</SelectItem>
+                            <SelectItem value="Híbrido">Híbrido</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="descricao"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-parchment">Descrição/Observações</FormLabel>
+                      <FormLabel>Descrição (Opcional)</FormLabel>
                       <FormControl>
                         <Input
+                          placeholder="Informações adicionais sobre a turma"
                           {...field}
-                          placeholder="Observações sobre a turma (opcional)"
-                          className="bg-dark-light border-primary text-parchment"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-400" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              
-              <DialogFooter className="pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowAddDialog(false)}
-                  className="bg-transparent border-primary text-parchment hover:bg-dark-light"
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit"
-                  className="bg-accent hover:bg-accent-dark text-white border border-primary"
-                >
-                  {editTurma ? "Salvar Alterações" : "Cadastrar Turma"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddDialog(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    {editTurma ? "Salvar Alterações" : "Criar Turma"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
