@@ -2285,6 +2285,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint público para listar usuários (DEBUG)
+  app.get("/api/debug/usuarios", async (req, res) => {
+    try {
+      const query = `
+        SELECT id, nome, email, papel, ativo,
+        CASE WHEN senha_hash IS NOT NULL THEN 'Tem hash' ELSE 'Sem hash' END as status_senha,
+        criado_em
+        FROM usuarios 
+        WHERE ativo = true 
+        ORDER BY papel, nome
+      `;
+      
+      const result = await executeQuery(query);
+      
+      res.status(200).json({
+        total: result.rows.length,
+        usuarios: result.rows
+      });
+      
+    } catch (error) {
+      console.error("Erro ao listar usuários:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
   
@@ -2928,7 +2953,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint para listar todos os usuários (para debug)
+  // Endpoint para listar todos os usuários (para debug) - sem autenticação
   app.get("/api/usuarios/todos", async (req, res) => {
     try {
       const query = `
