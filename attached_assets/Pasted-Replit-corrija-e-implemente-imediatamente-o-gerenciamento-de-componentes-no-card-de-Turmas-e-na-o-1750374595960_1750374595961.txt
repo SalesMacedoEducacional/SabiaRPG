@@ -1,0 +1,61 @@
+Replit, corrija e implemente imediatamente o gerenciamento de componentes no card de “Turmas” e na opção do menu lateral “Componentes” conforme estas regras:
+
+Card “Gerenciar Componentes” em Turmas
+
+Adicione no card de Turmas um botão “Gerenciar Componentes” que abra o mesmo modal da opção do menu lateral “Componentes”.
+
+Componentes padrão
+
+Na inicialização do sistema, insira automaticamente 5 componentes na tabela componentes com estas cores e campos:
+
+Linguagens e suas Tecnologias – cor #4DA3A9 (teal acinzentado)
+
+Matemática e suas Tecnologias – cor #D4A054 (âmbar)
+
+Ciências da Natureza – cor #A6E3E9 (azul-claro)
+
+Ciências Humanas e Sociais Aplicadas – cor #FFC23C (dourado metálico)
+
+Arte e Educação Física – cor #312E26 (marrom escuro)
+
+Cada registro deve ter id, nome, cor_hex e estar vinculado aos níveis curriculares “1º Ano”, “2º Ano” e “3º Ano” (campo ano_serie ou equivalente).
+
+Vinculação no cadastro/edição de Turma
+
+No formulário de Nova Turma e de Edição de Turma, inclua um multiselect de componentes (já carregados).
+
+Ao salvar, para cada componente selecionado insira em turma_componentes um registro com:
+
+turma_id
+
+componente_id
+
+professor_id (selecionado no formulário)
+
+ano_serie
+
+Sincronização automática de alunos
+
+Após salvar turma_componentes, crie para cada aluno dessa turma um registro em turma_componentes (ou tabela apropriada) ligando-os a todos os componentes da turma e mantendo o mesmo escola_id.
+
+Modal “Gerenciar Componentes”
+
+Na lista de componentes vinculados, exiba coluna “Cor” (mostrando cor_hex), “Componente”, “Professor Responsável” e opção de reatribuir professor.
+
+Fluxo de testes e validação
+
+Verifique no menu lateral “Componentes” se os 5 componentes padrão existem com as cores corretas.
+
+Crie/edite uma turma, selecione componentes e professores; salve e confirme em turma_componentes.
+
+Confirme que todos os alunos dessa turma receberam vínculo a cada componente.
+
+IMPORTANTE:
+
+Não gere dados fictícios: use apenas entidades reais já cadastradas (escolas, turmas, professores, alunos).
+
+Teste exaustivamente até garantir que o botão “Gerenciar Componentes” e o menu lateral exibam e gravem corretamente cores, vínculos e responsáveis.
+
+Após qualquer ação de cadastro/edição/exclusão, dê refresh automático dos dados na interface, sem dados em cache.
+
+Garanta que alunos vejam nos relatórios e gráficos a cor e o nome de cada componente ao qual estão vinculados.

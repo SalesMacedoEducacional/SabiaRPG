@@ -290,6 +290,17 @@ export const logsAuditoria = pgTable("logs_auditoria", {
   criadoEm: timestamp("criado_em").defaultNow(),
 });
 
+// Componentes curriculares table
+export const componentesCurriculares = pgTable("componentes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nome: text("nome").notNull(),
+  corHex: text("cor_hex").notNull(),
+  anoSerie: text("ano_serie").notNull(),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
+});
+
 // Turmas table
 export const turmas = pgTable("turmas", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -304,12 +315,13 @@ export const turmas = pgTable("turmas", {
   ativo: boolean("ativo").default(true),
 });
 
-// Componentes Curriculares table
-export const componentes = pgTable("componentes", {
+// Turma-Componentes relationship table
+export const turmaComponentes = pgTable("turma_componentes", {
   id: uuid("id").primaryKey().defaultRandom(),
-  nome: text("nome").notNull(),
   turmaId: uuid("turma_id").references(() => turmas.id, { onDelete: "cascade" }),
+  componenteId: uuid("componente_id").references(() => componentesCurriculares.id, { onDelete: "cascade" }),
   professorId: uuid("professor_id").references(() => usuarios.id),
+  anoSerie: text("ano_serie").notNull(),
   criadoEm: timestamp("criado_em").defaultNow(),
   ativo: boolean("ativo").default(true),
 });
@@ -339,7 +351,8 @@ export const insertLogsAcessoSchema = createInsertSchema(logsAcesso).omit({ id: 
 export const insertLogsErroSchema = createInsertSchema(logsErro).omit({ id: true, criadoEm: true });
 export const insertLogAuditoriaSchema = createInsertSchema(logsAuditoria).omit({ id: true, criadoEm: true });
 export const insertTurmaSchema = createInsertSchema(turmas).omit({ id: true, criadoEm: true });
-export const insertComponenteSchema = createInsertSchema(componentes).omit({ id: true, criadoEm: true });
+export const insertComponenteSchema = createInsertSchema(componentesCurriculares).omit({ id: true, criadoEm: true });
+export const insertTurmaComponenteSchema = createInsertSchema(turmaComponentes).omit({ id: true, criadoEm: true });
 
 // Esquemas de compatibilidade para o código existente
 // Vamos definir schemas compat usando Zod
