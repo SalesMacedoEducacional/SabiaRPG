@@ -92,8 +92,11 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const refreshStats = async () => {
-    if (!isAuthenticated || !user || user.role !== 'manager') {
-      console.log('refreshStats: Usuário não autorizado ou não é gestor');
+    if (!isAuthenticated || !user || (user.role !== 'manager' && user.papel !== 'gestor')) {
+      console.log('refreshStats: Usuário não autorizado ou não é gestor', { 
+        isAuthenticated, 
+        user: user ? { role: user.role, papel: user.papel } : null 
+      });
       return;
     }
 
@@ -147,8 +150,8 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    if (isAuthenticated && user && user.role === 'manager') {
-      console.log('SchoolContext: Carregando dados para gestor');
+    if (isAuthenticated && user && (user.role === 'manager' || user.papel === 'gestor')) {
+      console.log('SchoolContext: Carregando dados para gestor', { role: user.role, papel: user.papel });
       loadSchoolData();
     }
   }, [isAuthenticated, user]);

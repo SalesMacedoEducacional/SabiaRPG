@@ -100,8 +100,16 @@ export default function ManagerDashboardModerno() {
     if (!user) {
       console.log("Redirecionando para login - usuário não autenticado");
       window.location.href = "/auth";
+    } else if (user && (user.papel === 'gestor' || user.role === 'manager')) {
+      console.log("Gestor logado - forçando carregamento de estatísticas");
+      // Forçar chamada das estatísticas após 1 segundo
+      const timer = setTimeout(() => {
+        console.log("Executando refreshStats para gestor");
+        refreshStats();
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [user, refreshStats]);
 
   // Verificação de escolas vinculadas e tratamento de erros
   useEffect(() => {
