@@ -30,7 +30,12 @@ import {
 } from "./openai";
 import OpenAI from "openai";
 import { createTestUsersHandler } from "./createTestUsers";
-import { initializeDatabase } from "../db/supabase";
+import { createClient } from '@supabase/supabase-js';
+
+// Create Supabase client directly in routes
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 import { registerManagerRoutes } from "./managerRoutesNew";
 import { registerUserRegistrationRoutes } from "./userRegistrationApi";
 import { registerSchoolRoutes } from "./schoolRoutes";
@@ -2471,10 +2476,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Dados recebidos:', req.body);
     
     try {
-      const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha, turma_id, numero_matricula, escola_id } = req.body;
+      const { nome_completo, nome, email, telefone, data_nascimento, papel, cpf, senha, turma_id, numero_matricula, escola_id } = req.body;
+      
+      // Aceitar tanto nome quanto nome_completo para compatibilidade
+      const nomeUsuario = nome_completo || nome;
       
       // Validações básicas
-      if (!nome_completo || !email || !papel || !senha) {
+      if (!nomeUsuario || !email || !papel || !senha) {
         return res.status(400).json({ 
           erro: 'Campos obrigatórios faltando',
           detalhes: 'Nome, email, papel e senha são obrigatórios'
@@ -2536,7 +2544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const novoUsuario = {
         id: crypto.randomUUID(),
-        nome: nome_completo,
+        nome: nomeUsuario,
         email,
         telefone: telefoneNormalizado,
         data_nascimento: data_nascimento || null,
