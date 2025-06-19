@@ -4,6 +4,8 @@ import { useSchool } from "@/context/SchoolContext";
 import { apiRequest } from "@/lib/queryClient";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
+import { useGlobalDataSync, triggerDataMutation } from "@/hooks/useGlobalDataSync";
+import { CardLoadingOverlay } from "@/components/ui/loading-spinner";
 import { 
   School, 
   Users, 
@@ -95,6 +97,7 @@ export function TotalEscolasCard() {
   const { refreshAll } = useAutoRefresh();
   const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const { forceRefreshAfterMutation } = useRealtimeSubscriptions();
+  const { isRefreshing: globalRefreshing } = useGlobalDataSync();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [statsForced, setStatsForced] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);

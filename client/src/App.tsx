@@ -29,8 +29,14 @@ import { GameProvider } from "./context/GameContext";
 import { SchoolProvider } from "@/context/SchoolContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useRoutePersistence } from "@/hooks/useRoutePersisstence";
+import { useGlobalDataSync } from "@/hooks/useGlobalDataSync";
 
 function Router() {
+  // Integrar hooks de persistência de rota e sincronização global
+  useRoutePersistence();
+  useGlobalDataSync();
+
   return (
     <Switch>
       {/* Rotas públicas */}
