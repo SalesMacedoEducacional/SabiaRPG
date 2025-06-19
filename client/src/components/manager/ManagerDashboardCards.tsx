@@ -149,35 +149,37 @@ export function TotalEscolasCard() {
 
   return (
     <>
-      <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
-        <div className="flex items-center mb-2">
-          <div className="rounded-full bg-[#4a4639] p-2 mr-3">
-            <School className="h-5 w-5 text-primary" />
+      <CardLoadingOverlay isLoading={isLoading || isRefreshing || globalRefreshing}>
+        <div className="bg-[#312e26] border border-[#D47C06] rounded-md p-4 flex flex-col hover:border-amber-400 transition-all shadow-md">
+          <div className="flex items-center mb-2">
+            <div className="rounded-full bg-[#4a4639] p-2 mr-3">
+              <School className="h-5 w-5 text-primary" />
+            </div>
+            <div className="text-sm font-medium text-white">Total de Escolas Vinculadas</div>
           </div>
-          <div className="text-sm font-medium text-white">Total de Escolas Vinculadas</div>
-        </div>
         
-        {isLoading ? (
-          <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : (
-          <>
-            <div className="text-3xl font-bold text-white mt-2">{totalEscolas}</div>
-            <div className="text-xs text-accent mt-1">{totalEscolas} ativas</div>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
-              onClick={() => setIsModalOpen(true)}
-              disabled={totalEscolas === 0}
-            >
-              <Search className="h-3 w-3 mr-1" /> Ver Detalhes
-            </Button>
-          </>
-        )}
-      </div>
+          {isLoading ? (
+            <div className="flex justify-center py-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <>
+              <div className="text-3xl font-bold text-white mt-2">{totalEscolas}</div>
+              <div className="text-xs text-accent mt-1">{totalEscolas} ativas</div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
+                onClick={() => setIsModalOpen(true)}
+                disabled={totalEscolas === 0}
+              >
+                <Search className="h-3 w-3 mr-1" /> Ver Detalhes
+              </Button>
+            </>
+          )}
+        </div>
+      </CardLoadingOverlay>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl bg-[#312e26] border-[#D47C06] text-white">
