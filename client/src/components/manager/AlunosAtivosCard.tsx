@@ -25,7 +25,9 @@ export function AlunosAtivosCard() {
   const fetchAlunosAtivos = async () => {
     try {
       setLoading(true);
-      const response: any = await apiRequest('/api/alunos-ativos');
+      const response: any = await apiRequest('/api/alunos-ativos', {
+        method: 'GET'
+      });
       setStats(response);
     } catch (error) {
       console.error('Erro ao buscar alunos ativos:', error);

@@ -48,7 +48,9 @@ export function AlunosAtivosModal({ isOpen, onClose, stats }: AlunosAtivosModalP
   const fetchAlunosAtivos = async () => {
     setLoading(true);
     try {
-      const response: any = await apiRequest(`/api/alunos-ativos/detalhes?periodo=${periodo}`);
+      const response: any = await apiRequest(`/api/alunos-ativos/detalhes?periodo=${periodo}`, {
+        method: 'GET'
+      });
       
       if (response && response.alunos) {
         const alunosData = response.alunos as AlunoAtivo[];
@@ -56,8 +58,8 @@ export function AlunosAtivosModal({ isOpen, onClose, stats }: AlunosAtivosModalP
         setFilteredAlunos(alunosData);
         
         // Extrair escolas e turmas únicas para filtros
-        const escolasUnicas = [...new Set(alunosData.map(a => a.escola_nome))];
-        const turmasUnicas = [...new Set(alunosData.map(a => a.turma_nome).filter(Boolean))];
+        const escolasUnicas = Array.from(new Set(alunosData.map(a => a.escola_nome)));
+        const turmasUnicas = Array.from(new Set(alunosData.map(a => a.turma_nome).filter(Boolean)));
         setEscolas(escolasUnicas);
         setTurmas(turmasUnicas);
       }

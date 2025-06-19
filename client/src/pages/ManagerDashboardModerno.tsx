@@ -611,24 +611,11 @@ export default function ManagerDashboardModerno() {
                       </div>
                       <ChevronRight size={16} className="text-accent" />
                     </button>
-                    
-                    <button 
-                      className="w-full flex items-center justify-between p-2.5 rounded-md bg-[#3a3730] hover:bg-[#42403a] transition-colors text-white"
-                    >
-                      <div className="flex items-center">
-                        <Award className="h-4 w-4 text-accent mr-2" />
-                        <span>Ver Progresso dos Alunos</span>
-                      </div>
-                      <ChevronRight size={16} className="text-accent" />
-                    </button>
                   </div>
                 </div>
                 
                 {/* Active Users Card */}
-                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
-                  <AlunosAtivosCard />
-                </div>
-              </div>
+                <AlunosAtivosCard />
                 
                 {/* Alert Card */}
                 <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
