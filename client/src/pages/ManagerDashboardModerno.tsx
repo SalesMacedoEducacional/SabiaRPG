@@ -9,7 +9,6 @@ import {
   TotalAlunosCard, 
   TotalTurmasCard 
 } from "@/components/manager/ManagerDashboardCards";
-import { AlunosAtivosCard } from "@/components/manager/AlunosAtivosCard";
 import { EscolasVinculadasCard } from "@/components/manager/EscolasVinculadasCard";
 import ManagerProfile from '../components/manager/ManagerProfile';
 import ManagerSchoolRegistration from '../components/manager/ManagerSchoolRegistration';
@@ -611,11 +610,47 @@ export default function ManagerDashboardModerno() {
                       </div>
                       <ChevronRight size={16} className="text-accent" />
                     </button>
+                    
+                    <button 
+                      className="w-full flex items-center justify-between p-2.5 rounded-md bg-[#3a3730] hover:bg-[#42403a] transition-colors text-white"
+                    >
+                      <div className="flex items-center">
+                        <Award className="h-4 w-4 text-accent mr-2" />
+                        <span>Ver Progresso dos Alunos</span>
+                      </div>
+                      <ChevronRight size={16} className="text-accent" />
+                    </button>
                   </div>
                 </div>
                 
                 {/* Active Users Card */}
-                <AlunosAtivosCard />
+                <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">
+                  <div className="border-b border-accent/50 px-4 py-3">
+                    <h3 className="text-white font-medium">Alunos Ativos</h3>
+                  </div>
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-[#3a3730] p-3 rounded-lg">
+                        <div className="text-accent text-xs">Últimos 7 dias</div>
+                        <div className="text-white text-2xl font-bold mt-1">0</div>
+                      </div>
+                      <div className="bg-[#3a3730] p-3 rounded-lg">
+                        <div className="text-accent text-xs">Últimos 30 dias</div>
+                        <div className="text-white text-2xl font-bold mt-1">0</div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 bg-[#3a3730] p-3 rounded-lg">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white">Taxa de Engajamento</span>
+                        <span className="text-accent">0%</span>
+                      </div>
+                      <div className="w-full bg-[#27241c] rounded-full h-2 mt-2">
+                        <div className="bg-accent h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 {/* Alert Card */}
                 <div className="bg-[#312e26] border border-accent/50 rounded-lg overflow-hidden">

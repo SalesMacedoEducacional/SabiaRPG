@@ -32,7 +32,6 @@ import {
   AlunosDetailModal,
   TurmasDetailModal
 } from "./DetailModals";
-import { AlunosAtivosModal } from "./AlunosAtivosModal";
 
 // Interfaces para os dados
 interface Escola {
@@ -47,23 +46,6 @@ interface Escola {
   diretor?: string;
   cidades?: { nome: string };
   estados?: { nome: string; sigla: string };
-}
-
-interface AlunoAtivo {
-  id: string;
-  nome: string;
-  email: string;
-  escola_nome: string;
-  turma_nome: string;
-  ultimo_login: string;
-  total_logins: number;
-}
-
-interface AlunosAtivosStats {
-  ativos7Dias: number;
-  ativos30Dias: number;
-  taxaEngajamento: number;
-  totalAlunos: number;
 }
 
 interface Professor {
