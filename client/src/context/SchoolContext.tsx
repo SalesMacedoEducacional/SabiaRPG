@@ -58,10 +58,17 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     queryFn: async () => {
       console.log('🚀 ENDPOINT INSTANTÂNEO');
       const startTime = Date.now();
-      const response = await apiRequest('/api/manager/dashboard-instant');
+      const response = await apiRequest('GET', '/api/manager/dashboard-instant');
       const endTime = Date.now();
       console.log(`⚡ ${endTime - startTime}ms`);
-      return response;
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Dados do dashboard carregados:', data);
+        return data;
+      } else {
+        throw new Error('Falha ao carregar dados do dashboard');
+      }
     },
     enabled: isAuthenticated && user?.papel === 'gestor',
     staleTime: 0, // Sempre buscar dados frescos
