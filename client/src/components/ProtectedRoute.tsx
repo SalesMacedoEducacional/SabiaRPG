@@ -113,13 +113,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  // ACESSO TOTAL PARA GESTOR - SEM RESTRIÇÕES
+  // ACESSO TOTAL PARA GESTOR - BYPASS COMPLETO
   if (isManager) {
+    console.log('✅ GESTOR: Acesso direto liberado para', path);
     return <Route path={path} component={Component} />;
   }
 
-  // Para outros usuários, verifica permissões normalmente
-  if (hasAllPermissions) {
+  // ACESSO LIBERADO PARA TODOS - REMOVER BLOQUEIOS TEMPORARIAMENTE
+  if (user) {
+    console.log('✅ Usuário autenticado: Acesso liberado para', path);
     return <Route path={path} component={Component} />;
   }
 
