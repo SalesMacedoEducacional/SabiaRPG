@@ -280,7 +280,7 @@ export function AlunosDetailModal({
                 <TableRow>
                   <TableHead className="text-white">Nome</TableHead>
                   <TableHead className="text-white">Email</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
+                  <TableHead className="text-white">Matrícula</TableHead>
                   <TableHead className="text-white">Telefone</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
                   <TableHead className="text-white">Status</TableHead>
@@ -292,7 +292,7 @@ export function AlunosDetailModal({
                     <TableRow key={aluno.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
                       <TableCell className="text-white">{aluno.usuarios.email || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{aluno.usuarios.cpf || "Não informado"}</TableCell>
+                      <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "Não informado"}</TableCell>
                       <TableCell className="text-white">{aluno.usuarios.telefone || "Não informado"}</TableCell>
                       <TableCell className="text-white">{aluno.escola_nome || "Não definida"}</TableCell>
                       <TableCell className="text-white">
