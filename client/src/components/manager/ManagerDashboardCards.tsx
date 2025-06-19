@@ -522,17 +522,32 @@ export function TotalAlunosCard() {
           <div className="rounded-full bg-[#4a4639] p-2 mr-3">
             <GraduationCap className="h-5 w-5 text-primary" />
           </div>
-          <div className="text-sm font-medium text-white">Total de Alunos</div>
+          <div className="text-sm font-medium text-white">Alunos Ativos</div>
         </div>
         
-        {isLoading ? (
+        {loadingEngagement || isLoading ? (
           <div className="flex justify-center py-2">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold text-white mt-2">{totalAlunos}</div>
-            <div className="text-xs text-accent mt-1">Em todas as escolas</div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {engagementData?.alunosAtivos7Dias || 0}
+            </div>
+            <div className="text-xs text-accent mt-1">
+              Últimos 7 dias ({engagementData?.taxaEngajamento7Dias || 0}% do total)
+            </div>
+            
+            {/* Indicador de engajamento */}
+            <div className="flex items-center mt-2 text-xs">
+              <div className="w-full bg-[#4a4639] rounded-full h-2 mr-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all" 
+                  style={{ width: `${Math.min((engagementData?.taxaEngajamento7Dias || 0), 100)}%` }}
+                ></div>
+              </div>
+              <span className="text-primary font-medium">{engagementData?.taxaEngajamento7Dias || 0}%</span>
+            </div>
             
             <Button 
               variant="outline" 
@@ -540,9 +555,9 @@ export function TotalAlunosCard() {
               className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
               onClick={() => {
                 setIsModalOpen(true);
-                fetchAlunosDetalhes();
+                loadAlunosAtivos(filtroPeriodo);
               }}
-              disabled={totalAlunos === 0}
+              disabled={(engagementData?.alunosAtivos7Dias || 0) === 0}
             >
               <Search className="h-3 w-3 mr-1" /> Ver Detalhes
             </Button>
@@ -551,26 +566,62 @@ export function TotalAlunosCard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl bg-[#312e26] border-[#D47C06] text-white">
+        <DialogContent className="max-w-5xl bg-[#312e26] border-[#D47C06] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center">
-              <GraduationCap className="h-5 w-5 mr-2" /> Alunos Matriculados
+              <GraduationCap className="h-5 w-5 mr-2" /> Alunos Ativos - Engajamento Real
             </DialogTitle>
             <DialogDescription className="text-accent">
-              Lista de alunos nas escolas sob sua gestão
+              Lista de alunos com atividade recente baseada em dados reais de sessões
             </DialogDescription>
           </DialogHeader>
           
-          {/* Filtro por Escola */}
+          {/* Métricas de Engajamento */}
+          {engagementData && (
+            <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-[#4a4639] rounded-lg">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{engagementData.totalAlunos}</div>
+                <div className="text-xs text-accent">Total de Alunos</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{engagementData.alunosAtivos7Dias}</div>
+                <div className="text-xs text-accent">Ativos (7 dias)</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{engagementData.alunosAtivos30Dias}</div>
+                <div className="text-xs text-accent">Ativos (30 dias)</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{engagementData.taxaEngajamento7Dias}%</div>
+                <div className="text-xs text-accent">Taxa de Engajamento</div>
+              </div>
+            </div>
+          )}
+          
+          {/* Filtros */}
           <div className="flex items-center gap-3 mb-4">
             <Filter className="h-4 w-4 text-primary" />
+            <Select value={filtroPeriodo} onValueChange={(value) => {
+              setFiltroPeriodo(value);
+              loadAlunosAtivos(value);
+            }}>
+              <SelectTrigger className="w-[200px] bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectItem value="7">Últimos 7 dias</SelectItem>
+                <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="90">Últimos 90 dias</SelectItem>
+              </SelectContent>
+            </Select>
+            
             <Select value={filtroEscola} onValueChange={setFiltroEscola}>
               <SelectTrigger className="w-[280px] bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectValue placeholder="Filtrar por escola" />
               </SelectTrigger>
               <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {escolas.map((escola) => (
+                {engagementData?.escolas?.map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
@@ -580,44 +631,46 @@ export function TotalAlunosCard() {
           </div>
           
           <ScrollArea className="max-h-[60vh]">
-            <Table className="border-collapse">
-              <TableHeader className="bg-[#43341c]">
-                <TableRow>
-                  <TableHead className="text-white">Nome do Aluno</TableHead>
-                  <TableHead className="text-white">Nº Matrícula</TableHead>
-                  <TableHead className="text-white">CPF</TableHead>
-                  <TableHead className="text-white">Telefone</TableHead>
-                  <TableHead className="text-white">Turma</TableHead>
-                  <TableHead className="text-white">Escola</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(() => {
-                  const alunosFiltrados = filtroEscola === "todas" 
-                    ? alunos 
-                    : alunos.filter(aluno => aluno.escola_id === filtroEscola);
-                  
-                  return alunosFiltrados.length > 0 ? (
-                    alunosFiltrados.map((aluno) => (
-                      <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                        <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
-                        <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "Não informado"}</TableCell>
-                        <TableCell className="text-white">{aluno.usuarios.cpf || "Não informado"}</TableCell>
-                        <TableCell className="text-white">{aluno.usuarios.telefone || "Não informado"}</TableCell>
-                        <TableCell className="text-white">{aluno.turmas?.nome || "Sem turma"}</TableCell>
-                        <TableCell className="text-white">{aluno.escola_nome || "Não informado"}</TableCell>
-                      </TableRow>
-                    ))
+            {loadingAtivos ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <Table className="border-collapse">
+                <TableHeader className="bg-[#43341c]">
+                  <TableRow>
+                    <TableHead className="text-white">Nome do Aluno</TableHead>
+                    <TableHead className="text-white">Email</TableHead>
+                    <TableHead className="text-white">Última Sessão</TableHead>
+                    <TableHead className="text-white">Total de Sessões</TableHead>
+                    <TableHead className="text-white">Escola</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {alunosAtivos.length > 0 ? (
+                    alunosAtivos
+                      .filter(aluno => filtroEscola === "todas" || aluno.escola === filtroEscola)
+                      .map((aluno) => (
+                        <TableRow key={aluno.id} className="hover:bg-[#43341c]">
+                          <TableCell className="text-white font-medium">{aluno.nome}</TableCell>
+                          <TableCell className="text-white">{aluno.email}</TableCell>
+                          <TableCell className="text-white">
+                            {aluno.ultimaSessao ? new Date(aluno.ultimaSessao).toLocaleString('pt-BR') : "Nunca"}
+                          </TableCell>
+                          <TableCell className="text-white">{aluno.totalSessoes}</TableCell>
+                          <TableCell className="text-white">{aluno.escola}</TableCell>
+                        </TableRow>
+                      ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                        {filtroEscola === "todas" ? "Nenhum aluno encontrado" : "Nenhum aluno encontrado para esta escola"}
+                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                        Nenhum aluno ativo encontrado no período selecionado
                       </TableCell>
                     </TableRow>
-                  );
-                })()}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </ScrollArea>
         </DialogContent>
       </Dialog>
