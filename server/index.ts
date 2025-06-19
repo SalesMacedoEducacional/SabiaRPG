@@ -1385,7 +1385,7 @@ app.get('/api/listar-usuarios', async (req, res) => {
 app.post('/api/cadastrar-usuario-direto', async (req, res) => {
   try {
     console.log('=== CADASTRO DE USUÁRIO INICIADO ===');
-    const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha } = req.body;
+    const { nome_completo, email, telefone, data_nascimento, papel, cpf, senha, turma_id, numero_matricula } = req.body;
     
     console.log('Dados recebidos:', {
       nome_completo, email, telefone, data_nascimento, papel, cpf: cpf ? 'fornecido' : 'não fornecido'
@@ -1486,6 +1486,37 @@ app.post('/api/cadastrar-usuario-direto', async (req, res) => {
     }
     
     const novoUsuario = result.rows[0];
+    
+    // Se for aluno, criar perfil e matrícula obrigatórios
+    if (papel === 'aluno' && turma_id && numero_matricula) {
+      console.log('=== CRIANDO PERFIL DO ALUNO ===');
+      
+      // Inserir perfil do aluno
+      await executeQuery(`
+        INSERT INTO perfis_aluno (usuario_id, turma_id)
+        VALUES ($1, $2)
+      `, [userId, turma_id]);
+      
+      // Inserir matrícula
+      await executeQuery(`
+        INSERT INTO matriculas (usuario_id, numero_matricula, ativo, data_matricula)
+        VALUES ($1, $2, true, NOW())
+      `, [userId, numero_matricula]);
+      
+      console.log('Perfil do aluno e matrícula criados com sucesso');
+    }
+    
+    // Se for professor, criar perfil
+    if (papel === 'professor') {
+      console.log('=== CRIANDO PERFIL DO PROFESSOR ===');
+      
+      await executeQuery(`
+        INSERT INTO perfis_professor (usuario_id)
+        VALUES ($1)
+      `, [userId]);
+      
+      console.log('Perfil do professor criado com sucesso');
+    }
     
     console.log('=== USUÁRIO CADASTRADO COM SUCESSO ===');
     console.log('ID:', novoUsuario.id);
