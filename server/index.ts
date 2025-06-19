@@ -2,10 +2,14 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import session from 'express-session';
+import path from 'path';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Servir arquivos estáticos PRIMEIRO (antes de qualquer endpoint)
+app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
 // Configure sessão ANTES dos endpoints
 app.use(session({
