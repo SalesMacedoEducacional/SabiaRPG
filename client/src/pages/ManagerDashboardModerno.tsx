@@ -188,8 +188,8 @@ export default function ManagerDashboardModerno() {
       {/* Top Navigation Bar */}
       <header className="bg-[#312e26] border-b border-accent shadow-lg z-10">
         <div className="h-16 px-4 flex items-center justify-between relative">
-          {/* Menu Button */}
-          <div className="flex items-center gap-4">
+          {/* Menu Button com Título */}
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden text-white hover:text-accent"
@@ -202,12 +202,15 @@ export default function ManagerDashboardModerno() {
             >
               {sidebarOpen ? <ArrowRightToLine size={20} /> : <Menu size={20} />}
             </button>
+            <span className="text-white font-medium text-sm tracking-wide">
+              PAINEL DO GESTOR
+            </span>
           </div>
 
           {/* Logo Centralizada */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
             <img 
-              src="/attached_assets/Design sem nome (1).png" 
+              src="/attached_assets/Design sem nome (1)_1750308246534.png" 
               alt="Sabiá RPG" 
               className="h-8 w-auto object-contain"
             />
