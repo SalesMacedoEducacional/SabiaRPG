@@ -86,10 +86,7 @@ function Router() {
       <ProtectedRoute 
         path="/manager" 
         component={ManagerDashboardModerno}
-        permissions={[
-          PERMISSIONS.REPORT_SCHOOL_VIEW.id,
-          PERMISSIONS.SCHOOL_CONFIG.id
-        ]}
+        requireAuth={true}
       />
       
       <ProtectedRoute 

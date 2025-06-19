@@ -31,8 +31,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const schoolContext = useSchool();
   const { escolasVinculadas, isLoading: schoolLoading } = schoolContext;
 
+  // Verificar se é gestor (tanto 'gestor' quanto 'manager')
+  const isManager = user?.papel === 'gestor' || user?.role === 'manager';
+  
   // Determinar se o gestor tem escolas vinculadas
-  const hasSchools = user?.role === 'manager' 
+  const hasSchools = isManager 
     ? escolasVinculadas && escolasVinculadas.length > 0
     : true;
   
@@ -41,7 +44,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     permissions.every(permissionId => hasPermission(permissionId));
   
   // Mostra um spinner de carregamento enquanto verifica a autenticação ou escolas
-  if (isLoading || (user?.role === 'manager' && schoolLoading)) {
+  if (isLoading || (isManager && schoolLoading)) {
     return (
       <Route path={path}>
         <div className="flex items-center justify-center min-h-screen">
@@ -52,7 +55,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   // Verificação específica para gestores sem escolas vinculadas
-  if (user?.role === 'manager' && !hasSchools && !schoolLoading) {
+  if (isManager && !hasSchools && !schoolLoading) {
     // Se o gestor não tem escolas vinculadas, redirecionar para cadastro de escola
     if (path !== '/school-registration') {
       console.log('Redirecionando gestor sem escolas para cadastro');

@@ -205,7 +205,7 @@ export function hasPermission(user: User | null, permissionId: string): boolean 
   if (!user) return false;
   
   // Mapeia o papel do usuário no esquema SQL para o papel no sistema de permissões
-  const userRole = mapUserRole(user.role);
+  const userRole = mapUserRole(user.role || user.papel);
   
   // Verifica se o papel do usuário está no mapa de permissões
   if (!(userRole in rolePermissionsMap)) return false;
@@ -222,7 +222,7 @@ export function hasPermission(user: User | null, permissionId: string): boolean 
 export function getUserPermissions(user: User | null): string[] {
   if (!user) return [];
   
-  const userRole = mapUserRole(user.role);
+  const userRole = mapUserRole(user.role || user.papel);
   
   if (!(userRole in rolePermissionsMap)) return [];
   
