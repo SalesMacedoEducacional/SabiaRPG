@@ -91,12 +91,16 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const refreshStats = async () => {
     if (!isAuthenticated || !user || user.role !== 'manager') {
+      console.log('refreshStats: Usuário não autorizado ou não é gestor');
       return;
     }
 
+    console.log('refreshStats: Fazendo chamada para /api/manager/dashboard-stats');
     try {
       const statsResponse = await apiRequest("GET", "/api/manager/dashboard-stats");
+      console.log('refreshStats: Resposta recebida:', statsResponse.status);
       const statsData = await statsResponse.json();
+      console.log('refreshStats: Dados recebidos:', statsData);
       
       if (statsResponse.ok) {
         setDashboardStats({
