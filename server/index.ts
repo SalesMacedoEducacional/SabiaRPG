@@ -23,8 +23,7 @@ app.use(session({
   }
 }));
 
-// Import supabase for direct API routes
-import { supabase } from '../db/supabase.js';
+// Import database utilities
 import { executeQuery } from './database';
 import crypto from 'crypto';
 

@@ -1,9 +1,16 @@
 import { Pool } from 'pg';
 
-// Criar pool de conexão PostgreSQL - FORÇAR USO DO SUPABASE
+// CONFIGURAÇÃO DE BANCO - AGUARDANDO URL DO SUPABASE
+const databaseUrl = process.env.DATABASE_URL;
+
+console.log('📊 CONECTANDO AO BANCO:', databaseUrl?.includes('supabase') ? 'SUPABASE' : 'BANCO TEMPORÁRIO');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connectionString: databaseUrl,
+  ssl: { rejectUnauthorized: false },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 export async function executeQuery(query: string, params: any[] = []) {
