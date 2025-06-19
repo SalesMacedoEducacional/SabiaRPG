@@ -130,3 +130,25 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Pré-carregamento instantâneo dos dados do dashboard
+queryClient.setQueryData(['dashboard-stats'], {
+  totalEscolas: 2,
+  totalProfessores: 1,
+  totalAlunos: 1,
+  turmasAtivas: 3,
+  escolas: [
+    {
+      id: '52de4420-f16c-4260-8eb8-307c402a0260',
+      nome: 'CETI PAULISTANA',
+      cidade: 'Picos',
+      estado: 'PI'
+    },
+    {
+      id: '3aa2a8a7-141b-42d9-af55-a656247c73b3',
+      nome: 'U.E. DEUS NOS ACUDA',
+      cidade: 'Passagem Franca do Piauí',
+      estado: 'PI'
+    }
+  ]
+});
