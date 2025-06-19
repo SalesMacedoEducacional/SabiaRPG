@@ -55,10 +55,7 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { 
   authenticateCustom, 
-  requireRole, 
-  handleCustomLogin, 
-  handleGetCurrentUser, 
-  handleLogout 
+  requireRole
 } from "./customAuth";
 import { registerCreateUserWithCpfRoute } from "./createUserWithCpf";
 import { registerSimplifiedUserRoutes } from "./simplifiedUserRoutes";
@@ -959,10 +956,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Rotas para autenticação personalizada
-  app.post("/api/auth/login", handleCustomLogin);
-  app.get("/api/auth/me", handleGetCurrentUser);
-  app.post("/api/auth/logout", handleLogout);
+  // Rotas para autenticação personalizada removidas - usando endpoints mais abaixo
   
   // Manter a rota original para compatibilidade
   app.post("/api/auth/login-supabase", async (req, res) => {
