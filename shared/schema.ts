@@ -539,8 +539,11 @@ export type InsertLogAuditoria = z.infer<typeof insertLogAuditoriaSchema>;
 export type Turma = typeof turmas.$inferSelect;
 export type InsertTurma = z.infer<typeof insertTurmaSchema>;
 
-export type Componente = typeof componentes.$inferSelect;
+export type Componente = typeof componentesCurriculares.$inferSelect;
 export type InsertComponente = z.infer<typeof insertComponenteSchema>;
+
+export type TurmaComponente = typeof turmaComponentes.$inferSelect;
+export type InsertTurmaComponente = z.infer<typeof insertTurmaComponenteSchema>;
 
 // Types de compatibilidade para o código existente
 // Esses são tipos temporários que servem para manter a compatibilidade com o código existente

@@ -1441,9 +1441,80 @@ async function registrarSessao(usuarioId: string, ip?: string, userAgent?: strin
   }
 }
 
+// Função para criar tabelas de componentes e inicializar dados
+async function criarTabelasComponentes() {
+  try {
+    console.log('🔧 CRIANDO TABELAS DE COMPONENTES...');
+    
+    // Criar tabela de componentes
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS componentes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        nome TEXT NOT NULL,
+        cor_hex TEXT NOT NULL,
+        ano_serie TEXT NOT NULL,
+        ativo BOOLEAN DEFAULT true,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+    
+    // Criar tabela de relacionamento turma-componentes
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS turma_componentes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        turma_id UUID REFERENCES turmas(id) ON DELETE CASCADE,
+        componente_id UUID REFERENCES componentes(id) ON DELETE CASCADE,
+        professor_id UUID REFERENCES usuarios(id),
+        ano_serie TEXT NOT NULL,
+        ativo BOOLEAN DEFAULT true,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+    
+    // Inserir componentes padrão se não existirem
+    await executeQuery(`
+      INSERT INTO componentes (nome, cor_hex, ano_serie) 
+      SELECT * FROM (VALUES
+        ('Linguagens e suas Tecnologias', '#4DA3A9', '1º Ano'),
+        ('Linguagens e suas Tecnologias', '#4DA3A9', '2º Ano'),
+        ('Linguagens e suas Tecnologias', '#4DA3A9', '3º Ano'),
+        ('Matemática e suas Tecnologias', '#D4A054', '1º Ano'),
+        ('Matemática e suas Tecnologias', '#D4A054', '2º Ano'),
+        ('Matemática e suas Tecnologias', '#D4A054', '3º Ano'),
+        ('Ciências da Natureza', '#A6E3E9', '1º Ano'),
+        ('Ciências da Natureza', '#A6E3E9', '2º Ano'),
+        ('Ciências da Natureza', '#A6E3E9', '3º Ano'),
+        ('Ciências Humanas e Sociais Aplicadas', '#FFC23C', '1º Ano'),
+        ('Ciências Humanas e Sociais Aplicadas', '#FFC23C', '2º Ano'),
+        ('Ciências Humanas e Sociais Aplicadas', '#FFC23C', '3º Ano'),
+        ('Arte e Educação Física', '#312E26', '1º Ano'),
+        ('Arte e Educação Física', '#312E26', '2º Ano'),
+        ('Arte e Educação Física', '#312E26', '3º Ano')
+      ) AS new_components(nome, cor_hex, ano_serie)
+      WHERE NOT EXISTS (
+        SELECT 1 FROM componentes WHERE nome = new_components.nome AND ano_serie = new_components.ano_serie
+      );
+    `);
+    
+    // Criar índices para performance
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_turma_componentes_turma ON turma_componentes(turma_id);
+      CREATE INDEX IF NOT EXISTS idx_turma_componentes_componente ON turma_componentes(componente_id);
+      CREATE INDEX IF NOT EXISTS idx_turma_componentes_professor ON turma_componentes(professor_id);
+      CREATE INDEX IF NOT EXISTS idx_componentes_ano_serie ON componentes(ano_serie);
+    `);
+    
+    console.log('✅ TABELAS DE COMPONENTES CRIADAS E INICIALIZADAS!');
+  } catch (error) {
+    console.error('❌ Erro ao criar tabelas de componentes:', error);
+  }
+}
+
 // Iniciar otimizações e pré-carregamento
 setTimeout(async () => {
   await criarTabelaSessoes();
+  await criarTabelasComponentes();
   await aplicarIndicesPerformance();
   await preloadAllManagerStats();
 }, 2000);

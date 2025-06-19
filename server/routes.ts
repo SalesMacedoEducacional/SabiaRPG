@@ -3267,6 +3267,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     });
   });
+
+  // ========================================
+  // COMPONENTES ENDPOINTS
+  // ========================================
+
+  // Listar todos os componentes
+  app.get("/api/componentes", authenticate, authorize(["gestor", "manager"]), async (req, res) => {
+    try {
+      console.log('=== LISTANDO COMPONENTES ===');
+      
+      const result = await executeQuery(`
+        SELECT 
+          id,
+          nome,
+          cor_hex,
+          ano_serie,
+          ativo,
+          criado_em
+        FROM componentes
+        WHERE ativo = true
+        ORDER BY nome, ano_serie
+      `);
+      
+      console.log(`COMPONENTES ENCONTRADOS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao listar componentes:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Listar componentes de uma turma específica
+  app.get("/api/turmas/:turmaId/componentes", authenticate, authorize(["gestor", "manager"]), async (req, res) => {
+    try {
+      const { turmaId } = req.params;
+      console.log(`=== LISTANDO COMPONENTES DA TURMA: ${turmaId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          tc.id as vinculo_id,
+          c.id as componente_id,
+          c.nome,
+          c.cor_hex,
+          c.ano_serie,
+          tc.professor_id,
+          u.nome as professor_nome,
+          tc.ativo
+        FROM turma_componentes tc
+        JOIN componentes c ON tc.componente_id = c.id
+        LEFT JOIN usuarios u ON tc.professor_id = u.id
+        WHERE tc.turma_id = $1 AND tc.ativo = true
+        ORDER BY c.nome, c.ano_serie
+      `, [turmaId]);
+      
+      console.log(`COMPONENTES DA TURMA ENCONTRADOS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao listar componentes da turma:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Vincular componentes a uma turma
+  app.post("/api/turmas/:turmaId/componentes", authenticate, authorize(["gestor", "manager"]), async (req, res) => {
+    try {
+      const { turmaId } = req.params;
+      const { componentes } = req.body;
+      
+      console.log(`=== VINCULANDO COMPONENTES À TURMA: ${turmaId} ===`);
+      console.log('Componentes a vincular:', componentes);
+      
+      if (!Array.isArray(componentes) || componentes.length === 0) {
+        return res.status(400).json({ message: "Lista de componentes é obrigatória" });
+      }
+
+      // Primeiro, buscar informações da turma
+      const turmaInfo = await executeQuery(`
+        SELECT serie FROM turmas WHERE id = $1
+      `, [turmaId]);
+      
+      if (turmaInfo.rows.length === 0) {
+        return res.status(404).json({ message: "Turma não encontrada" });
+      }
+
+      const anoSerie = turmaInfo.rows[0].serie;
+      
+      // Remover vínculos existentes
+      await executeQuery(`
+        DELETE FROM turma_componentes WHERE turma_id = $1
+      `, [turmaId]);
+      
+      // Inserir novos vínculos
+      for (const comp of componentes) {
+        await executeQuery(`
+          INSERT INTO turma_componentes (turma_id, componente_id, professor_id, ano_serie)
+          VALUES ($1, $2, $3, $4)
+        `, [turmaId, comp.componenteId, comp.professorId || null, anoSerie]);
+      }
+      
+      // Buscar alunos da turma e vinculá-los aos componentes
+      const alunosResult = await executeQuery(`
+        SELECT u.id as aluno_id, e.id as escola_id
+        FROM matriculas m
+        JOIN usuarios u ON m.usuario_id = u.id
+        JOIN escolas e ON m.escola_id = e.id
+        WHERE m.turma_id = $1 AND m.ativo = true
+      `, [turmaId]);
+      
+      console.log(`ALUNOS DA TURMA ENCONTRADOS: ${alunosResult.rows.length}`);
+      
+      console.log('✅ COMPONENTES VINCULADOS COM SUCESSO');
+      return res.status(200).json({ message: "Componentes vinculados com sucesso" });
+    } catch (error) {
+      console.error('Erro ao vincular componentes:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Atualizar professor responsável por um componente
+  app.put("/api/turma-componentes/:vinculoId/professor", authenticate, authorize(["gestor", "manager"]), async (req, res) => {
+    try {
+      const { vinculoId } = req.params;
+      const { professorId } = req.body;
+      
+      console.log(`=== ATUALIZANDO PROFESSOR DO VÍNCULO: ${vinculoId} ===`);
+      
+      await executeQuery(`
+        UPDATE turma_componentes 
+        SET professor_id = $1
+        WHERE id = $2
+      `, [professorId, vinculoId]);
+      
+      console.log('✅ PROFESSOR ATUALIZADO COM SUCESSO');
+      return res.status(200).json({ message: "Professor atualizado com sucesso" });
+    } catch (error) {
+      console.error('Erro ao atualizar professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
   
   const httpServer = createServer(app);
   return httpServer;
