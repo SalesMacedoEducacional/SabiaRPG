@@ -296,7 +296,10 @@ export default function UsersList() {
         </div>
         <Button 
           className="bg-[#D47C06] hover:bg-[#B8650A] text-white"
-          onClick={() => window.location.href = '/user-registration'}
+          onClick={() => {
+            console.log('Navegando para cadastro de usuário...');
+            window.location.href = '/user-registration';
+          }}
         >
           Novo Usuário
         </Button>

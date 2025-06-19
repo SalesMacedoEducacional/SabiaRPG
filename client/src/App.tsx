@@ -131,10 +131,7 @@ function Router() {
       <ProtectedRoute 
         path="/user-registration" 
         component={UserRegistrationSimple}
-        permissions={[
-          PERMISSIONS.USER_MANAGE_STUDENTS.id,
-          PERMISSIONS.USER_MANAGE_TEACHERS.id
-        ]}
+        requireAuth={true}
       />
       
       <ProtectedRoute 
