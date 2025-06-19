@@ -5,16 +5,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserPermissions, hasPermission as checkPermission } from '@/lib/permissions';
 
 interface User {
-  id: number;
-  username: string;
+  id: string;
+  nome: string;
   email: string;
-  fullName: string;
-  role: 'student' | 'teacher' | 'manager';
-  avatarUrl?: string;
-  level: number;
-  xp: number;
-  createdAt: string;
-  escola_id?: string; // ID da escola vinculada (principalmente para gestores)
+  papel: 'aluno' | 'professor' | 'gestor' | 'admin';
+  role?: 'student' | 'teacher' | 'manager' | 'admin';
+  escola_id?: string;
+  nivel?: number;
+  xp?: number;
+  avatar_url?: string;
+  created_at?: string;
 }
 
 interface AuthContextType {
@@ -66,8 +66,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userData = await response.json();
         console.log('Dados do usuário:', userData);
 
+        // Mapear papel do banco para role do sistema
+        if (userData && userData.papel) {
+          switch (userData.papel) {
+            case 'aluno':
+              userData.role = 'student';
+              break;
+            case 'professor':
+              userData.role = 'teacher';
+              break;
+            case 'gestor':
+              userData.role = 'manager';
+              break;
+            case 'admin':
+              userData.role = 'admin';
+              break;
+            default:
+              userData.role = 'student';
+          }
+        }
+
         // Se o usuário for um gestor, verificar imediatamente o vínculo com escolas
-        if (userData && userData.role === 'manager') {
+        if (userData && (userData.role === 'manager' || userData.papel === 'gestor')) {
           try {
             console.log('Verificando vínculo do gestor com escolas...');
             

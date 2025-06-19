@@ -1,15 +1,15 @@
 // Importação de tipos
 interface User {
-  id: number;
-  username: string;
+  id: string;
+  nome: string;
   email: string;
-  fullName: string;
-  role: 'student' | 'teacher' | 'manager' | 'admin';
-  avatarUrl?: string;
-  level?: number;
+  papel: 'aluno' | 'professor' | 'gestor' | 'admin';
+  role?: 'student' | 'teacher' | 'manager' | 'admin';
+  escola_id?: string;
+  nivel?: number;
   xp?: number;
-  createdAt?: string;
-  password?: string;
+  avatar_url?: string;
+  created_at?: string;
 }
 
 // Definição dos papéis de usuário
@@ -236,8 +236,11 @@ export function getUserPermissions(user: User | null): string[] {
  */
 function mapUserRole(role: string): UserRole {
   switch (role) {
+    case 'aluno':
     case 'student': return 'student';
+    case 'professor':
     case 'teacher': return 'teacher';
+    case 'gestor':
     case 'manager': return 'manager';
     case 'admin': return 'admin';
     default: return 'student'; // Papel padrão para segurança
