@@ -269,7 +269,7 @@ app.get('/api/escolas/detalhes', async (req, res) => {
         e.estado,
         e.telefone,
         e.email,
-        e.ativo,
+
         e.criado_em
       FROM escolas e
       WHERE e.gestor_id = $1
@@ -883,6 +883,17 @@ app.get('/api/escolas-cadastro', async (req, res) => {
   try {
     console.log('=== LISTAGEM DE ESCOLAS PARA CADASTRO ===');
     
+    // Verificar se há sessão ativa
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({
+        erro: 'Não autorizado',
+        detalhes: 'Sessão inválida'
+      });
+    }
+    
+    const gestorId = req.session.userId;
+    console.log('Buscando escolas para gestor:', gestorId);
+    
     const escolasResult = await executeQuery(`
       SELECT 
         id, 
@@ -891,11 +902,11 @@ app.get('/api/escolas-cadastro', async (req, res) => {
         estado, 
         codigo_escola
       FROM escolas
-      WHERE ativo = true
+      WHERE gestor_id = $1
       ORDER BY nome ASC
-    `);
+    `, [gestorId]);
     
-    console.log(`Encontradas ${escolasResult.rows.length} escolas ativas`);
+    console.log(`Encontradas ${escolasResult.rows.length} escolas para o gestor`);
     
     res.json({
       sucesso: true,
