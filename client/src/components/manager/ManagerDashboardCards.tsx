@@ -94,9 +94,36 @@ export function TotalEscolasCard() {
   const { refreshAll } = useAutoRefresh();
   const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [statsForced, setStatsForced] = useState<any>(null);
 
-  // Usar dados do contexto de escolas
-  const totalEscolas = dashboardStats?.totalEscolas || 0;
+  // Forçar busca direta do endpoint se os dados não carregarem
+  useEffect(() => {
+    const forceLoadStats = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('TotalEscolasCard: Dados forçados carregados:', data);
+          setStatsForced(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados forçados:', error);
+      }
+    };
+
+    // Se não há dados no contexto após 2 segundos, forçar carregamento
+    const timer = setTimeout(() => {
+      if (dashboardStats?.totalEscolas === 0) {
+        console.log('TotalEscolasCard: Forçando carregamento direto');
+        forceLoadStats();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [dashboardStats]);
+
+  // Usar dados forçados se disponíveis, senão dados do contexto
+  const totalEscolas = statsForced?.totalEscolas || dashboardStats?.totalEscolas || 0;
   const escolas = escolasVinculadas || [];
 
   useEffect(() => {
@@ -197,9 +224,35 @@ export function TotalProfessoresCard() {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+  const [statsForced, setStatsForced] = useState<any>(null);
 
-  // Usar dados do contexto de escolas
-  const totalProfessores = dashboardStats?.totalProfessores || 0;
+  // Forçar busca direta do endpoint se os dados não carregarem
+  useEffect(() => {
+    const forceLoadStats = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('TotalProfessoresCard: Dados forçados carregados:', data);
+          setStatsForced(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados forçados:', error);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (dashboardStats?.totalProfessores === 0) {
+        console.log('TotalProfessoresCard: Forçando carregamento direto');
+        forceLoadStats();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [dashboardStats]);
+
+  // Usar dados forçados se disponíveis, senão dados do contexto
+  const totalProfessores = statsForced?.totalProfessores || dashboardStats?.totalProfessores || 0;
   const escolas = escolasVinculadas || [];
 
   const fetchProfessoresDetalhes = async () => {
@@ -351,9 +404,35 @@ export function TotalAlunosCard() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+  const [statsForced, setStatsForced] = useState<any>(null);
 
-  // Usar dados do contexto de escolas
-  const totalAlunos = dashboardStats?.totalAlunos || 0;
+  // Forçar busca direta do endpoint se os dados não carregarem
+  useEffect(() => {
+    const forceLoadStats = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('TotalAlunosCard: Dados forçados carregados:', data);
+          setStatsForced(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados forçados:', error);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (dashboardStats?.totalAlunos === 0) {
+        console.log('TotalAlunosCard: Forçando carregamento direto');
+        forceLoadStats();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [dashboardStats]);
+
+  // Usar dados forçados se disponíveis, senão dados do contexto
+  const totalAlunos = statsForced?.totalAlunos || dashboardStats?.totalAlunos || 0;
   const escolas = escolasVinculadas || [];
 
   const fetchAlunosDetalhes = async () => {
@@ -499,9 +578,35 @@ export function TotalTurmasCard() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+  const [statsForced, setStatsForced] = useState<any>(null);
 
-  // Usar dados do contexto de escolas
-  const totalTurmas = dashboardStats?.turmasAtivas || 0;
+  // Forçar busca direta do endpoint se os dados não carregarem
+  useEffect(() => {
+    const forceLoadStats = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('TotalTurmasCard: Dados forçados carregados:', data);
+          setStatsForced(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados forçados:', error);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (dashboardStats?.turmasAtivas === 0) {
+        console.log('TotalTurmasCard: Forçando carregamento direto');
+        forceLoadStats();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [dashboardStats]);
+
+  // Usar dados forçados se disponíveis, senão dados do contexto
+  const totalTurmas = statsForced?.turmasAtivas || dashboardStats?.turmasAtivas || 0;
   const escolas = escolasVinculadas || [];
 
   const fetchTurmasDetalhes = async () => {
