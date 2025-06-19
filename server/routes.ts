@@ -958,15 +958,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Rotas para autenticação personalizada removidas - usando endpoints mais abaixo
   
-  // Manter a rota original para compatibilidade
-  app.post("/api/auth/login-supabase", async (req, res) => {
+  // Backup login endpoint with different field names
+  app.post("/api/auth/login-legacy", async (req, res) => {
     try {
       const { email, password } = req.body;
       
-      console.log("Tentativa de login para o usuário (Supabase Auth):", email);
+      console.log("Tentativa de login legado:", email);
       
       if (!email || !password) {
-        return res.status(400).json({ message: "Email e senha são obrigatórios" });
+        return res.status(400).json({ message: "Email e password são obrigatórios" });
       }
       
       // Autenticar usando nova API do Supabase Auth

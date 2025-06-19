@@ -33,6 +33,7 @@ function Router() {
   return (
     <Switch>
       {/* Rotas públicas */}
+      <Route path="/login" component={Login} />
       <Route path="/auth" component={Login} />
       <Route path="/auth-test" component={LoginTest} />
       <Route path="/acesso-negado" component={AccessDenied} />
