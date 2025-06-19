@@ -2954,8 +2954,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await executeQuery(userQuery, [email.toLowerCase().trim()]);
       
       if (result.rows.length === 0) {
-        return res.status(401).json({ 
-          erro: 'Email ou senha incorretos' 
+        return res.status(404).json({ 
+          erro: 'E-mail não cadastrado' 
         });
       }
       
@@ -3002,7 +3002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!senhaValida) {
         return res.status(401).json({ 
-          erro: 'Email ou senha incorretos' 
+          erro: 'E-mail ou senha inválidos' 
         });
       }
       
@@ -3017,6 +3017,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         papel: usuario.papel
       });
       
+      // Determinar redirecionamento baseado no papel
+      let redirectTo = '/';
+      switch (usuario.papel) {
+        case 'aluno':
+          redirectTo = '/dashboard/aluno';
+          break;
+        case 'professor':
+          redirectTo = '/dashboard/professor';
+          break;
+        case 'gestor':
+          redirectTo = '/manager';
+          break;
+        default:
+          redirectTo = '/';
+      }
+
       res.status(200).json({
         sucesso: true,
         usuario: {
@@ -3025,6 +3041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email: usuario.email,
           papel: usuario.papel
         },
+        redirect: redirectTo,
         mensagem: 'Login realizado com sucesso'
       });
       
