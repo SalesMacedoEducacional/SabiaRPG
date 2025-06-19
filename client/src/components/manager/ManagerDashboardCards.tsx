@@ -26,6 +26,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  EscolasDetailModal,
+  ProfessoresDetailModal,
+  AlunosDetailModal,
+  TurmasDetailModal
+} from "./DetailModals";
 
 // Interfaces para os dados
 interface Escola {

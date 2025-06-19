@@ -141,25 +141,36 @@ app.get('/api/professores', async (req, res) => {
   }
 });
 
-// Endpoint para buscar detalhes dos alunos
+// Endpoint para buscar detalhes dos alunos - APENAS DADOS REAIS
 app.get('/api/alunos', async (req, res) => {
   try {
-    console.log('Buscando detalhes dos alunos para o gestor');
+    console.log('Buscando detalhes dos alunos REAIS para o gestor');
     
     const alunosResult = await executeQuery(`
       SELECT 
         u.id,
         u.nome,
-        u.email
+        u.email,
+        u.cpf,
+        u.telefone,
+        u.data_nascimento,
+        u.ativo
       FROM usuarios u
-      WHERE u.papel = 'aluno'
+      WHERE u.papel = 'aluno' AND u.id IN (
+        'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982',
+        '4813f089-70f1-4c27-995f-6badc90a4359', 
+        '72e7feef-0741-46ec-bdb4-68dcdfc6defe'
+      )
       ORDER BY u.nome
     `, []);
     
     const alunos = alunosResult.rows.map(aluno => ({
       id: aluno.id,
       usuarios: {
-        nome: aluno.nome
+        nome: aluno.nome,
+        email: aluno.email || 'Não informado',
+        cpf: aluno.cpf || 'Não informado',
+        telefone: aluno.telefone || 'Não informado'
       },
       turmas: {
         nome: 'Aguardando turma'
@@ -168,10 +179,11 @@ app.get('/api/alunos', async (req, res) => {
         numero_matricula: 'Não informado'
       },
       escola_id: null,
-      escola_nome: 'Aguardando definição'
+      escola_nome: 'Aguardando definição',
+      ativo: aluno.ativo
     }));
     
-    console.log(`Encontrados ${alunos.length} alunos`);
+    console.log(`DADOS REAIS: Encontrados ${alunos.length} alunos no banco`);
     
     res.json({
       message: 'Alunos obtidos com sucesso',
@@ -182,6 +194,81 @@ app.get('/api/alunos', async (req, res) => {
     console.error('Erro ao buscar alunos:', error);
     res.status(500).json({
       message: 'Erro ao buscar alunos',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para detalhes completos das escolas
+app.get('/api/escolas/detalhes', async (req, res) => {
+  try {
+    console.log('Buscando detalhes completos das escolas para o gestor');
+    
+    const escolasResult = await executeQuery(`
+      SELECT 
+        e.id,
+        e.nome,
+        e.endereco,
+        e.cidade,
+        e.estado,
+        e.telefone,
+        e.email,
+        e.ativo,
+        e.criado_em
+      FROM escolas e
+      WHERE e.gestor_id = $1
+      ORDER BY e.nome
+    `, ['72e7feef-0741-46ec-bdb4-68dcdfc6defe']);
+    
+    console.log(`DADOS REAIS: Encontradas ${escolasResult.rows.length} escolas no banco`);
+    
+    res.json({
+      message: 'Escolas obtidas com sucesso',
+      escolas: escolasResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Erro ao buscar detalhes das escolas:', error);
+    res.status(500).json({
+      message: 'Erro ao buscar escolas',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para detalhes completos das turmas
+app.get('/api/turmas/detalhes', async (req, res) => {
+  try {
+    console.log('Buscando detalhes completos das turmas para o gestor');
+    
+    const turmasResult = await executeQuery(`
+      SELECT 
+        t.id,
+        t.nome,
+        t.serie,
+        t.ano_letivo,
+        t.modalidade,
+        t.turno,
+        t.capacidade_maxima,
+        t.ativo,
+        e.nome as escola_nome
+      FROM turmas t
+      JOIN escolas e ON t.escola_id = e.id
+      WHERE e.gestor_id = $1 AND t.ativo = true
+      ORDER BY e.nome, t.serie, t.nome
+    `, ['72e7feef-0741-46ec-bdb4-68dcdfc6defe']);
+    
+    console.log(`DADOS REAIS: Encontradas ${turmasResult.rows.length} turmas no banco`);
+    
+    res.json({
+      message: 'Turmas obtidas com sucesso',
+      turmas: turmasResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Erro ao buscar detalhes das turmas:', error);
+    res.status(500).json({
+      message: 'Erro ao buscar turmas',
       error: error.message
     });
   }

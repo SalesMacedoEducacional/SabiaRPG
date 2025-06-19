@@ -196,6 +196,18 @@ export default function ManagerDashboardModerno() {
             >
               <Menu size={24} />
             </button>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/attached_assets/SABIA RPG 2.png" 
+                alt="Sabiá RPG" 
+                className="h-10 w-auto object-contain"
+              />
+              <div className="text-parchment">
+                <span className="text-lg font-bold">SABIÁ</span>
+                <span className="text-accent">RPG</span>
+                <span className="text-sm ml-2 text-parchment-dark">GESTOR</span>
+              </div>
+            </div>
             <button
               onClick={toggleSidebar}
               className="hidden lg:flex text-white hover:text-accent"
