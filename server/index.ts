@@ -965,6 +965,8 @@ app.get('/api/escolas/gestor', async (req, res) => {
       ORDER BY nome ASC
     `, [gestorId]);
     
+    console.log('Dados das escolas retornados pela query:', escolasResult.rows);
+    
     console.log(`Encontradas ${escolasResult.rows.length} escolas do gestor`);
     
     res.json(escolasResult.rows);
