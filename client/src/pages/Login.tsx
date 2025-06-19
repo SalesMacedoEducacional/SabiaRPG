@@ -226,6 +226,7 @@ const Login: React.FC = () => {
               <p><strong>Aluno:</strong> aluno@sabiarpg.edu.br / Senha@123</p>
               <p><strong>Professor:</strong> professor@sabiarpg.edu.br / Senha@123</p>
               <p><strong>Gestor:</strong> gestor@sabiarpg.edu.br / Senha@123</p>
+              <p className="text-yellow-400 font-semibold">⚠️ Use exatamente: Senha@123</p>
             </div>
           </AlertDescription>
         </Alert>
