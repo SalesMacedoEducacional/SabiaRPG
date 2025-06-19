@@ -53,14 +53,18 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Buscar escolas vinculadas ao gestor
       const escolasResponse = await apiRequest("GET", "/api/escolas/gestor");
       const escolasData = await escolasResponse.json();
+      console.log('loadSchoolData: Resposta escolas:', escolasData);
       
       if (escolasResponse.ok) {
         setEscolasVinculadas(escolasData || []);
         
         // Se há escolas vinculadas, buscar estatísticas do dashboard
+        console.log('loadSchoolData: Verificando se há escolas:', escolasData, escolasData?.length);
         if (escolasData && escolasData.length > 0) {
+          console.log('loadSchoolData: Chamando refreshStats...');
           await refreshStats();
         } else {
+          console.log('loadSchoolData: Nenhuma escola encontrada, zerando stats');
           // Se não há escolas vinculadas, zerar as estatísticas
           setDashboardStats({
             totalEscolas: 0,
