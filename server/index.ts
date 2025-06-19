@@ -696,7 +696,7 @@ const requireGestor = async (req: Request, res: Response, next: Function) => {
   }
 };
 
-// Listar os 3 usuários específicos (apenas para gestores)
+// Listar todos os usuários do PostgreSQL (apenas para gestores)
 app.get('/api/usuarios', requireGestor, async (req, res) => {
   try {
     const usuariosResult = await executeQuery(`
@@ -709,17 +709,16 @@ app.get('/api/usuarios', requireGestor, async (req, res) => {
       FROM usuarios u
       LEFT JOIN usuario_escola ue ON u.id = ue.usuario_id
       LEFT JOIN escolas e ON ue.escola_id = e.id
-      WHERE u.id = ANY($1)
       ORDER BY 
         CASE u.papel 
           WHEN 'gestor' THEN 1
           WHEN 'professor' THEN 2
           WHEN 'aluno' THEN 3
           ELSE 4
-        END, u.nome
-    `, [USUARIOS_REAIS]);
+        END, u.criado_em DESC
+    `);
     
-    console.log(`Retornando dados dos ${usuariosResult.rows.length} usuários reais`);
+    console.log(`Retornando dados de ${usuariosResult.rows.length} usuários do PostgreSQL`);
     
     res.json({
       message: 'Usuários obtidos com sucesso',
