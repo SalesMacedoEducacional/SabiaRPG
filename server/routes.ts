@@ -2285,31 +2285,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint público para listar usuários (DEBUG)
-  app.get("/api/debug/usuarios", async (req, res) => {
-    try {
-      const query = `
-        SELECT id, nome, email, papel, ativo,
-        CASE WHEN senha_hash IS NOT NULL THEN 'Tem hash' ELSE 'Sem hash' END as status_senha,
-        criado_em
-        FROM usuarios 
-        WHERE ativo = true 
-        ORDER BY papel, nome
-      `;
-      
-      const result = await executeQuery(query);
-      
-      res.status(200).json({
-        total: result.rows.length,
-        usuarios: result.rows
-      });
-      
-    } catch (error) {
-      console.error("Erro ao listar usuários:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
-  });
-
   // Registrar rotas específicas para o perfil de gestor
   registerManagerRoutes(app, authenticate, requireRole);
   
@@ -2953,31 +2928,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint para listar todos os usuários (para debug) - sem autenticação
-  app.get("/api/usuarios/todos", async (req, res) => {
-    try {
-      const query = `
-        SELECT id, nome, email, papel, ativo,
-        CASE WHEN senha_hash IS NOT NULL THEN 'Tem hash' ELSE 'Sem hash' END as status_senha,
-        criado_em
-        FROM usuarios 
-        WHERE ativo = true 
-        ORDER BY papel, nome
-      `;
-      
-      const result = await executeQuery(query);
-      
-      res.status(200).json({
-        total: result.rows.length,
-        usuarios: result.rows
-      });
-      
-    } catch (error) {
-      console.error("Erro ao listar usuários:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
-  });
-
   // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     console.log('=== LOGIN INICIADO ===');
@@ -3018,10 +2968,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         senha_hash_value: usuario.senha_hash
       });
       
-      // Validação de senha para todos os usuários
+      // Para os usuários de teste existentes no banco, usar validação baseada no email
+      // Os usuários foram criados com as credenciais específicas mostradas pelo usuário
       let senhaValida = false;
       
-      // Verificar se é um dos usuários de teste com senha padrão
+      // Verificar se é um dos usuários de teste conhecidos
       const usuariosDeTestePadrao = [
         'aluno@sabiarpg.edu.br',
         'professor@sabiarpg.edu.br', 
@@ -3031,50 +2982,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Validando senha para:', {
         email: usuario.email,
         senhaFornecida: senha,
-        eUsuarioTeste: usuariosDeTestePadrao.includes(usuario.email.toLowerCase()),
-        temSenhaHash: !!usuario.senha_hash
+        eUsuarioTeste: usuariosDeTestePadrao.includes(usuario.email.toLowerCase())
       });
       
-      // Primeiro, verificar usuários de teste com senha padrão
       if (usuariosDeTestePadrao.includes(usuario.email.toLowerCase()) && senha === 'Senha@123') {
         senhaValida = true;
         console.log('Login autorizado para usuário de teste:', usuario.email);
-      }
-      // Para usuários com hash bcrypt válido
-      else if (usuario.senha_hash && typeof usuario.senha_hash === 'string' && usuario.senha_hash.startsWith('$2')) {
+      } else if (usuario.senha_hash && typeof usuario.senha_hash === 'string' && usuario.senha_hash.startsWith('$2')) {
+        // Para usuários com hash bcrypt válido
         try {
           senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
-          if (senhaValida) {
-            console.log('Login autorizado via hash bcrypt para:', usuario.email);
-          }
         } catch (error) {
           console.error('Erro na validação bcrypt:', error);
           senhaValida = false;
-        }
-      }
-      // Para usuários sem hash (novos usuários), criar hash da senha fornecida
-      else if (!usuario.senha_hash || usuario.senha_hash === null) {
-        // Tentar validar com senhas comuns primeiro
-        const senhasComuns = ['Senha@123', '123456', 'senha123', usuario.email.split('@')[0]];
-        
-        for (const senhaComum of senhasComuns) {
-          if (senha === senhaComum) {
-            senhaValida = true;
-            console.log('Login autorizado com senha comum para:', usuario.email);
-            
-            // Criar hash da senha para futuras validações
-            try {
-              const novoHash = await bcrypt.hash(senha, 10);
-              await executeQuery(
-                'UPDATE usuarios SET senha_hash = $1 WHERE id = $2',
-                [novoHash, usuario.id]
-              );
-              console.log('Hash da senha criado para usuário:', usuario.email);
-            } catch (error) {
-              console.error('Erro ao criar hash da senha:', error);
-            }
-            break;
-          }
         }
       }
       

@@ -24,7 +24,6 @@ import TestUpload from "@/pages/TestUpload";
 import LoginTest from "@/pages/login-test";
 import TesteUsuarioPage from "@/pages/teste-criacao-usuario";
 import TesteCadastroSimplificado from "@/pages/teste-cadastro-simplificado";
-import UserTestPage from "@/pages/UserTestPage";
 import { GameProvider } from "./context/GameContext";
 import { SchoolProvider } from "@/context/SchoolContext";
 import { PERMISSIONS } from "@/lib/permissions";
@@ -166,9 +165,6 @@ function Router() {
           PERMISSIONS.SCHOOL_CONFIG.id
         ]}
       />
-      
-      {/* Página de teste de usuários - acesso público */}
-      <Route path="/test-users" component={UserTestPage} />
       
       {/* Página não encontrada */}
       <Route component={NotFound} />

@@ -157,42 +157,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Salvar no localStorage para persistência
       localStorage.setItem('auth_user', JSON.stringify(data));
       
-      // Sistema de redirecionamento automático baseado no papel do usuário
-      const redirectUser = (papel: string, userData: any) => {
-        // Aguardar um pouco para garantir que os dados sejam salvos
-        setTimeout(() => {
-          switch (papel) {
-            case 'gestor':
-              // Para gestores, verificar se possuem escolas
-              if (userData.escola_id || sessionStorage.getItem('manager_has_schools')) {
-                console.log('Redirecionando gestor para painel administrativo');
-                window.location.href = '/manager';
-              } else {
-                console.log('Redirecionando gestor para cadastro de escola');
-                window.location.href = '/school-registration';
-              }
-              break;
-            case 'professor':
-              console.log('Redirecionando professor para painel de professor');
-              window.location.href = '/teacher';
-              break;
-            case 'aluno':
-              console.log('Redirecionando aluno para painel principal');
-              window.location.href = '/';
-              break;
-            case 'admin':
-              console.log('Redirecionando admin para painel administrativo');
-              window.location.href = '/admin';
-              break;
-            default:
-              console.log('Papel não reconhecido, redirecionando para página inicial');
-              window.location.href = '/';
-          }
-        }, 500);
-      };
-
       // Se o usuário for um gestor, verificar imediatamente as escolas vinculadas
-      if (data.papel === 'gestor' || data.role === 'manager') {
+      if (data.role === 'manager') {
         try {
           console.log('Verificando escolas vinculadas após login...');
           
@@ -222,30 +188,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               
               // Remover flag de necessidade de escola
               localStorage.removeItem('manager_needs_school');
-              
-              // Redirecionar para painel do gestor
-              redirectUser('gestor', updatedUserData);
             } else {
               console.log('Gestor não possui escolas vinculadas');
               localStorage.setItem('manager_needs_school', 'true');
               sessionStorage.removeItem('manager_has_schools');
-              
-              // Redirecionar para cadastro de escola
-              redirectUser('gestor', data);
             }
+          } else if (dashboardResponse.status === 404) {
+            console.log('Nenhuma escola encontrada para o gestor');
+            localStorage.setItem('manager_needs_school', 'true');
+            sessionStorage.removeItem('manager_has_schools');
           } else {
             console.log('Erro ao verificar escolas do gestor');
             localStorage.setItem('manager_needs_school', 'true');
-            redirectUser('gestor', data);
           }
         } catch (error) {
           console.error('Erro ao verificar escolas do gestor após login:', error);
           localStorage.setItem('manager_needs_school', 'true');
-          redirectUser('gestor', data);
         }
-      } else {
-        // Para outros tipos de usuários, redirecionar diretamente
-        redirectUser(data.papel, data);
       }
       
       // Buscar nome completo do usuário no banco de dados e exibir notificação
