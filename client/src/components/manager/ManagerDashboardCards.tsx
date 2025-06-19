@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -425,84 +426,62 @@ interface AlunoAtivo {
   escola: string;
 }
 
-// Componente para o card de alunos ativos com engajamento real
+// Componente para o card de total de alunos (sem engajamento)
 export function TotalAlunosCard() {
   const { toast } = useToast();
   const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
-  const [engagementData, setEngagementData] = useState<EngagementData | null>(null);
-  const [alunosAtivos, setAlunosAtivos] = useState<AlunoAtivo[]>([]);
+  const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
-  const [filtroPeriodo, setFiltroPeriodo] = useState<string>("7");
-  const [loadingEngagement, setLoadingEngagement] = useState<boolean>(false);
-  const [loadingAtivos, setLoadingAtivos] = useState<boolean>(false);
+  const [statsForced, setStatsForced] = useState<any>(null);
 
-  // Carregar dados de engajamento em tempo real
-  const loadEngagementData = async () => {
-    setLoadingEngagement(true);
-    try {
-      const response = await apiRequest("GET", "/api/alunos/engajamento");
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Dados de engajamento carregados:', data);
-        setEngagementData(data);
-      } else {
-        throw new Error('Falha ao carregar dados de engajamento');
+  // Forçar busca direta do endpoint se os dados não carregarem
+  useEffect(() => {
+    const forceLoadStats = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('TotalAlunosCard: Dados forçados carregados:', data);
+          setStatsForced(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados forçados:', error);
       }
+    };
+
+    const timer = setTimeout(() => {
+      if (dashboardStats?.totalAlunos === 0) {
+        console.log('TotalAlunosCard: Forçando carregamento direto');
+        forceLoadStats();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [dashboardStats]);
+
+  // Usar dados forçados se disponíveis, senão dados do contexto
+  const totalAlunos = statsForced?.totalAlunos || dashboardStats?.totalAlunos || 0;
+  const escolas = escolasVinculadas || [];
+
+  const fetchAlunosDetalhes = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/alunos");
+      const data = await response.json();
+      setAlunos(data.alunos || []);
     } catch (error) {
-      console.error("Erro ao carregar dados de engajamento:", error);
+      console.error("Erro ao buscar detalhes dos alunos:", error);
       toast({
-        title: "Erro ao carregar engajamento",
-        description: "Não foi possível carregar os dados de engajamento dos alunos",
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes dos alunos",
         variant: "destructive",
       });
-    } finally {
-      setLoadingEngagement(false);
     }
   };
 
-  // Carregar lista detalhada de alunos ativos
-  const loadAlunosAtivos = async (periodo: string = "7") => {
-    setLoadingAtivos(true);
-    try {
-      const response = await apiRequest("GET", `/api/alunos/ativos?periodo=${periodo}`);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Alunos ativos carregados:', data);
-        setAlunosAtivos(data.alunos || []);
-      } else {
-        throw new Error('Falha ao carregar alunos ativos');
-      }
-    } catch (error) {
-      console.error("Erro ao carregar alunos ativos:", error);
-      toast({
-        title: "Erro ao carregar alunos ativos",
-        description: "Não foi possível carregar a lista de alunos ativos",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingAtivos(false);
-    }
-  };
-
-  // Carregar dados ao montar o componente
   useEffect(() => {
-    loadEngagementData();
-  }, []);
-
-  // Auto-refresh dos dados de engajamento
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadEngagementData();
-    }, 30000); // Atualizar a cada 30 segundos
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Listeners para refresh automático
-  useEffect(() => {
+    // Listeners para refresh automático
     const handleRefresh = () => {
-      loadEngagementData();
       refreshStats();
     };
 
@@ -522,31 +501,20 @@ export function TotalAlunosCard() {
           <div className="rounded-full bg-[#4a4639] p-2 mr-3">
             <GraduationCap className="h-5 w-5 text-primary" />
           </div>
-          <div className="text-sm font-medium text-white">Alunos Ativos</div>
+          <div className="text-sm font-medium text-white">Total de Alunos</div>
         </div>
         
-        {loadingEngagement || isLoading ? (
+        {isLoading ? (
           <div className="flex justify-center py-2">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : (
           <>
             <div className="text-3xl font-bold text-white mt-2">
-              {engagementData?.alunosAtivos7Dias || 0}
+              {totalAlunos}
             </div>
             <div className="text-xs text-accent mt-1">
-              Últimos 7 dias ({engagementData?.taxaEngajamento7Dias || 0}% do total)
-            </div>
-            
-            {/* Indicador de engajamento */}
-            <div className="flex items-center mt-2 text-xs">
-              <div className="w-full bg-[#4a4639] rounded-full h-2 mr-2">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all" 
-                  style={{ width: `${Math.min((engagementData?.taxaEngajamento7Dias || 0), 100)}%` }}
-                ></div>
-              </div>
-              <span className="text-primary font-medium">{engagementData?.taxaEngajamento7Dias || 0}%</span>
+              Alunos cadastrados no sistema
             </div>
             
             <Button 
@@ -555,9 +523,9 @@ export function TotalAlunosCard() {
               className="bg-[#4a4639] border border-[#D47C06] text-white px-3 py-1.5 mt-3 rounded hover:bg-[#57533f] transition-colors self-start"
               onClick={() => {
                 setIsModalOpen(true);
-                loadAlunosAtivos(filtroPeriodo);
+                fetchAlunosDetalhes();
               }}
-              disabled={(engagementData?.alunosAtivos7Dias || 0) === 0}
+              disabled={totalAlunos === 0}
             >
               <Search className="h-3 w-3 mr-1" /> Ver Detalhes
             </Button>
@@ -569,59 +537,22 @@ export function TotalAlunosCard() {
         <DialogContent className="max-w-5xl bg-[#312e26] border-[#D47C06] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center">
-              <GraduationCap className="h-5 w-5 mr-2" /> Alunos Ativos - Engajamento Real
+              <GraduationCap className="h-5 w-5 mr-2" /> Lista de Alunos Cadastrados
             </DialogTitle>
             <DialogDescription className="text-accent">
-              Lista de alunos com atividade recente baseada em dados reais de sessões
+              Todos os alunos cadastrados no sistema
             </DialogDescription>
           </DialogHeader>
           
-          {/* Métricas de Engajamento */}
-          {engagementData && (
-            <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-[#4a4639] rounded-lg">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{engagementData.totalAlunos}</div>
-                <div className="text-xs text-accent">Total de Alunos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{engagementData.alunosAtivos7Dias}</div>
-                <div className="text-xs text-accent">Ativos (7 dias)</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{engagementData.alunosAtivos30Dias}</div>
-                <div className="text-xs text-accent">Ativos (30 dias)</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{engagementData.taxaEngajamento7Dias}%</div>
-                <div className="text-xs text-accent">Taxa de Engajamento</div>
-              </div>
-            </div>
-          )}
-          
           {/* Filtros */}
-          <div className="flex items-center gap-3 mb-4">
-            <Filter className="h-4 w-4 text-primary" />
-            <Select value={filtroPeriodo} onValueChange={(value) => {
-              setFiltroPeriodo(value);
-              loadAlunosAtivos(value);
-            }}>
-              <SelectTrigger className="w-[200px] bg-[#4a4639] border-[#D47C06] text-white">
-                <SelectValue placeholder="Período" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
-                <SelectItem value="7">Últimos 7 dias</SelectItem>
-                <SelectItem value="30">Últimos 30 dias</SelectItem>
-                <SelectItem value="90">Últimos 90 dias</SelectItem>
-              </SelectContent>
-            </Select>
-            
+          <div className="flex gap-4 mb-4">
             <Select value={filtroEscola} onValueChange={setFiltroEscola}>
-              <SelectTrigger className="w-[280px] bg-[#4a4639] border-[#D47C06] text-white">
-                <SelectValue placeholder="Filtrar por escola" />
+              <SelectTrigger className="w-64 bg-[#4a4639] border-[#D47C06] text-white">
+                <SelectValue placeholder="Escola" />
               </SelectTrigger>
-              <SelectContent className="bg-[#4a4639] border-[#D47C06] text-white">
+              <SelectContent className="bg-[#4a4639] border-[#D47C06]">
                 <SelectItem value="todas">Todas as escolas</SelectItem>
-                {engagementData?.escolas?.map((escola) => (
+                {escolas?.map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </SelectItem>
@@ -631,46 +562,42 @@ export function TotalAlunosCard() {
           </div>
           
           <ScrollArea className="max-h-[60vh]">
-            {loadingAtivos ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <Table className="border-collapse">
-                <TableHeader className="bg-[#43341c]">
+            <Table className="border-collapse">
+              <TableHeader className="bg-[#43341c]">
+                <TableRow>
+                  <TableHead className="text-white">Nome do Aluno</TableHead>
+                  <TableHead className="text-white">Email</TableHead>
+                  <TableHead className="text-white">CPF</TableHead>
+                  <TableHead className="text-white">Telefone</TableHead>
+                  <TableHead className="text-white">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {alunos.length > 0 ? (
+                  alunos
+                    .filter(aluno => filtroEscola === "todas" || aluno.escola_id === filtroEscola)
+                    .map((aluno) => (
+                      <TableRow key={aluno.id} className="hover:bg-[#43341c]">
+                        <TableCell className="text-white font-medium">{aluno.nome}</TableCell>
+                        <TableCell className="text-white">{aluno.email}</TableCell>
+                        <TableCell className="text-white">{aluno.cpf || "Não informado"}</TableCell>
+                        <TableCell className="text-white">{aluno.telefone || "Não informado"}</TableCell>
+                        <TableCell className="text-white">
+                          <Badge variant={aluno.ativo ? "default" : "secondary"} className={aluno.ativo ? "bg-green-600" : "bg-gray-600"}>
+                            {aluno.ativo ? "Ativo" : "Inativo"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
                   <TableRow>
-                    <TableHead className="text-white">Nome do Aluno</TableHead>
-                    <TableHead className="text-white">Email</TableHead>
-                    <TableHead className="text-white">Última Sessão</TableHead>
-                    <TableHead className="text-white">Total de Sessões</TableHead>
-                    <TableHead className="text-white">Escola</TableHead>
+                    <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                      Nenhum aluno encontrado
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {alunosAtivos.length > 0 ? (
-                    alunosAtivos
-                      .filter(aluno => filtroEscola === "todas" || aluno.escola === filtroEscola)
-                      .map((aluno) => (
-                        <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                          <TableCell className="text-white font-medium">{aluno.nome}</TableCell>
-                          <TableCell className="text-white">{aluno.email}</TableCell>
-                          <TableCell className="text-white">
-                            {aluno.ultimaSessao ? new Date(aluno.ultimaSessao).toLocaleString('pt-BR') : "Nunca"}
-                          </TableCell>
-                          <TableCell className="text-white">{aluno.totalSessoes}</TableCell>
-                          <TableCell className="text-white">{aluno.escola}</TableCell>
-                        </TableRow>
-                      ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                        Nenhum aluno ativo encontrado no período selecionado
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
+                )}
+              </TableBody>
+            </Table>
           </ScrollArea>
         </DialogContent>
       </Dialog>
