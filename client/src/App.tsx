@@ -111,6 +111,12 @@ function Router() {
       />
       
       <ProtectedRoute 
+        path="/manager/classes" 
+        component={ClassManagement}
+        requireAuth={true}
+      />
+      
+      <ProtectedRoute 
         path="/dashboard-gestor-moderno" 
         component={ManagerDashboardModerno}
         permissions={[

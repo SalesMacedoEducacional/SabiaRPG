@@ -284,13 +284,13 @@ export default function ClassManagement() {
               value={selectedEscola}
               onValueChange={setSelectedEscola}
             >
-              <SelectTrigger className="bg-[#2d2518] border-[#F5B800] text-white hover:bg-[#3a3020]">
+              <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white hover:bg-[#57533f]">
                 <SelectValue placeholder="Todas as escolas" />
               </SelectTrigger>
-              <SelectContent className="bg-[#2d2518] border-[#F5B800]">
-                <SelectItem value="todas" className="text-white hover:bg-[#3a3020] focus:bg-[#F5B800] focus:text-black">Todas as escolas</SelectItem>
+              <SelectContent className="bg-[#4a4639] border-[#D47C06]">
+                <SelectItem value="todas" className="text-white hover:bg-[#57533f]">Todas as escolas</SelectItem>
                 {escolas.map((escola) => (
-                  <SelectItem key={escola.id} value={escola.id} className="text-white hover:bg-[#3a3020] focus:bg-[#F5B800] focus:text-black">
+                  <SelectItem key={escola.id} value={escola.id} className="text-white hover:bg-[#57533f]">
                     {escola.nome}
                   </SelectItem>
                 ))}
@@ -303,24 +303,23 @@ export default function ClassManagement() {
               Buscar Turmas
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-[#F5B800]" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-accent" />
               <Input
                 placeholder="Nome da turma, série..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-[#2d2518] border-[#F5B800] text-white placeholder:text-[#B8860B] focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700]"
+                className="pl-10 bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent"
               />
             </div>
           </div>
           
           <div className="flex items-end">
-            <div className="bg-gradient-to-br from-[#2d2518] to-[#1a1510] border border-[#F5B800] p-4 rounded-lg shadow-lg w-full relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F5B800]/10 to-transparent"></div>
-              <div className="text-center relative z-10">
-                <div className="text-3xl font-bold text-[#F5B800] drop-shadow-md">
+            <div className="bg-[#312e26] border border-[#D47C06] p-4 rounded-lg shadow-sm w-full">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">
                   {filteredTurmas.length}
                 </div>
-                <div className="text-sm text-[#B8860B] font-medium">
+                <div className="text-sm text-accent">
                   Turmas encontradas
                 </div>
               </div>
@@ -357,16 +356,14 @@ export default function ClassManagement() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTurmas.map((turma) => (
-              <Card key={turma.id} className="bg-gradient-to-br from-[#2d2518] to-[#1a1510] border border-[#F5B800] hover:border-[#FFD700] hover:shadow-xl hover:shadow-[#F5B800]/20 transition-all duration-300 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F5B800]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardHeader className="pb-3 relative z-10">
+              <Card key={turma.id} className="bg-[#312e26] border border-[#D47C06] hover:border-amber-400 transition-all shadow-md">
+                <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-bold text-white mb-2 group-hover:text-[#FFD700] transition-colors duration-300">
+                      <CardTitle className="text-lg font-semibold text-white mb-1">
                         {turma.nome}
                       </CardTitle>
-                      <CardDescription className="text-[#B8860B] text-sm font-medium flex items-center">
-                        <div className="w-2 h-2 bg-[#F5B800] rounded-full mr-2 animate-pulse"></div>
+                      <CardDescription className="text-accent text-sm">
                         {turma.escola_nome}
                       </CardDescription>
                     </div>
@@ -374,7 +371,7 @@ export default function ClassManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTurma(turma)}
-                      className="text-[#F5B800] hover:text-[#FFD700] hover:bg-[#F5B800]/10 transition-all duration-300 rounded-full p-2"
+                      className="text-primary hover:text-amber-400 hover:bg-[#4a4639]"
                     >
                       <PenSquare className="h-4 w-4" />
                     </Button>
