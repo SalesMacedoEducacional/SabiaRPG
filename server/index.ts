@@ -1246,6 +1246,53 @@ app.get('/api/escolas-cadastro', async (req, res) => {
   }
 });
 
+// Endpoint para listar turmas vinculadas às escolas do gestor
+app.get('/api/turmas/gestor', async (req, res) => {
+  try {
+    console.log('=== LISTAGEM DE TURMAS DO GESTOR ===');
+    
+    // Verificar se há sessão ativa
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({
+        erro: 'Não autorizado',
+        detalhes: 'Sessão inválida'
+      });
+    }
+    
+    const gestorId = req.session.userId;
+    console.log('Buscando turmas das escolas do gestor:', gestorId);
+    
+    const turmasResult = await executeQuery(`
+      SELECT 
+        t.id,
+        t.nome,
+        t.serie,
+        t.ano_letivo,
+        t.ativo,
+        t.escola_id,
+        e.nome as escola_nome,
+        COUNT(pa.usuario_id) as total_alunos
+      FROM turmas t
+      INNER JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN perfis_aluno pa ON t.id = pa.turma_id
+      WHERE e.gestor_id = $1
+      GROUP BY t.id, t.nome, t.serie, t.ano_letivo, t.ativo, t.escola_id, e.nome
+      ORDER BY e.nome ASC, t.nome ASC
+    `, [gestorId]);
+    
+    console.log(`Encontradas ${turmasResult.rows.length} turmas para o gestor`);
+    
+    res.json(turmasResult.rows);
+    
+  } catch (error) {
+    console.error('Erro ao listar turmas do gestor:', error);
+    res.status(500).json({ 
+      erro: 'Erro ao buscar turmas',
+      detalhes: error.message
+    });
+  }
+});
+
 // Endpoint para listar escolas do gestor (para página de escolas)
 app.get('/api/escolas/gestor', async (req, res) => {
   try {

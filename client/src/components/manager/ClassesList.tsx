@@ -41,10 +41,10 @@ export default function ClassesList() {
         const escolasData = await escolasResponse.json();
         setEscolas(Array.isArray(escolasData) ? escolasData : []);
         
-        // Buscar turmas
-        const turmasResponse = await apiRequest("GET", "/api/turmas");
+        // Buscar turmas vinculadas às escolas do gestor
+        const turmasResponse = await apiRequest("GET", "/api/turmas/gestor");
         const turmasData = await turmasResponse.json();
-        console.log("Turmas recebidas:", turmasData);
+        console.log("Turmas do gestor recebidas:", turmasData);
         
         const turmasList = Array.isArray(turmasData) ? turmasData : [];
         setTurmas(turmasList);
