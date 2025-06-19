@@ -145,6 +145,19 @@
 /* Classes utilitárias para o painel do gestor baseadas na nova paleta clara */
 @layer components {
 
+  /* Fontes medievais */
+  .font-medieval {
+    font-family: 'MedievalSharp', cursive;
+  }
+
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+
+  .font-lato {
+    font-family: 'Lato', sans-serif;
+  }
+
   /* Classes principais do sistema baseadas na nova paleta de cores */
   .btn-primary {
     @apply bg-primary hover:bg-primary-hover text-base py-2 px-4 rounded transition-colors;
