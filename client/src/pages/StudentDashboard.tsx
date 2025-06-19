@@ -7,7 +7,7 @@ export default function StudentDashboard() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#2a2516] text-white font-medieval overflow-hidden">
+    <div className="min-h-screen bg-[#2a2516] text-white font-lato overflow-hidden">
       {/* Top Navigation Bar */}
       <div className="flex items-center justify-between px-6 py-3 bg-[#3d3728] border-b border-[#5a4d3a]">
         <div className="flex items-center space-x-6">
@@ -52,7 +52,7 @@ export default function StudentDashboard() {
 
       <div className="flex h-[calc(100vh-60px)]">
         {/* Left Sidebar - Attributes Panel */}
-        <div className="w-64 bg-[#3d3728] border-r border-[#5a4d3a] p-4 space-y-6">
+        <div className="w-64 md:w-72 lg:w-80 bg-[#3d3728] border-r border-[#5a4d3a] p-4 space-y-6 flex-shrink-0">
           {/* Avatar and Character Info */}
           <div className="text-center space-y-3">
             <div className="w-16 h-16 bg-amber-600 rounded-full mx-auto flex items-center justify-center text-2xl font-bold">
@@ -74,7 +74,9 @@ export default function StudentDashboard() {
                   <span>Matemática</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -82,7 +84,9 @@ export default function StudentDashboard() {
                   <span>Linguagens</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -90,7 +94,9 @@ export default function StudentDashboard() {
                   <span>Ciências</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-purple-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -98,7 +104,9 @@ export default function StudentDashboard() {
                   <span>História</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-red-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -106,7 +114,9 @@ export default function StudentDashboard() {
                   <span>Geografia</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -114,7 +124,9 @@ export default function StudentDashboard() {
                   <span>Artes</span>
                   <span>0%</span>
                 </div>
-                <Progress value={0} className="h-2 bg-[#2a2516]" />
+                <div className="w-full bg-[#2a2516] rounded-full h-2">
+                  <div className="bg-pink-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
             </div>
           </div>
@@ -163,7 +175,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Right Sidebar - Mission Details */}
-        <div className="w-80 bg-[#3d3728] border-l border-[#5a4d3a] p-4 space-y-6">
+        <div className="w-80 md:w-96 lg:w-80 bg-[#3d3728] border-l border-[#5a4d3a] p-4 space-y-6 flex-shrink-0">
           {/* Mission Selection Status */}
           <div className="text-center space-y-4">
             <HelpCircle className="w-16 h-16 text-gray-500 mx-auto" />
