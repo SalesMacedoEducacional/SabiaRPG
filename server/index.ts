@@ -44,10 +44,13 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const gestorId = req.session.userId;
     
     // Buscar escolas vinculadas ao gestor através da tabela perfis_gestor
+    console.log('Buscando perfis de gestor para:', gestorId);
     const perfilGestorResult = await executeQuery(
       'SELECT escola_id FROM perfis_gestor WHERE usuario_id = $1 AND ativo = true',
       [gestorId]
     );
+    console.log('Perfis de gestor encontrados:', perfilGestorResult.rows.length);
+    console.log('Escolas vinculadas:', perfilGestorResult.rows.map(r => r.escola_id));
     
     if (perfilGestorResult.rows.length === 0) {
       console.log('Nenhuma escola vinculada encontrada para o gestor');
@@ -77,9 +80,9 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     );
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
-    // Contar alunos através das tabelas perfis_aluno e matriculas
+    // Contar alunos diretamente através da tabela perfis_aluno
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM perfis_aluno pa JOIN matriculas m ON pa.matricula_id = m.id WHERE m.escola_id = ANY($1)',
+      'SELECT COUNT(*) as count FROM perfis_aluno WHERE escola_id = ANY($1) AND ativo = true',
       [escolaIds]
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
@@ -104,8 +107,11 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       turmas: turmasAtivas
     });
     
+    // Contar o número correto de escolas vinculadas
+    const totalEscolas = escolaIds.length;
+    
     const dashboardStats = {
-      totalEscolas: escolas?.length || 0,
+      totalEscolas: totalEscolas,
       totalProfessores: totalProfessores || 0,
       totalAlunos: totalAlunos || 0,
       turmasAtivas: turmasAtivas || 0,
