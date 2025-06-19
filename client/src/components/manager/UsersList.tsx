@@ -251,12 +251,21 @@ export default function UsersList() {
 
   const getPapelBadge = (papel: string) => {
     const badges = {
-      admin: { label: "Admin", variant: "destructive" as const },
-      manager: { label: "Gestor", variant: "secondary" as const },
-      teacher: { label: "Professor", variant: "default" as const },
-      student: { label: "Aluno", variant: "outline" as const }
+      admin: { label: "Admin", className: "bg-red-600 text-white border-red-700 px-3 py-1 rounded-full text-xs font-semibold" },
+      manager: { label: "Gestor", className: "bg-[#D47C06] text-white border-[#B8650A] px-3 py-1 rounded-full text-xs font-semibold" },
+      gestor: { label: "Gestor", className: "bg-[#D47C06] text-white border-[#B8650A] px-3 py-1 rounded-full text-xs font-semibold" },
+      teacher: { label: "Professor", className: "bg-blue-600 text-white border-blue-700 px-3 py-1 rounded-full text-xs font-semibold" },
+      professor: { label: "Professor", className: "bg-blue-600 text-white border-blue-700 px-3 py-1 rounded-full text-xs font-semibold" },
+      student: { label: "Aluno", className: "bg-green-600 text-white border-green-700 px-3 py-1 rounded-full text-xs font-semibold" },
+      aluno: { label: "Aluno", className: "bg-green-600 text-white border-green-700 px-3 py-1 rounded-full text-xs font-semibold" }
     };
-    return badges[papel as keyof typeof badges] || { label: papel, variant: "outline" as const };
+    return badges[papel as keyof typeof badges] || { label: papel, className: "bg-gray-600 text-white border-gray-700 px-3 py-1 rounded-full text-xs font-semibold" };
+  };
+
+  const getStatusBadge = (ativo: boolean) => {
+    return ativo 
+      ? { label: "Ativo", className: "bg-green-600 text-white border-green-700 px-3 py-1 rounded-full text-xs font-semibold" }
+      : { label: "Inativo", className: "bg-red-600 text-white border-red-700 px-3 py-1 rounded-full text-xs font-semibold" };
   };
 
   useEffect(() => {
@@ -436,9 +445,9 @@ export default function UsersList() {
                       <td className="py-3 px-4 text-accent">{usuario.email}</td>
                       <td className="py-3 px-4 text-accent">{usuario.cpf}</td>
                       <td className="py-3 px-4">
-                        <Badge variant={getPapelBadge(usuario.papel).variant}>
+                        <span className={getPapelBadge(usuario.papel).className}>
                           {getPapelBadge(usuario.papel).label}
-                        </Badge>
+                        </span>
                       </td>
                       <td className="py-3 px-4">
                         {usuario.escolas_vinculadas?.length ? (
@@ -455,9 +464,9 @@ export default function UsersList() {
                         )}
                       </td>
                       <td className="py-3 px-4">
-                        <Badge variant={usuario.ativo ? "default" : "secondary"}>
-                          {usuario.ativo ? "Ativo" : "Inativo"}
-                        </Badge>
+                        <span className={getStatusBadge(usuario.ativo).className}>
+                          {getStatusBadge(usuario.ativo).label}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-accent">
                         {new Date(usuario.criado_em).toLocaleDateString('pt-BR')}
@@ -605,17 +614,17 @@ export default function UsersList() {
                 <div className="space-y-2">
                   <Label className="text-accent">Papel</Label>
                   <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
-                    <Badge variant={getPapelBadge(usuarioDetalhes.papel).variant}>
+                    <span className={getPapelBadge(usuarioDetalhes.papel).className}>
                       {getPapelBadge(usuarioDetalhes.papel).label}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-accent">Status</Label>
                   <div className="bg-[#4a4639] p-3 rounded border border-[#D47C06]">
-                    <Badge variant={usuarioDetalhes.ativo ? "default" : "secondary"}>
-                      {usuarioDetalhes.ativo ? "Ativo" : "Inativo"}
-                    </Badge>
+                    <span className={getStatusBadge(usuarioDetalhes.ativo).className}>
+                      {getStatusBadge(usuarioDetalhes.ativo).label}
+                    </span>
                   </div>
                 </div>
               </div>
