@@ -23,29 +23,39 @@ interface DashboardStats {
 }
 
 interface SchoolContextType {
-  escolasVinculadas: Escola[] | null;
-  dashboardStats: DashboardStats | null;
+  escolasVinculadas: Escola[];
+  dashboardStats: DashboardStats;
   isLoading: boolean;
   error: string | null;
-  refreshStats: () => Promise<void>;
   loadSchoolData: () => Promise<void>;
+  refreshStats: () => Promise<void>;
 }
 
-export const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
+const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
+
+export const useSchool = () => {
+  const context = useContext(SchoolContext);
+  if (context === undefined) {
+    throw new Error('useSchool must be used within a SchoolProvider');
+  }
+  return context;
+};
 
 export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
-  const toast = useStandardToast();
-  const [escolasVinculadas, setEscolasVinculadas] = useState<Escola[] | null>(null);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [escolasVinculadas, setEscolasVinculadas] = useState<Escola[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalEscolas: 0,
+    totalProfessores: 0,
+    totalAlunos: 0,
+    turmasAtivas: 0
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const { isAuthenticated, user } = useAuth();
+  const toast = useStandardToast();
 
   const loadSchoolData = async () => {
-    if (!isAuthenticated || !user || user.role !== 'manager') {
-      return;
-    }
-
     try {
       setIsLoading(true);
       setError(null);
@@ -58,21 +68,9 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (escolasResponse.ok) {
         setEscolasVinculadas(escolasData || []);
         
-        // Se há escolas vinculadas, buscar estatísticas do dashboard
-        console.log('loadSchoolData: Verificando se há escolas:', escolasData, escolasData?.length);
-        if (escolasData && escolasData.length > 0) {
-          console.log('loadSchoolData: Chamando refreshStats...');
-          await refreshStats();
-        } else {
-          console.log('loadSchoolData: Nenhuma escola encontrada, zerando stats');
-          // Se não há escolas vinculadas, zerar as estatísticas
-          setDashboardStats({
-            totalEscolas: 0,
-            totalProfessores: 0,
-            totalAlunos: 0,
-            turmasAtivas: 0
-          });
-        }
+        // Sempre buscar estatísticas do dashboard após login
+        console.log('loadSchoolData: Forçando chamada de refreshStats');
+        await refreshStats();
       } else {
         throw new Error('Erro ao carregar escolas vinculadas');
       }
@@ -99,21 +97,31 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    console.log('refreshStats: Fazendo chamada para /api/manager/dashboard-stats');
+    console.log('refreshStats: FORÇANDO chamada para /api/manager/dashboard-stats');
     try {
       const statsResponse = await apiRequest("GET", "/api/manager/dashboard-stats");
-      console.log('refreshStats: Resposta recebida:', statsResponse.status);
-      const statsData = await statsResponse.json();
-      console.log('refreshStats: Dados recebidos:', statsData);
+      console.log('refreshStats: Status da resposta:', statsResponse.status);
       
       if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        console.log('refreshStats: Dados recebidos do backend:', statsData);
+        
         setDashboardStats({
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
           totalAlunos: statsData.totalAlunos || 0,
           turmasAtivas: statsData.turmasAtivas || 0
         });
+        
+        console.log('refreshStats: Estado atualizado com:', {
+          totalEscolas: statsData.totalEscolas || 0,
+          totalProfessores: statsData.totalProfessores || 0,
+          totalAlunos: statsData.totalAlunos || 0,
+          turmasAtivas: statsData.turmasAtivas || 0
+        });
       } else {
+        const errorData = await statsResponse.json();
+        console.error('refreshStats: Erro na resposta:', errorData);
         throw new Error('Erro ao carregar estatísticas do dashboard');
       }
     } catch (error) {
@@ -122,51 +130,41 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  // Carregar dados quando o usuário autenticar como gestor
+  // Effect para carregar dados quando o usuário autenticar
   useEffect(() => {
-    console.log('SchoolContext useEffect:', { isAuthenticated, user: user?.role });
-    if (isAuthenticated && user && user.role === 'manager') {
-      console.log('SchoolContext: Carregando dados do gestor');
-      loadSchoolData();
-    } else {
-      // Limpar dados quando não autenticado ou não é gestor
+    console.log('SchoolContext useEffect:', { isAuthenticated, user });
+    
+    if (!isAuthenticated || !user) {
       console.log('SchoolContext: Limpando dados');
-      setEscolasVinculadas(null);
-      setDashboardStats(null);
+      setEscolasVinculadas([]);
+      setDashboardStats({
+        totalEscolas: 0,
+        totalProfessores: 0,
+        totalAlunos: 0,
+        turmasAtivas: 0
+      });
       setError(null);
+      return;
+    }
+
+    if (isAuthenticated && user && user.role === 'manager') {
+      console.log('SchoolContext: Carregando dados para gestor');
+      loadSchoolData();
     }
   }, [isAuthenticated, user]);
 
-  // Forçar carregamento adicional se o papel for gestor
-  useEffect(() => {
-    if (isAuthenticated && user && (user.papel === 'gestor' || user.role === 'manager')) {
-      console.log('SchoolContext: Forçando carregamento para gestor/manager');
-      setTimeout(() => {
-        refreshStats();
-      }, 1000);
-    }
-  }, [isAuthenticated, user]);
+  const value = {
+    escolasVinculadas,
+    dashboardStats,
+    isLoading,
+    error,
+    loadSchoolData,
+    refreshStats
+  };
 
   return (
-    <SchoolContext.Provider 
-      value={{
-        escolasVinculadas,
-        dashboardStats,
-        isLoading,
-        error,
-        refreshStats,
-        loadSchoolData
-      }}
-    >
+    <SchoolContext.Provider value={value}>
       {children}
     </SchoolContext.Provider>
   );
-};
-
-export const useSchool = () => {
-  const context = useContext(SchoolContext);
-  if (context === undefined) {
-    throw new Error('useSchool must be used within a SchoolProvider');
-  }
-  return context;
 };
