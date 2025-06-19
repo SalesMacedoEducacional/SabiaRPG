@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+import { Pool } from 'pg';
 
 async function verificarComponentes() {
   const pool = new Pool({
