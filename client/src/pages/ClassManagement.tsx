@@ -50,7 +50,8 @@ import {
   CalendarDays, 
   ArrowLeft,
   GraduationCap,
-  Clock
+  Clock,
+  Building2
 } from "lucide-react";
 
 interface Escola {
