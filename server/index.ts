@@ -1383,75 +1383,34 @@ async function aplicarIndicesPerformance() {
   }
 }
 
-// Função para criar tabela de sessões usando Supabase
+// Função para criar tabela de sessões
 async function criarTabelaSessoes() {
   try {
     console.log('🔧 CRIANDO TABELA DE SESSÕES...');
     
-    // Usar Supabase para verificar e criar a tabela
-    const { data: existingTable, error: checkError } = await supabase
-      .from('sessoes')
-      .select('id')
-      .limit(1);
-      
-    if (checkError && checkError.code === '42P01') {
-      // Tabela não existe, criar usando SQL direto
-      const { error: createError } = await supabase.rpc('exec_sql', {
-        sql: `
-          CREATE TABLE IF NOT EXISTS sessoes (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-            iniciada_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            ip TEXT,
-            user_agent TEXT,
-            ativa BOOLEAN DEFAULT true
-          );
-          
-          CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_id ON sessoes(usuario_id);
-          CREATE INDEX IF NOT EXISTS idx_sessoes_iniciada_em ON sessoes(iniciada_em);
-          CREATE INDEX IF NOT EXISTS idx_sessoes_ativa ON sessoes(ativa);
-        `
-      });
-      
-      if (createError) {
-        console.log('⚠️ Erro ao criar tabela via RPC, tentando método alternativo...');
-        // Método alternativo: inserir dados fictícios para forçar criação da estrutura
-        await inserirDadosSessaoFicticia();
-      } else {
-        console.log('✅ TABELA DE SESSÕES CRIADA COM SUCESSO!');
-      }
-    } else {
-      console.log('✅ Tabela de sessões já existe');
-    }
+    // Criar tabela de sessões
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS sessoes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        iniciada_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        ip TEXT,
+        user_agent TEXT,
+        ativa BOOLEAN DEFAULT true
+      );
+    `);
+    
+    // Criar índices para performance
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_id ON sessoes(usuario_id);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_iniciada_em ON sessoes(iniciada_em);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_ativa ON sessoes(ativa);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_iniciada ON sessoes(usuario_id, iniciada_em);
+    `);
+    
+    console.log('✅ TABELA DE SESSÕES CRIADA COM SUCESSO!');
   } catch (error) {
     console.error('❌ Erro ao criar tabela de sessões:', error);
-    // Não falhar o servidor por conta disso
-  }
-}
-
-// Função auxiliar para criar dados de sessão fictícios se necessário
-async function inserirDadosSessaoFicticia() {
-  try {
-    // Criar algumas sessões de teste para demonstrar o sistema
-    const { data: usuarios } = await supabase
-      .from('usuarios')
-      .select('id')
-      .eq('papel', 'aluno')
-      .limit(3);
-      
-    if (usuarios && usuarios.length > 0) {
-      const sessoesTest = usuarios.map(user => ({
-        usuario_id: user.id,
-        iniciada_em: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        ip: '192.168.1.100',
-        user_agent: 'Test Browser',
-        ativa: false
-      }));
-      
-      console.log('📝 Criando dados de sessão para demonstração...');
-    }
-  } catch (error) {
-    console.log('⚠️ Não foi possível criar dados de sessão fictícios');
   }
 }
 
