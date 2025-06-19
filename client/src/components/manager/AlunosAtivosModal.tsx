@@ -48,9 +48,7 @@ export function AlunosAtivosModal({ isOpen, onClose, stats }: AlunosAtivosModalP
   const fetchAlunosAtivos = async () => {
     setLoading(true);
     try {
-      const response: any = await apiRequest(`/api/alunos-ativos/detalhes?periodo=${periodo}`, {
-        method: 'GET'
-      });
+      const response: any = await apiRequest(`/api/alunos-ativos/detalhes?periodo=${periodo}`);
       
       if (response && response.alunos) {
         const alunosData = response.alunos as AlunoAtivo[];
