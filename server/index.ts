@@ -253,6 +253,21 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       escolas = escolasDetalhesResult.rows;
     }
     
+    // Debug: Verificar todos os usuários das escolas
+    const debugUsuarios = await executeQuery(`
+      SELECT DISTINCT u.id, u.nome, u.papel, u.ativo, 'professor' as tipo
+      FROM usuarios u
+      JOIN perfis_professor pp ON u.id = pp.usuario_id
+      WHERE pp.escola_id = ANY($1)
+      UNION ALL
+      SELECT DISTINCT u.id, u.nome, u.papel, u.ativo, 'aluno' as tipo
+      FROM usuarios u
+      JOIN perfis_aluno pa ON u.id = pa.usuario_id
+      WHERE pa.escola_id = ANY($1)
+    `, [escolaIds]);
+    console.log('=== DEBUG USUÁRIOS ===');
+    console.log('Todos os usuários encontrados:', debugUsuarios.rows);
+
     // Contar professores através da tabela usuarios com papel = 'professor'
     const professoresResult = await executeQuery(`
       SELECT COUNT(DISTINCT u.id) as count
