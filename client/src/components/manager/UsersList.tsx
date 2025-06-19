@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Trash2, Edit, Users, Search, School, GraduationCap, UserCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { useUpdateUsuario, useDeleteUsuario } from '@/hooks/useEnhancedMutations';
+import { useUsuarioMutations } from '@/hooks/useEnhancedMutations';
 import { CardLoadingOverlay } from '@/components/ui/loading-spinner';
 import { useGlobalDataSync } from '@/hooks/useGlobalDataSync';
 

@@ -30,8 +30,9 @@ import { GameProvider } from "./context/GameContext";
 import { SchoolProvider } from "@/context/SchoolContext";
 import { PERMISSIONS } from "@/lib/permissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useRoutePersistence } from "@/hooks/useRoutePersisstence";
+import { useRoutePersistence } from "@/hooks/useRoutePersistence";
 import { useGlobalDataSync } from "@/hooks/useGlobalDataSync";
+import { SyncLoadingOverlay, PerformanceIndicator } from "@/components/ui/sync-loading-overlay";
 
 function Router() {
   // Integrar hooks de persistência de rota e sincronização global

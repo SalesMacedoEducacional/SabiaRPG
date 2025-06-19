@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useCreateUsuario, useUpdateUsuario, useDeleteUsuario } from '@/hooks/useEnhancedMutations';
+import { useUsuarioMutations } from '@/hooks/useEnhancedMutations';
 import { useGlobalDataSync } from '@/hooks/useGlobalDataSync';
 import { CardLoadingOverlay } from '@/components/ui/loading-spinner';
 import { apiRequest } from '@/lib/queryClient';
