@@ -43,17 +43,17 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const escolas = escolasResult.rows;
     const escolaIds = escolas.map(e => e.id);
     
-    // Contar professores através da tabela usuarios
+    // Contar professores através da tabela perfis_professor
     const professoresResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2) AND ativo = true',
-      ['professor', 'teacher']
+      'SELECT COUNT(*) as count FROM perfis_professor WHERE escola_id = ANY($1) AND ativo = true',
+      [escolaIds]
     );
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
-    // Contar alunos através da tabela usuarios
+    // Contar alunos através das tabelas perfis_aluno e matriculas
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1 AND ativo = true',
-      ['aluno']
+      'SELECT COUNT(*) as count FROM perfis_aluno pa JOIN matriculas m ON pa.matricula_id = m.id WHERE m.escola_id = ANY($1)',
+      [escolaIds]
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
@@ -186,23 +186,34 @@ app.get('/api/alunos', async (req, res) => {
       });
     }
     
-    // Buscar alunos através da tabela usuarios (dados reais disponíveis)
+    // Buscar alunos através das tabelas perfis_aluno e matriculas
     const alunosResult = await executeQuery(`
       SELECT 
-        u.id,
+        pa.id as perfil_id,
+        pa.usuario_id,
+        pa.matricula_id,
+        pa.nivel,
+        pa.xp,
         u.nome,
         u.email,
         u.cpf,
         u.telefone,
-        u.data_nascimento,
-        u.ativo
-      FROM usuarios u
-      WHERE u.papel = 'aluno' AND u.ativo = true
+        m.numero_matricula,
+        m.turma_id,
+        m.escola_id,
+        t.nome as turma_nome,
+        e.nome as escola_nome
+      FROM perfis_aluno pa
+      JOIN usuarios u ON pa.usuario_id = u.id
+      LEFT JOIN matriculas m ON pa.matricula_id = m.id
+      LEFT JOIN turmas t ON m.turma_id = t.id
+      LEFT JOIN escolas e ON m.escola_id = e.id
+      WHERE m.escola_id = ANY($1) AND u.ativo = true
       ORDER BY u.nome
-    `, []);
+    `, [escolaIds]);
     
     const alunos = alunosResult.rows.map(aluno => ({
-      id: aluno.id,
+      id: aluno.perfil_id,
       usuarios: {
         nome: aluno.nome || 'Nome não informado',
         email: aluno.email || 'Não informado',
@@ -210,16 +221,18 @@ app.get('/api/alunos', async (req, res) => {
         telefone: aluno.telefone || 'Não informado'
       },
       turmas: {
-        nome: 'Aguardando turma'
+        nome: aluno.turma_nome || 'Sem turma'
       },
       matriculas: {
-        numero_matricula: 'Não informado'
+        numero_matricula: aluno.numero_matricula || 'Não informado'
       },
-      escola_id: null,
-      turma_id: null,
-      matricula_id: null,
-      escola_nome: 'Aguardando definição',
-      ativo: aluno.ativo
+      escola_id: aluno.escola_id,
+      turma_id: aluno.turma_id,
+      matricula_id: aluno.matricula_id,
+      escola_nome: aluno.escola_nome || 'Não informado',
+      nivel: aluno.nivel || 1,
+      xp: aluno.xp || 0,
+      ativo: true
     }));
     
     console.log(`DADOS REAIS perfis_aluno: Encontrados ${alunos.length} alunos`);
