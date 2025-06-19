@@ -1246,10 +1246,14 @@ app.get('/api/escolas-cadastro', async (req, res) => {
   }
 });
 
-// Endpoint otimizado: todas as estatísticas em uma consulta
+// Cache em memória para máxima velocidade
+const dashboardCache = new Map();
+const CACHE_TTL = 2000; // 2 segundos
+
+// Endpoint ultra-rápido com cache em memória
 app.get('/api/manager/dashboard-fast', async (req, res) => {
   try {
-    console.log('=== DASHBOARD OTIMIZADO - CONSULTA ÚNICA ===');
+    console.log('=== DASHBOARD ULTRA-RÁPIDO ===');
     
     if (!req.session || !req.session.userId) {
       return res.status(401).json({
@@ -1259,53 +1263,49 @@ app.get('/api/manager/dashboard-fast', async (req, res) => {
     }
     
     const gestorId = req.session.userId;
-    console.log('Carregando dashboard otimizado para gestor:', gestorId);
+    console.log('Dashboard ultra-rápido para gestor:', gestorId);
     
-    // Consulta única que retorna tudo
+    // Verificar cache em memória primeiro
+    const cacheKey = `dashboard_${gestorId}`;
+    const cached = dashboardCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      console.log('CACHE HIT: Retornando em < 50ms');
+      return res.json(cached.data);
+    }
+    
+    console.log('CACHE MISS: Consultando banco...');
+    
+    // Consulta ultra-otimizada para máxima velocidade
     const dashboardCompleto = await executeQuery(`
-      WITH gestor_escolas AS (
-        SELECT id, nome, cidade, estado FROM escolas WHERE gestor_id = $1
-      ),
-      contadores AS (
-        SELECT 
-          COUNT(DISTINCT ge.id) as total_escolas,
-          COUNT(DISTINCT pp.usuario_id) as total_professores,
-          COUNT(DISTINCT pa.usuario_id) as total_alunos,
-          COUNT(DISTINCT t.id) as total_turmas
-        FROM gestor_escolas ge
-        LEFT JOIN perfis_professor pp ON pp.escola_id = ge.id
-        LEFT JOIN turmas t ON t.escola_id = ge.id
-        LEFT JOIN perfis_aluno pa ON pa.turma_id = t.id
-      )
       SELECT 
-        c.total_escolas,
-        c.total_professores,
-        c.total_alunos,
-        c.total_turmas,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', ge.id,
-              'nome', ge.nome,
-              'cidade', ge.cidade,
-              'estado', ge.estado
-            )
-          ) FILTER (WHERE ge.id IS NOT NULL),
-          '[]'::json
-        ) as escolas
-      FROM contadores c
-      LEFT JOIN gestor_escolas ge ON true
-      GROUP BY c.total_escolas, c.total_professores, c.total_alunos, c.total_turmas
+        (SELECT COUNT(*) FROM escolas WHERE gestor_id = $1) as total_escolas,
+        (SELECT COUNT(DISTINCT pp.usuario_id) FROM perfis_professor pp 
+         JOIN escolas e ON pp.escola_id = e.id WHERE e.gestor_id = $1) as total_professores,
+        (SELECT COUNT(DISTINCT pa.usuario_id) FROM perfis_aluno pa 
+         JOIN turmas t ON pa.turma_id = t.id 
+         JOIN escolas e ON t.escola_id = e.id WHERE e.gestor_id = $1) as total_alunos,
+        (SELECT COUNT(*) FROM turmas t 
+         JOIN escolas e ON t.escola_id = e.id WHERE e.gestor_id = $1) as total_turmas,
+        (SELECT json_agg(json_build_object('id', id, 'nome', nome, 'cidade', cidade, 'estado', estado))
+         FROM escolas WHERE gestor_id = $1) as escolas
     `, [gestorId]);
     
     if (dashboardCompleto.rows.length === 0) {
-      return res.json({
+      const emptyResponse = {
         totalEscolas: 0,
         totalProfessores: 0,
         totalAlunos: 0,
         turmasAtivas: 0,
         escolas: []
+      };
+      
+      // Cache resposta vazia também
+      dashboardCache.set(cacheKey, {
+        data: emptyResponse,
+        timestamp: Date.now()
       });
+      
+      return res.json(emptyResponse);
     }
     
     const dados = dashboardCompleto.rows[0];
@@ -1317,7 +1317,13 @@ app.get('/api/manager/dashboard-fast', async (req, res) => {
       escolas: dados.escolas || []
     };
     
-    console.log('Dashboard carregado em consulta única otimizada:', resposta);
+    // Salvar no cache em memória
+    dashboardCache.set(cacheKey, {
+      data: resposta,
+      timestamp: Date.now()
+    });
+    
+    console.log('Dashboard consultado e cacheado:', resposta);
     res.json(resposta);
     
   } catch (error) {

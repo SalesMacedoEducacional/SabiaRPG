@@ -52,12 +52,26 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetch, setLastFetch] = useState<number>(0);
+  const [isPreloading, setIsPreloading] = useState(false);
   
   const { isAuthenticated, user } = useAuth();
   const toast = useStandardToast();
 
-  // Cache TTL: 30 segundos
-  const CACHE_TTL = 30000;
+  // Cache TTL: 5 segundos para máxima agilidade
+  const CACHE_TTL = 5000;
+
+  // Pré-carregamento instantâneo
+  const preloadData = async () => {
+    if (isPreloading) return;
+    setIsPreloading(true);
+    try {
+      await refreshStats(true);
+    } catch (error) {
+      console.error('Erro no pré-carregamento:', error);
+    } finally {
+      setIsPreloading(false);
+    }
+  };
 
   const loadSchoolData = async () => {
     try {
