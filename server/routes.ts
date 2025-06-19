@@ -3011,6 +3011,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.userRole = usuario.papel;
       req.session.userName = usuario.nome;
       
+      // Registrar sessão para tracking de engajamento
+      try {
+        const ip = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
+        const userAgent = req.headers['user-agent'];
+        
+        await executeQuery(`
+          INSERT INTO sessoes (usuario_id, ip, user_agent, ativa)
+          SELECT $1, $2, $3, true
+          WHERE NOT EXISTS (
+            SELECT 1 FROM sessoes 
+            WHERE usuario_id = $1 
+            AND iniciada_em > NOW() - INTERVAL '2 hours'
+            AND ativa = true
+          )
+        `, [usuario.id, ip, userAgent]);
+        
+        console.log('📝 Sessão registrada para tracking de engajamento');
+      } catch (sessionError) {
+        console.error('⚠️ Erro ao registrar sessão (não crítico):', sessionError);
+      }
+      
       console.log('Login realizado com sucesso:', {
         id: usuario.id,
         nome: usuario.nome,
@@ -3087,6 +3108,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error: any) {
       console.error('Erro ao verificar autenticação:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Endpoint crítico: Alunos Ativos com dados reais de engajamento
+  app.get("/api/alunos/engajamento", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      console.log(`=== CALCULANDO ENGAJAMENTO DE ALUNOS REAIS ===`);
+      const gestorId = req.session.userId;
+      
+      if (!gestorId) {
+        return res.status(401).json({ message: "Gestor não identificado" });
+      }
+
+      // Buscar escolas do gestor
+      const { data: escolas, error: escolasError } = await supabase
+        .from('escolas')
+        .select('id, nome')
+        .eq('gestor_id', gestorId);
+
+      if (escolasError) {
+        console.error("Erro ao buscar escolas:", escolasError);
+        return res.status(500).json({ message: "Erro ao buscar escolas" });
+      }
+
+      const escolaIds = escolas?.map(e => e.id) || [];
+      
+      // Buscar total de alunos reais
+      const { count: totalAlunos, error: totalError } = await supabase
+        .from('usuarios')
+        .select('*', { count: 'exact', head: true })
+        .eq('papel', 'aluno')
+        .eq('ativo', true);
+
+      if (totalError) {
+        console.error("Erro ao contar alunos:", totalError);
+        return res.status(500).json({ message: "Erro ao contar alunos" });
+      }
+
+      // Calcular alunos ativos nos últimos 7 dias baseado em sessões reais
+      const { count: alunosAtivos7Dias, error: ativosError } = await supabase
+        .from('sessoes')
+        .select(`
+          usuario_id,
+          usuarios!inner(papel)
+        `, { count: 'exact', head: true })
+        .eq('usuarios.papel', 'aluno')
+        .gte('iniciada_em', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+      if (ativosError) {
+        console.error("Erro ao calcular alunos ativos 7 dias:", ativosError);
+      }
+
+      // Calcular alunos ativos nos últimos 30 dias
+      const { count: alunosAtivos30Dias, error: ativos30Error } = await supabase
+        .from('sessoes')
+        .select(`
+          usuario_id,
+          usuarios!inner(papel)
+        `, { count: 'exact', head: true })
+        .eq('usuarios.papel', 'aluno')
+        .gte('iniciada_em', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+      if (ativos30Error) {
+        console.error("Erro ao calcular alunos ativos 30 dias:", ativos30Error);
+      }
+
+      // Calcular taxa de engajamento
+      const taxaEngajamento7Dias = totalAlunos > 0 ? Math.round((alunosAtivos7Dias || 0) / totalAlunos * 100) : 0;
+      const taxaEngajamento30Dias = totalAlunos > 0 ? Math.round((alunosAtivos30Dias || 0) / totalAlunos * 100) : 0;
+
+      const resultado = {
+        totalAlunos: totalAlunos || 0,
+        alunosAtivos7Dias: alunosAtivos7Dias || 0,
+        alunosAtivos30Dias: alunosAtivos30Dias || 0,
+        taxaEngajamento7Dias,
+        taxaEngajamento30Dias,
+        escolas: escolas || []
+      };
+
+      console.log('DADOS REAIS DE ENGAJAMENTO:', resultado);
+      return res.status(200).json(resultado);
+    } catch (error) {
+      console.error("Erro ao calcular engajamento:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Endpoint para lista detalhada de alunos ativos com dados reais
+  app.get("/api/alunos/ativos", authenticate, authorize(["manager"]), async (req, res) => {
+    try {
+      console.log(`=== LISTANDO ALUNOS ATIVOS REAIS ===`);
+      const gestorId = req.session.userId;
+      const { escola_id, periodo = '7' } = req.query;
+      
+      if (!gestorId) {
+        return res.status(401).json({ message: "Gestor não identificado" });
+      }
+
+      const diasAtras = parseInt(periodo as string) || 7;
+      const dataLimite = new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000);
+
+      // Query para buscar alunos com suas últimas sessões
+      const query = `
+        SELECT DISTINCT 
+          u.id,
+          u.nome,
+          u.email,
+          u.criado_em,
+          s.iniciada_em as ultima_sessao,
+          COUNT(s.id) as total_sessoes
+        FROM usuarios u
+        LEFT JOIN sessoes s ON u.id = s.usuario_id AND s.iniciada_em >= $1
+        WHERE u.papel = 'aluno' AND u.ativo = true
+        GROUP BY u.id, u.nome, u.email, u.criado_em, s.iniciada_em
+        HAVING COUNT(s.id) > 0
+        ORDER BY s.iniciada_em DESC NULLS LAST
+      `;
+
+      const result = await executeQuery(query, [dataLimite.toISOString()]);
+      
+      const alunosAtivos = result.rows.map((aluno: any) => ({
+        id: aluno.id,
+        nome: aluno.nome || 'Nome não informado',
+        email: aluno.email,
+        ultimaSessao: aluno.ultima_sessao,
+        totalSessoes: parseInt(aluno.total_sessoes) || 0,
+        diasEngajamento: diasAtras,
+        escola: 'Escola não vinculada' // Implementar vinculação futura
+      }));
+
+      console.log(`DADOS REAIS: ${alunosAtivos.length} alunos ativos encontrados`);
+      
+      return res.status(200).json({
+        alunos: alunosAtivos,
+        total: alunosAtivos.length,
+        periodo: diasAtras
+      });
+    } catch (error) {
+      console.error("Erro ao listar alunos ativos:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   });

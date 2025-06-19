@@ -405,62 +405,104 @@ export function TotalProfessoresCard() {
   );
 }
 
-// Componente para o card de total de alunos
+// Interface para dados de engajamento
+interface EngagementData {
+  totalAlunos: number;
+  alunosAtivos7Dias: number;
+  alunosAtivos30Dias: number;
+  taxaEngajamento7Dias: number;
+  taxaEngajamento30Dias: number;
+  escolas: Escola[];
+}
+
+interface AlunoAtivo {
+  id: string;
+  nome: string;
+  email: string;
+  ultimaSessao: string;
+  totalSessoes: number;
+  diasEngajamento: number;
+  escola: string;
+}
+
+// Componente para o card de alunos ativos com engajamento real
 export function TotalAlunosCard() {
   const { toast } = useToast();
   const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
-  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [engagementData, setEngagementData] = useState<EngagementData | null>(null);
+  const [alunosAtivos, setAlunosAtivos] = useState<AlunoAtivo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
-  const [statsForced, setStatsForced] = useState<any>(null);
+  const [filtroPeriodo, setFiltroPeriodo] = useState<string>("7");
+  const [loadingEngagement, setLoadingEngagement] = useState<boolean>(false);
+  const [loadingAtivos, setLoadingAtivos] = useState<boolean>(false);
 
-  // Forçar busca direta do endpoint se os dados não carregarem
-  useEffect(() => {
-    const forceLoadStats = async () => {
-      try {
-        const response = await apiRequest("GET", "/api/manager/dashboard-stats");
-        if (response.ok) {
-          const data = await response.json();
-          console.log('TotalAlunosCard: Dados forçados carregados:', data);
-          setStatsForced(data);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados forçados:', error);
-      }
-    };
-
-    const timer = setTimeout(() => {
-      if (dashboardStats?.totalAlunos === 0) {
-        console.log('TotalAlunosCard: Forçando carregamento direto');
-        forceLoadStats();
-      }
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [dashboardStats]);
-
-  // Usar dados forçados se disponíveis, senão dados do contexto
-  const totalAlunos = statsForced?.totalAlunos || dashboardStats?.totalAlunos || 0;
-  const escolas = escolasVinculadas || [];
-
-  const fetchAlunosDetalhes = async () => {
+  // Carregar dados de engajamento em tempo real
+  const loadEngagementData = async () => {
+    setLoadingEngagement(true);
     try {
-      const response = await apiRequest("GET", "/api/alunos");
-      const data = await response.json();
-      setAlunos(data.alunos || []);
+      const response = await apiRequest("GET", "/api/alunos/engajamento");
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Dados de engajamento carregados:', data);
+        setEngagementData(data);
+      } else {
+        throw new Error('Falha ao carregar dados de engajamento');
+      }
     } catch (error) {
-      console.error("Erro ao buscar detalhes dos alunos:", error);
+      console.error("Erro ao carregar dados de engajamento:", error);
       toast({
-        title: "Erro ao carregar detalhes",
-        description: "Não foi possível carregar os detalhes dos alunos",
+        title: "Erro ao carregar engajamento",
+        description: "Não foi possível carregar os dados de engajamento dos alunos",
         variant: "destructive",
       });
+    } finally {
+      setLoadingEngagement(false);
     }
   };
 
+  // Carregar lista detalhada de alunos ativos
+  const loadAlunosAtivos = async (periodo: string = "7") => {
+    setLoadingAtivos(true);
+    try {
+      const response = await apiRequest("GET", `/api/alunos/ativos?periodo=${periodo}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Alunos ativos carregados:', data);
+        setAlunosAtivos(data.alunos || []);
+      } else {
+        throw new Error('Falha ao carregar alunos ativos');
+      }
+    } catch (error) {
+      console.error("Erro ao carregar alunos ativos:", error);
+      toast({
+        title: "Erro ao carregar alunos ativos",
+        description: "Não foi possível carregar a lista de alunos ativos",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingAtivos(false);
+    }
+  };
+
+  // Carregar dados ao montar o componente
   useEffect(() => {
-    // Listeners para refresh automático
+    loadEngagementData();
+  }, []);
+
+  // Auto-refresh dos dados de engajamento
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadEngagementData();
+    }, 30000); // Atualizar a cada 30 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Listeners para refresh automático
+  useEffect(() => {
     const handleRefresh = () => {
+      loadEngagementData();
       refreshStats();
     };
 
