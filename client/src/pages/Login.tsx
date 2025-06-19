@@ -201,17 +201,7 @@ const Login: React.FC = () => {
           <p className="text-parchment-dark">Embarque na jornada do conhecimento</p>
         </div>
         
-        <Alert className="mb-4 border-accent bg-dark text-parchment">
-          <InfoIcon className="h-5 w-5 text-accent" />
-          <AlertTitle className="text-accent font-medieval">Usuários de Teste</AlertTitle>
-          <AlertDescription>
-            <div className="mt-2 text-sm space-y-1">
-              <p><strong>Aluno:</strong> aluno@sabiarpg.edu.br / Senha@123</p>
-              <p><strong>Professor:</strong> professor@sabiarpg.edu.br / Senha@123</p>
-              <p><strong>Gestor:</strong> gestor@sabiarpg.edu.br / Senha@123</p>
-            </div>
-          </AlertDescription>
-        </Alert>
+
         
         <Card className="sabia-login-card">
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
