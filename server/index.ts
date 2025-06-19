@@ -459,7 +459,6 @@ app.get('/api/professores', async (req, res) => {
         pp.id as perfil_id,
         pp.usuario_id,
         pp.escola_id,
-        pp.disciplinas,
         pp.turmas,
         pp.ativo,
         u.nome,
@@ -484,7 +483,7 @@ app.get('/api/professores', async (req, res) => {
       },
       escola_id: prof.escola_id,
       escola_nome: prof.escola_nome,
-      disciplinas: prof.disciplinas || ['Não informado'],
+      disciplinas: ['Não informado'],
       turmas: prof.turmas || ['Não informado'],
       ativo: prof.ativo
     }));
@@ -779,7 +778,7 @@ app.get('/api/manager/professores', async (req, res) => {
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
     const professoresResult = await executeQuery(`
-      SELECT u.*, pp.escola_id, pp.disciplinas, e.nome as escola_nome
+      SELECT u.*, pp.escola_id, e.nome as escola_nome
       FROM usuarios u
       INNER JOIN perfis_professor pp ON u.id = pp.usuario_id
       INNER JOIN escolas e ON pp.escola_id = e.id
