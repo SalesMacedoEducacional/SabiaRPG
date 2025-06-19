@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
       // Debug log
       console.log('Trying to login with:', { email });
-      const response = await apiRequest('POST', '/api/auth/login', { email, password });
+      const response = await apiRequest('POST', '/api/auth/login', { email, senha: password });
       const data = await response.json();
       console.log('Login response:', data);
       return data;

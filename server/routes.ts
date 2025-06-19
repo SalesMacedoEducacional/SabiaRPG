@@ -2961,8 +2961,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const usuario = result.rows[0];
       
-      // Verificar senha
-      const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+      console.log('Debug - Usuário encontrado:', {
+        id: usuario.id,
+        email: usuario.email,
+        senha_hash_type: typeof usuario.senha_hash,
+        senha_hash_length: usuario.senha_hash ? usuario.senha_hash.length : 0
+      });
+      
+      // Verificar se a senha é hash do bcrypt ou texto simples
+      let senhaValida = false;
+      
+      if (usuario.senha_hash && usuario.senha_hash.startsWith('$2')) {
+        // Hash do bcrypt
+        senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+      } else {
+        // Senha em texto simples (para usuários de teste)
+        senhaValida = senha === usuario.senha_hash;
+      }
       
       if (!senhaValida) {
         return res.status(401).json({ 
