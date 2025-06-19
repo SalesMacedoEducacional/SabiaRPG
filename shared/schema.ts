@@ -249,6 +249,16 @@ export const comunicados = pgTable("comunicados", {
   expiraEm: timestamp("expira_em"),
 });
 
+// Sessões de usuário para tracking de engajamento
+export const sessoes = pgTable("sessoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  iniciadaEm: timestamp("iniciada_em").defaultNow(),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  ativa: boolean("ativa").default(true),
+});
+
 // Logs de acesso para monitoramento
 export const logsAcesso = pgTable("logs_acesso", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -435,9 +445,17 @@ export const insertUserDiagnosticSchema = z.object({
   recommendedDifficulty: z.number(),
 });
 
+// Schema para sessões
+export const insertSessaoSchema = createInsertSchema(sessoes).omit({
+  id: true,
+  iniciadaEm: true,
+});
+
 // Types para o novo esquema Supabase
 export type Escola = typeof escolas.$inferSelect;
 export type InsertEscola = z.infer<typeof insertEscolaSchema>;
+export type Sessao = typeof sessoes.$inferSelect;
+export type InsertSessao = z.infer<typeof insertSessaoSchema>;
 
 export type Usuario = typeof usuarios.$inferSelect;
 export type InsertUsuario = z.infer<typeof insertUsuarioSchema>;

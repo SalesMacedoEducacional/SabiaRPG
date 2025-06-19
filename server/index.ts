@@ -1383,13 +1383,188 @@ async function aplicarIndicesPerformance() {
   }
 }
 
+// Função para criar tabela de sessões
+async function criarTabelaSessoes() {
+  try {
+    console.log('🔧 CRIANDO TABELA DE SESSÕES...');
+    
+    // Criar tabela de sessões
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS sessoes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        iniciada_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        ip TEXT,
+        user_agent TEXT,
+        ativa BOOLEAN DEFAULT true
+      );
+    `);
+    
+    // Criar índices para performance
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_id ON sessoes(usuario_id);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_iniciada_em ON sessoes(iniciada_em);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_ativa ON sessoes(ativa);
+      CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_iniciada ON sessoes(usuario_id, iniciada_em);
+    `);
+    
+    console.log('✅ TABELA DE SESSÕES CRIADA COM SUCESSO!');
+  } catch (error) {
+    console.error('❌ Erro ao criar tabela de sessões:', error);
+  }
+}
+
+// Função para registrar sessão de usuário
+async function registrarSessao(usuarioId: string, ip?: string, userAgent?: string) {
+  try {
+    // Verificar se já existe uma sessão ativa recente (últimas 2 horas)
+    const sessaoExistente = await executeQuery(`
+      SELECT id FROM sessoes 
+      WHERE usuario_id = $1 
+      AND iniciada_em > NOW() - INTERVAL '2 hours'
+      AND ativa = true
+      ORDER BY iniciada_em DESC
+      LIMIT 1
+    `, [usuarioId]);
+    
+    if (sessaoExistente.rows.length === 0) {
+      // Criar nova sessão apenas se não há sessão ativa recente
+      await executeQuery(`
+        INSERT INTO sessoes (usuario_id, ip, user_agent, ativa)
+        VALUES ($1, $2, $3, true)
+      `, [usuarioId, ip || null, userAgent || null]);
+      
+      console.log(`📝 Nova sessão registrada para usuário: ${usuarioId}`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao registrar sessão:', error);
+  }
+}
+
 // Iniciar otimizações e pré-carregamento
 setTimeout(async () => {
+  await criarTabelaSessoes();
   await aplicarIndicesPerformance();
   await preloadAllManagerStats();
 }, 2000);
 
 setInterval(preloadAllManagerStats, PRELOAD_INTERVAL); // Repetir a cada 15s
+
+// Endpoint para estatísticas de alunos ativos
+app.get('/api/manager/active-students', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    console.log('Calculando engajamento de alunos para gestor:', gestorId);
+    
+    // Buscar escolas do gestor
+    const escolasGestor = await executeQuery(`
+      SELECT id FROM escolas WHERE gestor_id = $1
+    `, [gestorId]);
+    
+    if (escolasGestor.rows.length === 0) {
+      return res.json({
+        alunosAtivos7Dias: 0,
+        alunosAtivos30Dias: 0,
+        taxaEngajamento: 0,
+        totalAlunos: 0,
+        detalhesAlunos: []
+      });
+    }
+    
+    const escolaIds = escolasGestor.rows.map(e => e.id);
+    const placeholders = escolaIds.map((_, i) => `$${i + 1}`).join(',');
+    
+    // Total de alunos nas escolas do gestor
+    const totalAlunosResult = await executeQuery(`
+      SELECT COUNT(DISTINCT u.id) as total
+      FROM usuarios u
+      INNER JOIN matriculas m ON u.id = m.usuario_id
+      WHERE m.escola_id IN (${placeholders})
+      AND u.papel = 'aluno'
+    `, escolaIds);
+    
+    const totalAlunos = parseInt(totalAlunosResult.rows[0]?.total || '0');
+    
+    // Alunos ativos nos últimos 7 dias
+    const ativos7DiasResult = await executeQuery(`
+      SELECT COUNT(DISTINCT s.usuario_id) as total
+      FROM sessoes s
+      INNER JOIN usuarios u ON s.usuario_id = u.id
+      INNER JOIN matriculas m ON u.id = m.usuario_id
+      WHERE m.escola_id IN (${placeholders})
+      AND u.papel = 'aluno'
+      AND s.iniciada_em >= NOW() - INTERVAL '7 days'
+    `, escolaIds);
+    
+    const alunosAtivos7Dias = parseInt(ativos7DiasResult.rows[0]?.total || '0');
+    
+    // Alunos ativos nos últimos 30 dias
+    const ativos30DiasResult = await executeQuery(`
+      SELECT COUNT(DISTINCT s.usuario_id) as total
+      FROM sessoes s
+      INNER JOIN usuarios u ON s.usuario_id = u.id
+      INNER JOIN matriculas m ON u.id = m.usuario_id
+      WHERE m.escola_id IN (${placeholders})
+      AND u.papel = 'aluno'
+      AND s.iniciada_em >= NOW() - INTERVAL '30 days'
+    `, escolaIds);
+    
+    const alunosAtivos30Dias = parseInt(ativos30DiasResult.rows[0]?.total || '0');
+    
+    // Calcular taxa de engajamento
+    const taxaEngajamento = totalAlunos > 0 ? Math.round((alunosAtivos7Dias / totalAlunos) * 100) : 0;
+    
+    // Detalhes dos alunos ativos nos últimos 30 dias
+    const detalhesResult = await executeQuery(`
+      SELECT 
+        u.nome_completo as nome,
+        e.nome as escola,
+        MAX(s.iniciada_em) as ultimo_acesso,
+        COUNT(s.id) as total_acessos
+      FROM sessoes s
+      INNER JOIN usuarios u ON s.usuario_id = u.id
+      INNER JOIN matriculas m ON u.id = m.usuario_id
+      INNER JOIN escolas e ON m.escola_id = e.id
+      WHERE m.escola_id IN (${placeholders})
+      AND u.papel = 'aluno'
+      AND s.iniciada_em >= NOW() - INTERVAL '30 days'
+      GROUP BY u.id, u.nome_completo, e.nome
+      ORDER BY MAX(s.iniciada_em) DESC
+    `, escolaIds);
+    
+    const detalhesAlunos = detalhesResult.rows.map(row => ({
+      nome: row.nome,
+      escola: row.escola,
+      ultimoAcesso: row.ultimo_acesso,
+      totalAcessos: parseInt(row.total_acessos)
+    }));
+    
+    console.log(`✅ Engajamento calculado: ${alunosAtivos7Dias}/${totalAlunos} (${taxaEngajamento}%)`);
+    
+    res.json({
+      alunosAtivos7Dias,
+      alunosAtivos30Dias,
+      taxaEngajamento,
+      totalAlunos,
+      detalhesAlunos
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro ao calcular engajamento:', error);
+    res.status(500).json({ 
+      message: 'Erro interno do servidor',
+      alunosAtivos7Dias: 0,
+      alunosAtivos30Dias: 0,
+      taxaEngajamento: 0,
+      totalAlunos: 0,
+      detalhesAlunos: []
+    });
+  }
+});
 
 // Endpoint instantâneo direto do cache
 app.get('/api/manager/dashboard-instant', async (req, res) => {
