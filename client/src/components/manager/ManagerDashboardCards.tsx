@@ -36,6 +36,7 @@ import {
   AlunosDetailModal,
   TurmasDetailModal
 } from "./DetailModals";
+import ComponentManagementModal from "./ComponentManagementModal";
 
 // Interfaces para os dados
 interface Escola {
@@ -613,6 +614,8 @@ export function TotalTurmasCard() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
   const [statsForced, setStatsForced] = useState<any>(null);
+  const [isComponentModalOpen, setIsComponentModalOpen] = useState<boolean>(false);
+  const [selectedTurma, setSelectedTurma] = useState<Turma | null>(null);
 
   // Forçar busca direta do endpoint se os dados não carregarem
   useEffect(() => {

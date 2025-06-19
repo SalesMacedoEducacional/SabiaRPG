@@ -1446,18 +1446,26 @@ async function criarTabelasComponentes() {
   try {
     console.log('🔧 CRIANDO TABELAS DE COMPONENTES...');
     
-    // Criar tabela de componentes
+    // Verificar se tabela componentes existe e criar se necessário
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS componentes (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         nome TEXT NOT NULL,
-        cor_hex TEXT NOT NULL,
-        ano_serie TEXT NOT NULL,
+        cor_hex TEXT,
+        ano_serie TEXT,
         ativo BOOLEAN DEFAULT true,
         criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
     `);
+    
+    // Adicionar colunas se não existirem
+    try {
+      await executeQuery(`ALTER TABLE componentes ADD COLUMN IF NOT EXISTS cor_hex TEXT;`);
+      await executeQuery(`ALTER TABLE componentes ADD COLUMN IF NOT EXISTS ano_serie TEXT;`);
+    } catch (e) {
+      // Colunas já existem
+    }
     
     // Criar tabela de relacionamento turma-componentes
     await executeQuery(`
