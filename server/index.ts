@@ -253,36 +253,34 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       escolas = escolasDetalhesResult.rows;
     }
     
-    // Debug: Verificar todos os usuários das escolas
-    const debugUsuarios = await executeQuery(`
-      SELECT DISTINCT u.id, u.nome, u.papel, u.ativo, 'professor' as tipo
-      FROM usuarios u
-      JOIN perfis_professor pp ON u.id = pp.usuario_id
-      WHERE pp.escola_id = ANY($1)
-      UNION ALL
-      SELECT DISTINCT u.id, u.nome, u.papel, u.ativo, 'aluno' as tipo
-      FROM usuarios u
-      JOIN perfis_aluno pa ON u.id = pa.usuario_id
-      WHERE pa.escola_id = ANY($1)
+    // Método alternativo: contar diretamente nas tabelas de perfis com INNER JOIN
+    console.log('=== TESTANDO QUERIES ALTERNATIVAS ===');
+    
+    // Teste 1: Ver se existem perfis nas escolas
+    const testePerfis = await executeQuery(`
+      SELECT 
+        COUNT(DISTINCT pp.id) as total_perfis_professor,
+        COUNT(DISTINCT pa.id) as total_perfis_aluno
+      FROM escolas e
+      LEFT JOIN perfis_professor pp ON e.id = pp.escola_id AND pp.ativo = true
+      LEFT JOIN perfis_aluno pa ON e.id = pa.escola_id AND pa.ativo = true
+      WHERE e.id = ANY($1)
     `, [escolaIds]);
-    console.log('=== DEBUG USUÁRIOS ===');
-    console.log('Todos os usuários encontrados:', debugUsuarios.rows);
+    console.log('Teste perfis:', testePerfis.rows);
 
-    // Contar professores através da tabela usuarios com papel = 'professor'
+    // Contar professores - usando apenas perfis_professor 
     const professoresResult = await executeQuery(`
-      SELECT COUNT(DISTINCT u.id) as count
-      FROM usuarios u
-      JOIN perfis_professor pp ON u.id = pp.usuario_id
-      WHERE pp.escola_id = ANY($1) AND u.ativo = true AND u.papel = 'professor'
+      SELECT COUNT(*) as count
+      FROM perfis_professor pp
+      WHERE pp.escola_id = ANY($1) AND pp.ativo = true
     `, [escolaIds]);
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
-    // Contar alunos através da tabela usuarios com papel = 'aluno'
+    // Contar alunos - usando apenas perfis_aluno
     const alunosResult = await executeQuery(`
-      SELECT COUNT(DISTINCT u.id) as count
-      FROM usuarios u
-      JOIN perfis_aluno pa ON u.id = pa.usuario_id
-      WHERE pa.escola_id = ANY($1) AND u.ativo = true AND u.papel = 'aluno'
+      SELECT COUNT(*) as count
+      FROM perfis_aluno pa
+      WHERE pa.escola_id = ANY($1) AND pa.ativo = true
     `, [escolaIds]);
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
