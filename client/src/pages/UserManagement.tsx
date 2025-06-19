@@ -311,6 +311,7 @@ export default function UserManagement() {
                       <th className="text-left py-3 px-4 text-white">Nome</th>
                       <th className="text-left py-3 px-4 text-white">Email</th>
                       <th className="text-left py-3 px-4 text-white">CPF</th>
+                      <th className="text-left py-3 px-4 text-white">Telefone</th>
                       <th className="text-left py-3 px-4 text-white">Papel</th>
                       <th className="text-left py-3 px-4 text-white">Escola</th>
                       <th className="text-left py-3 px-4 text-white">Status</th>
@@ -323,7 +324,8 @@ export default function UserManagement() {
                       <tr key={usuario.id} className="border-b border-[#5a5438] hover:bg-[#43341c]">
                         <td className="py-3 px-4 text-white font-medium">{usuario.nome}</td>
                         <td className="py-3 px-4 text-accent">{usuario.email}</td>
-                        <td className="py-3 px-4 text-accent">{usuario.cpf}</td>
+                        <td className="py-3 px-4 text-accent">{usuario.cpf || 'Não informado'}</td>
+                        <td className="py-3 px-4 text-accent">{usuario.telefone || 'Não informado'}</td>
                         <td className="py-3 px-4">
                           <Badge variant={getPapelBadge(usuario.papel).variant}>
                             {getPapelBadge(usuario.papel).label}
