@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import { z } from "zod";
-import { supabase } from '../db/supabase.js';
+import { executeQuery } from './database';
 import { getRealUsersFromPostgreSQL, updateRealUser, deleteRealUser } from './userManagementApi';
 import MemoryStore from "memorystore";
 import { 
@@ -305,10 +305,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Atualizando usuário ${id}:`, updateData);
 
-      const { error } = await supabase
-        .from('usuarios')
-        .update(updateData)
-        .eq('id', id);
+      const updateFields = Object.keys(updateData).map((key, index) => `${key} = $${index + 2}`).join(', ');
+      const updateValues = Object.values(updateData);
+      
+      await executeQuery(
+        `UPDATE usuarios SET ${updateFields} WHERE id = $1`,
+        [id, ...updateValues]
+      );
+      
+      const error = null;
 
       if (error) {
         console.error('Erro ao atualizar:', error);
@@ -329,14 +334,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Excluindo usuário ${id}`);
 
       // Excluir perfis relacionados primeiro
-      await supabase.from('perfis_aluno').delete().eq('usuario_id', id);
-      await supabase.from('perfis_professor').delete().eq('usuario_id', id);
-      await supabase.from('perfis_gestor').delete().eq('usuario_id', id);
+      await executeQuery('DELETE FROM perfis_aluno WHERE usuario_id = $1', [id]);
+      await executeQuery('DELETE FROM perfis_professor WHERE usuario_id = $1', [id]);
+      await executeQuery('DELETE FROM perfis_gestor WHERE usuario_id = $1', [id]);
 
-      const { error } = await supabase
-        .from('usuarios')
-        .delete()
-        .eq('id', id);
+      await executeQuery('DELETE FROM usuarios WHERE id = $1', [id]);
+      const error = null;
 
       if (error) {
         console.error('Erro ao excluir:', error);

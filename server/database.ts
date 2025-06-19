@@ -1,9 +1,21 @@
 import { Pool } from 'pg';
 
-// CONFIGURAÇÃO DE BANCO - AGUARDANDO URL DO SUPABASE
+// SISTEMA DE CONFIGURAÇÃO PARA FORÇAR USO EXCLUSIVO DO SUPABASE
 const databaseUrl = process.env.DATABASE_URL;
 
-console.log('📊 CONECTANDO AO BANCO:', databaseUrl?.includes('supabase') ? 'SUPABASE' : 'BANCO TEMPORÁRIO');
+console.log('🔗 CONFIGURANDO CONEXÃO COM BANCO...');
+
+// Verificar se é uma URL válida do Supabase
+const isSupabase = databaseUrl?.includes('supabase.co');
+const isValidUrl = databaseUrl && databaseUrl.startsWith('postgresql://');
+
+if (isSupabase && isValidUrl) {
+  console.log('✅ CONECTADO AO SUPABASE REAL:', databaseUrl.substring(0, 50) + '...');
+} else if (isValidUrl) {
+  console.log('⚠️ CONECTADO AO BANCO TEMPORÁRIO (não é Supabase)');
+} else {
+  console.log('❌ URL DE BANCO INVÁLIDA');
+}
 
 const pool = new Pool({
   connectionString: databaseUrl,

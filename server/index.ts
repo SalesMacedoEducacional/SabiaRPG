@@ -536,12 +536,16 @@ app.get('/api/users/manager', async (req, res) => {
   try {
     console.log('=== BUSCANDO USUÁRIOS REAIS ===');
     
-    const { data: usuarios, error } = await supabase
-      .from('usuarios')
-      .select('id, nome, email, cpf, papel, telefone, ativo, criado_em')
-      .not('nome', 'is', null)
-      .not('email', 'is', null)
-      .order('criado_em', { ascending: false });
+    const usuariosResult = await executeQuery(`
+      SELECT id, nome, email, cpf, papel, telefone, ativo, criado_em
+      FROM usuarios
+      WHERE nome IS NOT NULL 
+      AND email IS NOT NULL
+      ORDER BY criado_em DESC
+    `);
+    
+    const usuarios = usuariosResult.rows;
+    const error = null;
 
     if (error) {
       console.error('Erro ao buscar usuários:', error);
