@@ -719,6 +719,26 @@ export function TotalTurmasCard() {
               >
                 <Settings className="h-3 w-3 mr-1" /> Gerenciar Turmas
               </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-[#4DA3A9] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#5bb3b9] transition-colors"
+                onClick={async () => {
+                  if (turmas.length === 0) {
+                    await fetchTurmasDetalhes();
+                  }
+                  if (turmas.length === 1) {
+                    setSelectedTurma(turmas[0]);
+                    setIsComponentModalOpen(true);
+                  } else if (turmas.length > 1) {
+                    setIsModalOpen(true);
+                  }
+                }}
+                disabled={totalTurmas === 0}
+              >
+                <BookOpen className="h-3 w-3 mr-1" /> Gerenciar Componentes
+              </Button>
             </div>
           </>
         )}
