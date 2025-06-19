@@ -510,18 +510,18 @@ export default function ClassManagement() {
                     name="turno"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Turno</FormLabel>
+                        <FormLabel className="text-white">Turno</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Manhã">Manhã</SelectItem>
-                            <SelectItem value="Tarde">Tarde</SelectItem>
-                            <SelectItem value="Noite">Noite</SelectItem>
-                            <SelectItem value="Integral">Integral</SelectItem>
+                          <SelectContent className="bg-[#4a4639] border-[#D47C06]">
+                            <SelectItem value="Manhã" className="text-white hover:bg-[#57533f]">Manhã</SelectItem>
+                            <SelectItem value="Tarde" className="text-white hover:bg-[#57533f]">Tarde</SelectItem>
+                            <SelectItem value="Noite" className="text-white hover:bg-[#57533f]">Noite</SelectItem>
+                            <SelectItem value="Integral" className="text-white hover:bg-[#57533f]">Integral</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -534,17 +534,17 @@ export default function ClassManagement() {
                     name="modalidade"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Modalidade</FormLabel>
+                        <FormLabel className="text-white">Modalidade</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Presencial">Presencial</SelectItem>
-                            <SelectItem value="Remoto">Remoto</SelectItem>
-                            <SelectItem value="Híbrido">Híbrido</SelectItem>
+                          <SelectContent className="bg-[#4a4639] border-[#D47C06]">
+                            <SelectItem value="Presencial" className="text-white hover:bg-[#57533f]">Presencial</SelectItem>
+                            <SelectItem value="Remoto" className="text-white hover:bg-[#57533f]">Remoto</SelectItem>
+                            <SelectItem value="Híbrido" className="text-white hover:bg-[#57533f]">Híbrido</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -558,11 +558,12 @@ export default function ClassManagement() {
                   name="descricao"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Descrição (Opcional)</FormLabel>
+                      <FormLabel className="text-white">Descrição (Opcional)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Informações adicionais sobre a turma"
                           {...field}
+                          className="bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent"
                         />
                       </FormControl>
                       <FormMessage />
@@ -575,12 +576,13 @@ export default function ClassManagement() {
                     type="button"
                     variant="outline"
                     onClick={() => setShowAddDialog(false)}
+                    className="border-[#D47C06] text-white hover:bg-[#4a4639]"
                   >
                     Cancelar
                   </Button>
                   <Button
                     type="submit"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                    className="bg-[#D47C06] hover:bg-amber-500 text-white border border-[#D47C06]"
                   >
                     {editTurma ? "Salvar Alterações" : "Criar Turma"}
                   </Button>
