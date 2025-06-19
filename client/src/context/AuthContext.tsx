@@ -251,8 +251,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    await loginMutation.mutateAsync({ email, password });
+    const result = await loginMutation.mutateAsync({ email, password });
     setIsLoading(false);
+    return result;
   };
 
   const register = async (userData: RegisterData) => {

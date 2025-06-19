@@ -158,10 +158,27 @@ const Login: React.FC = () => {
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
-      await login(data.email, data.password);
+      const result = await login(data.email, data.password);
       
-      // Normal redirection after login - handled by ProtectedRoute component
-      setLocation('/');
+      // Redirecionar baseado no papel do usuário
+      const userRole = (result as any)?.usuario?.papel || (result as any)?.role;
+      
+      switch (userRole) {
+        case 'gestor':
+        case 'manager':
+          setLocation('/manager');
+          break;
+        case 'professor':
+        case 'teacher':
+          setLocation('/teacher');
+          break;
+        case 'aluno':
+        case 'student':
+          setLocation('/');
+          break;
+        default:
+          setLocation('/');
+      }
     } catch (error) {
       console.error('Login error:', error);
     } finally {
