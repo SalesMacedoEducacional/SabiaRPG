@@ -187,8 +187,8 @@ export default function ManagerDashboardModerno() {
       <div className="sabia-decorative-corner bottom-right"></div>
       {/* Top Navigation Bar */}
       <header className="bg-[#312e26] border-b border-accent shadow-lg z-10">
-        <div className="h-16 px-4 flex items-center justify-between">
-          {/* Logo and Menu Button */}
+        <div className="h-16 px-4 flex items-center justify-between relative">
+          {/* Menu Button */}
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -196,26 +196,23 @@ export default function ManagerDashboardModerno() {
             >
               <Menu size={24} />
             </button>
-            <div className="flex items-center gap-3">
-              <img 
-                src="/attached_assets/SABIA RPG 2.png" 
-                alt="Sabiá RPG" 
-                className="h-10 w-auto object-contain"
-              />
-              <div className="text-parchment">
-                <span className="text-lg font-bold">SABIÁ</span>
-                <span className="text-accent">RPG</span>
-                <span className="text-sm ml-2 text-parchment-dark">GESTOR</span>
-              </div>
-            </div>
             <button
               onClick={toggleSidebar}
               className="hidden lg:flex text-white hover:text-accent"
             >
               {sidebarOpen ? <ArrowRightToLine size={20} /> : <Menu size={20} />}
             </button>
+          </div>
+
+          {/* Logo Centralizada */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
+            <img 
+              src="/attached_assets/Design sem nome (1).png" 
+              alt="Sabiá RPG" 
+              className="h-8 w-auto object-contain"
+            />
             <h1 className="text-xl font-cinzel font-bold text-white tracking-wide">
-              SABIÁ<span className="text-accent">RPG</span> <span className="font-normal text-sm">GESTOR</span>
+              SABIÁ<span className="text-accent">RPG</span>
             </h1>
           </div>
           

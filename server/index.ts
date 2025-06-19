@@ -31,37 +31,40 @@ import crypto from 'crypto';
 // Direct API routes without authentication (placed before all middleware)
 app.get('/api/manager/dashboard-stats', async (req, res) => {
   try {
-    console.log('Buscando estatísticas reais do banco para o gestor');
+    console.log('Buscando estatísticas reais baseadas em perfis_professor, perfis_aluno e turmas');
     
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    // Buscar dados reais do banco usando PostgreSQL direto
+    // Buscar escolas do gestor
     const escolasResult = await executeQuery(
-      'SELECT * FROM escolas WHERE id = ANY($1)',
-      [escolaIds]
+      'SELECT * FROM escolas WHERE gestor_id = $1',
+      [gestorId]
     );
     const escolas = escolasResult.rows;
+    const escolaIds = escolas.map(e => e.id);
     
+    // Contar professores através de perfis_professor
     const professoresResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2)',
-      ['teacher', 'professor']
+      'SELECT COUNT(*) as count FROM perfis_professor WHERE escola_id = ANY($1) AND ativo = true',
+      [escolaIds]
     );
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
+    // Contar alunos através de perfis_aluno
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1',
-      ['aluno']
+      'SELECT COUNT(*) as count FROM perfis_aluno WHERE escola_id = ANY($1) AND ativo = true',
+      [escolaIds]
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
+    // Contar turmas ativas do gestor
     const turmasResult = await executeQuery(
       'SELECT COUNT(*) as count FROM turmas WHERE escola_id = ANY($1) AND ativo = true',
       [escolaIds]
     );
     const turmasAtivas = parseInt(turmasResult.rows[0]?.count || '0');
     
-    console.log('Contadores reais do banco:', {
+    console.log('Contadores reais baseados em perfis:', {
       escolas: escolas?.length || 0,
       professores: totalProfessores || 0,
       alunos: totalAlunos || 0,
@@ -89,43 +92,63 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
   }
 });
 
-// Endpoint para buscar detalhes dos professores - APENAS DADOS REAIS
+// Endpoint para buscar detalhes dos professores baseado em perfis_professor
 app.get('/api/professores', async (req, res) => {
   try {
-    console.log('Buscando detalhes dos professores REAIS para o gestor');
+    console.log('Buscando detalhes dos professores REAIS baseado em perfis_professor');
     
-    // Buscar APENAS professores reais no banco
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    
+    // Buscar escolas do gestor primeiro
+    const escolasResult = await executeQuery(`
+      SELECT id FROM escolas WHERE gestor_id = $1
+    `, [gestorId]);
+    
+    const escolaIds = escolasResult.rows.map(e => e.id);
+    
+    if (escolaIds.length === 0) {
+      return res.json({
+        message: 'Nenhuma escola encontrada para o gestor',
+        professores: []
+      });
+    }
+    
+    // Buscar professores através da tabela perfis_professor
     const professoresResult = await executeQuery(`
       SELECT 
-        u.id,
+        pp.id as perfil_id,
+        pp.usuario_id,
+        pp.escola_id,
+        pp.telefone as telefone_perfil,
+        pp.cpf as cpf_perfil,
+        pp.ativo,
         u.nome,
         u.email,
-        u.telefone,
-        u.cpf
-      FROM usuarios u
-      WHERE u.papel = 'professor' AND u.id IN (
-        'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982',
-        '4813f089-70f1-4c27-995f-6badc90a4359', 
-        '72e7feef-0741-46ec-bdb4-68dcdfc6defe'
-      )
+        u.telefone as telefone_usuario,
+        u.cpf as cpf_usuario,
+        e.nome as escola_nome
+      FROM perfis_professor pp
+      JOIN usuarios u ON pp.usuario_id = u.id
+      JOIN escolas e ON pp.escola_id = e.id
+      WHERE pp.escola_id = ANY($1) AND pp.ativo = true
       ORDER BY u.nome
-    `);
+    `, [escolaIds]);
     
     const professores = professoresResult.rows.map(prof => ({
-      id: prof.id,
+      id: prof.perfil_id,
       usuarios: {
         nome: prof.nome || 'Nome não informado',
-        email: prof.email,
-        telefone: prof.telefone || 'Não informado',
-        cpf: prof.cpf || 'Não informado'
+        email: prof.email || 'Não informado',
+        telefone: prof.telefone_perfil || prof.telefone_usuario || 'Não informado',
+        cpf: prof.cpf_perfil || prof.cpf_usuario || 'Não informado'
       },
-      escola_id: null,
-      escola_nome: 'Não vinculado',
+      escola_id: prof.escola_id,
+      escola_nome: prof.escola_nome,
       disciplinas: ['Não informado'],
-      ativo: true
+      ativo: prof.ativo
     }));
     
-    console.log(`DADOS REAIS: Encontrados ${professores.length} professores no banco`);
+    console.log(`DADOS REAIS perfis_professor: Encontrados ${professores.length} professores`);
     
     res.json({
       message: 'Professores obtidos com sucesso',
@@ -141,49 +164,73 @@ app.get('/api/professores', async (req, res) => {
   }
 });
 
-// Endpoint para buscar detalhes dos alunos - APENAS DADOS REAIS
+// Endpoint para buscar detalhes dos alunos baseado em perfis_aluno
 app.get('/api/alunos', async (req, res) => {
   try {
-    console.log('Buscando detalhes dos alunos REAIS para o gestor');
+    console.log('Buscando detalhes dos alunos REAIS baseado em perfis_aluno');
     
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
+    
+    // Buscar escolas do gestor primeiro
+    const escolasResult = await executeQuery(`
+      SELECT id FROM escolas WHERE gestor_id = $1
+    `, [gestorId]);
+    
+    const escolaIds = escolasResult.rows.map(e => e.id);
+    
+    if (escolaIds.length === 0) {
+      return res.json({
+        message: 'Nenhuma escola encontrada para o gestor',
+        alunos: []
+      });
+    }
+    
+    // Buscar alunos através da tabela perfis_aluno
     const alunosResult = await executeQuery(`
       SELECT 
-        u.id,
+        pa.id as perfil_id,
+        pa.usuario_id,
+        pa.escola_id,
+        pa.turma_id,
+        pa.matricula_id,
+        pa.telefone as telefone_perfil,
+        pa.ativo,
         u.nome,
         u.email,
         u.cpf,
-        u.telefone,
-        u.data_nascimento,
-        u.ativo
-      FROM usuarios u
-      WHERE u.papel = 'aluno' AND u.id IN (
-        'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982',
-        '4813f089-70f1-4c27-995f-6badc90a4359', 
-        '72e7feef-0741-46ec-bdb4-68dcdfc6defe'
-      )
+        u.telefone as telefone_usuario,
+        e.nome as escola_nome,
+        t.nome as turma_nome
+      FROM perfis_aluno pa
+      JOIN usuarios u ON pa.usuario_id = u.id
+      JOIN escolas e ON pa.escola_id = e.id
+      LEFT JOIN turmas t ON pa.turma_id = t.id
+      WHERE pa.escola_id = ANY($1) AND pa.ativo = true
       ORDER BY u.nome
-    `, []);
+    `, [escolaIds]);
     
     const alunos = alunosResult.rows.map(aluno => ({
-      id: aluno.id,
+      id: aluno.perfil_id,
       usuarios: {
-        nome: aluno.nome,
+        nome: aluno.nome || 'Nome não informado',
         email: aluno.email || 'Não informado',
         cpf: aluno.cpf || 'Não informado',
-        telefone: aluno.telefone || 'Não informado'
+        telefone: aluno.telefone_perfil || aluno.telefone_usuario || 'Não informado'
       },
       turmas: {
-        nome: 'Aguardando turma'
+        nome: aluno.turma_nome || 'Sem turma'
       },
       matriculas: {
-        numero_matricula: 'Não informado'
+        numero_matricula: aluno.matricula_id || 'Não informado'
       },
-      escola_id: null,
-      escola_nome: 'Aguardando definição',
+      escola_id: aluno.escola_id,
+      turma_id: aluno.turma_id,
+      matricula_id: aluno.matricula_id,
+      escola_nome: aluno.escola_nome,
       ativo: aluno.ativo
     }));
     
-    console.log(`DADOS REAIS: Encontrados ${alunos.length} alunos no banco`);
+    console.log(`DADOS REAIS perfis_aluno: Encontrados ${alunos.length} alunos`);
     
     res.json({
       message: 'Alunos obtidos com sucesso',
@@ -236,10 +283,12 @@ app.get('/api/escolas/detalhes', async (req, res) => {
   }
 });
 
-// Endpoint para detalhes completos das turmas
+// Endpoint para detalhes completos das turmas com contagem de alunos
 app.get('/api/turmas/detalhes', async (req, res) => {
   try {
     console.log('Buscando detalhes completos das turmas para o gestor');
+    
+    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     
     const turmasResult = await executeQuery(`
       SELECT 
@@ -250,13 +299,17 @@ app.get('/api/turmas/detalhes', async (req, res) => {
         t.modalidade,
         t.turno,
         t.capacidade_maxima,
+        t.escola_id,
         t.ativo,
-        e.nome as escola_nome
+        e.nome as escola_nome,
+        COUNT(pa.id) as total_alunos
       FROM turmas t
       JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN perfis_aluno pa ON t.id = pa.turma_id AND pa.ativo = true
       WHERE e.gestor_id = $1 AND t.ativo = true
+      GROUP BY t.id, t.nome, t.serie, t.ano_letivo, t.modalidade, t.turno, t.capacidade_maxima, t.escola_id, t.ativo, e.nome
       ORDER BY e.nome, t.serie, t.nome
-    `, ['72e7feef-0741-46ec-bdb4-68dcdfc6defe']);
+    `, [gestorId]);
     
     console.log(`DADOS REAIS: Encontradas ${turmasResult.rows.length} turmas no banco`);
     
