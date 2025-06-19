@@ -25,6 +25,7 @@ import TestUpload from "@/pages/TestUpload";
 import LoginTest from "@/pages/login-test";
 import TesteUsuarioPage from "@/pages/teste-criacao-usuario";
 import TesteCadastroSimplificado from "@/pages/teste-cadastro-simplificado";
+import SyncDemo from "@/pages/SyncDemo";
 import { GameProvider } from "./context/GameContext";
 import { SchoolProvider } from "@/context/SchoolContext";
 import { PERMISSIONS } from "@/lib/permissions";

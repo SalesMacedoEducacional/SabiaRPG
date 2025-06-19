@@ -44,6 +44,11 @@ export default function UsersList() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [usuarioDetalhes, setUsuarioDetalhes] = useState<any>(null);
 
+  // Enhanced mutations with auto-refresh
+  const updateUsuarioMutation = useUpdateUsuario();
+  const deleteUsuarioMutation = useDeleteUsuario();
+  const { isRefreshing } = useGlobalDataSync();
+
   // Estados dos contadores
   const [totalUsuarios, setTotalUsuarios] = useState(0);
   const [usuariosAtivos, setUsuariosAtivos] = useState(0);
@@ -200,24 +205,23 @@ export default function UsersList() {
       return;
     }
 
-    try {
-      const response = await apiRequest("DELETE", `/api/usuarios/${userId}`);
-      
-      if (response.ok) {
+    deleteUsuarioMutation.mutate(userId, {
+      onSuccess: () => {
         toast({
           title: "Usuário excluído",
-          description: `O usuário "${userName}" foi removido do sistema`,
+          description: `O usuário "${userName}" foi removido do sistema. Dados atualizados automaticamente.`,
         });
-        fetchUsuarios();
+        fetchUsuarios(); // Backup refresh
+      },
+      onError: (error) => {
+        console.error("Erro ao excluir usuário:", error);
+        toast({
+          title: "Erro ao excluir",
+          description: "Não foi possível excluir o usuário",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error("Erro ao excluir usuário:", error);
-      toast({
-        title: "Erro ao excluir",
-        description: "Não foi possível excluir o usuário",
-        variant: "destructive",
-      });
-    }
+    });
   };
 
   const filtrarUsuarios = () => {
@@ -319,12 +323,14 @@ export default function UsersList() {
 
       {/* Cards de Estatísticas */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card className="bg-[#4a4639] border-[#D47C06]">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-white">{totalUsuarios}</div>
-            <div className="text-sm text-accent">Total de Usuários</div>
-          </CardContent>
-        </Card>
+        <CardLoadingOverlay isLoading={isRefreshing || deleteUsuarioMutation.isPending}>
+          <Card className="bg-[#4a4639] border-[#D47C06]">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-white">{totalUsuarios}</div>
+              <div className="text-sm text-accent">Total de Usuários</div>
+            </CardContent>
+          </Card>
+        </CardLoadingOverlay>
         <Card className="bg-[#4a4639] border-[#D47C06]">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-400">{usuariosAtivos}</div>
