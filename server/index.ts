@@ -91,11 +91,17 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     );
     const turmasAtivas = parseInt(turmasResult.rows[0]?.count || '0');
     
-    console.log('Contadores reais baseados em perfis:', {
+    console.log('=== DEBUG ESTATÍSTICAS ===');
+    console.log('Gestor ID:', gestorId);
+    console.log('Escolas encontradas:', escolaIds.length, escolaIds);
+    console.log('Query professores:', professoresResult.rows);
+    console.log('Query alunos:', alunosResult.rows);
+    console.log('Query turmas:', turmasResult.rows);
+    console.log('Contadores calculados:', {
       escolas: escolas?.length || 0,
-      professores: totalProfessores || 0,
-      alunos: totalAlunos || 0,
-      turmas: turmasAtivas || 0
+      professores: totalProfessores,
+      alunos: totalAlunos,
+      turmas: turmasAtivas
     });
     
     const dashboardStats = {
