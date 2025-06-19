@@ -113,8 +113,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  // LIBERAR TODOS OS ACESSOS PARA GESTOR - REMOVER BLOQUEIOS
-  if (isManager || hasAllPermissions) {
+  // ACESSO TOTAL PARA GESTOR - SEM RESTRIÇÕES
+  if (isManager) {
+    return <Route path={path} component={Component} />;
+  }
+
+  // Para outros usuários, verifica permissões normalmente
+  if (hasAllPermissions) {
     return <Route path={path} component={Component} />;
   }
 

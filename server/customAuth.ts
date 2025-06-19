@@ -480,9 +480,9 @@ export const requireRole = (roles: string[]) => {
       // Papel do usuário na sessão (em português)
       const userRolePortuguese = req.session.userRole.toLowerCase();
       
-      // LIBERAR TODOS OS ACESSOS PARA GESTOR - REMOVER BLOQUEIOS
-      if (userRolePortuguese === 'gestor') {
-        console.log('✅ ACESSO LIBERADO PARA GESTOR - SEM VERIFICAÇÃO DE PERMISSÕES');
+      // ACESSO TOTAL PARA GESTOR - SEM RESTRIÇÕES
+      if (userRolePortuguese === 'gestor' || userRolePortuguese === 'manager') {
+        console.log('✅ GESTOR: ACESSO TOTAL LIBERADO - TODAS AS FUNCIONALIDADES');
         return next();
       }
       

@@ -384,17 +384,12 @@ export default function UserRegistration() {
     }
   };
 
-  // Verificar permissão para acessar esta página
+  // ACESSO LIBERADO PARA GESTOR - SEM RESTRIÇÕES
   useEffect(() => {
-    if (user && user.role !== 'manager') {
-      toast({
-        title: "Acesso negado",
-        description: "Você não tem permissão para acessar esta página.",
-        variant: "destructive",
-      });
-      setLocation("/");
+    if (user && (user.role === 'manager' || user.papel === 'gestor')) {
+      console.log('✅ Gestor autenticado - acesso total liberado');
     }
-  }, [user, setLocation, toast]);
+  }, [user]);
 
   return (
     <div className="container mx-auto p-4 max-w-4xl min-h-screen py-10">
