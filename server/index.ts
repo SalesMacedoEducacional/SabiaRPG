@@ -32,6 +32,158 @@ import crypto from 'crypto';
 // =================================================================
 
 // Direct API routes without authentication (placed before all middleware)
+// Endpoint para detalhes das escolas do gestor
+app.get('/api/escolas/detalhes', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    
+    const escolasResult = await executeQuery(`
+      SELECT 
+        e.*,
+        COUNT(DISTINCT pp.id) as total_professores,
+        COUNT(DISTINCT pa.id) as total_alunos,
+        COUNT(DISTINCT t.id) as total_turmas
+      FROM escolas e
+      LEFT JOIN perfis_professor pp ON e.id = pp.escola_id AND pp.ativo = true
+      LEFT JOIN perfis_aluno pa ON e.id = pa.escola_id AND pa.ativo = true
+      LEFT JOIN turmas t ON e.id = t.escola_id AND t.ativo = true
+      WHERE e.gestor_id = $1
+      GROUP BY e.id
+      ORDER BY e.nome
+    `, [gestorId]);
+
+    return res.status(200).json({
+      message: 'Escolas obtidas com sucesso',
+      escolas: escolasResult.rows
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes das escolas:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Endpoint para detalhes dos professores do gestor
+app.get('/api/professores/detalhes', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    
+    const professoresResult = await executeQuery(`
+      SELECT 
+        u.id,
+        u.nome,
+        u.email,
+        pp.cpf,
+        pp.telefone,
+        pp.data_nascimento,
+        pp.endereco,
+        pp.ativo,
+        e.nome as escola_nome,
+        e.id as escola_id
+      FROM usuarios u
+      JOIN perfis_professor pp ON u.id = pp.usuario_id
+      JOIN escolas e ON pp.escola_id = e.id
+      WHERE e.gestor_id = $1 AND pp.ativo = true
+      ORDER BY u.nome
+    `, [gestorId]);
+
+    return res.status(200).json({
+      message: 'Professores obtidos com sucesso',
+      professores: professoresResult.rows
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes dos professores:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Endpoint para detalhes dos alunos do gestor
+app.get('/api/alunos/detalhes', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    
+    const alunosResult = await executeQuery(`
+      SELECT 
+        u.id,
+        u.nome,
+        u.email,
+        pa.cpf,
+        pa.telefone,
+        pa.matricula,
+        pa.data_nascimento,
+        pa.endereco,
+        pa.ativo,
+        e.nome as escola_nome,
+        e.id as escola_id,
+        t.nome as turma_nome,
+        t.id as turma_id
+      FROM usuarios u
+      JOIN perfis_aluno pa ON u.id = pa.usuario_id
+      JOIN escolas e ON pa.escola_id = e.id
+      LEFT JOIN matriculas m ON pa.matricula_id = m.id
+      LEFT JOIN turmas t ON m.turma_id = t.id
+      WHERE e.gestor_id = $1 AND pa.ativo = true
+      ORDER BY u.nome
+    `, [gestorId]);
+
+    return res.status(200).json({
+      message: 'Alunos obtidos com sucesso',
+      alunos: alunosResult.rows
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes dos alunos:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Endpoint para detalhes das turmas do gestor
+app.get('/api/turmas/detalhes', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    
+    const turmasResult = await executeQuery(`
+      SELECT 
+        t.*,
+        e.nome as escola_nome,
+        e.id as escola_id,
+        COUNT(DISTINCT m.id) as numero_alunos,
+        pp.nome as professor_nome,
+        up.nome as professor_usuario_nome
+      FROM turmas t
+      JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN matriculas m ON t.id = m.turma_id AND m.ativo = true
+      LEFT JOIN perfis_professor pp ON t.professor_id = pp.id
+      LEFT JOIN usuarios up ON pp.usuario_id = up.id
+      WHERE e.gestor_id = $1
+      GROUP BY t.id, e.id, e.nome, pp.id, pp.nome, up.nome
+      ORDER BY e.nome, t.nome
+    `, [gestorId]);
+
+    return res.status(200).json({
+      message: 'Turmas obtidas com sucesso',
+      turmas: turmasResult.rows
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes das turmas:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 app.get('/api/manager/dashboard-stats', async (req, res) => {
   try {
     console.log('Buscando estatísticas reais baseadas em perfis_professor, perfis_aluno e turmas');

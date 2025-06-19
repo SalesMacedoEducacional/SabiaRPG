@@ -43,6 +43,9 @@ export function EscolasDetailModal({
     try {
       setLoading(true);
       const response = await apiRequest("GET", "/api/escolas/detalhes");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setEscolas(data.escolas || []);
     } catch (error) {
@@ -84,10 +87,11 @@ export function EscolasDetailModal({
             <Table className="border-collapse">
               <TableHeader className="bg-[#43341c]">
                 <TableRow>
-                  <TableHead className="text-white">Nome da Escola</TableHead>
-                  <TableHead className="text-white">Cidade</TableHead>
-                  <TableHead className="text-white">Estado</TableHead>
+                  <TableHead className="text-white">Nome</TableHead>
                   <TableHead className="text-white">Telefone</TableHead>
+                  <TableHead className="text-white">Endereço</TableHead>
+                  <TableHead className="text-white">Município</TableHead>
+                  <TableHead className="text-white">Estado</TableHead>
                   <TableHead className="text-white">Email</TableHead>
                   <TableHead className="text-white">Status</TableHead>
                 </TableRow>
@@ -97,13 +101,29 @@ export function EscolasDetailModal({
                   escolas.map((escola) => (
                     <TableRow key={escola.id} className="hover:bg-[#43341c]">
                       <TableCell className="text-white font-medium">{escola.nome}</TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          <Phone className="h-4 w-4 mr-1 text-primary" />
+                          {escola.telefone || "Não informado"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center max-w-xs">
+                          <MapPin className="h-4 w-4 mr-1 text-primary flex-shrink-0" />
+                          <span className="truncate">{escola.endereco_completo || escola.endereco || "Não informado"}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-white">{escola.cidade || "Não informado"}</TableCell>
                       <TableCell className="text-white">{escola.estado || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{escola.telefone || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{escola.email || "Não informado"}</TableCell>
                       <TableCell className="text-white">
-                        <Badge variant={escola.ativo ? "default" : "secondary"}>
-                          {escola.ativo ? "Ativa" : "Inativa"}
+                        <div className="flex items-center">
+                          <Mail className="h-4 w-4 mr-1 text-primary" />
+                          {escola.email_institucional || escola.email || "Não informado"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white">
+                        <Badge variant="default" className="bg-green-600">
+                          Ativa
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -139,7 +159,10 @@ export function ProfessoresDetailModal({
   const fetchProfessores = async () => {
     try {
       setLoading(true);
-      const response = await apiRequest("GET", "/api/professores");
+      const response = await apiRequest("GET", "/api/professores/detalhes");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setProfessores(data.professores || []);
     } catch (error) {
@@ -193,14 +216,24 @@ export function ProfessoresDetailModal({
                 {professores.length > 0 ? (
                   professores.map((professor) => (
                     <TableRow key={professor.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{professor.usuarios.nome}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.email || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.cpf || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{professor.usuarios.telefone || "Não informado"}</TableCell>
+                      <TableCell className="text-white font-medium">{professor.nome}</TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          <Mail className="h-4 w-4 mr-1 text-primary" />
+                          {professor.email || "Não informado"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white">{professor.cpf || "Não informado"}</TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          <Phone className="h-4 w-4 mr-1 text-primary" />
+                          {professor.telefone || "Não informado"}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-white">{professor.escola_nome || "Não vinculado"}</TableCell>
                       <TableCell className="text-white">
-                        <Badge variant={professor.ativo ? "default" : "secondary"}>
-                          {professor.ativo ? "Ativo" : "Inativo"}
+                        <Badge variant="default" className="bg-green-600">
+                          Ativo
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -236,7 +269,10 @@ export function AlunosDetailModal({
   const fetchAlunos = async () => {
     try {
       setLoading(true);
-      const response = await apiRequest("GET", "/api/alunos");
+      const response = await apiRequest("GET", "/api/alunos/detalhes");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setAlunos(data.alunos || []);
     } catch (error) {
