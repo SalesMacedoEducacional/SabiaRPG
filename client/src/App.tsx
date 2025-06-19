@@ -209,6 +209,8 @@ function App() {
         <SchoolProvider>
           <GameProvider>
             <Router />
+            <SyncLoadingOverlay showMetrics={true} />
+            <PerformanceIndicator />
           </GameProvider>
         </SchoolProvider>
       </AuthProvider>
