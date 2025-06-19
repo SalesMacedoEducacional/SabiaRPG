@@ -91,7 +91,7 @@ export default function ClassManagement() {
   const { toast } = useToast();
   
   const [escolas, setEscolas] = useState<Escola[]>([]);
-  const [selectedEscola, setSelectedEscola] = useState<string>("");
+  const [selectedEscola, setSelectedEscola] = useState<string | undefined>(undefined);
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false);
@@ -233,7 +233,7 @@ export default function ClassManagement() {
                          turma.serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          turma.escola_nome.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesSchool = !selectedEscola || turma.escola_id === selectedEscola;
+    const matchesSchool = !selectedEscola || selectedEscola === "todas" || turma.escola_id === selectedEscola;
     
     return matchesSearch && matchesSchool;
   });
@@ -288,7 +288,7 @@ export default function ClassManagement() {
                 <SelectValue placeholder="Todas as escolas" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as escolas</SelectItem>
+                <SelectItem value="todas">Todas as escolas</SelectItem>
                 {escolas.map((escola) => (
                   <SelectItem key={escola.id} value={escola.id}>
                     {escola.nome}

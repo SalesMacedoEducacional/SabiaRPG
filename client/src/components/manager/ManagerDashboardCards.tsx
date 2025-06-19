@@ -689,11 +689,10 @@ export function TotalTurmasCard() {
                 size="sm" 
                 className="bg-[#8c7851] border border-[#D47C06] text-white px-3 py-1.5 rounded hover:bg-[#a08962] transition-colors"
                 onClick={() => {
-                  // Navegar para a página de gerenciamento de componentes curriculares
-                  window.location.href = '/manager/componentes';
+                  window.location.href = '/class-management';
                 }}
               >
-                <Settings className="h-3 w-3 mr-1" /> Gerenciar Componentes
+                <Settings className="h-3 w-3 mr-1" /> Gerenciar Turmas
               </Button>
             </div>
           </>

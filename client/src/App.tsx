@@ -179,9 +179,13 @@ function Router() {
       <ProtectedRoute 
         path="/turmas" 
         component={ClassManagement}
-        permissions={[
-          PERMISSIONS.SCHOOL_CONFIG.id
-        ]}
+        requireAuth={true}
+      />
+      
+      <ProtectedRoute 
+        path="/class-management" 
+        component={ClassManagement}
+        requireAuth={true}
       />
       
       {/* Sistema de Demonstração de Sincronização */}
