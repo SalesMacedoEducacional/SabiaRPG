@@ -535,6 +535,8 @@ export function TotalAlunosCard() {
                 <TableRow>
                   <TableHead className="text-white">Nome do Aluno</TableHead>
                   <TableHead className="text-white">Nº Matrícula</TableHead>
+                  <TableHead className="text-white">CPF</TableHead>
+                  <TableHead className="text-white">Telefone</TableHead>
                   <TableHead className="text-white">Turma</TableHead>
                   <TableHead className="text-white">Escola</TableHead>
                 </TableRow>
@@ -549,14 +551,16 @@ export function TotalAlunosCard() {
                     alunosFiltrados.map((aluno) => (
                       <TableRow key={aluno.id} className="hover:bg-[#43341c]">
                         <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
-                        <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "N/A"}</TableCell>
-                        <TableCell className="text-white">{aluno.turmas?.nome || "N/A"}</TableCell>
+                        <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "Não informado"}</TableCell>
+                        <TableCell className="text-white">{aluno.usuarios.cpf || "Não informado"}</TableCell>
+                        <TableCell className="text-white">{aluno.usuarios.telefone || "Não informado"}</TableCell>
+                        <TableCell className="text-white">{aluno.turmas?.nome || "Sem turma"}</TableCell>
                         <TableCell className="text-white">{aluno.escola_nome || "Não informado"}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
                         {filtroEscola === "todas" ? "Nenhum aluno encontrado" : "Nenhum aluno encontrado para esta escola"}
                       </TableCell>
                     </TableRow>
