@@ -1275,19 +1275,36 @@ app.get('/api/manager/dashboard-fast', async (req, res) => {
     
     console.log('CACHE MISS: Consultando banco...');
     
-    // Consulta ultra-otimizada para máxima velocidade
+    // Consulta otimizada com CTE para máxima performance
     const dashboardCompleto = await executeQuery(`
+      WITH escolas_gestor AS (
+        SELECT id, nome, cidade, estado FROM escolas WHERE gestor_id = $1
+      ),
+      contadores AS (
+        SELECT 
+          (SELECT COUNT(*) FROM escolas_gestor) as total_escolas,
+          (SELECT COUNT(DISTINCT pp.usuario_id) 
+           FROM perfis_professor pp 
+           WHERE pp.escola_id IN (SELECT id FROM escolas_gestor)) as total_professores,
+          (SELECT COUNT(DISTINCT pa.usuario_id) 
+           FROM perfis_aluno pa 
+           JOIN turmas t ON pa.turma_id = t.id 
+           WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_alunos,
+          (SELECT COUNT(*) 
+           FROM turmas t 
+           WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_turmas
+      )
       SELECT 
-        (SELECT COUNT(*) FROM escolas WHERE gestor_id = $1) as total_escolas,
-        (SELECT COUNT(DISTINCT pp.usuario_id) FROM perfis_professor pp 
-         JOIN escolas e ON pp.escola_id = e.id WHERE e.gestor_id = $1) as total_professores,
-        (SELECT COUNT(DISTINCT pa.usuario_id) FROM perfis_aluno pa 
-         JOIN turmas t ON pa.turma_id = t.id 
-         JOIN escolas e ON t.escola_id = e.id WHERE e.gestor_id = $1) as total_alunos,
-        (SELECT COUNT(*) FROM turmas t 
-         JOIN escolas e ON t.escola_id = e.id WHERE e.gestor_id = $1) as total_turmas,
-        (SELECT json_agg(json_build_object('id', id, 'nome', nome, 'cidade', cidade, 'estado', estado))
-         FROM escolas WHERE gestor_id = $1) as escolas
+        c.total_escolas,
+        c.total_professores,
+        c.total_alunos,
+        c.total_turmas,
+        COALESCE(
+          (SELECT json_agg(json_build_object('id', id, 'nome', nome, 'cidade', cidade, 'estado', estado))
+           FROM escolas_gestor),
+          '[]'::json
+        ) as escolas
+      FROM contadores c
     `, [gestorId]);
     
     if (dashboardCompleto.rows.length === 0) {

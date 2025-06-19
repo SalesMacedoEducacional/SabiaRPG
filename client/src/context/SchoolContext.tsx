@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useCallback, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useStandardToast } from '@/lib/toast-utils';
 import { useAuth } from './AuthContext';
@@ -35,162 +36,72 @@ const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
 export const useSchool = () => {
   const context = useContext(SchoolContext);
-  if (context === undefined) {
-    throw new Error('useSchool must be used within a SchoolProvider');
+  if (!context) {
+    throw new Error('useSchool deve ser usado dentro de um SchoolProvider');
   }
   return context;
 };
 
 export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [escolasVinculadas, setEscolasVinculadas] = useState<Escola[]>([]);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
-    totalEscolas: 0,
-    totalProfessores: 0,
-    totalAlunos: 0,
-    turmasAtivas: 0
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastFetch, setLastFetch] = useState<number>(0);
-  const [isPreloading, setIsPreloading] = useState(false);
-  
   const { isAuthenticated, user } = useAuth();
   const toast = useStandardToast();
+  const queryClient = useQueryClient();
 
-  // Cache TTL: 5 segundos para máxima agilidade
-  const CACHE_TTL = 5000;
+  // React Query para cache otimizado
+  const { 
+    data: dashboardData, 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => apiRequest('/api/manager/dashboard-fast'),
+    enabled: isAuthenticated && user?.papel === 'manager',
+    staleTime: 5000, // 5 segundos
+    gcTime: 30000, // 30 segundos
+    refetchOnWindowFocus: false,
+    retry: 2
+  });
 
-  // Pré-carregamento instantâneo
-  const preloadData = async () => {
-    if (isPreloading) return;
-    setIsPreloading(true);
-    try {
-      await refreshStats(true);
-    } catch (error) {
-      console.error('Erro no pré-carregamento:', error);
-    } finally {
-      setIsPreloading(false);
-    }
+  const dashboardStats: DashboardStats = {
+    totalEscolas: dashboardData?.totalEscolas || 0,
+    totalProfessores: dashboardData?.totalProfessores || 0,
+    totalAlunos: dashboardData?.totalAlunos || 0,
+    turmasAtivas: dashboardData?.turmasAtivas || 0
   };
 
-  const loadSchoolData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const escolasVinculadas: Escola[] = dashboardData?.escolas || [];
 
-      // Usar endpoint otimizado que já retorna escolas + estatísticas
-      console.log('loadSchoolData: Usando endpoint otimizado completo');
-      await refreshStats(true); // Força refresh completo
-    } catch (error) {
-      console.error("Erro ao carregar dados das escolas:", error);
-      setError("Erro ao carregar dados de escolas vinculadas");
-      setEscolasVinculadas([]);
-      setDashboardStats({
-        totalEscolas: 0,
-        totalProfessores: 0,
-        totalAlunos: 0,
-        turmasAtivas: 0
-      });
-      
-      toast.error("Erro ao carregar escolas", "Não foi possível carregar as escolas vinculadas");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Função para refresh manual
+  const refreshStats = useCallback(async () => {
+    await refetch();
+    queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+  }, [refetch, queryClient]);
 
-  const refreshStats = async (forceRefresh = false) => {
-    if (!isAuthenticated || !user || (user.role !== 'manager' && user.papel !== 'gestor')) {
-      console.log('refreshStats: Usuário não autorizado ou não é gestor', { 
-        isAuthenticated, 
-        user: user ? { role: user.role, papel: user.papel } : null 
-      });
-      return;
-    }
+  const loadSchoolData = useCallback(async () => {
+    await refreshStats();
+  }, [refreshStats]);
 
-    // Verificar cache se não for refresh forçado
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetch < CACHE_TTL) {
-      console.log('SchoolContext: Usando dados em cache');
-      return;
-    }
-
-    console.log('refreshStats: Usando endpoint otimizado /api/manager/dashboard-fast');
-    try {
-      const statsResponse = await apiRequest("GET", "/api/manager/dashboard-fast");
-      console.log('refreshStats: Status da resposta:', statsResponse.status);
-      
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        console.log('refreshStats: Dados do endpoint otimizado:', statsData);
-        
-        // Atualizar tanto as estatísticas quanto as escolas em uma única operação
-        setDashboardStats({
-          totalEscolas: statsData.totalEscolas || 0,
-          totalProfessores: statsData.totalProfessores || 0,
-          totalAlunos: statsData.totalAlunos || 0,
-          turmasAtivas: statsData.turmasAtivas || 0
-        });
-        
-        // Atualizar escolas se retornadas pelo endpoint otimizado
-        if (statsData.escolas) {
-          setEscolasVinculadas(statsData.escolas);
-        }
-        
-        // Atualizar timestamp do cache
-        setLastFetch(Date.now());
-        
-        console.log('refreshStats: Cache atualizado com dados completos:', {
-          totalEscolas: statsData.totalEscolas || 0,
-          totalProfessores: statsData.totalProfessores || 0,
-          totalAlunos: statsData.totalAlunos || 0,
-          turmasAtivas: statsData.turmasAtivas || 0,
-          escolas: statsData.escolas?.length || 0
-        });
-      } else {
-        const errorData = await statsResponse.json();
-        console.error('refreshStats: Erro na resposta:', errorData);
-        throw new Error('Erro ao carregar estatísticas do dashboard');
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar estatísticas:", error);
-      toast.error("Erro ao atualizar dados", "Não foi possível atualizar as estatísticas");
-    }
-  };
-
-  // Effect para carregar dados quando o usuário autenticar
+  // Efeito para logging
   useEffect(() => {
     console.log('SchoolContext useEffect:', { isAuthenticated, user });
     
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || user?.papel !== 'manager') {
       console.log('SchoolContext: Limpando dados');
-      setEscolasVinculadas([]);
-      setDashboardStats({
-        totalEscolas: 0,
-        totalProfessores: 0,
-        totalAlunos: 0,
-        turmasAtivas: 0
-      });
-      setError(null);
-      return;
-    }
-
-    if (isAuthenticated && user && (user.role === 'manager' || user.papel === 'gestor')) {
-      console.log('SchoolContext: Carregando dados para gestor', { role: user.role, papel: user.papel });
-      loadSchoolData();
     }
   }, [isAuthenticated, user]);
 
-  const value = {
+  const contextValue: SchoolContextType = {
     escolasVinculadas,
     dashboardStats,
     isLoading,
-    error,
+    error: error?.message || null,
     loadSchoolData,
     refreshStats
   };
 
   return (
-    <SchoolContext.Provider value={value}>
+    <SchoolContext.Provider value={contextValue}>
       {children}
     </SchoolContext.Provider>
   );

@@ -1,0 +1,45 @@
+Para acelerar o carregamento dos cards de Visão Geral, implementem as seguintes otimizações, em ordem de prioridade:
+
+Crie índices específicos
+– Adicione índices nas colunas usadas em filtros e junções frequentes:
+
+sql
+Copiar
+Editar
+CREATE INDEX idx_usuarios_papel_escola ON usuarios(papel, escola_id);
+CREATE INDEX idx_turmas_escola_ativo ON turmas(escola_id, ativo);
+CREATE INDEX idx_perfis_aluno_turma ON perfis_aluno(turma_id);
+Isso reduz drasticamente o tempo de consulta ao contar e listar registros.
+
+Use consultas agregadas pré-computadas
+– Monte uma view materializada com os totais e atualize-a periodicamente (por exemplo, a cada minuto):
+
+sql
+Copiar
+Editar
+CREATE MATERIALIZED VIEW mv_dashboard_counts AS
+SELECT
+  (SELECT COUNT(*) FROM escolas WHERE escola_id = auth.uid())          AS total_escolas,
+  (SELECT COUNT(*) FROM usuarios WHERE papel = 'professor' AND escola_id = auth.uid()) AS total_professores,
+  (SELECT COUNT(*) FROM usuarios WHERE papel = 'aluno' AND escola_id = auth.uid())     AS total_alunos,
+  (SELECT COUNT(*) FROM turmas WHERE escola_id = auth.uid() AND ativo)              AS total_turmas
+;
+-- Atualize via cronjob ou trigger de mudança importante:
+REFRESH MATERIALIZED VIEW mv_dashboard_counts;
+– No front-end, basta buscar essa única view em vez de várias queries separadas.
+
+Agrupe chamadas à API
+– Em vez de disparar 4 endpoints distintos (escolas, professores, alunos, turmas), crie um único endpoint /dashboard/overview que retorne todos os totais e metadados num JSON consolidado.
+– Reduza overhead de rede e parsing.
+
+Cache no cliente
+– No front-end, utilize SWR ou React Query (ou similar) para cachear o resultado por alguns segundos.
+– Enquanto o usuário navega, o cache evita novas requisições a cada render.
+
+Paginação e lazy-load nos detalhes
+– Só carregue lista completa de registros (“Ver Detalhes”) quando o usuário clicar no card, e traga, de início, apenas as primeiras 20 linhas com botão “Carregar mais”.
+
+Off-load de contagens pesadas
+– Se ainda lento, mova as contagens para uma função PL/pgSQL no banco (usando VOLATILE ou IMMUTABLE) e chame-a de dentro da materialized view ou da view simples, para processar lado servidor.
+
+Com esses ajustes os cards estarão prontos em milissegundos, garantindo uma experiência fluida e responsiva.
