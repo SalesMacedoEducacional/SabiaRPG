@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
 
-// Criar pool de conexão PostgreSQL
+// Criar pool de conexão PostgreSQL - FORÇAR USO DO SUPABASE
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 export async function executeQuery(query: string, params: any[] = []) {
