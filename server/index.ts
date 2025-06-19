@@ -186,7 +186,7 @@ app.get('/api/alunos', async (req, res) => {
       });
     }
     
-    // Buscar alunos através das tabelas perfis_aluno e matriculas
+    // Buscar alunos através das tabelas perfis_aluno e matriculas com LEFT JOIN para incluir todos os alunos
     const alunosResult = await executeQuery(`
       SELECT 
         pa.id as perfil_id,
@@ -198,17 +198,17 @@ app.get('/api/alunos', async (req, res) => {
         u.email,
         u.cpf,
         u.telefone,
-        m.numero_matricula,
+        COALESCE(m.numero_matricula, 'Não informado') as numero_matricula,
         m.turma_id,
         m.escola_id,
-        t.nome as turma_nome,
-        e.nome as escola_nome
+        COALESCE(t.nome, 'Sem turma') as turma_nome,
+        COALESCE(e.nome, 'Não informado') as escola_nome
       FROM perfis_aluno pa
       JOIN usuarios u ON pa.usuario_id = u.id
       LEFT JOIN matriculas m ON pa.matricula_id = m.id
       LEFT JOIN turmas t ON m.turma_id = t.id
       LEFT JOIN escolas e ON m.escola_id = e.id
-      WHERE m.escola_id = ANY($1) AND u.ativo = true
+      WHERE (m.escola_id = ANY($1) OR m.escola_id IS NULL) AND u.ativo = true
       ORDER BY u.nome
     `, [escolaIds]);
     
