@@ -935,7 +935,7 @@ app.get('/api/escolas-cadastro', async (req, res) => {
 // Endpoint para listar escolas do gestor (para página de escolas)
 app.get('/api/escolas/gestor', async (req, res) => {
   try {
-    console.log('=== LISTAGEM DE ESCOLAS DO GESTOR ===');
+    console.log('=== LISTAGEM DE ESCOLAS DO GESTOR (POSTGRESQL) ===');
     
     // Verificar se há sessão ativa
     if (!req.session || !req.session.userId) {
@@ -946,11 +946,12 @@ app.get('/api/escolas/gestor', async (req, res) => {
     }
     
     const gestorId = req.session.userId;
-    console.log('Buscando escolas para gestor:', gestorId);
+    console.log('Buscando escolas PostgreSQL para gestor:', gestorId);
     
+    // Usar executeQuery para garantir conexão PostgreSQL
     const escolasResult = await executeQuery(`
       SELECT 
-        id, 
+        id::text, 
         nome, 
         cidade, 
         estado, 
@@ -959,15 +960,15 @@ app.get('/api/escolas/gestor', async (req, res) => {
         modalidade_ensino,
         endereco_completo as endereco,
         telefone,
-        email_institucional
+        email_institucional,
+        criado_em
       FROM escolas
       WHERE gestor_id = $1
       ORDER BY nome ASC
     `, [gestorId]);
     
-    console.log('Dados das escolas retornados pela query:', escolasResult.rows);
-    
-    console.log(`Encontradas ${escolasResult.rows.length} escolas do gestor`);
+    console.log('CIDADES CORRETAS DO POSTGRESQL:', escolasResult.rows.map(e => `${e.nome}: ${e.cidade}`));
+    console.log(`Encontradas ${escolasResult.rows.length} escolas do gestor no PostgreSQL`);
     
     res.json(escolasResult.rows);
     
