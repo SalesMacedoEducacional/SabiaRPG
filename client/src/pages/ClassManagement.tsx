@@ -287,10 +287,10 @@ export default function ClassManagement() {
                 Filtrar por Escola
               </label>
               <Select value={selectedEscola} onValueChange={setSelectedEscola}>
-                <SelectTrigger className="h-12 bg-background-input border-border text-text-primary rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <SelectTrigger className="h-12 bg-transparent border-primary/30 text-text-primary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all">
                   <SelectValue placeholder="Selecione uma escola" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl bg-background-input border-border">
+                <SelectContent className="rounded-xl bg-background-primary border-primary/30">
                   <SelectItem value="todas" className="rounded-lg text-text-primary hover:bg-background-elevated">Todas as escolas</SelectItem>
                   {escolas.map((escola) => (
                     <SelectItem key={escola.id} value={escola.id} className="rounded-lg text-text-primary hover:bg-background-elevated">
@@ -313,7 +313,7 @@ export default function ClassManagement() {
                   placeholder="Nome, série ou escola..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-12 pl-12 bg-background-input border-border text-text-primary placeholder:text-text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="h-12 pl-12 bg-transparent border-primary/30 text-text-primary placeholder:text-text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all"
                 />
               </div>
             </div>
