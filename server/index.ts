@@ -400,37 +400,27 @@ app.get('/api/escolas/gestor', async (req, res) => {
     const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
     console.log("Buscando escolas reais para gestor:", gestorId);
     
-    // Retornar as duas escolas específicas solicitadas
-    const escolas = [
-      {
-        id: '3aa2a8a7-141b-42d9-af55-a656247c73b3',
-        nome: 'U.E. DEUS NOS ACUDA',
-        codigo_escola: 'ESCOLA001',
-        tipo: 'publica',
-        modalidade_ensino: 'ensino_fundamental',
-        cidade: 'Teresina',
-        estado: 'PI',
-        zona_geografica: 'urbana',
-        endereco_completo: 'Rua Principal, 123',
-        telefone: '(86) 3232-1234',
-        email_institucional: 'escola001@sabiarpg.edu.br',
-        criado_em: new Date().toISOString()
-      },
-      {
-        id: '52de4420-f16c-4260-8eb8-307c402a0260',
-        nome: 'CETI PAULISTANA',
-        codigo_escola: 'ESCOLA002',
-        tipo: 'publica',
-        modalidade_ensino: 'ensino_medio',
-        cidade: 'Paulistana',
-        estado: 'PI',
-        zona_geografica: 'urbana',
-        endereco_completo: 'Av. Central, 456',
-        telefone: '(89) 3421-5678',
-        email_institucional: 'escola002@sabiarpg.edu.br',
-        criado_em: new Date().toISOString()
-      }
-    ];
+    // Buscar dados reais do PostgreSQL
+    const escolasResult = await executeQuery(`
+      SELECT 
+        id::text, 
+        nome, 
+        codigo_escola,
+        tipo,
+        modalidade_ensino,
+        cidade, 
+        estado, 
+        zona_geografica,
+        endereco_completo,
+        telefone,
+        email_institucional,
+        criado_em
+      FROM escolas
+      WHERE gestor_id = $1
+      ORDER BY nome ASC
+    `, [gestorId]);
+    
+    const escolas = escolasResult.rows;
     
     console.log(`DADOS REAIS: ${escolas.length} escolas encontradas no banco`);
     console.log("Escolas:", escolas.map(e => e.nome));
@@ -968,6 +958,7 @@ app.get('/api/escolas/gestor', async (req, res) => {
     `, [gestorId]);
     
     console.log('CIDADES CORRETAS DO POSTGRESQL:', escolasResult.rows.map(e => `${e.nome}: ${e.cidade}`));
+    console.log('DADOS COMPLETOS DA QUERY:', JSON.stringify(escolasResult.rows, null, 2));
     console.log(`Encontradas ${escolasResult.rows.length} escolas do gestor no PostgreSQL`);
     
     res.json(escolasResult.rows);
