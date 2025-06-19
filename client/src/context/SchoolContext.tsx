@@ -51,9 +51,13 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetch, setLastFetch] = useState<number>(0);
   
   const { isAuthenticated, user } = useAuth();
   const toast = useStandardToast();
+
+  // Cache TTL: 30 segundos
+  const CACHE_TTL = 30000;
 
   const loadSchoolData = async () => {
     try {
@@ -91,7 +95,7 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const refreshStats = async () => {
+  const refreshStats = async (forceRefresh = false) => {
     if (!isAuthenticated || !user || (user.role !== 'manager' && user.papel !== 'gestor')) {
       console.log('refreshStats: Usuário não autorizado ou não é gestor', { 
         isAuthenticated, 
@@ -100,9 +104,16 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    console.log('refreshStats: FORÇANDO chamada para /api/manager/dashboard-stats');
+    // Verificar cache se não for refresh forçado
+    const now = Date.now();
+    if (!forceRefresh && now - lastFetch < CACHE_TTL) {
+      console.log('SchoolContext: Usando dados em cache');
+      return;
+    }
+
+    console.log('refreshStats: Usando endpoint otimizado /api/manager/dashboard-fast');
     try {
-      const statsResponse = await apiRequest("GET", "/api/manager/dashboard-stats");
+      const statsResponse = await apiRequest("GET", "/api/manager/dashboard-fast");
       console.log('refreshStats: Status da resposta:', statsResponse.status);
       
       if (statsResponse.ok) {
@@ -113,10 +124,13 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
           totalAlunos: statsData.totalAlunos || 0,
-          turmasAtivas: statsData.totalTurmas || 0
+          turmasAtivas: statsData.turmasAtivas || 0
         });
         
-        console.log('refreshStats: Estado atualizado com:', {
+        // Atualizar timestamp do cache
+        setLastFetch(Date.now());
+        
+        console.log('refreshStats: Estado atualizado com cache renovado:', {
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
           totalAlunos: statsData.totalAlunos || 0,

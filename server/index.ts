@@ -1246,6 +1246,89 @@ app.get('/api/escolas-cadastro', async (req, res) => {
   }
 });
 
+// Endpoint otimizado: todas as estatísticas em uma consulta
+app.get('/api/manager/dashboard-fast', async (req, res) => {
+  try {
+    console.log('=== DASHBOARD OTIMIZADO - CONSULTA ÚNICA ===');
+    
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({
+        erro: 'Não autorizado',
+        detalhes: 'Sessão inválida'
+      });
+    }
+    
+    const gestorId = req.session.userId;
+    console.log('Carregando dashboard otimizado para gestor:', gestorId);
+    
+    // Consulta única que retorna tudo
+    const dashboardCompleto = await executeQuery(`
+      WITH gestor_escolas AS (
+        SELECT id, nome, cidade, estado FROM escolas WHERE gestor_id = $1
+      ),
+      contadores AS (
+        SELECT 
+          COUNT(DISTINCT ge.id) as total_escolas,
+          COUNT(DISTINCT pp.usuario_id) as total_professores,
+          COUNT(DISTINCT pa.usuario_id) as total_alunos,
+          COUNT(DISTINCT t.id) as total_turmas
+        FROM gestor_escolas ge
+        LEFT JOIN perfis_professor pp ON pp.escola_id = ge.id
+        LEFT JOIN turmas t ON t.escola_id = ge.id
+        LEFT JOIN perfis_aluno pa ON pa.turma_id = t.id
+      )
+      SELECT 
+        c.total_escolas,
+        c.total_professores,
+        c.total_alunos,
+        c.total_turmas,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', ge.id,
+              'nome', ge.nome,
+              'cidade', ge.cidade,
+              'estado', ge.estado
+            )
+          ) FILTER (WHERE ge.id IS NOT NULL),
+          '[]'::json
+        ) as escolas
+      FROM contadores c
+      LEFT JOIN gestor_escolas ge ON true
+      GROUP BY c.total_escolas, c.total_professores, c.total_alunos, c.total_turmas
+    `, [gestorId]);
+    
+    if (dashboardCompleto.rows.length === 0) {
+      return res.json({
+        totalEscolas: 0,
+        totalProfessores: 0,
+        totalAlunos: 0,
+        turmasAtivas: 0,
+        escolas: []
+      });
+    }
+    
+    const dados = dashboardCompleto.rows[0];
+    const resposta = {
+      totalEscolas: parseInt(dados.total_escolas) || 0,
+      totalProfessores: parseInt(dados.total_professores) || 0,
+      totalAlunos: parseInt(dados.total_alunos) || 0,
+      turmasAtivas: parseInt(dados.total_turmas) || 0,
+      escolas: dados.escolas || []
+    };
+    
+    console.log('Dashboard carregado em consulta única otimizada:', resposta);
+    res.json(resposta);
+    
+  } catch (error) {
+    console.error('Erro no dashboard otimizado:', error);
+    res.status(500).json({ 
+      erro: 'Erro ao carregar dashboard',
+      detalhes: error.message
+    });
+  }
+});
+
 // Endpoint para listar turmas vinculadas às escolas do gestor
 app.get('/api/turmas/gestor', async (req, res) => {
   try {
