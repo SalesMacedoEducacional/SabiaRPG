@@ -43,17 +43,17 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     const escolas = escolasResult.rows;
     const escolaIds = escolas.map(e => e.id);
     
-    // Contar professores através de perfis_professor
+    // Contar professores através da tabela usuarios
     const professoresResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM perfis_professor WHERE escola_id = ANY($1) AND ativo = true',
-      [escolaIds]
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel IN ($1, $2) AND ativo = true',
+      ['professor', 'teacher']
     );
     const totalProfessores = parseInt(professoresResult.rows[0]?.count || '0');
     
-    // Contar alunos através de perfis_aluno
+    // Contar alunos através da tabela usuarios
     const alunosResult = await executeQuery(
-      'SELECT COUNT(*) as count FROM perfis_aluno WHERE escola_id = ANY($1) AND ativo = true',
-      [escolaIds]
+      'SELECT COUNT(*) as count FROM usuarios WHERE papel = $1 AND ativo = true',
+      ['aluno']
     );
     const totalAlunos = parseInt(alunosResult.rows[0]?.count || '0');
     
