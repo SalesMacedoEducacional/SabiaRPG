@@ -112,6 +112,9 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       escolas: escolas || []
     };
     
+    console.log('=== RESPOSTA FINAL ===');
+    console.log('Dados sendo enviados:', dashboardStats);
+    
     return res.status(200).json({
       message: 'Estatísticas obtidas com sucesso',
       ...dashboardStats

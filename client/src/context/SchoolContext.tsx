@@ -124,13 +124,26 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Carregar dados quando o usuário autenticar como gestor
   useEffect(() => {
+    console.log('SchoolContext useEffect:', { isAuthenticated, user: user?.role });
     if (isAuthenticated && user && user.role === 'manager') {
+      console.log('SchoolContext: Carregando dados do gestor');
       loadSchoolData();
     } else {
       // Limpar dados quando não autenticado ou não é gestor
+      console.log('SchoolContext: Limpando dados');
       setEscolasVinculadas(null);
       setDashboardStats(null);
       setError(null);
+    }
+  }, [isAuthenticated, user]);
+
+  // Forçar carregamento adicional se o papel for gestor
+  useEffect(() => {
+    if (isAuthenticated && user && (user.papel === 'gestor' || user.role === 'manager')) {
+      console.log('SchoolContext: Forçando carregamento para gestor/manager');
+      setTimeout(() => {
+        refreshStats();
+      }, 1000);
     }
   }, [isAuthenticated, user]);
 
