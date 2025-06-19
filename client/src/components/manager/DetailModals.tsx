@@ -326,14 +326,24 @@ export function AlunosDetailModal({
                 {alunos.length > 0 ? (
                   alunos.map((aluno) => (
                     <TableRow key={aluno.id} className="hover:bg-[#43341c]">
-                      <TableCell className="text-white font-medium">{aluno.usuarios.nome}</TableCell>
-                      <TableCell className="text-white">{aluno.usuarios.email || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{aluno.matriculas?.numero_matricula || "Não informado"}</TableCell>
-                      <TableCell className="text-white">{aluno.usuarios.telefone || "Não informado"}</TableCell>
+                      <TableCell className="text-white font-medium">{aluno.nome}</TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          <Mail className="h-4 w-4 mr-1 text-primary" />
+                          {aluno.email || "Não informado"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white">{aluno.matricula || "Não informado"}</TableCell>
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          <Phone className="h-4 w-4 mr-1 text-primary" />
+                          {aluno.telefone || "Não informado"}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-white">{aluno.escola_nome || "Não definida"}</TableCell>
                       <TableCell className="text-white">
-                        <Badge variant={aluno.ativo ? "default" : "secondary"}>
-                          {aluno.ativo ? "Ativo" : "Inativo"}
+                        <Badge variant="default" className="bg-green-600">
+                          Ativo
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -370,6 +380,9 @@ export function TurmasDetailModal({
     try {
       setLoading(true);
       const response = await apiRequest("GET", "/api/turmas/detalhes");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setTurmas(data.turmas || []);
     } catch (error) {
