@@ -55,12 +55,22 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     refetch 
   } = useQuery({
     queryKey: ['dashboard-stats'],
-    queryFn: () => apiRequest('/api/manager/dashboard-fast'),
-    enabled: isAuthenticated && (user?.papel === 'manager' || user?.papel === 'gestor'),
-    staleTime: 5000, // 5 segundos
-    gcTime: 30000, // 30 segundos
-    refetchOnWindowFocus: false,
-    retry: 2
+    queryFn: async () => {
+      console.log('🚀 ENDPOINT INSTANTÂNEO');
+      const startTime = Date.now();
+      const response = await apiRequest('/api/manager/dashboard-instant');
+      const endTime = Date.now();
+      console.log(`⚡ ${endTime - startTime}ms`);
+      return response;
+    },
+    enabled: isAuthenticated && user?.papel === 'gestor',
+    staleTime: 0, // Sempre buscar dados frescos
+    gcTime: 0, // Não manter cache
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    retry: 1,
+    retryDelay: 0
   });
 
   const dashboardStats: DashboardStats = {

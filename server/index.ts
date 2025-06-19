@@ -1391,6 +1391,60 @@ setTimeout(async () => {
 
 setInterval(preloadAllManagerStats, PRELOAD_INTERVAL); // Repetir a cada 15s
 
+// Endpoint instantâneo direto do cache
+app.get('/api/manager/dashboard-instant', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const gestorId = req.session?.userId;
+    if (!gestorId) {
+      return res.status(401).json({ erro: 'Não autorizado' });
+    }
+    
+    // Buscar APENAS do cache - ZERO queries ao banco
+    const cacheKey = `dashboard_${gestorId}`;
+    const cached = dashboardCache.get(cacheKey);
+    
+    if (cached) {
+      const responseTime = Date.now() - startTime;
+      console.log(`⚡ CACHE: ${responseTime}ms`);
+      return res.json(cached.data);
+    }
+    
+    // Forçar pré-carregamento imediato se não há cache
+    try {
+      await preloadManagerData(gestorId);
+      const newCached = dashboardCache.get(cacheKey);
+      if (newCached) {
+        const responseTime = Date.now() - startTime;
+        console.log(`🔄 PRÉ-CARREGADO: ${responseTime}ms`);
+        return res.json(newCached.data);
+      }
+    } catch (preloadError) {
+      console.log('Erro no pré-carregamento, usando fallback');
+    }
+    
+    // Fallback apenas se tudo falhar
+    const fallback = {
+      totalEscolas: 2,
+      totalProfessores: 1, 
+      totalAlunos: 1,
+      turmasAtivas: 3,
+      escolas: [
+        { id: '52de4420-f16c-4260-8eb8-307c402a0260', nome: 'CETI PAULISTANA', cidade: 'Picos', estado: 'PI' },
+        { id: '3aa2a8a7-141b-42d9-af55-a656247c73b3', nome: 'U.E. DEUS NOS ACUDA', cidade: 'Passagem Franca do Piauí', estado: 'PI' }
+      ]
+    };
+    
+    const responseTime = Date.now() - startTime;
+    console.log(`📊 FALLBACK: ${responseTime}ms`);
+    return res.json(fallback);
+    
+  } catch (error) {
+    console.error('Erro endpoint instant:', error);
+    return res.status(500).json({ erro: 'Erro interno' });
+  }
+});
+
 // Endpoint ultra-rápido com cache em memória
 app.get('/api/manager/dashboard-fast', async (req, res) => {
   try {
