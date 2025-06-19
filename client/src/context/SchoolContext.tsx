@@ -56,7 +56,7 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => apiRequest('/api/manager/dashboard-fast'),
-    enabled: isAuthenticated && user?.papel === 'manager',
+    enabled: isAuthenticated && (user?.papel === 'manager' || user?.papel === 'gestor'),
     staleTime: 5000, // 5 segundos
     gcTime: 30000, // 30 segundos
     refetchOnWindowFocus: false,
@@ -86,7 +86,7 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     console.log('SchoolContext useEffect:', { isAuthenticated, user });
     
-    if (!isAuthenticated || user?.papel !== 'manager') {
+    if (!isAuthenticated || (user?.papel !== 'manager' && user?.papel !== 'gestor')) {
       console.log('SchoolContext: Limpando dados');
     }
   }, [isAuthenticated, user]);

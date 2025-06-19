@@ -1248,7 +1248,94 @@ app.get('/api/escolas-cadastro', async (req, res) => {
 
 // Cache em memória para máxima velocidade
 const dashboardCache = new Map();
-const CACHE_TTL = 2000; // 2 segundos
+const CACHE_TTL = 30000; // 30 segundos
+const PRELOAD_INTERVAL = 15000; // Pré-carrega a cada 15 segundos
+
+// Função para pré-carregar dados de todos os gestores
+async function preloadAllManagerStats() {
+  try {
+    console.log('🚀 PRÉ-CARREGANDO estatísticas de todos os gestores...');
+    
+    // Buscar todos os gestores ativos
+    const gestores = await executeQuery(`
+      SELECT DISTINCT u.id, u.nome 
+      FROM usuarios u 
+      WHERE u.papel = 'manager' OR u.papel = 'gestor'
+    `);
+    
+    for (const gestor of gestores.rows) {
+      const gestorId = gestor.id;
+      const cacheKey = `dashboard_${gestorId}`;
+      
+      // Verificar se já está no cache e ainda válido
+      const cached = dashboardCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+        continue; // Já está atualizado
+      }
+      
+      console.log(`Pré-carregando dados para gestor: ${gestor.nome} (${gestorId})`);
+      
+      // Consulta otimizada
+      const dashboardCompleto = await executeQuery(`
+        WITH escolas_gestor AS (
+          SELECT id, nome, cidade, estado FROM escolas WHERE gestor_id = $1
+        ),
+        contadores AS (
+          SELECT 
+            (SELECT COUNT(*) FROM escolas_gestor) as total_escolas,
+            (SELECT COUNT(DISTINCT pp.usuario_id) 
+             FROM perfis_professor pp 
+             WHERE pp.escola_id IN (SELECT id FROM escolas_gestor)) as total_professores,
+            (SELECT COUNT(DISTINCT pa.usuario_id) 
+             FROM perfis_aluno pa 
+             JOIN turmas t ON pa.turma_id = t.id 
+             WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_alunos,
+            (SELECT COUNT(*) 
+             FROM turmas t 
+             WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_turmas
+        )
+        SELECT 
+          c.total_escolas,
+          c.total_professores,
+          c.total_alunos,
+          c.total_turmas,
+          COALESCE(
+            (SELECT json_agg(json_build_object('id', id, 'nome', nome, 'cidade', cidade, 'estado', estado))
+             FROM escolas_gestor),
+            '[]'::json
+          ) as escolas
+        FROM contadores c
+      `, [gestorId]);
+      
+      if (dashboardCompleto.rows.length > 0) {
+        const dados = dashboardCompleto.rows[0];
+        const resposta = {
+          totalEscolas: parseInt(dados.total_escolas) || 0,
+          totalProfessores: parseInt(dados.total_professores) || 0,
+          totalAlunos: parseInt(dados.total_alunos) || 0,
+          turmasAtivas: parseInt(dados.total_turmas) || 0,
+          escolas: dados.escolas || []
+        };
+        
+        // Salvar no cache
+        dashboardCache.set(cacheKey, {
+          data: resposta,
+          timestamp: Date.now()
+        });
+        
+        console.log(`✅ Dados pré-carregados para ${gestor.nome}: ${JSON.stringify(resposta)}`);
+      }
+    }
+    
+    console.log(`🎯 Pré-carregamento concluído. Cache possui ${dashboardCache.size} entradas.`);
+  } catch (error) {
+    console.error('❌ Erro no pré-carregamento:', error);
+  }
+}
+
+// Iniciar pré-carregamento imediatamente e agendar repetições
+setTimeout(preloadAllManagerStats, 2000); // Primeiro carregamento após 2s
+setInterval(preloadAllManagerStats, PRELOAD_INTERVAL); // Repetir a cada 15s
 
 // Endpoint ultra-rápido com cache em memória
 app.get('/api/manager/dashboard-fast', async (req, res) => {
@@ -1269,11 +1356,11 @@ app.get('/api/manager/dashboard-fast', async (req, res) => {
     const cacheKey = `dashboard_${gestorId}`;
     const cached = dashboardCache.get(cacheKey);
     if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-      console.log('CACHE HIT: Retornando em < 50ms');
+      console.log('⚡ RESPOSTA INSTANTÂNEA: < 50ms');
       return res.json(cached.data);
     }
     
-    console.log('CACHE MISS: Consultando banco...');
+    console.log('CACHE MISS: Consultando banco e salvando...');
     
     // Consulta otimizada com CTE para máxima performance
     const dashboardCompleto = await executeQuery(`
