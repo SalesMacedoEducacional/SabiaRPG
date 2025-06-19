@@ -227,8 +227,8 @@ export default function ClassManagement() {
     }
   };
 
-  // Filtrar turmas por termo de busca
-  const filteredTurmas = turmas.filter(turma => {
+  // Filtrar turmas por termo de busca - garantir que turmas é um array
+  const filteredTurmas = Array.isArray(turmas) ? turmas.filter(turma => {
     if (!turma) return false;
     
     // Verificar se os campos existem antes de tentar acessá-los
@@ -241,7 +241,7 @@ export default function ClassManagement() {
       serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
       modalidade.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  });
+  }) : [];
 
   // Encontrar nome da escola selecionada
   const escolaSelecionadaNome = escolas.find(e => e.id === selectedEscola)?.nome || "Selecione uma escola";

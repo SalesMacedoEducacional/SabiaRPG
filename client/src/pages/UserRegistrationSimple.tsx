@@ -214,10 +214,11 @@ export default function UserRegistrationSimple() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation('/manager/users')}
+              onClick={() => setLocation('/manager')}
               className="text-parchment hover:bg-dark-light"
             >
               <ArrowLeft className="h-4 w-4" />
+              Voltar ao Dashboard
             </Button>
             <div className="flex items-center gap-2">
               <UserPlus className="h-6 w-6 text-accent" />

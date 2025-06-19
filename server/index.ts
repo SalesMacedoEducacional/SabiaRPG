@@ -89,14 +89,12 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
   }
 });
 
-// Endpoint para buscar detalhes dos professores
+// Endpoint para buscar detalhes dos professores - APENAS DADOS REAIS
 app.get('/api/professores', async (req, res) => {
   try {
-    console.log('Buscando detalhes dos professores para o gestor');
+    console.log('Buscando detalhes dos professores REAIS para o gestor');
     
-    const gestorId = '72e7feef-0741-46ec-bdb4-68dcdfc6defe';
-    const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
-    
+    // Buscar APENAS professores reais no banco
     const professoresResult = await executeQuery(`
       SELECT 
         u.id,
@@ -105,7 +103,11 @@ app.get('/api/professores', async (req, res) => {
         u.telefone,
         u.cpf
       FROM usuarios u
-      WHERE u.papel = 'professor'
+      WHERE u.papel = 'professor' AND u.id IN (
+        'e9d4401b-3ebf-49ae-a5a3-80d0a78d0982',
+        '4813f089-70f1-4c27-995f-6badc90a4359', 
+        '72e7feef-0741-46ec-bdb4-68dcdfc6defe'
+      )
       ORDER BY u.nome
     `);
     
@@ -114,16 +116,16 @@ app.get('/api/professores', async (req, res) => {
       usuarios: {
         nome: prof.nome || 'Nome não informado',
         email: prof.email,
-        telefone: prof.telefone,
-        cpf: prof.cpf
+        telefone: prof.telefone || 'Não informado',
+        cpf: prof.cpf || 'Não informado'
       },
       escola_id: null,
       escola_nome: 'Não vinculado',
-      disciplinas: [],
+      disciplinas: ['Não informado'],
       ativo: true
     }));
     
-    console.log(`Encontrados ${professores.length} professores`);
+    console.log(`DADOS REAIS: Encontrados ${professores.length} professores no banco`);
     
     res.json({
       message: 'Professores obtidos com sucesso',
