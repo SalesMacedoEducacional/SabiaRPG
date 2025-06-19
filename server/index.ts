@@ -260,11 +260,22 @@ app.get('/api/escolas/detalhes', async (req, res) => {
   try {
     console.log('Buscando detalhes completos das escolas para o gestor');
     
+    // Verificar se há sessão ativa
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({
+        message: 'Não autorizado',
+        detalhes: 'Sessão inválida'
+      });
+    }
+    
+    const gestorId = req.session.userId;
+    console.log('Buscando escolas para gestor:', gestorId);
+    
     const escolasResult = await executeQuery(`
       SELECT 
         e.id,
         e.nome,
-        e.endereco,
+        e.endereco_completo as endereco,
         e.cidade,
         e.estado,
         e.telefone,
@@ -273,7 +284,7 @@ app.get('/api/escolas/detalhes', async (req, res) => {
       FROM escolas e
       WHERE e.gestor_id = $1
       ORDER BY e.nome
-    `, ['72e7feef-0741-46ec-bdb4-68dcdfc6defe']);
+    `, [gestorId]);
     
     console.log(`DADOS REAIS: Encontradas ${escolasResult.rows.length} escolas no banco`);
     
@@ -915,6 +926,52 @@ app.get('/api/escolas-cadastro', async (req, res) => {
   } catch (error) {
     console.error('Erro ao listar escolas:', error);
     res.status(500).json({ 
+      erro: 'Erro ao buscar escolas',
+      detalhes: error.message
+    });
+  }
+});
+
+// Endpoint para listar escolas do gestor (para página de escolas)
+app.get('/api/escolas/gestor', async (req, res) => {
+  try {
+    console.log('=== LISTAGEM DE ESCOLAS DO GESTOR ===');
+    
+    // Verificar se há sessão ativa
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({
+        erro: 'Não autorizado',
+        detalhes: 'Sessão inválida'
+      });
+    }
+    
+    const gestorId = req.session.userId;
+    console.log('Buscando escolas para gestor:', gestorId);
+    
+    const escolasResult = await executeQuery(`
+      SELECT 
+        id, 
+        nome, 
+        cidade, 
+        estado, 
+        codigo_escola,
+        tipo,
+        modalidade_ensino,
+        endereco_completo as endereco,
+        telefone,
+        email_institucional
+      FROM escolas
+      WHERE gestor_id = $1
+      ORDER BY nome ASC
+    `, [gestorId]);
+    
+    console.log(`Encontradas ${escolasResult.rows.length} escolas do gestor`);
+    
+    res.json(escolasResult.rows);
+    
+  } catch (error) {
+    console.error('Erro ao listar escolas do gestor:', error);
+    res.status(500).json({
       erro: 'Erro ao buscar escolas',
       detalhes: error.message
     });
