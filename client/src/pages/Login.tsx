@@ -337,10 +337,7 @@ const Login: React.FC = () => {
                       setRecoveryEmail(data.email);
                       setShowResetPassword(true);
                       setActiveTab('reset-password');
-                      toast({
-                        title: "Código enviado",
-                        description: `Um código de recuperação foi enviado para ${data.email} via ${data.recoveryMethod === 'email' ? 'email' : 'SMS'}`,
-                      });
+                      toast.success("Código enviado", `Um código de recuperação foi enviado para ${data.email} via ${data.recoveryMethod === 'email' ? 'email' : 'SMS'}`);
                       setIsLoading(false);
                     }, 1500);
                   })} 
@@ -403,10 +400,7 @@ const Login: React.FC = () => {
                     setIsLoading(true);
                     // Simulação de redefinição de senha
                     setTimeout(() => {
-                      toast({
-                        title: "Senha redefinida",
-                        description: "Sua senha foi redefinida com sucesso. Você já pode entrar com a nova senha.",
-                      });
+                      toast.success("Senha redefinida", "Sua senha foi redefinida com sucesso. Você já pode entrar com a nova senha.");
                       setActiveTab('login');
                       setIsLoading(false);
                     }, 1500);
