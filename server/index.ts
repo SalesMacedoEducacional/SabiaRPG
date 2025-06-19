@@ -441,20 +441,18 @@ app.get('/api/manager/professores', async (req, res) => {
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    const { data: professores, error } = await supabase
-      .from('usuarios')
-      .select(`
-        *,
-        perfis_professor!inner(
-          escola_id,
-          disciplinas,
-          ativo,
-          escolas(nome)
-        )
-      `)
-      .eq('papel', 'teacher')
-      .in('perfis_professor.escola_id', escolaIds)
-      .eq('perfis_professor.ativo', true);
+    const professoresResult = await executeQuery(`
+      SELECT u.*, pp.escola_id, pp.disciplinas, e.nome as escola_nome
+      FROM usuarios u
+      INNER JOIN perfis_professor pp ON u.id = pp.usuario_id
+      INNER JOIN escolas e ON pp.escola_id = e.id
+      WHERE u.papel = 'professor' 
+      AND pp.escola_id = ANY($1)
+      AND pp.ativo = true
+    `, [escolaIds]);
+    
+    const professores = professoresResult.rows;
+    const error = null;
     
     if (error) {
       console.error('Erro ao buscar professores:', error);
@@ -476,22 +474,18 @@ app.get('/api/manager/alunos', async (req, res) => {
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    const { data: alunos, error } = await supabase
-      .from('usuarios')
-      .select(`
-        *,
-        perfis_aluno!inner(
-          turma_id,
-          turmas!inner(
-            nome,
-            serie,
-            escola_id,
-            escolas(nome)
-          )
-        )
-      `)
-      .eq('papel', 'student')
-      .in('perfis_aluno.turmas.escola_id', escolaIds);
+    const alunosResult = await executeQuery(`
+      SELECT u.*, pa.turma_id, t.nome as turma_nome, t.serie, t.escola_id, e.nome as escola_nome
+      FROM usuarios u
+      INNER JOIN perfis_aluno pa ON u.id = pa.usuario_id
+      INNER JOIN turmas t ON pa.turma_id = t.id
+      INNER JOIN escolas e ON t.escola_id = e.id
+      WHERE u.papel = 'aluno' 
+      AND t.escola_id = ANY($1)
+    `, [escolaIds]);
+    
+    const alunos = alunosResult.rows;
+    const error = null;
     
     if (error) {
       console.error('Erro ao buscar alunos:', error);
@@ -513,15 +507,17 @@ app.get('/api/manager/turmas', async (req, res) => {
     
     const escolaIds = ['3aa2a8a7-141b-42d9-af55-a656247c73b3', '52de4420-f16c-4260-8eb8-307c402a0260'];
     
-    const { data: turmas, error } = await supabase
-      .from('turmas')
-      .select(`
-        *,
-        escolas!inner(nome),
-        usuarios!professor_id(nome, email)
-      `)
-      .in('escola_id', escolaIds)
-      .eq('ativo', true);
+    const turmasResult = await executeQuery(`
+      SELECT t.*, e.nome as escola_nome, u.nome as professor_nome, u.email as professor_email
+      FROM turmas t
+      INNER JOIN escolas e ON t.escola_id = e.id
+      LEFT JOIN usuarios u ON t.professor_id = u.id
+      WHERE t.escola_id = ANY($1)
+      AND t.ativo = true
+    `, [escolaIds]);
+    
+    const turmas = turmasResult.rows;
+    const error = null;
     
     if (error) {
       console.error('Erro ao buscar turmas:', error);
