@@ -241,129 +241,146 @@ export default function ClassManagement() {
   const escolaSelecionadaNome = escolas.find((e) => e.id === selectedEscola)?.nome || "";
 
   return (
-    <div className="min-h-screen bg-[#2b2518] p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header moderno */}
+        <div className="mb-12">
+          <div className="flex items-start justify-between">
+            <div className="space-y-6">
+              <Button
+                variant="ghost"
+                onClick={() => setLocation("/manager")}
+                className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover hover:bg-background-elevated rounded-lg px-4 py-2 transition-all duration-200 group"
+              >
+                <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
+                <span className="font-medium">Voltar ao Dashboard</span>
+              </Button>
+              
+              <div>
+                <h1 className="text-5xl font-bold text-text-primary mb-3 tracking-tight">
+                  Gerenciamento de Turmas
+                </h1>
+                <p className="text-accent text-xl font-medium">
+                  Gerencie as turmas das suas escolas
+                </p>
+              </div>
+            </div>
+            
             <Button
-              variant="ghost"
-              onClick={() => setLocation("/manager")}
-              className="flex items-center space-x-2 text-[#D47C06] hover:text-amber-400 hover:bg-[#4a4639]"
+              onClick={handleAddTurma}
+              className="bg-primary hover:bg-primary-hover text-primary-contrast px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold"
+              size="lg"
             >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Voltar ao Dashboard</span>
+              <Plus className="h-5 w-5 mr-3" />
+              Nova Turma
             </Button>
           </div>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Gerenciamento de Turmas
-            </h1>
-            <p className="text-accent">
-              Gerencie as turmas das suas escolas
-            </p>
-          </div>
-          
-          <Button
-            onClick={handleAddTurma}
-            className="bg-[#D47C06] hover:bg-amber-500 text-white flex items-center space-x-2 border border-[#D47C06]"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Nova Turma</span>
-          </Button>
         </div>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-white">
-              Filtrar por Escola
-            </label>
-            <Select
-              value={selectedEscola}
-              onValueChange={setSelectedEscola}
-            >
-              <SelectTrigger className="bg-background-input border-primary text-text-primary hover:bg-background-elevated">
-                <SelectValue placeholder="Todas as escolas" />
-              </SelectTrigger>
-              <SelectContent className="bg-background-input border-primary">
-                <SelectItem value="todas" className="text-text-primary hover:bg-background-elevated">Todas as escolas</SelectItem>
-                {escolas.map((escola) => (
-                  <SelectItem key={escola.id} value={escola.id} className="text-text-primary hover:bg-background-elevated">
-                    {escola.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-white">
-              Buscar Turmas
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-accent" />
-              <Input
-                placeholder="Nome da turma, série..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-background-input border-primary text-text-primary placeholder:text-accent"
-              />
+        {/* Seção de Filtros Modernizada */}
+        <div className="bg-background-card rounded-2xl p-8 shadow-lg border border-border mb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Filtro por Escola */}
+            <div className="lg:col-span-2 space-y-3">
+              <label className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+                Filtrar por Escola
+              </label>
+              <Select value={selectedEscola} onValueChange={setSelectedEscola}>
+                <SelectTrigger className="h-12 bg-background-input border-border text-text-primary rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                  <SelectValue placeholder="Selecione uma escola" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl bg-background-input border-border">
+                  <SelectItem value="todas" className="rounded-lg text-text-primary hover:bg-background-elevated">Todas as escolas</SelectItem>
+                  {escolas.map((escola) => (
+                    <SelectItem key={escola.id} value={escola.id} className="rounded-lg text-text-primary hover:bg-background-elevated">
+                      {escola.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
-          
-          <div className="flex items-end">
-            <div className="bg-background-primary border border-primary p-4 rounded-lg shadow-sm w-full">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-text-primary">
-                  {filteredTurmas.length}
-                </div>
-                <div className="text-sm text-accent">
-                  Turmas encontradas
+            
+            {/* Campo de Busca */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+                Buscar Turmas
+              </label>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-accent h-5 w-5" />
+                <Input
+                  type="text"
+                  placeholder="Nome, série ou escola..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-12 pl-12 bg-background-input border-border text-text-primary placeholder:text-text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+            
+            {/* Contador de Resultados */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+                Resultados
+              </label>
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 h-12 flex items-center justify-center">
+                <div className="text-center">
+                  <span className="text-2xl font-bold text-primary mr-2">
+                    {filteredTurmas.length}
+                  </span>
+                  <span className="text-sm text-accent font-medium">
+                    {filteredTurmas.length === 1 ? 'turma' : 'turmas'}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Lista de Turmas */}
+        {/* Lista de Turmas Modernizada */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-accent">Carregando turmas...</div>
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-accent font-medium">Carregando turmas...</p>
+            </div>
           </div>
         ) : filteredTurmas.length === 0 ? (
-          <div className="text-center py-12">
-            <GraduationCap className="h-16 w-16 text-accent mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Nenhuma turma encontrada
-            </h3>
-            <p className="text-accent mb-4">
-              {searchTerm 
-                ? "Nenhuma turma corresponde aos critérios de busca."
-                : "Comece criando sua primeira turma."}
-            </p>
-            {!searchTerm && (
-              <Button
-                onClick={handleAddTurma}
-                className="bg-[#D47C06] hover:bg-amber-500 text-white border border-[#D47C06]"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Criar primeira turma
-              </Button>
-            )}
+          <div className="text-center py-20">
+            <div className="bg-background-card rounded-2xl p-12 max-w-md mx-auto border border-border shadow-lg">
+              <GraduationCap className="h-20 w-20 text-primary mx-auto mb-6 opacity-60" />
+              <h3 className="text-2xl font-bold text-text-primary mb-3">
+                {searchTerm || selectedEscola !== "todas" 
+                  ? "Nenhuma turma encontrada" 
+                  : "Nenhuma turma cadastrada"}
+              </h3>
+              <p className="text-accent mb-8 text-lg">
+                {searchTerm || selectedEscola !== "todas"
+                  ? "Tente ajustar os filtros de busca."
+                  : "Comece criando sua primeira turma."}
+              </p>
+              {(!searchTerm && selectedEscola === "todas") && (
+                <Button
+                  onClick={handleAddTurma}
+                  className="bg-primary hover:bg-primary-hover text-primary-contrast px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <Plus className="h-5 w-5 mr-3" />
+                  Criar Primeira Turma
+                </Button>
+              )}
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTurmas.map((turma) => (
-              <Card key={turma.id} className="bg-background-primary border border-primary hover:border-primary-hover transition-all shadow-md">
-                <CardHeader className="pb-3">
+              <Card key={turma.id} className="bg-background-card border border-border hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 rounded-2xl overflow-hidden">
+                <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-primary/10">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-text-primary mb-1">
+                      <CardTitle className="text-xl font-bold text-text-primary mb-2 line-clamp-1">
                         {turma.nome}
                       </CardTitle>
-                      <CardDescription className="text-accent text-sm">
+                      <CardDescription className="text-accent text-sm font-medium flex items-center">
+                        <Building2 className="h-4 w-4 mr-2 text-primary" />
                         {turma.escola_nome}
                       </CardDescription>
                     </div>
@@ -371,32 +388,54 @@ export default function ClassManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTurma(turma)}
-                      className="text-primary hover:text-primary-hover hover:bg-background-elevated"
+                      className="text-primary hover:text-primary-hover hover:bg-primary/10 rounded-xl p-2"
                     >
                       <PenSquare className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm text-accent">
-                    <GraduationCap className="h-4 w-4 text-primary" />
-                    <span>{turma.serie}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 text-sm text-accent">
-                    <CalendarDays className="h-4 w-4 text-primary" />
-                    <span>Ano Letivo: {turma.ano_letivo}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 text-sm text-accent">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span>Turno: {turma.turno}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 text-sm text-accent">
-                    <Users className="h-4 w-4 text-primary" />
-                    <span>{turma.total_alunos} alunos</span>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3 text-sm">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <GraduationCap className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-text-secondary text-xs uppercase tracking-wide font-medium">Série</p>
+                        <p className="text-text-primary font-semibold">{turma.serie}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 text-sm">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <CalendarDays className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-text-secondary text-xs uppercase tracking-wide font-medium">Ano</p>
+                        <p className="text-text-primary font-semibold">{turma.ano_letivo}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 text-sm">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <Clock className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-text-secondary text-xs uppercase tracking-wide font-medium">Turno</p>
+                        <p className="text-text-primary font-semibold">{turma.turno}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 text-sm">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <Users className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-text-secondary text-xs uppercase tracking-wide font-medium">Alunos</p>
+                        <p className="text-text-primary font-semibold">{turma.total_alunos}</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
