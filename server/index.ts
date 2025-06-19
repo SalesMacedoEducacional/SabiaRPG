@@ -43,16 +43,43 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     
     const gestorId = req.session.userId;
     
-    // Buscar escolas vinculadas ao gestor através da tabela perfis_gestor
-    console.log('Buscando perfis de gestor para:', gestorId);
-    const perfilGestorResult = await executeQuery(
-      'SELECT escola_id FROM perfis_gestor WHERE usuario_id = $1 AND ativo = true',
+    // Buscar escolas vinculadas ao gestor através da tabela escolas diretamente
+    console.log('Buscando escolas vinculadas ao gestor:', gestorId);
+    const escolasResult = await executeQuery(
+      'SELECT id, nome FROM escolas WHERE gestor_id = $1',
       [gestorId]
     );
-    console.log('Perfis de gestor encontrados:', perfilGestorResult.rows.length);
-    console.log('Escolas vinculadas:', perfilGestorResult.rows.map(r => r.escola_id));
+    console.log('Escolas encontradas via gestor_id:', escolasResult.rows.length);
     
-    if (perfilGestorResult.rows.length === 0) {
+    // Se não encontrar por gestor_id, tentar via perfis_gestor
+    let escolaIds = [];
+    let escolas = [];
+    
+    if (escolasResult.rows.length > 0) {
+      escolaIds = escolasResult.rows.map(row => row.id);
+      escolas = escolasResult.rows;
+      console.log('Usando escolas encontradas via gestor_id:', escolas.map(e => e.nome));
+    } else {
+      // Fallback para perfis_gestor
+      const perfilGestorResult = await executeQuery(
+        'SELECT escola_id FROM perfis_gestor WHERE usuario_id = $1 AND ativo = true',
+        [gestorId]
+      );
+      
+      if (perfilGestorResult.rows.length > 0) {
+        escolaIds = perfilGestorResult.rows.map(row => row.escola_id);
+        
+        // Buscar detalhes das escolas
+        const escolasDetalhes = await executeQuery(
+          'SELECT id, nome FROM escolas WHERE id = ANY($1)',
+          [escolaIds]
+        );
+        escolas = escolasDetalhes.rows;
+        console.log('Usando escolas encontradas via perfis_gestor:', escolas.map(e => e.nome));
+      }
+    }
+    
+    if (escolaIds.length === 0) {
       console.log('Nenhuma escola vinculada encontrada para o gestor');
       return res.status(200).json({
         totalEscolas: 0,
@@ -64,14 +91,14 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
       });
     }
     
-    const escolaIds = perfilGestorResult.rows.map(row => row.escola_id);
-    
-    // Buscar detalhes das escolas
-    const escolasResult = await executeQuery(
-      'SELECT * FROM escolas WHERE id = ANY($1)',
-      [escolaIds]
-    );
-    const escolas = escolasResult.rows;
+    // Se não temos escolas detalhadas, buscar detalhes completos
+    if (escolas.length === 0 && escolaIds.length > 0) {
+      const escolasDetalhesResult = await executeQuery(
+        'SELECT * FROM escolas WHERE id = ANY($1)',
+        [escolaIds]
+      );
+      escolas = escolasDetalhesResult.rows;
+    }
     
     // Contar professores através da tabela perfis_professor
     const professoresResult = await executeQuery(
