@@ -113,37 +113,31 @@ app.get('/api/professores', async (req, res) => {
       });
     }
     
-    // Buscar professores através da tabela perfis_professor
+    // Buscar professores através da tabela usuarios (dados reais disponíveis)
     const professoresResult = await executeQuery(`
       SELECT 
-        pp.id as perfil_id,
-        pp.usuario_id,
-        pp.escola_id,
-        pp.telefone as telefone_perfil,
-        pp.cpf as cpf_perfil,
-        pp.ativo,
+        u.id,
         u.nome,
         u.email,
-        u.telefone as telefone_usuario,
-        u.cpf as cpf_usuario,
-        e.nome as escola_nome
-      FROM perfis_professor pp
-      JOIN usuarios u ON pp.usuario_id = u.id
-      JOIN escolas e ON pp.escola_id = e.id
-      WHERE pp.escola_id = ANY($1) AND pp.ativo = true
+        u.cpf,
+        u.telefone,
+        u.data_nascimento,
+        u.ativo
+      FROM usuarios u
+      WHERE u.papel = 'professor' AND u.ativo = true
       ORDER BY u.nome
-    `, [escolaIds]);
+    `, []);
     
     const professores = professoresResult.rows.map(prof => ({
-      id: prof.perfil_id,
+      id: prof.id,
       usuarios: {
         nome: prof.nome || 'Nome não informado',
         email: prof.email || 'Não informado',
-        telefone: prof.telefone_perfil || prof.telefone_usuario || 'Não informado',
-        cpf: prof.cpf_perfil || prof.cpf_usuario || 'Não informado'
+        telefone: prof.telefone || 'Não informado',
+        cpf: prof.cpf || 'Não informado'
       },
-      escola_id: prof.escola_id,
-      escola_nome: prof.escola_nome,
+      escola_id: null,
+      escola_nome: 'Aguardando definição',
       disciplinas: ['Não informado'],
       ativo: prof.ativo
     }));
@@ -185,48 +179,39 @@ app.get('/api/alunos', async (req, res) => {
       });
     }
     
-    // Buscar alunos através da tabela perfis_aluno
+    // Buscar alunos através da tabela usuarios (dados reais disponíveis)
     const alunosResult = await executeQuery(`
       SELECT 
-        pa.id as perfil_id,
-        pa.usuario_id,
-        pa.escola_id,
-        pa.turma_id,
-        pa.matricula_id,
-        pa.telefone as telefone_perfil,
-        pa.ativo,
+        u.id,
         u.nome,
         u.email,
         u.cpf,
-        u.telefone as telefone_usuario,
-        e.nome as escola_nome,
-        t.nome as turma_nome
-      FROM perfis_aluno pa
-      JOIN usuarios u ON pa.usuario_id = u.id
-      JOIN escolas e ON pa.escola_id = e.id
-      LEFT JOIN turmas t ON pa.turma_id = t.id
-      WHERE pa.escola_id = ANY($1) AND pa.ativo = true
+        u.telefone,
+        u.data_nascimento,
+        u.ativo
+      FROM usuarios u
+      WHERE u.papel = 'aluno' AND u.ativo = true
       ORDER BY u.nome
-    `, [escolaIds]);
+    `, []);
     
     const alunos = alunosResult.rows.map(aluno => ({
-      id: aluno.perfil_id,
+      id: aluno.id,
       usuarios: {
         nome: aluno.nome || 'Nome não informado',
         email: aluno.email || 'Não informado',
         cpf: aluno.cpf || 'Não informado',
-        telefone: aluno.telefone_perfil || aluno.telefone_usuario || 'Não informado'
+        telefone: aluno.telefone || 'Não informado'
       },
       turmas: {
-        nome: aluno.turma_nome || 'Sem turma'
+        nome: 'Aguardando turma'
       },
       matriculas: {
-        numero_matricula: aluno.matricula_id || 'Não informado'
+        numero_matricula: 'Não informado'
       },
-      escola_id: aluno.escola_id,
-      turma_id: aluno.turma_id,
-      matricula_id: aluno.matricula_id,
-      escola_nome: aluno.escola_nome,
+      escola_id: null,
+      turma_id: null,
+      matricula_id: null,
+      escola_nome: 'Aguardando definição',
       ativo: aluno.ativo
     }));
     
