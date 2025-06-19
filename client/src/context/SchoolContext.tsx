@@ -110,7 +110,7 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
           totalAlunos: statsData.totalAlunos || 0,
-          turmasAtivas: statsData.turmasAtivas || 0
+          turmasAtivas: statsData.totalTurmas || 0
         });
         
         console.log('refreshStats: Estado atualizado com:', {

@@ -31,6 +31,117 @@ import crypto from 'crypto';
 // TODOS OS ENDPOINTS DA API DEVEM VIR ANTES DA CONFIGURAÇÃO DO VITE
 // =================================================================
 
+// ENDPOINTS PARA CARDS DO DASHBOARD DO GESTOR - DADOS REAIS
+app.get('/api/manager/dashboard-stats', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const gestorId = req.session.userId;
+    console.log('Buscando estatísticas reais para gestor:', gestorId);
+    
+    // Buscar total de escolas do gestor
+    const escolasResult = await executeQuery(`
+      SELECT COUNT(*) as total FROM escolas WHERE gestor_id = $1
+    `, [gestorId]);
+    
+    // Buscar total de professores nas escolas do gestor
+    const professoresResult = await executeQuery(`
+      SELECT COUNT(DISTINCT u.id) as total 
+      FROM usuarios u
+      INNER JOIN escolas e ON u.escola_id = e.id
+      WHERE e.gestor_id = $1 AND u.papel = 'professor' AND u.ativo = true
+    `, [gestorId]);
+    
+    // Buscar total de alunos nas escolas do gestor
+    const alunosResult = await executeQuery(`
+      SELECT COUNT(DISTINCT u.id) as total 
+      FROM usuarios u
+      INNER JOIN escolas e ON u.escola_id = e.id
+      WHERE e.gestor_id = $1 AND u.papel = 'aluno' AND u.ativo = true
+    `, [gestorId]);
+    
+    // Buscar total de turmas nas escolas do gestor
+    const turmasResult = await executeQuery(`
+      SELECT COUNT(*) as total 
+      FROM turmas t
+      INNER JOIN escolas e ON t.escola_id = e.id
+      WHERE e.gestor_id = $1 AND t.ativo = true
+    `, [gestorId]);
+
+    // Buscar estatísticas reais baseadas em perfis_professor, perfis_aluno e turmas
+    console.log('Buscando estatísticas reais baseadas em perfis_professor, perfis_aluno e turmas');
+    
+    // Buscar escolas vinculadas ao gestor
+    console.log('Buscando escolas vinculadas ao gestor:', gestorId);
+    const escolasVinculadasResult = await executeQuery(`
+      SELECT id, nome, codigo_escola, criado_em, inep, tipo, modalidade, cidade, estado, zona, endereco, telefone, email, gestor_id, modalidade_ensino, zona_geografica, endereco_completo, email_institucional
+      FROM escolas 
+      WHERE gestor_id = $1
+      ORDER BY nome
+    `, [gestorId]);
+    
+    console.log('Escolas encontradas via gestor_id:', escolasVinculadasResult.rows.length);
+    console.log('Nomes das escolas encontradas:', escolasVinculadasResult.rows.map(e => e.nome));
+    
+    const escolas = escolasVinculadasResult.rows;
+    const escolaIds = escolas.map(e => e.id);
+    
+    console.log('Usando escolas encontradas via gestor_id:', escolas.map(e => e.nome));
+    console.log('=== CONSULTANDO DADOS REAIS DAS TABELAS ===');
+    console.log('Escolas IDs para contagem:', escolaIds);
+    
+    // Contar professores reais da tabela perfis_professor
+    const professoresQuery = `
+      SELECT COUNT(DISTINCT pp.id) as total 
+      FROM perfis_professor pp
+      WHERE pp.escola_id = ANY($1) AND pp.ativo = true
+    `;
+    const professoresReais = await executeQuery(professoresQuery, [escolaIds]);
+    
+    // Contar alunos reais da tabela perfis_aluno
+    const alunosQuery = `
+      SELECT COUNT(DISTINCT pa.id) as total 
+      FROM perfis_aluno pa
+      WHERE pa.escola_id = ANY($1) AND pa.ativo = true
+    `;
+    const alunosReais = await executeQuery(alunosQuery, [escolaIds]);
+    
+    // Contar turmas reais da tabela turmas
+    const turmasQuery = `
+      SELECT COUNT(*) as total 
+      FROM turmas t
+      WHERE t.escola_id = ANY($1) AND t.ativo = true
+    `;
+    const turmasReais = await executeQuery(turmasQuery, [escolaIds]);
+    
+    console.log('=== CONTADORES REAIS ===');
+    console.log('Professores encontrados:', professoresReais.rows[0]?.total || 0);
+    console.log('Alunos encontrados:', alunosReais.rows[0]?.total || 0);
+    console.log('Turmas ativas encontradas:', turmasReais.rows[0]?.total || 0);
+    
+    const stats = {
+      totalEscolas: escolas.length,
+      totalProfessores: parseInt(professoresReais.rows[0]?.total || '0'),
+      totalAlunos: parseInt(alunosReais.rows[0]?.total || '0'),
+      turmasAtivas: parseInt(turmasReais.rows[0]?.total || '0'),
+      escolas: escolas
+    };
+
+    console.log('=== RESPOSTA FINAL ===');
+    console.log('Dados sendo enviados:', stats);
+    
+    return res.status(200).json({
+      message: 'Estatísticas obtidas com sucesso',
+      ...stats
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas do dashboard:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 // Direct API routes without authentication (placed before all middleware)
 // Endpoint para detalhes das escolas do gestor
 app.get('/api/escolas/detalhes', async (req, res) => {
