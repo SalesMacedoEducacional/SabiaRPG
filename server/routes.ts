@@ -2933,6 +2933,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
+
+  // Login endpoint
+  app.post("/api/auth/login", async (req, res) => {
+    console.log('=== LOGIN INICIADO ===');
+    console.log('Dados recebidos:', { email: req.body.email, senha: req.body.senha ? '[FORNECIDA]' : '[NÃO FORNECIDA]' });
+    
+    try {
+      const { email, senha } = req.body;
+      
+      console.log('Validando campos:', { email: !!email, senha: !!senha });
+      
+      if (!email || !senha) {
+        return res.status(400).json({ 
+          erro: 'Email e senha são obrigatórios' 
+        });
+      }
+      
+      // Buscar usuário por email
+      const userQuery = `
+        SELECT id, nome, email, papel, senha_hash, ativo 
+        FROM usuarios 
+        WHERE email = $1 AND ativo = true
+      `;
+      
+      const result = await executeQuery(userQuery, [email.toLowerCase().trim()]);
+      
+      if (result.rows.length === 0) {
+        return res.status(401).json({ 
+          erro: 'Email ou senha incorretos' 
+        });
+      }
+      
+      const usuario = result.rows[0];
+      
+      // Verificar senha
+      const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+      
+      if (!senhaValida) {
+        return res.status(401).json({ 
+          erro: 'Email ou senha incorretos' 
+        });
+      }
+      
+      // Criar sessão
+      req.session.userId = usuario.id;
+      req.session.userRole = usuario.papel;
+      req.session.userName = usuario.nome;
+      
+      console.log('Login realizado com sucesso:', {
+        id: usuario.id,
+        nome: usuario.nome,
+        papel: usuario.papel
+      });
+      
+      res.status(200).json({
+        sucesso: true,
+        usuario: {
+          id: usuario.id,
+          nome: usuario.nome,
+          email: usuario.email,
+          papel: usuario.papel
+        },
+        mensagem: 'Login realizado com sucesso'
+      });
+      
+    } catch (error: any) {
+      console.error('Erro no login:', error);
+      res.status(500).json({ 
+        erro: 'Erro interno do servidor',
+        detalhes: error.message
+      });
+    }
+  });
+
+  // Endpoint para verificar status de autenticação
+  app.get("/api/auth/me", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+      
+      // Buscar dados atualizados do usuário
+      const userQuery = `
+        SELECT id, nome, email, papel, ativo 
+        FROM usuarios 
+        WHERE id = $1 AND ativo = true
+      `;
+      
+      const result = await executeQuery(userQuery, [req.session.userId]);
+      
+      if (result.rows.length === 0) {
+        // Limpar sessão se usuário não existe
+        req.session.destroy(() => {});
+        return res.status(401).json({ message: "Usuário não encontrado" });
+      }
+      
+      const usuario = result.rows[0];
+      
+      res.status(200).json({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        papel: usuario.papel
+      });
+      
+    } catch (error: any) {
+      console.error('Erro ao verificar autenticação:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Erro ao fazer logout:', err);
+        return res.status(500).json({ message: "Erro ao fazer logout" });
+      }
+      
+      res.status(200).json({ 
+        sucesso: true,
+        mensagem: "Logout realizado com sucesso" 
+      });
+    });
+  });
   
   const httpServer = createServer(app);
   return httpServer;
