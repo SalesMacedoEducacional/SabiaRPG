@@ -46,10 +46,11 @@ app.get('/api/manager/dashboard-stats', async (req, res) => {
     // Buscar escolas vinculadas ao gestor através da tabela escolas diretamente
     console.log('Buscando escolas vinculadas ao gestor:', gestorId);
     const escolasResult = await executeQuery(
-      'SELECT id, nome FROM escolas WHERE gestor_id = $1',
+      'SELECT * FROM escolas WHERE gestor_id = $1',
       [gestorId]
     );
     console.log('Escolas encontradas via gestor_id:', escolasResult.rows.length);
+    console.log('Nomes das escolas encontradas:', escolasResult.rows.map(e => e.nome));
     
     // Se não encontrar por gestor_id, tentar via perfis_gestor
     let escolaIds = [];
