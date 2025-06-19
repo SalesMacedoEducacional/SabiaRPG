@@ -241,15 +241,15 @@ export default function ClassManagement() {
   const escolaSelecionadaNome = escolas.find((e) => e.id === selectedEscola)?.nome || "";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-[#2b2518] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              onClick={() => setLocation("/manager-dashboard")}
-              className="flex items-center space-x-2 text-purple-700 hover:text-purple-900"
+              onClick={() => setLocation("/manager")}
+              className="flex items-center space-x-2 text-[#D47C06] hover:text-amber-400 hover:bg-[#4a4639]"
             >
               <ArrowLeft className="h-5 w-5" />
               <span>Voltar ao Dashboard</span>
@@ -257,17 +257,17 @@ export default function ClassManagement() {
           </div>
           
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Gerenciamento de Turmas
             </h1>
-            <p className="text-gray-600">
+            <p className="text-accent">
               Gerencie as turmas das suas escolas
             </p>
           </div>
           
           <Button
             onClick={handleAddTurma}
-            className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
+            className="bg-[#D47C06] hover:bg-amber-500 text-white flex items-center space-x-2 border border-[#D47C06]"
           >
             <Plus className="h-5 w-5" />
             <span>Nova Turma</span>
@@ -277,20 +277,20 @@ export default function ClassManagement() {
         {/* Filtros */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-white">
               Filtrar por Escola
             </label>
             <Select
               value={selectedEscola}
               onValueChange={setSelectedEscola}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
                 <SelectValue placeholder="Todas as escolas" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas as escolas</SelectItem>
+              <SelectContent className="bg-[#4a4639] border-[#D47C06]">
+                <SelectItem value="todas" className="text-white hover:bg-[#57533f]">Todas as escolas</SelectItem>
                 {escolas.map((escola) => (
-                  <SelectItem key={escola.id} value={escola.id}>
+                  <SelectItem key={escola.id} value={escola.id} className="text-white hover:bg-[#57533f]">
                     {escola.nome}
                   </SelectItem>
                 ))}
@@ -299,27 +299,27 @@ export default function ClassManagement() {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-white">
               Buscar Turmas
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-accent" />
               <Input
                 placeholder="Nome da turma, série..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent"
               />
             </div>
           </div>
           
           <div className="flex items-end">
-            <div className="bg-white p-4 rounded-lg border shadow-sm w-full">
+            <div className="bg-[#312e26] border border-[#D47C06] p-4 rounded-lg shadow-sm w-full">
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
+                <div className="text-2xl font-bold text-[#D47C06]">
                   {filteredTurmas.length}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-accent">
                   Turmas encontradas
                 </div>
               </div>
@@ -330,15 +330,15 @@ export default function ClassManagement() {
         {/* Lista de Turmas */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-gray-500">Carregando turmas...</div>
+            <div className="text-accent">Carregando turmas...</div>
           </div>
         ) : filteredTurmas.length === 0 ? (
           <div className="text-center py-12">
-            <GraduationCap className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <GraduationCap className="h-16 w-16 text-accent mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">
               Nenhuma turma encontrada
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-accent mb-4">
               {searchTerm 
                 ? "Nenhuma turma corresponde aos critérios de busca."
                 : "Comece criando sua primeira turma."}
@@ -346,7 +346,7 @@ export default function ClassManagement() {
             {!searchTerm && (
               <Button
                 onClick={handleAddTurma}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-[#D47C06] hover:bg-amber-500 text-white border border-[#D47C06]"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Criar primeira turma
@@ -356,14 +356,14 @@ export default function ClassManagement() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTurmas.map((turma) => (
-              <Card key={turma.id} className="bg-white hover:shadow-lg transition-shadow">
+              <Card key={turma.id} className="bg-[#312e26] border border-[#D47C06] hover:border-amber-400 transition-all shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                      <CardTitle className="text-lg font-semibold text-white mb-1">
                         {turma.nome}
                       </CardTitle>
-                      <CardDescription className="text-sm text-gray-600">
+                      <CardDescription className="text-accent text-sm">
                         {turma.escola_nome}
                       </CardDescription>
                     </div>
@@ -371,7 +371,7 @@ export default function ClassManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTurma(turma)}
-                      className="text-purple-600 hover:text-purple-800"
+                      className="text-[#D47C06] hover:text-amber-400 hover:bg-[#4a4639]"
                     >
                       <PenSquare className="h-4 w-4" />
                     </Button>
@@ -379,23 +379,23 @@ export default function ClassManagement() {
                 </CardHeader>
                 
                 <CardContent className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <GraduationCap className="h-4 w-4" />
+                  <div className="flex items-center space-x-2 text-sm text-accent">
+                    <GraduationCap className="h-4 w-4 text-[#D47C06]" />
                     <span>{turma.serie}</span>
                   </div>
                   
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <CalendarDays className="h-4 w-4" />
+                  <div className="flex items-center space-x-2 text-sm text-accent">
+                    <CalendarDays className="h-4 w-4 text-[#D47C06]" />
                     <span>Ano Letivo: {turma.ano_letivo}</span>
                   </div>
                   
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Clock className="h-4 w-4" />
+                  <div className="flex items-center space-x-2 text-sm text-accent">
+                    <Clock className="h-4 w-4 text-[#D47C06]" />
                     <span>Turno: {turma.turno}</span>
                   </div>
                   
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Users className="h-4 w-4" />
+                  <div className="flex items-center space-x-2 text-sm text-accent">
+                    <Users className="h-4 w-4 text-[#D47C06]" />
                     <span>{turma.total_alunos} alunos</span>
                   </div>
                 </CardContent>
@@ -406,12 +406,12 @@ export default function ClassManagement() {
 
         {/* Dialog para Adicionar/Editar Turma */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] bg-[#2b2518] border border-[#D47C06]">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-white">
                 {editTurma ? "Editar Turma" : "Nova Turma"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-accent">
                 {editTurma 
                   ? "Edite as informações da turma abaixo." 
                   : "Preencha as informações para criar uma nova turma."}
@@ -425,16 +425,16 @@ export default function ClassManagement() {
                   name="escola_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Escola</FormLabel>
+                      <FormLabel className="text-white">Escola</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
                             <SelectValue placeholder="Selecione uma escola" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-[#4a4639] border-[#D47C06]">
                           {escolas.map((escola) => (
-                            <SelectItem key={escola.id} value={escola.id}>
+                            <SelectItem key={escola.id} value={escola.id} className="text-white hover:bg-[#57533f]">
                               {escola.nome}
                             </SelectItem>
                           ))}
@@ -450,9 +450,9 @@ export default function ClassManagement() {
                   name="nome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome da Turma</FormLabel>
+                      <FormLabel className="text-white">Nome da Turma</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: 3° Ano A" {...field} />
+                        <Input placeholder="Ex: 3° Ano A" {...field} className="bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -465,17 +465,17 @@ export default function ClassManagement() {
                     name="serie"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Série</FormLabel>
+                        <FormLabel className="text-white">Série</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-[#4a4639] border-[#D47C06] text-white">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Ensino Fundamental">Ensino Fundamental</SelectItem>
-                            <SelectItem value="Ensino Médio">Ensino Médio</SelectItem>
-                            <SelectItem value="EJA">EJA</SelectItem>
+                          <SelectContent className="bg-[#4a4639] border-[#D47C06]">
+                            <SelectItem value="Ensino Fundamental" className="text-white hover:bg-[#57533f]">Ensino Fundamental</SelectItem>
+                            <SelectItem value="Ensino Médio" className="text-white hover:bg-[#57533f]">Ensino Médio</SelectItem>
+                            <SelectItem value="EJA" className="text-white hover:bg-[#57533f]">EJA</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -488,13 +488,14 @@ export default function ClassManagement() {
                     name="ano_letivo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ano Letivo</FormLabel>
+                        <FormLabel className="text-white">Ano Letivo</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             min="2023"
                             max="2030"
                             {...field}
+                            className="bg-[#4a4639] border-[#D47C06] text-white placeholder:text-accent"
                           />
                         </FormControl>
                         <FormMessage />
