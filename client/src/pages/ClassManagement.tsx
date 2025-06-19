@@ -279,11 +279,11 @@ export default function ClassManagement() {
         </div>
 
         {/* Seção de Filtros Modernizada */}
-        <div className="bg-background-card rounded-2xl p-8 shadow-lg border border-border mb-10">
+        <div className="bg-parchment-light/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-primary/20 mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filtro por Escola */}
             <div className="lg:col-span-2 space-y-3">
-              <label className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+              <label className="text-sm font-semibold text-primary-contrast uppercase tracking-wide">
                 Filtrar por Escola
               </label>
               <Select value={selectedEscola} onValueChange={setSelectedEscola}>
@@ -303,7 +303,7 @@ export default function ClassManagement() {
             
             {/* Campo de Busca */}
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+              <label className="text-sm font-semibold text-primary-contrast uppercase tracking-wide">
                 Buscar Turmas
               </label>
               <div className="relative">
@@ -347,7 +347,7 @@ export default function ClassManagement() {
           </div>
         ) : filteredTurmas.length === 0 ? (
           <div className="text-center py-20">
-            <div className="bg-background-card rounded-2xl p-12 max-w-md mx-auto border border-border shadow-lg">
+            <div className="bg-parchment-light/90 backdrop-blur-sm rounded-3xl p-12 max-w-md mx-auto border border-primary/20 shadow-lg">
               <GraduationCap className="h-20 w-20 text-primary mx-auto mb-6 opacity-60" />
               <h3 className="text-2xl font-bold text-text-primary mb-3">
                 {searchTerm || selectedEscola !== "todas" 
@@ -373,7 +373,7 @@ export default function ClassManagement() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTurmas.map((turma) => (
-              <Card key={turma.id} className="bg-background-card border border-border hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 rounded-2xl overflow-hidden">
+              <Card key={turma.id} className="bg-parchment-light/90 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-primary/10">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
