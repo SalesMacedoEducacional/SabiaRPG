@@ -210,7 +210,7 @@ export default function ManagerDashboardModerno() {
           {/* Logo Centralizada */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
             <img 
-              src="/attached_assets/Design sem nome (1).png" 
+              src="/attached_assets/LOGOSABIA_1750308592736.png" 
               alt="Sabiá RPG" 
               className="h-8 w-auto object-contain"
             />
