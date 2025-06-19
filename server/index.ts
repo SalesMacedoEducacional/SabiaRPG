@@ -268,8 +268,7 @@ app.get('/api/escolas/detalhes', async (req, res) => {
         e.cidade,
         e.estado,
         e.telefone,
-        e.email,
-
+        e.email_institucional,
         e.criado_em
       FROM escolas e
       WHERE e.gestor_id = $1

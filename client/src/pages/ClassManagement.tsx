@@ -118,11 +118,11 @@ export default function ClassManagement() {
   useEffect(() => {
     const fetchEscolas = async () => {
       try {
-        const response = await axios.get("/api/escolas/gestor");
-        setEscolas(response.data);
+        const response = await axios.get("/api/escolas-cadastro");
+        setEscolas(response.data.escolas);
         
-        if (response.data.length > 0) {
-          setSelectedEscola(response.data[0].id);
+        if (response.data.escolas.length > 0) {
+          setSelectedEscola(response.data.escolas[0].id);
         }
       } catch (error) {
         console.error("Erro ao carregar escolas:", error);
@@ -139,16 +139,19 @@ export default function ClassManagement() {
     fetchEscolas();
   }, [toast]);
 
-  // Carregar turmas da escola selecionada
+  // Carregar turmas do gestor
   useEffect(() => {
-    if (selectedEscola) {
-      const fetchTurmas = async () => {
-        try {
-          setLoading(true);
-          const response = await axios.get(`/api/turmas?escola_id=${selectedEscola}`);
-          console.log("Turmas retornadas da API:", response.data);
-          setTurmas(response.data);
-        } catch (error) {
+    const fetchTurmas = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("/api/turmas");
+        console.log("Turmas retornadas da API:", response.data);
+        if (response.data.turmas) {
+          setTurmas(response.data.turmas);
+        } else {
+          setTurmas([]);
+        }
+      } catch (error) {
           console.error("Erro ao carregar turmas:", error);
           toast({
             title: "Erro",
@@ -160,9 +163,8 @@ export default function ClassManagement() {
         }
       };
 
-      fetchTurmas();
-    }
-  }, [selectedEscola, toast]);
+    fetchTurmas();
+  }, [toast]);
 
   // Abrir diálogo para adicionar nova turma
   const handleAddTurma = () => {
