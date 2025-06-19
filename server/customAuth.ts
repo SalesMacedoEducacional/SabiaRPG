@@ -467,7 +467,7 @@ export async function handleLogout(req: Request, res: Response) {
 }
 
 /**
- * Middleware para verificação de papel (role)
+ * Middleware para verificação de papel (role) - LIBERAR ACESSO PARA GESTOR
  */
 export const requireRole = (roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -479,6 +479,12 @@ export const requireRole = (roles: string[]) => {
       
       // Papel do usuário na sessão (em português)
       const userRolePortuguese = req.session.userRole.toLowerCase();
+      
+      // LIBERAR TODOS OS ACESSOS PARA GESTOR - REMOVER BLOQUEIOS
+      if (userRolePortuguese === 'gestor') {
+        console.log('✅ ACESSO LIBERADO PARA GESTOR - SEM VERIFICAÇÃO DE PERMISSÕES');
+        return next();
+      }
       
       // Mapear papel do usuário do português para inglês
       let userRoleEnglish = userRolePortuguese;
