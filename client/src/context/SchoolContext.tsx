@@ -64,20 +64,9 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setIsLoading(true);
       setError(null);
 
-      // Buscar escolas vinculadas ao gestor
-      const escolasResponse = await apiRequest("GET", "/api/escolas/gestor");
-      const escolasData = await escolasResponse.json();
-      console.log('loadSchoolData: Resposta escolas:', escolasData);
-      
-      if (escolasResponse.ok) {
-        setEscolasVinculadas(escolasData || []);
-        
-        // Sempre buscar estatísticas do dashboard após login
-        console.log('loadSchoolData: Forçando chamada de refreshStats');
-        await refreshStats();
-      } else {
-        throw new Error('Erro ao carregar escolas vinculadas');
-      }
+      // Usar endpoint otimizado que já retorna escolas + estatísticas
+      console.log('loadSchoolData: Usando endpoint otimizado completo');
+      await refreshStats(true); // Força refresh completo
     } catch (error) {
       console.error("Erro ao carregar dados das escolas:", error);
       setError("Erro ao carregar dados de escolas vinculadas");
@@ -118,8 +107,9 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
-        console.log('refreshStats: Dados recebidos do backend:', statsData);
+        console.log('refreshStats: Dados do endpoint otimizado:', statsData);
         
+        // Atualizar tanto as estatísticas quanto as escolas em uma única operação
         setDashboardStats({
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
@@ -127,14 +117,20 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           turmasAtivas: statsData.turmasAtivas || 0
         });
         
+        // Atualizar escolas se retornadas pelo endpoint otimizado
+        if (statsData.escolas) {
+          setEscolasVinculadas(statsData.escolas);
+        }
+        
         // Atualizar timestamp do cache
         setLastFetch(Date.now());
         
-        console.log('refreshStats: Estado atualizado com cache renovado:', {
+        console.log('refreshStats: Cache atualizado com dados completos:', {
           totalEscolas: statsData.totalEscolas || 0,
           totalProfessores: statsData.totalProfessores || 0,
           totalAlunos: statsData.totalAlunos || 0,
-          turmasAtivas: statsData.turmasAtivas || 0
+          turmasAtivas: statsData.turmasAtivas || 0,
+          escolas: statsData.escolas?.length || 0
         });
       } else {
         const errorData = await statsResponse.json();
