@@ -183,6 +183,13 @@ function Router() {
         ]}
       />
       
+      {/* Sistema de Demonstração de Sincronização */}
+      <ProtectedRoute 
+        path="/sync-demo" 
+        component={SyncDemo}
+        requireAuth={true}
+      />
+      
       {/* Página não encontrada */}
       <Route component={NotFound} />
     </Switch>

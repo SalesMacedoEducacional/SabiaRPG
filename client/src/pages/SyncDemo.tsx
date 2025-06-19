@@ -238,7 +238,7 @@ export default function SyncDemo() {
           onClick={simulateDataRefresh}
           className="bg-blue-600 hover:bg-blue-700"
         >
-          <Refresh className="h-4 w-4 mr-2" />
+          <RefreshCw className="h-4 w-4 mr-2" />
           Atualizar Dados
         </Button>
       </div>
