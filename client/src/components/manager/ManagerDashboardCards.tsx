@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSchool } from "@/context/SchoolContext";
 import { apiRequest } from "@/lib/queryClient";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
+import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import { 
   School, 
   Users, 
@@ -93,8 +94,10 @@ export function TotalEscolasCard() {
   const { toast } = useToast();
   const { refreshAll } = useAutoRefresh();
   const { escolasVinculadas, dashboardStats, isLoading, refreshStats } = useSchool();
+  const { forceRefreshAfterMutation } = useRealtimeSubscriptions();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [statsForced, setStatsForced] = useState<any>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Forçar busca direta do endpoint se os dados não carregarem
   useEffect(() => {

@@ -1275,24 +1275,33 @@ async function preloadAllManagerStats() {
       
       console.log(`Pré-carregando dados para gestor: ${gestor.nome} (${gestorId})`);
       
-      // Consulta otimizada
+      // Consulta SQL direta ultra-otimizada com índices compostos
       const dashboardCompleto = await executeQuery(`
         WITH escolas_gestor AS (
-          SELECT id, nome, cidade, estado FROM escolas WHERE gestor_id = $1
+          SELECT id, nome, cidade, estado 
+          FROM escolas 
+          WHERE gestor_id = $1
+        ),
+        escola_ids AS (
+          SELECT ARRAY_AGG(id) as ids FROM escolas_gestor
         ),
         contadores AS (
           SELECT 
             (SELECT COUNT(*) FROM escolas_gestor) as total_escolas,
-            (SELECT COUNT(DISTINCT pp.usuario_id) 
-             FROM perfis_professor pp 
-             WHERE pp.escola_id IN (SELECT id FROM escolas_gestor)) as total_professores,
-            (SELECT COUNT(DISTINCT pa.usuario_id) 
-             FROM perfis_aluno pa 
-             JOIN turmas t ON pa.turma_id = t.id 
-             WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_alunos,
+            (SELECT COUNT(*) 
+             FROM usuarios u 
+             WHERE u.escola_id = ANY((SELECT ids FROM escola_ids)) 
+               AND u.papel = 'professor' 
+               AND u.ativo = true) as total_professores,
+            (SELECT COUNT(*) 
+             FROM usuarios u 
+             WHERE u.escola_id = ANY((SELECT ids FROM escola_ids)) 
+               AND u.papel = 'aluno' 
+               AND u.ativo = true) as total_alunos,
             (SELECT COUNT(*) 
              FROM turmas t 
-             WHERE t.escola_id IN (SELECT id FROM escolas_gestor)) as total_turmas
+             WHERE t.escola_id = ANY((SELECT ids FROM escola_ids)) 
+               AND t.ativo = true) as total_turmas
         )
         SELECT 
           c.total_escolas,
@@ -1333,8 +1342,56 @@ async function preloadAllManagerStats() {
   }
 }
 
-// Iniciar pré-carregamento imediatamente e agendar repetições
-setTimeout(preloadAllManagerStats, 2000); // Primeiro carregamento após 2s
+// Aplicar índices de performance no banco
+async function aplicarIndicesPerformance() {
+  try {
+    console.log('🔧 APLICANDO ÍNDICES DE PERFORMANCE...');
+    
+    const indices = [
+      `CREATE INDEX IF NOT EXISTS idx_usuarios_escola_papel_ativo 
+       ON public.usuarios(escola_id, papel, ativo) 
+       WHERE escola_id IS NOT NULL AND papel IS NOT NULL AND ativo IS NOT NULL`,
+      
+      `CREATE INDEX IF NOT EXISTS idx_turmas_escola_ativo 
+       ON public.turmas(escola_id, ativo) 
+       WHERE escola_id IS NOT NULL AND ativo IS NOT NULL`,
+      
+      `CREATE INDEX IF NOT EXISTS idx_perfis_aluno_turma 
+       ON public.perfis_aluno(turma_id) 
+       WHERE turma_id IS NOT NULL`,
+      
+      `CREATE INDEX IF NOT EXISTS idx_perfis_professor_escola 
+       ON public.perfis_professor(escola_id) 
+       WHERE escola_id IS NOT NULL`,
+      
+      `CREATE INDEX IF NOT EXISTS idx_escolas_gestor_id 
+       ON public.escolas(gestor_id) 
+       WHERE gestor_id IS NOT NULL`
+    ];
+    
+    for (const indice of indices) {
+      await executeQuery(indice);
+      console.log('✅ Índice aplicado com sucesso');
+    }
+    
+    // Analisar tabelas para otimizar planos de consulta
+    const tabelas = ['usuarios', 'turmas', 'perfis_aluno', 'perfis_professor', 'escolas'];
+    for (const tabela of tabelas) {
+      await executeQuery(`ANALYZE public.${tabela}`);
+    }
+    
+    console.log('🚀 TODOS OS ÍNDICES DE PERFORMANCE APLICADOS!');
+  } catch (error) {
+    console.error('❌ Erro ao aplicar índices:', error);
+  }
+}
+
+// Iniciar otimizações e pré-carregamento
+setTimeout(async () => {
+  await aplicarIndicesPerformance();
+  await preloadAllManagerStats();
+}, 2000);
+
 setInterval(preloadAllManagerStats, PRELOAD_INTERVAL); // Repetir a cada 15s
 
 // Endpoint ultra-rápido com cache em memória
