@@ -202,19 +202,19 @@ export default function ManagerDashboardModerno() {
             >
               {sidebarOpen ? <ArrowRightToLine size={20} /> : <Menu size={20} />}
             </button>
-            <span className="text-white font-medium text-sm tracking-wide">
-              PAINEL DO GESTOR
+            <span className="text-parchment font-cinzel font-bold text-sm tracking-wide">
+              PAINEL DO <span className="text-accent">GESTOR</span>
             </span>
           </div>
 
           {/* Logo Centralizada */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
             <img 
-              src="/attached_assets/Design sem nome (1)_1750308246534.png" 
+              src="/attached_assets/Design sem nome (1).png" 
               alt="Sabiá RPG" 
               className="h-8 w-auto object-contain"
             />
-            <h1 className="text-xl font-cinzel font-bold text-white tracking-wide">
+            <h1 className="text-xl font-cinzel font-bold text-parchment tracking-wide">
               SABIÁ<span className="text-accent">RPG</span>
             </h1>
           </div>
