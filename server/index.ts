@@ -1282,25 +1282,22 @@ async function preloadAllManagerStats() {
           FROM escolas 
           WHERE gestor_id = $1
         ),
-        escola_ids AS (
-          SELECT ARRAY_AGG(id) as ids FROM escolas_gestor
-        ),
         contadores AS (
           SELECT 
             (SELECT COUNT(*) FROM escolas_gestor) as total_escolas,
             (SELECT COUNT(*) 
              FROM usuarios u 
-             WHERE u.escola_id = ANY((SELECT ids FROM escola_ids)) 
+             WHERE u.escola_id IN (SELECT id FROM escolas_gestor) 
                AND u.papel = 'professor' 
                AND u.ativo = true) as total_professores,
             (SELECT COUNT(*) 
              FROM usuarios u 
-             WHERE u.escola_id = ANY((SELECT ids FROM escola_ids)) 
+             WHERE u.escola_id IN (SELECT id FROM escolas_gestor) 
                AND u.papel = 'aluno' 
                AND u.ativo = true) as total_alunos,
             (SELECT COUNT(*) 
              FROM turmas t 
-             WHERE t.escola_id = ANY((SELECT ids FROM escola_ids)) 
+             WHERE t.escola_id IN (SELECT id FROM escolas_gestor) 
                AND t.ativo = true) as total_turmas
         )
         SELECT 
