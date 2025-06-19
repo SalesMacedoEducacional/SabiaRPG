@@ -6,6 +6,7 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
+import StudentDashboard from "@/pages/StudentDashboard";
 // Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
 import ManagerDashboardModerno from "@/pages/ManagerDashboardModerno";
@@ -82,7 +83,19 @@ function Router() {
         ]}
       />
       
-      {/* Rotas apenas para gestores */}
+      {/* Rotas por papel do usuário */}
+      <ProtectedRoute 
+        path="/dashboard/aluno" 
+        component={StudentDashboard}
+        requireAuth={true}
+      />
+      
+      <ProtectedRoute 
+        path="/dashboard/professor" 
+        component={TeacherDashboard}
+        requireAuth={true}
+      />
+      
       <ProtectedRoute 
         path="/manager" 
         component={ManagerDashboardModerno}

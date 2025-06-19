@@ -158,29 +158,68 @@ const Login: React.FC = () => {
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
-      const result = await login(data.email, data.password);
       
-      // Redirecionar baseado no papel do usuário
-      const userRole = (result as any)?.usuario?.papel || (result as any)?.role;
-      
-      switch (userRole) {
-        case 'gestor':
-        case 'manager':
-          setLocation('/manager');
-          break;
-        case 'professor':
-        case 'teacher':
-          setLocation('/teacher');
-          break;
-        case 'aluno':
-        case 'student':
-          setLocation('/');
-          break;
-        default:
-          setLocation('/');
+      // Fazer requisição direta para o endpoint de login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          senha: data.password
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.sucesso) {
+        // Login bem-sucedido - redirecionar conforme o papel
+        const userRole = result.usuario?.papel;
+        const redirectPath = result.redirect;
+        
+        // Atualizar contexto de autenticação
+        await login(data.email, data.password);
+        
+        // Redirecionar para o painel específico
+        if (redirectPath) {
+          setLocation(redirectPath);
+        } else {
+          // Fallback baseado no papel
+          switch (userRole) {
+            case 'aluno':
+              setLocation('/dashboard/aluno');
+              break;
+            case 'professor':
+              setLocation('/dashboard/professor');
+              break;
+            case 'gestor':
+              setLocation('/manager');
+              break;
+            default:
+              setLocation('/');
+          }
+        }
+      } else {
+        // Login falhou - exibir mensagem de erro específica
+        const errorMessage = result.erro || 'Erro desconhecido';
+        
+        // Usar toast do sistema de UI para exibir erro
+        const { toast } = await import('@/hooks/use-toast');
+        toast({
+          title: "Erro de Login",
+          description: errorMessage,
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Erro no login:', error);
+      const { toast } = await import('@/hooks/use-toast');
+      toast({
+        title: "Erro de Conexão",
+        description: "Não foi possível conectar com o servidor",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
