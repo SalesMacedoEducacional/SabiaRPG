@@ -3689,8 +3689,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json({ needsTriagem, ultima_triagem });
     } catch (error) {
       console.error('Erro ao verificar necessidade de triagem:', error);
-      // Para teste, retornar que precisa de triagem
-      return res.status(200).json({ needsTriagem: true, ultima_triagem: null });
+      // Temporariamente desabilitado - retornar que não precisa de triagem
+      return res.status(200).json({ needsTriagem: false, ultima_triagem: new Date().toISOString() });
     }
   });
 
