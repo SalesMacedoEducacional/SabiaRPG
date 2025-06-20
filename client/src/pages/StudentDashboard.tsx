@@ -21,7 +21,7 @@ import {
   X,
   Info
 } from 'lucide-react';
-import mapaImg from '/mapa.png';
+import mapaImg from '@assets/mapa_1750435067177.png';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
