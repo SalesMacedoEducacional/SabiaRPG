@@ -410,11 +410,11 @@ export default function StudentDashboard() {
                   {/* Controles de zoom */}
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2">
                     <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
-                            style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+                            style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
                       <Plus className="h-5 w-5" />
                     </button>
                     <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
-                            style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+                            style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
                       <Minus className="h-5 w-5" />
                     </button>
                   </div>
