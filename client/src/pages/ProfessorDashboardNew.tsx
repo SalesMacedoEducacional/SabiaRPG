@@ -41,7 +41,7 @@ import {
   Eye,
   Timer,
   Users2,
-  BookOpen2,
+  Book,
   Star
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
@@ -70,6 +70,66 @@ export default function ProfessorDashboardNew() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Queries para os novos widgets
+  const { data: loginTrends } = useQuery({
+    queryKey: ['/api/professor/login-trends'],
+    enabled: !!user?.id,
+  });
+
+  const { data: missionStats } = useQuery({
+    queryKey: ['/api/professor/mission-stats'],
+    enabled: !!user?.id,
+  });
+
+  const { data: studyTimeDistribution } = useQuery({
+    queryKey: ['/api/professor/study-time'],
+    enabled: !!user?.id,
+  });
+
+  const { data: performanceRanking } = useQuery({
+    queryKey: ['/api/professor/performance-ranking'],
+    enabled: !!user?.id,
+  });
+
+  const { data: studentsAtRisk } = useQuery({
+    queryKey: ['/api/professor/students-at-risk'],
+    enabled: !!user?.id,
+  });
+
+  const { data: componentProgress } = useQuery({
+    queryKey: ['/api/professor/component-progress'],
+    enabled: !!user?.id,
+  });
+
+  const { data: upcomingActivities } = useQuery({
+    queryKey: ['/api/professor/upcoming-activities'],
+    enabled: !!user?.id,
+  });
+
+  const { data: quarterlyEvolution } = useQuery({
+    queryKey: ['/api/professor/quarterly-evolution'],
+    enabled: !!user?.id,
+  });
+
+  const { data: classAchievements } = useQuery({
+    queryKey: ['/api/professor/class-achievements'],
+    enabled: !!user?.id,
+  });
+
+  const { data: aiInsights } = useQuery({
+    queryKey: ['/api/professor/ai-insights'],
+    enabled: !!user?.id,
+  });
+
+  // Cores da paleta
+  const COLORS = {
+    primary: '#4DA3A9',
+    secondary: '#D4A054', 
+    tertiary: '#A6E3E9',
+    quaternary: '#FFC23C',
+    dark: '#312E26'
+  };
 
   // Estado da interface
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -394,6 +454,304 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <StatsCards />
+            
+            {/* Novos Widgets de Métricas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              
+              {/* 1. Tendência de Acesso */}
+              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Activity className="h-5 w-5" style={{ color: COLORS.primary }} />
+                    Tendência de Acesso (30 dias)
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={loginTrends || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="logins" 
+                        stroke={COLORS.primary} 
+                        strokeWidth={2}
+                        dot={{ fill: COLORS.primary }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* 2. Taxa de Conclusão de Missões */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Target className="h-5 w-5" style={{ color: COLORS.secondary }} />
+                    Taxa de Conclusão
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={missionStats || []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {(missionStats || []).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={[COLORS.primary, COLORS.secondary, COLORS.tertiary][index % 3]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* 3. Distribuição de Tempo de Estudo */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Timer className="h-5 w-5" style={{ color: COLORS.tertiary }} />
+                    Tempo de Estudo
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={studyTimeDistribution || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="mission" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="time" fill={COLORS.tertiary} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* 4. Ranking de Desempenho */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Trophy className="h-5 w-5" style={{ color: COLORS.quaternary }} />
+                    Top 5 Alunos (XP)
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(performanceRanking || []).slice(0, 5).map((student, index) => (
+                      <div key={student.id} className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: COLORS.quaternary, color: 'white' }}>
+                            {index + 1}
+                          </span>
+                          <span className="font-medium">{student.nome}</span>
+                        </div>
+                        <span className="font-bold" style={{ color: COLORS.quaternary }}>{student.xp} XP</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 5. Alunos em Risco */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    Alunos em Risco
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {(studentsAtRisk || []).slice(0, 4).map((student) => (
+                      <div key={student.id} className="flex items-center justify-between p-2 rounded bg-red-50 border border-red-200">
+                        <span className="font-medium">{student.nome}</span>
+                        <span className="text-xs text-red-600">{student.reason}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 6. Progresso por Componente */}
+              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Book className="h-5 w-5" style={{ color: COLORS.primary }} />
+                    Progresso por Componente
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={componentProgress || []} layout="horizontal">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis dataKey="component" type="category" />
+                      <Tooltip />
+                      <Bar dataKey="progress" fill={COLORS.primary} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* 7. Atividades Futuras */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Calendar className="h-5 w-5" style={{ color: COLORS.secondary }} />
+                    Próximas Atividades
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(upcomingActivities || []).slice(0, 3).map((activity) => (
+                      <div key={activity.id} className="p-3 rounded border" style={{ borderColor: COLORS.secondary }}>
+                        <div className="font-medium text-sm">{activity.title}</div>
+                        <div className="text-xs text-gray-600">{activity.daysLeft} dias restantes</div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 8. Feedback da IA */}
+              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Brain className="h-5 w-5" style={{ color: COLORS.quaternary }} />
+                    Insights da IA
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-4 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
+                    <p className="text-sm leading-relaxed">
+                      {aiInsights?.insight || "Analisando dados da turma..."}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 9. Evolução Trimestral */}
+              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" style={{ color: COLORS.tertiary }} />
+                    Evolução Trimestral
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={quarterlyEvolution || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="quarter" />
+                      <YAxis />
+                      <Tooltip />
+                      <Area 
+                        type="monotone" 
+                        dataKey="engagement" 
+                        stackId="1"
+                        stroke={COLORS.tertiary} 
+                        fill={COLORS.tertiary} 
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="completion" 
+                        stackId="2"
+                        stroke={COLORS.primary} 
+                        fill={COLORS.primary} 
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* 10. Conquistas da Turma */}
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Star className="h-5 w-5" style={{ color: COLORS.quaternary }} />
+                    Conquistas da Turma
+                  </CardTitle>
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                    Ver Detalhes
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
+                      <div className="text-2xl font-bold" style={{ color: COLORS.quaternary }}>
+                        {classAchievements?.medals || 0}
+                      </div>
+                      <div className="text-xs">Medalhas</div>
+                    </div>
+                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.primary}20` }}>
+                      <div className="text-2xl font-bold" style={{ color: COLORS.primary }}>
+                        {classAchievements?.totalXP || 0}
+                      </div>
+                      <div className="text-xs">XP Total</div>
+                    </div>
+                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.secondary}20` }}>
+                      <div className="text-2xl font-bold" style={{ color: COLORS.secondary }}>
+                        {classAchievements?.badges || 0}
+                      </div>
+                      <div className="text-xs">Badges</div>
+                    </div>
+                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.tertiary}20` }}>
+                      <div className="text-2xl font-bold" style={{ color: COLORS.tertiary }}>
+                        {classAchievements?.achievements || 0}
+                      </div>
+                      <div className="text-xs">Conquistas</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Últimos planos de aula */}
