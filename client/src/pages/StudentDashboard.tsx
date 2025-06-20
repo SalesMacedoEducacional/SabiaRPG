@@ -699,40 +699,71 @@ export default function StudentDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog de informações da cidade */}
-      <Dialog open={!!selectedCity} onOpenChange={() => setSelectedCity(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#f5f5dc] border-[#8b4513]">
-          {selectedCity && cidades[selectedCity] && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-[#8b4513] text-xl flex items-center justify-between">
-                  {cidades[selectedCity].nome}
-                  <Button
-                    onClick={() => setSelectedCity(null)}
-                    variant="ghost"
-                    className="h-6 w-6 p-0 text-[#8b4513] hover:bg-[#e5e5dc]"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-[#654321]">{cidades[selectedCity].descricao}</p>
-                
-                <div>
-                  <h3 className="text-[#8b4513] font-bold text-lg mb-3">Características Místicas:</h3>
-                  <ul className="space-y-2">
-                    {cidades[selectedCity].caracteristicas.map((caracteristica, index) => (
-                      <li key={index} className="text-[#654321] flex items-start gap-2">
-                        <span className="text-[#d4af37] mt-2">•</span>
-                        <span>{caracteristica}</span>
-                      </li>
-                    ))}
-                  </ul>
+      {/* Modal dos Vilarejos */}
+      <Dialog open={showVillageMenu} onOpenChange={setShowVillageMenu}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+          <DialogHeader>
+            <DialogTitle className="text-[#d4af37] text-xl font-bold flex items-center gap-2">
+              <Shield className="h-6 w-6" />
+              Vilarejos do Reinado
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Barra de busca */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-[#b8860b]" />
+              <Input
+                placeholder="Buscar vilarejo..."
+                value={villageFilter}
+                onChange={(e) => setVillageFilter(e.target.value)}
+                className="pl-10 bg-[#3a3a3a] border-[#d4af37] text-white placeholder:text-[#b8860b]"
+              />
+            </div>
+
+            {/* Lista de vilarejos */}
+            <div className="grid gap-4 max-h-[50vh] overflow-y-auto">
+              {filteredVilarejos.map((vilarejo, index) => (
+                <div 
+                  key={vilarejo.id}
+                  className="p-6 rounded-lg border cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+                  style={{ backgroundColor: '#312E26', borderColor: '#4DA3A9' }}
+                  onClick={() => {
+                    setSelectedCity(vilarejo.id);
+                    setShowVillageMenu(false);
+                  }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                         style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}>
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-[#F5F2E7] font-bold text-lg mb-2">{vilarejo.nome}</h3>
+                      <p className="text-[#D4A054] text-sm leading-relaxed">{vilarejo.descricao}</p>
+                    </div>
+                    <MapPin className="h-5 w-5 text-[#4DA3A9] flex-shrink-0" />
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {filteredVilarejos.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-[#b8860b]">Nenhum vilarejo encontrado.</p>
               </div>
-            </>
-          )}
+            )}
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <Button 
+              onClick={() => setShowVillageMenu(false)}
+              className="px-4 py-2"
+              style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}
+            >
+              Fechar
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
