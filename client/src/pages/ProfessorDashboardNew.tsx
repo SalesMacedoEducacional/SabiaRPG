@@ -387,44 +387,44 @@ export default function ProfessorDashboardNew() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Últimos planos de aula */}
-              <Card className="bg-white border-amber-200/50 shadow-lg">
-                <CardHeader className="border-b border-amber-100">
-                  <CardTitle className="text-amber-900 flex items-center gap-2">
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="border-b border-[var(--border-card)]">
+                  <CardTitle className="text-[var(--text-primary)] flex items-center gap-2">
                     <FileText className="h-5 w-5" />
                     Últimos Planos de Aula
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   {planosAula?.slice(0, 3).map((plano: any) => (
-                    <div key={plano.id} className="flex items-center justify-between py-3 border-b border-amber-100 last:border-0">
+                    <div key={plano.id} className="flex items-center justify-between py-3 border-b border-[var(--border-card)] last:border-0">
                       <div>
-                        <p className="font-medium text-amber-900">{plano.titulo}</p>
-                        <p className="text-sm text-amber-600">{plano.trimestre} - {plano.componente_nome}</p>
+                        <p className="font-medium text-[var(--text-primary)]">{plano.titulo}</p>
+                        <p className="text-sm text-[var(--text-secondary)]">{plano.trimestre} - {plano.componente_nome}</p>
                       </div>
-                      <Clock className="h-4 w-4 text-amber-500" />
+                      <Clock className="h-4 w-4 text-[var(--accent)]" />
                     </div>
-                  )) || <p className="text-amber-600">Nenhum plano de aula encontrado</p>}
+                  )) || <p className="text-[var(--text-secondary)]">Nenhum plano de aula encontrado</p>}
                 </CardContent>
               </Card>
 
               {/* Missões ativas */}
-              <Card className="bg-white border-amber-200/50 shadow-lg">
-                <CardHeader className="border-b border-amber-100">
-                  <CardTitle className="text-amber-900 flex items-center gap-2">
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="border-b border-[var(--border-card)]">
+                  <CardTitle className="text-[var(--text-primary)] flex items-center gap-2">
                     <Brain className="h-5 w-5" />
                     Missões Ativas
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   {missoes?.slice(0, 3).map((missao: any) => (
-                    <div key={missao.id} className="flex items-center justify-between py-3 border-b border-amber-100 last:border-0">
+                    <div key={missao.id} className="flex items-center justify-between py-3 border-b border-[var(--border-card)] last:border-0">
                       <div>
-                        <p className="font-medium text-amber-900">{missao.titulo}</p>
-                        <p className="text-sm text-amber-600">XP: {missao.xp_reward} • {missao.tempo_estimado}min</p>
+                        <p className="font-medium text-[var(--text-primary)]">{missao.titulo}</p>
+                        <p className="text-sm text-[var(--text-secondary)]">XP: {missao.xp_reward} • {missao.tempo_estimado}min</p>
                       </div>
-                      <Target className="h-4 w-4 text-amber-500" />
+                      <Target className="h-4 w-4 text-[var(--accent)]" />
                     </div>
-                  )) || <p className="text-amber-600">Nenhuma missão encontrada</p>}
+                  )) || <p className="text-[var(--text-secondary)]">Nenhuma missão encontrada</p>}
                 </CardContent>
               </Card>
             </div>
@@ -435,27 +435,27 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-amber-900">Minhas Turmas</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Minhas Turmas</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {minhasTurmas?.map((turma: any) => (
-                <Card key={turma.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
-                  <CardHeader className="border-b border-amber-100">
-                    <CardTitle className="text-amber-900">{turma.nome}</CardTitle>
+                <Card key={turma.id} className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-[var(--border-card)]">
+                    <CardTitle className="text-[var(--text-primary)]">{turma.nome}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-2">
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Série:</strong> {turma.serie}
                       </p>
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Ano Letivo:</strong> {turma.ano_letivo}
                       </p>
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Status:</strong> 
                         <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                          turma.ativa ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          turma.ativa ? 'bg-[var(--success)] text-[var(--success-contrast)]' : 'bg-[var(--danger)] text-[var(--danger-contrast)]'
                         }`}>
                           {turma.ativa ? 'Ativa' : 'Inativa'}
                         </span>
@@ -463,7 +463,7 @@ export default function ProfessorDashboardNew() {
                     </div>
                   </CardContent>
                 </Card>
-              )) || <p className="text-amber-600">Nenhuma turma encontrada</p>}
+              )) || <p className="text-[var(--text-secondary)]">Nenhuma turma encontrada</p>}
             </div>
           </div>
         );
@@ -472,32 +472,32 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-amber-900">Meus Componentes</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Meus Componentes</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {meusComponentes?.map((componente: any) => (
-                <Card key={componente.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
-                  <CardHeader className="border-b border-amber-100">
-                    <CardTitle className="text-amber-900">{componente.nome}</CardTitle>
+                <Card key={componente.id} className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-[var(--border-card)]">
+                    <CardTitle className="text-[var(--text-primary)]">{componente.nome}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-2">
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Área:</strong> {componente.area}
                       </p>
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Carga Horária:</strong> {componente.carga_horaria}h
                       </p>
                       {componente.descricao && (
-                        <p className="text-sm text-amber-600">
+                        <p className="text-sm text-[var(--text-secondary)]">
                           <strong>Descrição:</strong> {componente.descricao}
                         </p>
                       )}
                     </div>
                   </CardContent>
                 </Card>
-              )) || <p className="text-amber-600">Nenhum componente encontrado</p>}
+              )) || <p className="text-[var(--text-secondary)]">Nenhum componente encontrado</p>}
             </div>
           </div>
         );
@@ -506,10 +506,10 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-amber-900">Planos de Aula</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Planos de Aula</h2>
               <Dialog open={isPlanoModalOpen} onOpenChange={setIsPlanoModalOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                  <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Novo Plano
                   </Button>
@@ -608,7 +608,7 @@ export default function ProfessorDashboardNew() {
                         <Button
                           type="submit"
                           disabled={createPlanoMutation.isPending}
-                          className="flex-1 bg-amber-600 hover:bg-amber-700"
+                          className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
                         >
                           {createPlanoMutation.isPending ? "Criando..." : "Criar Plano"}
                         </Button>
@@ -621,22 +621,22 @@ export default function ProfessorDashboardNew() {
             
             <div className="grid grid-cols-1 gap-6">
               {planosAula?.map((plano: any) => (
-                <Card key={plano.id} className="bg-white border-amber-200/50 shadow-lg">
-                  <CardHeader className="border-b border-amber-100">
-                    <CardTitle className="text-amber-900">{plano.titulo}</CardTitle>
+                <Card key={plano.id} className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-[var(--border-card)]">
+                    <CardTitle className="text-[var(--text-primary)]">{plano.titulo}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-3">
-                      <div className="flex gap-4 text-sm text-amber-600">
+                      <div className="flex gap-4 text-sm text-[var(--text-secondary)]">
                         <span><strong>Trimestre:</strong> {plano.trimestre}</span>
                         <span><strong>Componente:</strong> {plano.componente_nome}</span>
                         <span><strong>Turma:</strong> {plano.turma_nome}</span>
                       </div>
-                      <p className="text-amber-800">{plano.conteudo}</p>
+                      <p className="text-[var(--text-primary)]">{plano.conteudo}</p>
                     </div>
                   </CardContent>
                 </Card>
-              )) || <p className="text-amber-600">Nenhum plano de aula encontrado</p>}
+              )) || <p className="text-[var(--text-secondary)]">Nenhum plano de aula encontrado</p>}
             </div>
           </div>
         );
@@ -645,10 +645,10 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-amber-900">Missões</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Missões</h2>
               <Dialog open={isMissaoModalOpen} onOpenChange={setIsMissaoModalOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                  <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Nova Missão
                   </Button>
