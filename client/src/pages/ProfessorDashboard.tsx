@@ -110,13 +110,20 @@ export default function ProfessorDashboard() {
     mutationFn: (data: PlanoAulaForm) => 
       apiRequest('POST', '/api/professor/planos-aula', data),
     onSuccess: () => {
-      toast.success("Plano de aula criado com sucesso!");
+      toast({
+        title: "Sucesso",
+        description: "Plano de aula criado com sucesso!",
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/professor/planos-aula'] });
       setIsPlanoModalOpen(false);
       planoForm.reset();
     },
     onError: () => {
-      toast.error("Erro ao criar plano de aula");
+      toast({
+        title: "Erro",
+        description: "Erro ao criar plano de aula",
+        variant: "destructive",
+      });
     }
   });
 
@@ -124,13 +131,20 @@ export default function ProfessorDashboard() {
     mutationFn: (data: MissaoForm) => 
       apiRequest('POST', '/api/professor/missoes', data),
     onSuccess: () => {
-      toast.success("Missão criada com sucesso!");
+      toast({
+        title: "Sucesso",
+        description: "Missão criada com sucesso!",
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/professor/missoes'] });
       setIsMissaoModalOpen(false);
       missaoForm.reset();
     },
     onError: () => {
-      toast.error("Erro ao criar missão");
+      toast({
+        title: "Erro",
+        description: "Erro ao criar missão",
+        variant: "destructive",
+      });
     }
   });
 

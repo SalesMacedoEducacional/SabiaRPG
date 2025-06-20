@@ -101,7 +101,7 @@ function Router() {
       
       <ProtectedRoute 
         path="/dashboard/professor" 
-        component={TeacherDashboard}
+        component={ProfessorDashboard}
         requireAuth={true}
       />
       
