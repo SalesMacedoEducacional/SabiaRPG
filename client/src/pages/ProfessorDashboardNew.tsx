@@ -327,50 +327,50 @@ export default function ProfessorDashboardNew() {
   // Cards de estatísticas
   const StatsCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-700 text-sm font-medium">Turmas</p>
-              <p className="text-2xl font-bold text-amber-900">{minhasTurmas?.length || 0}</p>
+              <p className="text-amber-300 text-sm font-medium">Turmas</p>
+              <p className="text-2xl font-bold text-amber-100">{minhasTurmas?.length || 0}</p>
             </div>
-            <Users className="h-8 w-8 text-amber-600" />
+            <Users className="h-8 w-8 text-amber-400" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-700 text-sm font-medium">Componentes</p>
-              <p className="text-2xl font-bold text-amber-900">{meusComponentes?.length || 0}</p>
+              <p className="text-amber-300 text-sm font-medium">Componentes</p>
+              <p className="text-2xl font-bold text-amber-100">{meusComponentes?.length || 0}</p>
             </div>
-            <BookOpen className="h-8 w-8 text-amber-600" />
+            <BookOpen className="h-8 w-8 text-amber-400" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-700 text-sm font-medium">Planos de Aula</p>
-              <p className="text-2xl font-bold text-amber-900">{planosAula?.length || 0}</p>
+              <p className="text-amber-300 text-sm font-medium">Planos de Aula</p>
+              <p className="text-2xl font-bold text-amber-100">{planosAula?.length || 0}</p>
             </div>
-            <FileText className="h-8 w-8 text-amber-600" />
+            <FileText className="h-8 w-8 text-amber-400" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-700 text-sm font-medium">Alunos</p>
-              <p className="text-2xl font-bold text-amber-900">{meusAlunos?.length || 0}</p>
+              <p className="text-amber-300 text-sm font-medium">Alunos</p>
+              <p className="text-2xl font-bold text-amber-100">{meusAlunos?.length || 0}</p>
             </div>
-            <Award className="h-8 w-8 text-amber-600" />
+            <Award className="h-8 w-8 text-amber-400" />
           </div>
         </CardContent>
       </Card>
