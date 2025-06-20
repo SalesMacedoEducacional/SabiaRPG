@@ -1,217 +1,80 @@
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { apiRequest } from "@/lib/queryClient";
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  BookOpen, 
-  Trophy, 
-  Target, 
+  Crown, 
   Star, 
-  Clock, 
-  ChevronRight, 
-  History,
-  Settings,
-  LogOut,
+  Trophy, 
+  Sword, 
+  Shield, 
+  Map, 
+  BookOpen, 
+  Target,
   User,
+  LogOut,
+  MapPin,
+  Zap,
   Award,
-  Zap
-} from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-
-// Schema para avaliação diagnóstica
-const avaliacaoSchema = z.object({
-  respostas: z.record(z.string(), z.string()).refine(
-    (respostas) => Object.keys(respostas).length >= 10,
-    { message: "Responda todas as perguntas" }
-  )
-});
-
-type AvaliacaoForm = z.infer<typeof avaliacaoSchema>;
-
-// Tipos para o sistema do aluno
-interface StudentData {
-  id: string;
-  nome: string;
-  email: string;
-  escola_id: string;
-  turma_id: string;
-  ano_serie: string;
-  escola_nome: string;
-  turma_nome: string;
-  xp_total: number;
-  nivel: number;
-  ultima_triagem: string | null;
-}
-
-interface ProgressoAluno {
-  id: string;
-  tipo: 'triagem' | 'missao' | 'trilha';
-  data_avaliacao: string;
-  respostas: any;
-  nivel_detectado: number;
-  areas_fortes: string[];
-  areas_fracas: string[];
-}
-
-interface Trilha {
-  id: string;
-  titulo: string;
-  descricao: string;
-  disciplina: string;
-  nivel: number;
-  progresso: number;
-  missoes_total: number;
-  missoes_concluidas: number;
-}
-
-interface Missao {
-  id: string;
-  titulo: string;
-  descricao: string;
-  area: string;
-  dificuldade: number;
-  xp_reward: number;
-  tempo_estimado: number;
-  status: 'pendente' | 'em_andamento' | 'concluida';
-  conteudo: any;
-}
-
-interface Conquista {
-  id: string;
-  nome: string;
-  descricao: string;
-  icone: string;
-  data_conquista?: string;
-  desbloqueada: boolean;
-}
-
-interface Ranking {
-  posicao: number;
-  total_alunos: number;
-  xp_total: number;
-  nivel: number;
-}
+  ScrollText
+} from 'lucide-react';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("visao-geral");
-  const [showSettings, setShowSettings] = useState(false);
   const [showTriagem, setShowTriagem] = useState(false);
   const [showHistorico, setShowHistorico] = useState(false);
+  const [selectedMission, setSelectedMission] = useState(null);
+  const [activeTab, setActiveTab] = useState('mapa');
 
-  // Formulário de avaliação diagnóstica
-  const avaliacaoForm = useForm<AvaliacaoForm>({
-    resolver: zodResolver(avaliacaoSchema),
-    defaultValues: { respostas: {} }
-  });
-
-  // Query para dados do aluno
+  // Fetch student data
   const { data: studentData, isLoading: isLoadingStudent } = useQuery({
-    queryKey: ["/api/aluno/dados"],
+    queryKey: ['/api/aluno/dados'],
     enabled: !!user
   });
 
-  // Query para verificar necessidade de triagem
-  const { data: needsTriagem } = useQuery({
-    queryKey: ["/api/aluno/needs-triagem"],
-    enabled: !!studentData
+  // Fetch trilhas
+  const { data: trilhas = [] } = useQuery({
+    queryKey: ['/api/aluno/trilhas'],
+    enabled: !!user
   });
 
-  // Query para trilhas personalizadas
-  const { data: trilhas, isLoading: isLoadingTrilhas } = useQuery({
-    queryKey: ["/api/aluno/trilhas"],
-    enabled: !!studentData && !needsTriagem
+  // Fetch missões
+  const { data: missoes = [] } = useQuery({
+    queryKey: ['/api/aluno/missoes'],
+    enabled: !!user
   });
 
-  // Query para missões ativas
-  const { data: missoes, isLoading: isLoadingMissoes } = useQuery({
-    queryKey: ["/api/aluno/missoes"],
-    enabled: !!studentData && !needsTriagem
+  // Fetch conquistas
+  const { data: conquistas = [] } = useQuery({
+    queryKey: ['/api/aluno/conquistas'],
+    enabled: !!user
   });
 
-  // Query para conquistas
-  const { data: conquistas } = useQuery({
-    queryKey: ["/api/aluno/conquistas"],
-    enabled: !!studentData
+  // Fetch ranking
+  const { data: ranking = {} } = useQuery({
+    queryKey: ['/api/aluno/ranking'],
+    enabled: !!user
   });
 
-  // Query para ranking
-  const { data: ranking } = useQuery({
-    queryKey: ["/api/aluno/ranking"],
-    enabled: !!studentData
+  // Check if needs triagem - temporarily disabled
+  const { data: needsTriagemData } = useQuery({
+    queryKey: ['/api/aluno/needs-triagem'],
+    enabled: !!user
   });
-
-  // Query para histórico de progresso
-  const { data: historico } = useQuery({
-    queryKey: ["/api/aluno/historico"],
-    enabled: showHistorico
-  });
-
-  // Mutation para submeter avaliação diagnóstica
-  const submitTriagemMutation = useMutation({
-    mutationFn: (data: AvaliacaoForm) => apiRequest("/api/aluno/triagem", "POST", data),
-    onSuccess: () => {
-      setShowTriagem(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/needs-triagem"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/trilhas"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/missoes"] });
-    }
-  });
-
-  // Mutation para iniciar missão
-  const iniciarMissaoMutation = useMutation({
-    mutationFn: (missaoId: string) => apiRequest("/api/aluno/missoes/iniciar", "POST", { missaoId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/missoes"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/dados"] });
-    }
-  });
-
-  // Mutation para completar missão
-  const completarMissaoMutation = useMutation({
-    mutationFn: ({ missaoId, resposta }: { missaoId: string; resposta: any }) => 
-      apiRequest("/api/aluno/missoes/completar", "POST", { missaoId, resposta }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/missoes"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/dados"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/ranking"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/aluno/conquistas"] });
-    }
-  });
-
-  // Redirecionamento para triagem temporariamente desabilitado
-  // useEffect(() => {
-  //   if (needsTriagem && !showTriagem) {
-  //     setShowTriagem(true);
-  //   }
-  // }, [needsTriagem, showTriagem]);
-
-  // Verificar se aluno tem escola/turma
-  useEffect(() => {
-    if (studentData && (!studentData.escola_id || !studentData.turma_id)) {
-      // Exibir erro e impedir acesso
-      alert("Aluno sem turma/escola cadastrada. Entre em contato com a coordenação.");
-      logout();
-    }
-  }, [studentData, logout]);
 
   if (isLoadingStudent) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-amber-900 via-yellow-900 to-orange-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--primary)] mx-auto"></div>
-          <p className="mt-4 text-[var(--text-secondary)]">Carregando seu painel...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-400 mx-auto"></div>
+          <p className="mt-4 text-yellow-200">Carregando seu reino...</p>
         </div>
       </div>
     );
@@ -219,551 +82,414 @@ export default function StudentDashboard() {
 
   if (!studentData) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <Card className="bg-[var(--background-card)] border-[var(--border-card)] p-8">
-          <CardContent className="text-center">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Erro de Acesso</h2>
-            <p className="text-[var(--text-secondary)]">Não foi possível carregar seus dados. Tente novamente.</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-b from-amber-900 via-yellow-900 to-orange-900 flex items-center justify-center">
+        <div className="text-center text-yellow-200">
+          <Crown className="h-16 w-16 mx-auto mb-4" />
+          <p>Dados do aventureiro não encontrados</p>
+        </div>
       </div>
     );
   }
 
-  const nivelAtual = Math.floor(studentData.xp_total / 1000) + 1;
-  const xpProximoNivel = ((nivelAtual) * 1000) - studentData.xp_total;
-  const progressoNivel = ((studentData.xp_total % 1000) / 1000) * 100;
+  const getProgressColor = (progresso: number) => {
+    if (progresso >= 80) return 'bg-green-500';
+    if (progresso >= 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "visao-geral":
-        return (
-          <div className="space-y-6">
-            {/* Cards de estatísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Nível Atual</CardTitle>
-                  <Star className="h-4 w-4 text-[var(--primary)]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-[var(--text-primary)]">{nivelAtual}</div>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    {xpProximoNivel} XP para próximo nível
-                  </p>
-                  <Progress value={progressoNivel} className="mt-2" />
-                </CardContent>
-              </Card>
+  const getNivelFromXP = (xp: number) => {
+    return Math.floor(xp / 1000) + 1;
+  };
 
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">XP Total</CardTitle>
-                  <Zap className="h-4 w-4 text-[var(--primary)]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-[var(--text-primary)]">{studentData.xp_total.toLocaleString()}</div>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Experiência acumulada
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Ranking</CardTitle>
-                  <Trophy className="h-4 w-4 text-[var(--primary)]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-[var(--text-primary)]">
-                    #{ranking?.posicao || '-'}
-                  </div>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    de {ranking?.total_alunos || 0} alunos
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Conquistas</CardTitle>
-                  <Award className="h-4 w-4 text-[var(--primary)]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-[var(--text-primary)]">
-                    {conquistas?.filter((c: Conquista) => c.desbloqueada).length || 0}
-                  </div>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    de {conquistas?.length || 0} disponíveis
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Missões em destaque */}
-            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-              <CardHeader>
-                <CardTitle className="text-[var(--text-primary)]">Missões Ativas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoadingMissoes ? (
-                    <p className="text-[var(--text-secondary)]">Carregando missões...</p>
-                  ) : missoes?.slice(0, 3).map((missao: Missao) => (
-                    <div key={missao.id} className="flex items-center justify-between p-4 border border-[var(--border-card)] rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[var(--text-primary)]">{missao.titulo}</h4>
-                        <p className="text-sm text-[var(--text-secondary)]">{missao.descricao}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline">{missao.area}</Badge>
-                          <Badge variant="outline">{missao.xp_reward} XP</Badge>
-                          <Badge variant="outline">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {missao.tempo_estimado}min
-                          </Badge>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          if (missao.status === 'pendente') {
-                            iniciarMissaoMutation.mutate(missao.id);
-                          }
-                        }}
-                        disabled={iniciarMissaoMutation.isPending}
-                        className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
-                      >
-                        {missao.status === 'pendente' ? 'Iniciar' : 
-                         missao.status === 'em_andamento' ? 'Continuar' : 'Concluída'}
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case "trilhas":
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Trilhas de Aprendizagem</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {isLoadingTrilhas ? (
-                <p className="text-[var(--text-secondary)]">Carregando trilhas...</p>
-              ) : trilhas?.map((trilha: Trilha) => (
-                <Card key={trilha.id} className="bg-[var(--background-card)] border-[var(--border-card)] hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-[var(--text-primary)]">{trilha.titulo}</CardTitle>
-                    <p className="text-sm text-[var(--text-secondary)]">{trilha.descricao}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-[var(--text-secondary)]">Progresso</span>
-                        <span className="text-[var(--text-primary)] font-medium">
-                          {trilha.missoes_concluidas}/{trilha.missoes_total}
-                        </span>
-                      </div>
-                      <Progress value={trilha.progresso} />
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline">{trilha.disciplina}</Badge>
-                        <Badge variant="outline">Nível {trilha.nivel}</Badge>
-                      </div>
-                      <Button 
-                        className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
-                        onClick={() => setActiveTab("missoes")}
-                      >
-                        Ver Missões
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "missoes":
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Missões</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 gap-6">
-              {isLoadingMissoes ? (
-                <p className="text-[var(--text-secondary)]">Carregando missões...</p>
-              ) : missoes?.map((missao: Missao) => (
-                <Card key={missao.id} className="bg-[var(--background-card)] border-[var(--border-card)]">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-[var(--text-primary)]">{missao.titulo}</CardTitle>
-                        <p className="text-[var(--text-secondary)] mt-2">{missao.descricao}</p>
-                      </div>
-                      <Badge 
-                        variant={missao.status === 'concluida' ? 'default' : 'outline'}
-                        className={missao.status === 'concluida' ? 'bg-green-500' : ''}
-                      >
-                        {missao.status === 'pendente' ? 'Pendente' :
-                         missao.status === 'em_andamento' ? 'Em Andamento' : 'Concluída'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 mb-4">
-                      <Badge variant="outline">{missao.area}</Badge>
-                      <Badge variant="outline">Dificuldade: {missao.dificuldade}/5</Badge>
-                      <Badge variant="outline">{missao.xp_reward} XP</Badge>
-                      <Badge variant="outline">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {missao.tempo_estimado}min
-                      </Badge>
-                    </div>
-                    
-                    {missao.status !== 'concluida' && (
-                      <Button
-                        onClick={() => {
-                          if (missao.status === 'pendente') {
-                            iniciarMissaoMutation.mutate(missao.id);
-                          }
-                        }}
-                        disabled={iniciarMissaoMutation.isPending}
-                        className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
-                      >
-                        {missao.status === 'pendente' ? 'Iniciar Missão' : 'Continuar Missão'}
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "conquistas":
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Conquistas</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {conquistas?.map((conquista: Conquista) => (
-                <Card 
-                  key={conquista.id} 
-                  className={`bg-[var(--background-card)] border-[var(--border-card)] ${
-                    conquista.desbloqueada ? 'ring-2 ring-[var(--primary)]' : 'opacity-60'
-                  }`}
-                >
-                  <CardHeader className="text-center">
-                    <div className="text-4xl mb-2">{conquista.icone}</div>
-                    <CardTitle className={`text-[var(--text-primary)] ${!conquista.desbloqueada && 'opacity-60'}`}>
-                      {conquista.nome}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-[var(--text-secondary)]">{conquista.descricao}</p>
-                    {conquista.desbloqueada && conquista.data_conquista && (
-                      <p className="text-xs text-[var(--text-secondary)] mt-2">
-                        Conquistado em {new Date(conquista.data_conquista).toLocaleDateString()}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-
-      default:
-        return <div>Conteúdo não encontrado</div>;
-    }
+  const getXPParaProximoNivel = (xp: number) => {
+    const nivelAtual = getNivelFromXP(xp);
+    const xpProximoNivel = nivelAtual * 1000;
+    return xpProximoNivel - xp;
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      {/* Header */}
-      <header className="bg-[var(--background-card)] border-b border-[var(--border-card)] px-6 py-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">SABIÁ RPG</h1>
-            <p className="text-sm text-[var(--text-secondary)]">
-              {studentData.nome} - {studentData.turma_nome} | {studentData.escola_nome}
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowHistorico(true)}
-              className="border-[var(--border-card)]"
-            >
-              <History className="h-4 w-4 mr-2" />
-              Histórico
-            </Button>
+    <div className="min-h-screen bg-gradient-to-b from-amber-900 via-yellow-900 to-orange-900">
+      {/* Header Medieval */}
+      <header className="bg-gradient-to-r from-amber-800 to-yellow-800 border-b-4 border-yellow-600 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center border-2 border-yellow-400">
+                <Crown className="h-6 w-6 text-yellow-900" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-yellow-100 tracking-wide">⚔️ SABIÁ RPG ⚔️</h1>
+                <p className="text-yellow-200 text-sm">Reino do Conhecimento Épico</p>
+              </div>
+            </div>
             
-            {/* Botão de refazer triagem - só aparece se já passaram 90 dias */}
-            {studentData.ultima_triagem && 
-             (Date.now() - new Date(studentData.ultima_triagem).getTime()) > (90 * 24 * 60 * 60 * 1000) && (
+            <div className="flex items-center gap-4">
+              <div className="bg-amber-700 px-4 py-2 rounded-lg border border-yellow-600">
+                <div className="flex items-center gap-2 text-yellow-100">
+                  <User className="h-4 w-4" />
+                  <span className="font-semibold">{studentData.nome}</span>
+                </div>
+                <div className="text-xs text-yellow-200">
+                  {studentData.turma_nome} | {studentData.escola_nome}
+                </div>
+              </div>
+              
+              <div className="bg-amber-700 px-4 py-2 rounded-lg border border-yellow-600">
+                <div className="flex items-center gap-2 text-yellow-100">
+                  <Star className="h-4 w-4" />
+                  <span className="font-bold">XP: {studentData.xp_total || 0}</span>
+                </div>
+                <div className="text-xs text-yellow-200">Nível {studentData.nivel || 1}</div>
+              </div>
+              
               <Button
                 variant="outline"
-                onClick={() => setShowTriagem(true)}
-                className="border-[var(--border-card)]"
+                onClick={logout}
+                className="bg-red-800 hover:bg-red-700 text-yellow-100 border-red-600"
               >
-                <Target className="h-4 w-4 mr-2" />
-                Refazer Triagem
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
               </Button>
-            )}
-            
-            <Button
-              variant="outline"
-              onClick={() => setShowSettings(true)}
-              className="border-[var(--border-card)]"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={logout}
-              className="border-[var(--border-card)]"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Navigation */}
-      <nav className="bg-[var(--background-card)] border-b border-[var(--border-card)] px-6 py-3">
-        <div className="flex space-x-6">
-          {[
-            { id: "visao-geral", label: "Visão Geral", icon: BookOpen },
-            { id: "trilhas", label: "Trilhas", icon: Target },
-            { id: "missoes", label: "Missões", icon: Trophy },
-            { id: "conquistas", label: "Conquistas", icon: Award }
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                activeTab === id
-                  ? "bg-[var(--primary)] text-[var(--primary-contrast)]"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--background)]"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
-        </div>
-      </nav>
+      <div className="flex h-[calc(100vh-80px)]">
+        {/* Sidebar Esquerda - Atributos e Info do Jogador */}
+        <div className="w-80 bg-gradient-to-b from-amber-800 to-yellow-900 border-r-4 border-yellow-600 p-4 overflow-y-auto">
+          {/* Avatar e Info Principal */}
+          <div className="bg-amber-700 rounded-lg p-4 mb-6 border-2 border-yellow-600">
+            <div className="text-center mb-4">
+              <div className="w-20 h-20 bg-yellow-600 rounded-full mx-auto mb-3 flex items-center justify-center border-3 border-yellow-400">
+                <span className="text-2xl font-bold text-yellow-900">
+                  {studentData.nome?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'AL'}
+                </span>
+              </div>
+              <h3 className="text-yellow-100 font-bold text-lg">{studentData.nome}</h3>
+              <p className="text-yellow-200 text-sm">{studentData.email}</p>
+            </div>
 
-      {/* Main Content */}
-      <main className="p-6">
-        {renderContent()}
-      </main>
-
-      {/* Modal de Triagem Diagnóstica */}
-      <Dialog open={showTriagem} onOpenChange={setShowTriagem}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Avaliação Diagnóstica</DialogTitle>
-          </DialogHeader>
-          <Form {...avaliacaoForm}>
-            <form onSubmit={avaliacaoForm.handleSubmit((data) => submitTriagemMutation.mutate(data))}>
-              <div className="space-y-6">
-                <p className="text-[var(--text-secondary)]">
-                  Esta avaliação nos ajuda a personalizar sua experiência de aprendizagem. 
-                  Responda com sinceridade para obter as melhores recomendações.
-                </p>
-                
-                {/* Perguntas de avaliação diagnóstica */}
-                {Array.from({ length: 10 }, (_, i) => (
-                  <FormField
-                    key={i}
-                    control={avaliacaoForm.control}
-                    name={`respostas.pergunta_${i + 1}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Pergunta {i + 1}: {getTriagemQuestion(i + 1)}
-                        </FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="flex flex-col space-y-2"
-                          >
-                            {getTriagemOptions(i + 1).map((option, idx) => (
-                              <div key={idx} className="flex items-center space-x-2">
-                                <RadioGroupItem value={option.value} id={`q${i + 1}_${idx}`} />
-                                <Label htmlFor={`q${i + 1}_${idx}`}>{option.label}</Label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-                
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={submitTriagemMutation.isPending}
-                    className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
-                  >
-                    {submitTriagemMutation.isPending ? "Processando..." : "Finalizar Avaliação"}
-                  </Button>
+            {/* XP e Nível */}
+            <div className="space-y-3">
+              <div className="bg-amber-800 p-3 rounded border border-yellow-600">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-yellow-100 text-sm">Nível {studentData.nivel || 1}</span>
+                  <span className="text-yellow-200 text-xs">{studentData.xp_total || 0} XP</span>
                 </div>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Histórico */}
-      <Dialog open={showHistorico} onOpenChange={setShowHistorico}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Histórico de Progresso</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {historico?.map((item: ProgressoAluno) => (
-              <Card key={item.id} className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-[var(--text-primary)]">
-                        {item.tipo === 'triagem' ? 'Avaliação Diagnóstica' : 
-                         item.tipo === 'missao' ? 'Missão Concluída' : 'Trilha Iniciada'}
-                      </h4>
-                      <p className="text-sm text-[var(--text-secondary)]">
-                        {new Date(item.data_avaliacao).toLocaleDateString()}
-                      </p>
-                      {item.nivel_detectado && (
-                        <p className="text-sm text-[var(--text-secondary)]">
-                          Nível detectado: {item.nivel_detectado}
-                        </p>
-                      )}
-                    </div>
-                    <Badge variant="outline">{item.tipo}</Badge>
-                  </div>
-                  {item.areas_fortes && item.areas_fortes.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium text-[var(--text-primary)]">Áreas fortes:</p>
-                      <div className="flex gap-1 mt-1">
-                        {item.areas_fortes.map((area, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Configurações */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Configurações</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 border border-[var(--border-card)] rounded-lg">
-              <User className="h-5 w-5 text-[var(--text-secondary)]" />
-              <div>
-                <p className="font-medium text-[var(--text-primary)]">{studentData.nome}</p>
-                <p className="text-sm text-[var(--text-secondary)]">{studentData.email}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-4 border border-[var(--border-card)] rounded-lg">
-              <BookOpen className="h-5 w-5 text-[var(--text-secondary)]" />
-              <div>
-                <p className="font-medium text-[var(--text-primary)]">Turma</p>
-                <p className="text-sm text-[var(--text-secondary)]">
-                  {studentData.turma_nome} - {studentData.ano_serie}
+                <Progress 
+                  value={((studentData.xp_total || 0) % 1000) / 10} 
+                  className="h-2"
+                />
+                <p className="text-yellow-200 text-xs mt-1">
+                  {getXPParaProximoNivel(studentData.xp_total || 0)} XP para o próximo nível
                 </p>
               </div>
             </div>
-            
-            <Button
-              onClick={logout}
-              variant="outline"
-              className="w-full border-red-500 text-red-500 hover:bg-red-50"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair da Conta
-            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Atributos por Componente */}
+          <div className="mb-6">
+            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              ATRIBUTOS
+            </h4>
+            <div className="space-y-2">
+              {[
+                { nome: 'Matemática', progresso: 65, cor: 'bg-blue-500' },
+                { nome: 'Linguagens', progresso: 78, cor: 'bg-green-500' },
+                { nome: 'Ciências', progresso: 45, cor: 'bg-purple-500' },
+                { nome: 'História', progresso: 82, cor: 'bg-red-500' },
+                { nome: 'Geografia', progresso: 55, cor: 'bg-yellow-500' },
+                { nome: 'Artes', progresso: 70, cor: 'bg-pink-500' }
+              ].map((attr, index) => (
+                <div key={index} className="bg-amber-800 p-2 rounded border border-yellow-600">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-yellow-100 text-sm">{attr.nome}</span>
+                    <span className="text-yellow-200 text-xs">{attr.progresso}%</span>
+                  </div>
+                  <div className="w-full bg-amber-900 rounded-full h-2">
+                    <div 
+                      className={`${attr.cor} h-2 rounded-full transition-all duration-300`}
+                      style={{ width: `${attr.progresso}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Conquistas Recentes */}
+          <div className="mb-6">
+            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              CONQUISTAS
+            </h4>
+            <div className="space-y-2">
+              {conquistas.slice(0, 5).map((conquista, index) => (
+                <div key={index} className="bg-amber-800 p-2 rounded border border-yellow-600 flex items-center gap-2">
+                  <span className="text-xl">{conquista.icone}</span>
+                  <div className="flex-1">
+                    <p className="text-yellow-100 text-sm font-medium">{conquista.nome}</p>
+                    <p className="text-yellow-200 text-xs">{conquista.descricao}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Ranking */}
+          <div className="bg-amber-700 rounded-lg p-4 border-2 border-yellow-600">
+            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              RANKING
+            </h4>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-yellow-100 mb-1">#{ranking.posicao || 12}</div>
+              <p className="text-yellow-200 text-sm">de {ranking.total_alunos || 45} alunos</p>
+              <div className="mt-2 text-xs text-yellow-200">
+                {studentData.turma_nome} | {studentData.ano_serie}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Área Principal - Mapa e Conteúdo */}
+        <div className="flex-1 flex flex-col">
+          {/* Navegação Superior */}
+          <div className="bg-amber-700 border-b-2 border-yellow-600 p-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-amber-800 border border-yellow-600">
+                <TabsTrigger value="mapa" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                  <Map className="h-4 w-4 mr-2" />
+                  Mapa
+                </TabsTrigger>
+                <TabsTrigger value="missoes" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                  <Sword className="h-4 w-4 mr-2" />
+                  Missões
+                </TabsTrigger>
+                <TabsTrigger value="ranking" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Ranking
+                </TabsTrigger>
+                <TabsTrigger value="forum" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                  <ScrollText className="h-4 w-4 mr-2" />
+                  Fórum
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Conteúdo Principal */}
+          <div className="flex-1 p-4 overflow-y-auto">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              {/* Tab do Mapa */}
+              <TabsContent value="mapa" className="mt-0">
+                <div className="relative h-full min-h-[600px] bg-gradient-to-b from-green-400 via-green-500 to-green-600 rounded-lg border-4 border-yellow-600 overflow-hidden">
+                  {/* Mapa Medieval de Fundo */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-90"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23228B22'/%3E%3Cstop offset='50%25' style='stop-color:%2332CD32'/%3E%3Cstop offset='100%25' style='stop-color:%23228B22'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1000' height='600' fill='url(%23bg)'/%3E%3C/svg%3E")`
+                    }}
+                  ></div>
+
+                  {/* Locais no Mapa */}
+                  <div className="relative z-10 h-full p-8">
+                    {/* Cidade Central */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="bg-amber-600 rounded-full p-6 border-4 border-yellow-400 shadow-lg cursor-pointer hover:scale-110 transition-transform">
+                        <Crown className="h-8 w-8 text-yellow-900" />
+                      </div>
+                      <p className="text-center text-yellow-100 font-bold mt-2">Palácio Real</p>
+                    </div>
+
+                    {/* Outras Localizações */}
+                    {trilhas.map((trilha, index) => {
+                      const positions = [
+                        { top: '20%', left: '30%' },
+                        { top: '30%', right: '25%' },
+                        { bottom: '25%', left: '20%' },
+                        { bottom: '20%', right: '30%' },
+                        { top: '15%', left: '60%' },
+                        { bottom: '35%', left: '50%' }
+                      ];
+                      const pos = positions[index % positions.length];
+                      
+                      return (
+                        <div key={trilha.id} className="absolute" style={pos}>
+                          <div className="bg-amber-700 rounded-lg p-4 border-3 border-yellow-500 shadow-lg cursor-pointer hover:scale-105 transition-transform max-w-48">
+                            <div className="flex items-center gap-2 mb-2">
+                              <BookOpen className="h-5 w-5 text-yellow-200" />
+                              <h4 className="text-yellow-100 font-bold text-sm">{trilha.titulo}</h4>
+                            </div>
+                            <p className="text-yellow-200 text-xs mb-2">{trilha.descricao}</p>
+                            <div className="flex justify-between items-center">
+                              <Badge variant="secondary" className="bg-yellow-600 text-yellow-900">
+                                {trilha.progresso}% completo
+                              </Badge>
+                              <span className="text-yellow-200 text-xs">{trilha.nivel}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Tab das Missões */}
+              <TabsContent value="missoes" className="mt-0">
+                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-yellow-100">Missões Disponíveis</h2>
+                    <Button className="bg-yellow-600 hover:bg-yellow-500 text-yellow-900">
+                      Ver Todas
+                    </Button>
+                  </div>
+
+                  <Tabs defaultValue="ativas" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-amber-800">
+                      <TabsTrigger value="ativas">Ativas (4)</TabsTrigger>
+                      <TabsTrigger value="disponiveis">Disponíveis (8)</TabsTrigger>
+                      <TabsTrigger value="concluidas">Concluídas (12)</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="ativas" className="mt-4">
+                      {missoes.length === 0 ? (
+                        <div className="text-center py-8 text-yellow-200">
+                          <Sword className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Nenhuma missão ativa</p>
+                          <p className="text-sm">Inicie uma nova missão no mapa ou na lista de missões disponíveis</p>
+                        </div>
+                      ) : (
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {missoes.map((missao) => (
+                            <Card key={missao.id} className="bg-amber-800 border-yellow-600">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-yellow-100 flex items-center gap-2">
+                                  <Sword className="h-5 w-5" />
+                                  {missao.titulo}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p className="text-yellow-200 text-sm mb-3">{missao.descricao}</p>
+                                <div className="flex justify-between items-center mb-3">
+                                  <Badge className="bg-yellow-600 text-yellow-900">
+                                    {missao.xp_recompensa} XP
+                                  </Badge>
+                                  <span className="text-yellow-200 text-xs">{missao.dificuldade}</span>
+                                </div>
+                                <Button 
+                                  className="w-full bg-yellow-600 hover:bg-yellow-500 text-yellow-900"
+                                  onClick={() => setSelectedMission(missao)}
+                                >
+                                  Iniciar Missão
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </TabsContent>
+
+              {/* Tab do Ranking */}
+              <TabsContent value="ranking" className="mt-0">
+                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
+                  <h2 className="text-2xl font-bold text-yellow-100 mb-6">Ranking da Turma</h2>
+                  
+                  <div className="space-y-3">
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <div key={i} className={`flex items-center gap-4 p-3 rounded-lg border ${
+                        i === ranking.posicao - 1 ? 'bg-yellow-600 border-yellow-400' : 'bg-amber-800 border-yellow-600'
+                      }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                          i === 0 ? 'bg-yellow-400 text-yellow-900' :
+                          i === 1 ? 'bg-gray-300 text-gray-800' :
+                          i === 2 ? 'bg-orange-400 text-orange-900' :
+                          'bg-amber-600 text-amber-100'
+                        }`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className={`font-semibold ${i === ranking.posicao - 1 ? 'text-yellow-900' : 'text-yellow-100'}`}>
+                            {i === ranking.posicao - 1 ? studentData.nome : `Aluno ${i + 1}`}
+                          </p>
+                          <p className={`text-sm ${i === ranking.posicao - 1 ? 'text-yellow-800' : 'text-yellow-200'}`}>
+                            {studentData.turma_nome}
+                          </p>
+                        </div>
+                        <div className={`text-right ${i === ranking.posicao - 1 ? 'text-yellow-900' : 'text-yellow-100'}`}>
+                          <p className="font-bold">{2750 - (i * 200)} XP</p>
+                          <p className="text-sm">Nível {Math.floor((2750 - (i * 200)) / 1000) + 1}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Tab do Fórum */}
+              <TabsContent value="forum" className="mt-0">
+                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
+                  <h2 className="text-2xl font-bold text-yellow-100 mb-6">Fórum da Comunidade</h2>
+                  <div className="text-center py-8 text-yellow-200">
+                    <ScrollText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Fórum em desenvolvimento</p>
+                    <p className="text-sm">Em breve você poderá interagir com outros aventureiros!</p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+
+        {/* Sidebar Direita - Missão Selecionada */}
+        {selectedMission && (
+          <div className="w-80 bg-gradient-to-b from-amber-800 to-yellow-900 border-l-4 border-yellow-600 p-4">
+            <div className="bg-amber-700 rounded-lg p-4 border-2 border-yellow-600">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-yellow-100 font-bold text-lg">Missão Selecionada</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedMission(null)}
+                  className="text-yellow-200 hover:text-yellow-100"
+                >
+                  ✕
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-yellow-100 font-semibold">{selectedMission.titulo}</h4>
+                  <p className="text-yellow-200 text-sm mt-1">{selectedMission.descricao}</p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Badge className="bg-yellow-600 text-yellow-900">
+                    {selectedMission.xp_recompensa} XP
+                  </Badge>
+                  <Badge variant="outline" className="text-yellow-200 border-yellow-600">
+                    {selectedMission.dificuldade}
+                  </Badge>
+                </div>
+                
+                <p className="text-yellow-200 text-sm">
+                  Selecione uma missão no mapa ou na lista de missões disponíveis.
+                </p>
+                
+                <Button className="w-full bg-yellow-600 hover:bg-yellow-500 text-yellow-900">
+                  Ver Missões Disponíveis
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
-
-// Funções auxiliares para triagem diagnóstica
-function getTriagemQuestion(num: number): string {
-  const perguntas = [
-    "Como você se sente em relação à matemática?",
-    "Qual sua facilidade com leitura e interpretação de textos?",
-    "Como você avalia seu conhecimento em ciências?",
-    "Qual seu interesse por história?",
-    "Como você se sente estudando geografia?",
-    "Qual sua afinidade com artes?",
-    "Como você prefere aprender conteúdos novos?",
-    "Qual seu tempo preferido de estudo?",
-    "Como você lida com desafios difíceis?",
-    "Qual tipo de atividade mais te motiva?"
-  ];
-  return perguntas[num - 1] || "";
-}
-
-function getTriagemOptions(num: number): Array<{ value: string; label: string }> {
-  const opcoes = [
-    [
-      { value: "muito_facil", label: "Muito fácil - Adoro matemática" },
-      { value: "facil", label: "Fácil - Gosto de matemática" },
-      { value: "medio", label: "Médio - É ok" },
-      { value: "dificil", label: "Difícil - Tenho dificuldades" },
-      { value: "muito_dificil", label: "Muito difícil - Não gosto" }
-    ],
-    [
-      { value: "excelente", label: "Excelente - Leio muito bem" },
-      { value: "boa", label: "Boa - Leio bem" },
-      { value: "regular", label: "Regular - Leio razoavelmente" },
-      { value: "dificil", label: "Com dificuldade" },
-      { value: "muito_dificil", label: "Muita dificuldade" }
-    ],
-    [
-      { value: "muito_bom", label: "Muito bom - Adoro ciências" },
-      { value: "bom", label: "Bom - Gosto de ciências" },
-      { value: "regular", label: "Regular - É interessante" },
-      { value: "pouco", label: "Pouco - Tenho dificuldades" },
-      { value: "nenhum", label: "Nenhum - Não gosto" }
-    ]
-  ];
-  
-  // Para as outras perguntas, usar padrão similar
-  if (num <= 3) return opcoes[num - 1];
-  
-  return [
-    { value: "muito_alto", label: "Muito alto" },
-    { value: "alto", label: "Alto" },
-    { value: "medio", label: "Médio" },
-    { value: "baixo", label: "Baixo" },
-    { value: "muito_baixo", label: "Muito baixo" }
-  ];
 }
