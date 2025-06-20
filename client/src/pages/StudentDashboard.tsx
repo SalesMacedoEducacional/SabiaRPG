@@ -3,24 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
   Crown, 
   Star, 
   Trophy, 
   Sword, 
-  Shield, 
   Map, 
-  BookOpen, 
-  Target,
-  User,
-  LogOut,
-  MapPin,
-  Zap,
-  Award,
-  ScrollText,
   MessageCircle,
   Bell,
   Plus,
@@ -29,9 +17,7 @@ import {
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('mapa');
-  const [selectedMission, setSelectedMission] = useState(null);
 
   // Query dos dados do aluno
   const { data: studentData = {}, isLoading: studentLoading } = useQuery({
@@ -79,383 +65,434 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#3A2F2A' }}>
-      {/* Header exato da imagem de referência */}
-      <header className="h-16" style={{ backgroundColor: '#2D1B0A' }}>
-        <div className="flex justify-between items-center h-full px-6">
-          {/* Logo SABIÁ RPG - Exato da imagem */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#D4AF37' }}>
-              <Crown className="h-5 w-5" style={{ color: '#2D1B0A' }} />
-            </div>
-            <span className="text-xl font-bold tracking-wide" style={{ color: '#D4AF37' }}>SABIÁ RPG</span>
+    <div className="min-h-screen" style={{ backgroundColor: '#3d2f1f' }}>
+      {/* Header */}
+      <header className="h-14 flex items-center justify-between px-6" style={{ backgroundColor: '#2d1f0f' }}>
+        {/* Logo SABIÁ RPG */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#d4af37' }}>
+            <Crown className="h-4 w-4 text-black" />
           </div>
-          
-          {/* Navegação central - Exata da imagem */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('mapa')}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all ${
-                activeTab === 'mapa'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={activeTab === 'mapa' ? { backgroundColor: '#8B4513' } : {}}
-            >
-              <Map className="h-4 w-4" />
-              Mapa
-            </button>
-            <button
-              onClick={() => setActiveTab('missoes')}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all ${
-                activeTab === 'missoes'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={activeTab === 'missoes' ? { backgroundColor: '#8B4513' } : {}}
-            >
-              <Sword className="h-4 w-4" />
-              Missões
-            </button>
-            <button
-              onClick={() => setActiveTab('ranking')}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all ${
-                activeTab === 'ranking'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={activeTab === 'ranking' ? { backgroundColor: '#8B4513' } : {}}
-            >
-              <Trophy className="h-4 w-4" />
-              Ranking
-            </button>
-            <button
-              onClick={() => setActiveTab('forum')}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all ${
-                activeTab === 'forum'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={activeTab === 'forum' ? { backgroundColor: '#8B4513' } : {}}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Fórum
-            </button>
+          <span className="text-lg font-bold" style={{ color: '#d4af37' }}>SABIÁ RPG</span>
+        </div>
+        
+        {/* Navegação central */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('mapa')}
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
+              activeTab === 'mapa' ? 'text-white' : 'text-[#b8860b]'
+            }`}
+            style={activeTab === 'mapa' ? { backgroundColor: '#8b4513' } : {}}
+          >
+            <Map className="h-4 w-4" />
+            Mapa
+          </button>
+          <button
+            onClick={() => setActiveTab('missoes')}
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
+              activeTab === 'missoes' ? 'text-white' : 'text-[#b8860b]'
+            }`}
+            style={activeTab === 'missoes' ? { backgroundColor: '#8b4513' } : {}}
+          >
+            <Sword className="h-4 w-4" />
+            Missões
+          </button>
+          <button
+            onClick={() => setActiveTab('ranking')}
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
+              activeTab === 'ranking' ? 'text-white' : 'text-[#b8860b]'
+            }`}
+            style={activeTab === 'ranking' ? { backgroundColor: '#8b4513' } : {}}
+          >
+            <Trophy className="h-4 w-4" />
+            Ranking
+          </button>
+          <button
+            onClick={() => setActiveTab('forum')}
+            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
+              activeTab === 'forum' ? 'text-white' : 'text-[#b8860b]'
+            }`}
+            style={activeTab === 'forum' ? { backgroundColor: '#8b4513' } : {}}
+          >
+            <MessageCircle className="h-4 w-4" />
+            Fórum
+          </button>
+        </div>
+        
+        {/* Info do usuário */}
+        <div className="flex items-center gap-4 text-sm">
+          <div className="relative">
+            <Bell className="h-5 w-5" style={{ color: '#b8860b' }} />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              1
+            </span>
           </div>
-          
-          {/* Info do usuário - Exata da imagem */}
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Bell className="h-5 w-5 text-gray-400 cursor-pointer hover:text-white" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                1
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-white text-sm">
-              <Star className="h-4 w-4" style={{ color: '#D4AF37' }} />
-              <span className="font-medium">{dadosAluno.xp_total} XP</span>
-              <span className="text-gray-400">|</span>
-              <span className="font-medium">Nível {dadosAluno.nivel}</span>
-            </div>
-            <div className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                 style={{ backgroundColor: '#8B4513' }}
-                 onClick={logout}>
-              <span className="text-white text-sm font-bold">
-                AL
-              </span>
-            </div>
+          <div className="flex items-center gap-2 text-white">
+            <Star className="h-4 w-4" style={{ color: '#d4af37' }} />
+            <span>{dadosAluno.xp_total} XP</span>
+            <span style={{ color: '#b8860b' }}>|</span>
+            <span>Nível {dadosAluno.nivel}</span>
+          </div>
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer text-white text-sm font-bold"
+            style={{ backgroundColor: '#8b4513' }}
+            onClick={logout}
+          >
+            AL
           </div>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-64px)]">
-        {/* Sidebar Esquerda - Exata da imagem */}
-        <div className="w-80 p-6 overflow-y-auto" style={{ backgroundColor: '#2D1B0A' }}>
-          {/* Avatar e Info Principal */}
+      <div className="flex h-[calc(100vh-56px)]">
+        {/* Sidebar Esquerda */}
+        <div className="w-60 p-4" style={{ backgroundColor: '#2d1f0f' }}>
+          {/* Avatar e Info */}
           <div className="text-center mb-6">
-            <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center border-2"
-                 style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-              <span className="text-2xl font-bold text-white">AL</span>
+            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-lg font-bold border-2"
+                 style={{ backgroundColor: '#8b4513', borderColor: '#d4af37' }}>
+              AL
             </div>
-            <p className="text-white text-sm font-medium mb-1">aluno@sabiarpg.edu.br</p>
-            <p className="text-gray-400 text-xs">Aprendiz de Sabedoria</p>
+            <p className="text-white text-sm mb-1">aluno@sabiarpg.edu.br</p>
+            <p style={{ color: '#b8860b', fontSize: '12px' }}>Aprendiz de Sabedoria</p>
           </div>
 
-          {/* Atributos - Exato da imagem */}
-          <div className="mb-8">
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wide" style={{ color: '#D4AF37' }}>ATRIBUTOS</h4>
-            <div className="space-y-3">
+          {/* Atributos */}
+          <div className="mb-6">
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: '#d4af37' }}>ATRIBUTOS</h4>
+            <div className="space-y-2">
               {[
-                { nome: 'Matemática', progresso: 0 },
-                { nome: 'Linguagens', progresso: 0 },
-                { nome: 'Ciências', progresso: 0 },
-                { nome: 'História', progresso: 0 },
-                { nome: 'Geografia', progresso: 0 },
-                { nome: 'Artes', progresso: 0 }
+                'Matemática',
+                'Linguagens', 
+                'Ciências',
+                'História',
+                'Geografia',
+                'Artes'
               ].map((attr, index) => (
                 <div key={index} className="flex justify-between items-center text-sm">
-                  <span className="text-white">{attr.nome}</span>
-                  <span className="text-gray-400">{attr.progresso}%</span>
+                  <span className="text-white">{attr}</span>
+                  <span style={{ color: '#b8860b' }}>0%</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Conquistas - Exato da imagem */}
-          <div className="mb-8">
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wide" style={{ color: '#D4AF37' }}>CONQUISTAS</h4>
-            <div className="grid grid-cols-4 gap-3">
+          {/* Conquistas */}
+          <div className="mb-6">
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: '#d4af37' }}>CONQUISTAS</h4>
+            <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="w-12 h-12 rounded-full border-2 flex items-center justify-center"
-                     style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}>
-                  <span className="text-gray-500 text-lg">—</span>
+                <div key={i} className="w-8 h-8 rounded-full border flex items-center justify-center"
+                     style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+                  <span style={{ color: '#666' }}>—</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Nível - Exato da imagem */}
-          <div className="rounded-lg p-6 border"
-               style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}>
+          {/* Nível */}
+          <div className="rounded p-4" style={{ backgroundColor: '#3d2f1f' }}>
             <div className="text-center mb-3">
-              <div className="text-sm font-bold mb-1" style={{ color: '#D4AF37' }}>Nível 1</div>
-              <div className="text-xs text-gray-400">0/1000 XP</div>
+              <div className="text-sm font-bold mb-1" style={{ color: '#d4af37' }}>Nível 1</div>
+              <div className="text-xs" style={{ color: '#b8860b' }}>0/1000 XP</div>
             </div>
-            <div className="text-xs text-gray-400 mb-2">1000 XP para o próximo nível</div>
-            <div className="w-full rounded-full h-2" style={{ backgroundColor: '#2D1B0A' }}>
-              <div className="h-2 rounded-full" style={{ width: '0%', backgroundColor: '#D4AF37' }}></div>
+            <div className="text-xs mb-2" style={{ color: '#b8860b' }}>1000 XP para o próximo nível</div>
+            <div className="w-full rounded h-2" style={{ backgroundColor: '#2d1f0f' }}>
+              <div className="h-2 rounded" style={{ width: '0%', backgroundColor: '#d4af37' }}></div>
             </div>
           </div>
         </div>
 
-        {/* Área Principal - Mapa exato da imagem */}
+        {/* Área Principal */}
         <div className="flex-1 flex flex-col">
           {activeTab === 'mapa' && (
             <div className="flex-1 flex flex-col">
-              {/* Mapa Medieval - Background e elementos exatos da imagem */}
+              {/* Mapa Medieval */}
               <div className="flex-1 p-6">
-                <div className="relative h-full rounded-lg overflow-hidden" 
+                <div className="relative h-full rounded-lg overflow-hidden shadow-2xl" 
                      style={{
-                       background: 'linear-gradient(135deg, #8FBC8F 0%, #9ACD32 25%, #228B22 50%, #6B8E23 75%, #8FBC8F 100%)'
+                       background: `
+                         radial-gradient(circle at 20% 30%, #8bc34a 0%, transparent 40%),
+                         radial-gradient(circle at 70% 20%, #689f38 0%, transparent 35%),
+                         radial-gradient(circle at 40% 70%, #7cb342 0%, transparent 45%),
+                         linear-gradient(135deg, #6b8e23 0%, #8bc34a 25%, #689f38 50%, #7cb342 75%, #6b8e23 100%)
+                       `
                      }}>
                   
-                  {/* Rio azul serpenteante - Exato da imagem */}
+                  {/* Texturas de terreno */}
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="w-full h-full"
+                         style={{
+                           backgroundImage: `
+                             radial-gradient(circle at 25% 25%, #4a5d23 1px, transparent 1px),
+                             radial-gradient(circle at 75% 75%, #3e4f1d 1px, transparent 1px)
+                           `,
+                           backgroundSize: '20px 20px, 30px 30px'
+                         }}>
+                    </div>
+                  </div>
+
+                  {/* Rio serpenteante */}
                   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
-                    <path d="M150,400 Q250,320 350,360 Q450,400 550,380 Q650,360 750,400 Q850,440 950,420" 
-                          stroke="#4682B4" strokeWidth="50" fill="none" opacity="0.9"/>
-                    <path d="M150,400 Q250,320 350,360 Q450,400 550,380 Q650,360 750,400 Q850,440 950,420" 
-                          stroke="#87CEEB" strokeWidth="30" fill="none" opacity="0.8"/>
+                    <defs>
+                      <linearGradient id="riverGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#1976d2" stopOpacity="0.9"/>
+                        <stop offset="50%" stopColor="#42a5f5" stopOpacity="0.8"/>
+                        <stop offset="100%" stopColor="#64b5f6" stopOpacity="0.9"/>
+                      </linearGradient>
+                      <filter id="riverShadow">
+                        <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#2d1f0f" floodOpacity="0.4"/>
+                      </filter>
+                    </defs>
+                    <path d="M150,350 Q250,280 350,320 Q450,360 550,340 Q650,320 750,360 Q850,400 950,380" 
+                          stroke="url(#riverGradient)" strokeWidth="45" fill="none" filter="url(#riverShadow)"/>
+                    <path d="M150,350 Q250,280 350,320 Q450,360 550,340 Q650,320 750,360 Q850,400 950,380" 
+                          stroke="#87ceeb" strokeWidth="25" fill="none" opacity="0.7"/>
                   </svg>
 
-                  {/* Construções medievais - Posições exatas da imagem */}
-                  <div className="relative z-10 h-full p-8">
+                  {/* Áreas de terreno variadas */}
+                  <div className="absolute top-[60%] left-[70%] w-32 h-24 rounded-full opacity-30"
+                       style={{ background: 'radial-gradient(circle, #d2691e 0%, transparent 70%)' }}></div>
+                  <div className="absolute top-[20%] right-[20%] w-40 h-32 rounded-full opacity-25"
+                       style={{ background: 'radial-gradient(circle, #cd853f 0%, transparent 70%)' }}></div>
+
+                  {/* Construções medievais */}
+                  <div className="relative z-10 h-full">
                     
-                    {/* Castelo Principal - Centro do mapa */}
+                    {/* Castelo Principal */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="relative group cursor-pointer">
-                        <div className="w-24 h-32 rounded-t-lg border-2 shadow-lg"
-                             style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                          <div className="flex justify-center mt-3">
-                            <Crown className="h-10 w-10" style={{ color: '#FFD700' }} />
-                          </div>
+                      <div className="relative">
+                        <div className="w-20 h-28 rounded-t-lg shadow-xl flex flex-col items-center justify-center relative"
+                             style={{ 
+                               backgroundColor: '#8b4513', 
+                               border: '2px solid #d4af37',
+                               boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                             }}>
+                          <Crown className="h-8 w-8 text-yellow-400 mb-2" />
                           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                            <div className="w-3 h-8 rounded-t-full" style={{ backgroundColor: '#DC143C' }}></div>
+                            <div className="w-3 h-8 rounded-t-full bg-red-600 border border-yellow-400"></div>
                           </div>
+                          <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-200 rounded"></div>
+                          <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-200 rounded"></div>
                         </div>
                         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                          <p className="text-center font-bold text-sm px-3 py-1 rounded border"
-                             style={{ color: '#D4AF37', backgroundColor: '#2D1B0A', borderColor: '#8B4513' }}>
+                          <p className="text-xs font-bold px-3 py-1 rounded border text-center whitespace-nowrap"
+                             style={{ color: '#d4af37', backgroundColor: '#2d1f0f', borderColor: '#8b4513' }}>
                             CASTELO
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Vilas e construções espalhadas - Posições da imagem */}
-                    
-                    {/* Área Superior Esquerda */}
-                    <div className="absolute top-[15%] left-[12%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">M</span>
+                    {/* Vila da Matemática */}
+                    <div className="absolute top-[18%] left-[12%]">
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">M</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-orange-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>Matemática</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        Matemática
+                      </p>
                     </div>
 
-                    {/* Área Superior Central */}
-                    <div className="absolute top-[10%] left-[35%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">L</span>
+                    {/* Vila das Linguagens */}
+                    <div className="absolute top-[25%] left-[35%]">
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">L</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-blue-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>Linguagens</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        Linguagens
+                      </p>
                     </div>
 
-                    {/* Área Superior Direita */}
-                    <div className="absolute top-[18%] right-[12%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">C</span>
+                    {/* Torre das Ciências */}
+                    <div className="absolute top-[20%] right-[12%]">
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">C</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-purple-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>Ciências</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        Ciências
+                      </p>
                     </div>
 
-                    {/* Área Inferior Esquerda */}
-                    <div className="absolute bottom-[20%] left-[15%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">H</span>
+                    {/* Biblioteca da História */}
+                    <div className="absolute bottom-[25%] left-[15%]">
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">H</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-red-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>História</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        História
+                      </p>
                     </div>
 
-                    {/* Área Inferior Direita */}
-                    <div className="absolute bottom-[15%] right-[18%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">G</span>
+                    {/* Observatório da Geografia */}
+                    <div className="absolute bottom-[20%] right-[15%]">
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">G</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-green-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>Geografia</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        Geografia
+                      </p>
                     </div>
 
-                    {/* Área Esquerda */}
+                    {/* Ateliê das Artes */}
                     <div className="absolute top-[45%] left-[8%]">
-                      <div className="w-16 h-20 rounded-t-lg border shadow-md"
-                           style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
-                        <div className="text-center mt-2">
-                          <span className="text-white font-bold text-sm">A</span>
+                      <div className="relative">
+                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
+                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
+                          <span className="text-white font-bold text-lg">A</span>
+                        </div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-4 bg-pink-600 rounded-t"></div>
                         </div>
                       </div>
-                      <p className="text-center text-xs mt-1" style={{ color: '#D4AF37' }}>Artes</p>
+                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
+                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
+                        Artes
+                      </p>
                     </div>
 
                     {/* Construções menores espalhadas */}
                     {[
-                      { top: '25%', left: '28%' },
-                      { top: '32%', right: '25%' },
-                      { bottom: '35%', left: '45%' },
-                      { bottom: '28%', right: '40%' },
-                      { top: '55%', left: '65%' },
-                      { top: '38%', right: '35%' },
-                      { bottom: '45%', left: '25%' },
-                      { top: '28%', left: '55%' }
+                      { top: '30%', left: '28%', color: '#8b4513' },
+                      { top: '35%', right: '28%', color: '#a0522d' },
+                      { bottom: '35%', left: '42%', color: '#8b4513' },
+                      { bottom: '30%', right: '35%', color: '#a0522d' },
+                      { top: '50%', left: '62%', color: '#8b4513' },
+                      { top: '40%', right: '25%', color: '#a0522d' },
+                      { bottom: '40%', left: '25%', color: '#8b4513' },
+                      { top: '25%', left: '55%', color: '#a0522d' },
+                      { top: '60%', left: '45%', color: '#8b4513' },
+                      { bottom: '50%', right: '45%', color: '#a0522d' }
                     ].map((pos, i) => (
                       <div key={i} className="absolute" style={pos}>
-                        <div className="w-12 h-16 rounded-t-md border shadow-sm"
-                             style={{ backgroundColor: '#8B4513', borderColor: '#A0522D' }}>
+                        <div className="w-10 h-16 rounded-t-md shadow-md"
+                             style={{ backgroundColor: pos.color, border: '1px solid #cd853f' }}>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Controles de zoom - Exatos da imagem */}
+                  {/* Controles de zoom */}
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                    <button className="w-10 h-10 rounded border flex items-center justify-center text-white transition-colors"
-                            style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#4A3F3A'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#3A2F2A'}>
+                    <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
+                            style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
                       <Plus className="h-5 w-5" />
                     </button>
-                    <button className="w-10 h-10 rounded border flex items-center justify-center text-white transition-colors"
-                            style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#4A3F3A'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#3A2F2A'}>
+                    <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
+                            style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
                       <Minus className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Seção de Missões - Exata da imagem */}
-              <div className="p-6 border-t"
-                   style={{ backgroundColor: '#2D1B0A', borderColor: '#8B4513' }}>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold" style={{ color: '#D4AF37' }}>Missões</h2>
-                  <Button className="text-white text-sm px-6 py-2 rounded border transition-colors"
-                          style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#A0522D'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = '#8B4513'}>
+              {/* Seção de Missões */}
+              <div className="p-6" style={{ backgroundColor: '#2d1f0f' }}>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold" style={{ color: '#d4af37' }}>MISSÕES</h2>
+                  <Button className="text-white text-sm px-6 py-2 rounded hover:bg-opacity-80 transition-all"
+                          style={{ backgroundColor: '#8b4513' }}>
                     Ver Todas
                   </Button>
                 </div>
 
                 <div className="flex gap-3 mb-6">
-                  <button className="px-6 py-2 rounded text-sm font-medium border text-white"
-                          style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}>
+                  <button className="px-6 py-2 rounded text-sm font-medium text-white"
+                          style={{ backgroundColor: '#8b4513' }}>
                     Ativas (0)
                   </button>
-                  <button className="px-6 py-2 rounded text-sm font-medium border text-gray-400 transition-colors"
-                          style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}
-                          onMouseEnter={(e) => { e.target.style.backgroundColor = '#4A3F3A'; e.target.style.color = 'white'; }}
-                          onMouseLeave={(e) => { e.target.style.backgroundColor = '#3A2F2A'; e.target.style.color = '#9CA3AF'; }}>
+                  <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
+                          style={{ color: '#b8860b', backgroundColor: '#3d2f1f' }}>
                     Disponíveis (0)
                   </button>
-                  <button className="px-6 py-2 rounded text-sm font-medium border text-gray-400 transition-colors"
-                          style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}
-                          onMouseEnter={(e) => { e.target.style.backgroundColor = '#4A3F3A'; e.target.style.color = 'white'; }}
-                          onMouseLeave={(e) => { e.target.style.backgroundColor = '#3A2F2A'; e.target.style.color = '#9CA3AF'; }}>
+                  <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
+                          style={{ color: '#b8860b', backgroundColor: '#3d2f1f' }}>
                     Concluídas (0)
                   </button>
                 </div>
 
                 <div className="text-center py-12 rounded border"
-                     style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}>
+                     style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
                   <p className="text-white font-medium text-lg">Nenhuma missão ativa</p>
-                  <p className="text-gray-400 text-sm mt-2">Inicie uma nova missão disponível para continuar sua jornada</p>
+                  <p className="text-sm mt-2" style={{ color: '#b8860b' }}>
+                    Inicie uma nova missão disponível para continuar sua jornada
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Outras abas com mesmo estilo */}
+          {/* Outras abas */}
           {activeTab !== 'mapa' && (
             <div className="flex-1 p-8 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                     style={{ backgroundColor: '#3A2F2A' }}>
-                  {activeTab === 'missoes' && <Sword className="h-10 w-10" style={{ color: '#D4AF37' }} />}
-                  {activeTab === 'ranking' && <Trophy className="h-10 w-10" style={{ color: '#D4AF37' }} />}
-                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10" style={{ color: '#D4AF37' }} />}
+                     style={{ backgroundColor: '#3d2f1f' }}>
+                  {activeTab === 'missoes' && <Sword className="h-10 w-10" style={{ color: '#d4af37' }} />}
+                  {activeTab === 'ranking' && <Trophy className="h-10 w-10" style={{ color: '#d4af37' }} />}
+                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10" style={{ color: '#d4af37' }} />}
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">
                   {activeTab === 'missoes' && 'Missões'}
                   {activeTab === 'ranking' && 'Ranking'}
                   {activeTab === 'forum' && 'Fórum'}
                 </h2>
-                <p className="text-gray-400">Em desenvolvimento</p>
+                <p style={{ color: '#b8860b' }}>Em desenvolvimento</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Sidebar Direita - Exata da imagem */}
-        <div className="w-80 p-6 border-l"
-             style={{ backgroundColor: '#2D1B0A', borderColor: '#8B4513' }}>
-          <div className="rounded-lg p-8 border text-center h-full flex flex-col items-center justify-center"
-               style={{ backgroundColor: '#3A2F2A', borderColor: '#8B4513' }}>
+        {/* Sidebar Direita */}
+        <div className="w-80 p-6" style={{ backgroundColor: '#2d1f0f' }}>
+          <div className="rounded-lg p-8 text-center h-full flex flex-col items-center justify-center border"
+               style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
             <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center border-2"
-                 style={{ backgroundColor: '#2D1B0A', borderColor: '#8B4513' }}>
-              <span className="text-4xl" style={{ color: '#8B4513' }}>?</span>
+                 style={{ backgroundColor: '#2d1f0f', borderColor: '#8b4513' }}>
+              <span className="text-4xl" style={{ color: '#8b4513' }}>?</span>
             </div>
-            <h3 className="text-white font-bold text-xl mb-1">Nenhuma Missão</h3>
+            <h3 className="text-white font-bold text-xl mb-2">Nenhuma Missão</h3>
             <h3 className="text-white font-bold text-xl mb-6">Selecionada</h3>
-            <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-xs">
+            <p className="text-sm mb-8 leading-relaxed max-w-xs" style={{ color: '#b8860b' }}>
               Selecione uma missão no mapa ou na lista de missões disponíveis
             </p>
-            <Button className="text-white text-sm px-6 py-3 rounded border transition-colors"
-                    style={{ backgroundColor: '#8B4513', borderColor: '#D4AF37' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#A0522D'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = '#8B4513'}>
+            <Button className="text-white text-sm px-6 py-3 rounded hover:bg-opacity-80 transition-all"
+                    style={{ backgroundColor: '#8b4513' }}>
               Ver Missões Disponíveis
             </Button>
           </div>
