@@ -190,12 +190,12 @@ export default function StudentDashboard() {
     }
   });
 
-  // Redirecionamento para triagem se necessário
-  useEffect(() => {
-    if (needsTriagem && !showTriagem) {
-      setShowTriagem(true);
-    }
-  }, [needsTriagem, showTriagem]);
+  // Redirecionamento para triagem temporariamente desabilitado
+  // useEffect(() => {
+  //   if (needsTriagem && !showTriagem) {
+  //     setShowTriagem(true);
+  //   }
+  // }, [needsTriagem, showTriagem]);
 
   // Verificar se aluno tem escola/turma
   useEffect(() => {
