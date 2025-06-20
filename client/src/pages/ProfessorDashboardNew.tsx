@@ -784,7 +784,7 @@ export default function ProfessorDashboardNew() {
                         <Button
                           type="submit"
                           disabled={createMissaoMutation.isPending}
-                          className="flex-1 bg-amber-600 hover:bg-amber-700"
+                          className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]"
                         >
                           {createMissaoMutation.isPending ? "Criando..." : "Criar Missão"}
                         </Button>
@@ -797,28 +797,28 @@ export default function ProfessorDashboardNew() {
             
             <div className="grid grid-cols-1 gap-6">
               {missoes?.map((missao: any) => (
-                <Card key={missao.id} className="bg-white border-amber-200/50 shadow-lg">
-                  <CardHeader className="border-b border-amber-100">
-                    <CardTitle className="text-amber-900 flex items-center justify-between">
+                <Card key={missao.id} className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-[var(--border-card)]">
+                    <CardTitle className="text-[var(--text-primary)] flex items-center justify-between">
                       {missao.titulo}
-                      <span className="text-sm font-normal text-amber-600">
+                      <span className="text-sm font-normal text-[var(--text-secondary)]">
                         XP: {missao.xp_reward}
                       </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-3">
-                      <div className="flex gap-4 text-sm text-amber-600">
+                      <div className="flex gap-4 text-sm text-[var(--text-secondary)]">
                         <span><strong>Componente:</strong> {missao.componente_nome}</span>
                         <span><strong>Turma:</strong> {missao.turma_nome}</span>
                         <span><strong>Dificuldade:</strong> {missao.dificuldade}/5</span>
                         <span><strong>Tempo:</strong> {missao.tempo_estimado}min</span>
                       </div>
-                      <p className="text-amber-800">{missao.descricao}</p>
+                      <p className="text-[var(--text-primary)]">{missao.descricao}</p>
                     </div>
                   </CardContent>
                 </Card>
-              )) || <p className="text-amber-600">Nenhuma missão encontrada</p>}
+              )) || <p className="text-[var(--text-secondary)]">Nenhuma missão encontrada</p>}
             </div>
           </div>
         );
@@ -827,24 +827,24 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-amber-900">Meus Alunos</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Meus Alunos</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {meusAlunos?.map((aluno: any) => (
-                <Card key={aluno.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
-                  <CardHeader className="border-b border-amber-100">
-                    <CardTitle className="text-amber-900">{aluno.nome}</CardTitle>
+                <Card key={aluno.id} className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-[var(--border-card)]">
+                    <CardTitle className="text-[var(--text-primary)]">{aluno.nome}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-2">
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Email:</strong> {aluno.email}
                       </p>
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Turma:</strong> {aluno.turma_nome}
                       </p>
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         <strong>Status:</strong> 
                         <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
                           aluno.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -855,7 +855,7 @@ export default function ProfessorDashboardNew() {
                     </div>
                   </CardContent>
                 </Card>
-              )) || <p className="text-amber-600">Nenhum aluno encontrado</p>}
+              )) || <p className="text-[var(--text-secondary)]">Nenhum aluno encontrado</p>}
             </div>
           </div>
         );
