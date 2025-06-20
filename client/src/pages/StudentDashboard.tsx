@@ -284,7 +284,7 @@ export default function StudentDashboard() {
     return (
       <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center">
         <div className="text-center">
-          <Crown className="h-12 w-12 text-[#D4A054] mx-auto mb-4 animate-spin" />
+          <Crown className="h-12 w-12 text-[#4DA3A9] mx-auto mb-4 animate-spin" />
           <p className="text-white text-lg">Carregando seu reino...</p>
         </div>
       </div>
@@ -292,10 +292,10 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1a1a1a' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#2E2B29' }}>
       {/* Header */}
       <header className="h-14 flex items-center justify-between px-6 border-b" 
-              style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+              style={{ backgroundColor: '#3A3734', borderColor: '#E5DACA' }}>
         {/* Logo SABIÁ RPG */}
         <div className="flex items-center gap-3">
           <img 
@@ -303,7 +303,7 @@ export default function StudentDashboard() {
             alt="SABIÁ RPG" 
             className="h-12 w-auto object-contain md:h-10 sm:h-8"
           />
-          <span className="text-2xl font-bold text-[#F5F2E7] md:text-xl sm:text-lg">SABIÁ RPG</span>
+          <span className="text-2xl font-bold text-[#FFFFFF] md:text-xl sm:text-lg">SABIÁ RPG</span>
         </div>
         
         {/* Navegação central */}
@@ -355,7 +355,7 @@ export default function StudentDashboard() {
             </span>
           </div>
           <div className="flex items-center gap-2 text-white">
-            <Star className="h-4 w-4 text-[#D4A054]" />
+            <Star className="h-4 w-4 text-[#4DA3A9]" />
             <span>{dadosAluno.xp_total} XP</span>
             <span className="text-[#b8860b]">|</span>
             <span>Nível {dadosAluno.nivel}</span>
@@ -365,7 +365,7 @@ export default function StudentDashboard() {
           <div className="relative">
             <Button
               onClick={() => setShowProfile(!showProfile)}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#D4A054]"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#4DA3A9]"
               style={{ backgroundColor: '#8b4513' }}
             >
               AL
@@ -373,8 +373,8 @@ export default function StudentDashboard() {
             
             {showProfile && (
               <div className="absolute right-0 top-10 w-48 rounded border shadow-lg z-50"
-                   style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
-                <div className="p-3 border-b" style={{ borderColor: '#D4A054' }}>
+                   style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
+                <div className="p-3 border-b" style={{ borderColor: '#4DA3A9' }}>
                   <p className="text-white text-sm font-medium">Minha conta</p>
                 </div>
                 <div className="p-2">
@@ -402,15 +402,15 @@ export default function StudentDashboard() {
 
       <div className="flex h-[calc(100vh-56px)]">
         {/* Sidebar Esquerda */}
-        <div className="w-60 p-4 border-r" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+        <div className="w-60 p-4 border-r" style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
           {/* Avatar e Info */}
           <div className="text-center mb-6">
             <div className="relative mx-auto mb-3">
               <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-lg font-bold border-2"
-                   style={{ backgroundColor: '#8b4513', borderColor: '#D4A054' }}>
+                   style={{ backgroundColor: '#8b4513', borderColor: '#4DA3A9' }}>
                 AL
               </div>
-              <div className="absolute -top-2 -right-2 bg-[#D4A054] text-black text-xs px-2 py-1 rounded-full font-bold">
+              <div className="absolute -top-2 -right-2 bg-[#4DA3A9] text-black text-xs px-2 py-1 rounded-full font-bold">
                 Nv. 1
               </div>
             </div>
@@ -420,7 +420,7 @@ export default function StudentDashboard() {
 
           {/* Atributos com cores dos componentes */}
           <div className="mb-6">
-            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#D4A054]">ATRIBUTOS</h4>
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#4DA3A9]">ATRIBUTOS</h4>
             <div className="space-y-3">
               {atributos.map((attr, index) => (
                 <div key={index} className="space-y-1">
@@ -444,7 +444,7 @@ export default function StudentDashboard() {
 
           {/* Conquistas */}
           <div className="mb-6">
-            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#D4A054]">CONQUISTAS</h4>
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#4DA3A9]">CONQUISTAS</h4>
             <div className="grid grid-cols-3 gap-2">
               {Array.from({ length: 6 }, (_, i) => (
                 <div key={i} className="w-8 h-8 rounded border flex items-center justify-center bg-[#3a3a3a] border-[#8b4513]">
@@ -455,14 +455,14 @@ export default function StudentDashboard() {
           </div>
 
           {/* Nível */}
-          <div className="rounded p-4 border" style={{ backgroundColor: '#3a3a3a', borderColor: '#D4A054' }}>
+          <div className="rounded p-4 border" style={{ backgroundColor: '#3a3a3a', borderColor: '#4DA3A9' }}>
             <div className="text-center mb-3">
-              <div className="text-sm font-bold mb-1 text-[#D4A054]">Nível 1</div>
+              <div className="text-sm font-bold mb-1 text-[#4DA3A9]">Nível 1</div>
               <div className="text-xs text-[#b8860b]">0/1000 XP</div>
             </div>
             <div className="text-xs mb-2 text-[#b8860b]">1000 XP para o próximo nível</div>
-            <div className="w-full rounded h-2 bg-[#2a2a2a]">
-              <div className="h-2 rounded bg-[#D4A054]" style={{ width: '0%' }}></div>
+            <div className="w-full rounded h-2 bg-[#2E2B29]">
+              <div className="h-2 rounded bg-[#4DA3A9]" style={{ width: '0%' }}></div>
             </div>
           </div>
         </div>
@@ -475,7 +475,7 @@ export default function StudentDashboard() {
               <div className="w-full lg:flex-1">
                 <div className="flex-1 p-6">
                   <div className="relative h-full min-h-[500px] rounded-lg overflow-hidden shadow-2xl border-2" 
-                       style={{ borderColor: '#D4A054' }}>
+                       style={{ borderColor: '#4DA3A9' }}>
                     <img 
                       src={mapaImg} 
                       alt="Reino Educacional do Piauí"
@@ -488,9 +488,9 @@ export default function StudentDashboard() {
                         onClick={() => setShowSideMenu(true)}
                         className="p-3 rounded-full shadow-lg border-2 hover:opacity-80"
                         style={{ 
-                          backgroundColor: '#D4A054', 
-                          borderColor: '#312E26',
-                          color: '#312E26'
+                          backgroundColor: '#4DA3A9', 
+                          borderColor: '#3A3734',
+                          color: '#3A3734'
                         }}
                       >
                         <Menu className="h-6 w-6" />
@@ -502,7 +502,7 @@ export default function StudentDashboard() {
                       <div 
                         className="absolute w-6 h-6 rounded-full border-2 border-white animate-pulse"
                         style={{ 
-                          backgroundColor: '#D4A054',
+                          backgroundColor: '#4DA3A9',
                           ...vilarejos.find(v => v.id === selectedCity)?.posicao,
                           transform: 'translate(-50%, -50%)'
                         }}
@@ -513,61 +513,61 @@ export default function StudentDashboard() {
               </div>
 
               {/* Sidebar de Cards de Missões - Desktop */}
-              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
-                <h3 className="text-[#D4A054] font-bold text-lg mb-6 flex items-center gap-2">
+              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#3A3734', borderColor: '#E5DACA' }}>
+                <h3 className="text-[#FFFFFF] font-bold text-lg mb-6 flex items-center gap-2">
                   <Sword className="h-5 w-5" />
                   Status das Missões
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões Concluídas</span>
-                      <CheckCircle className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#FFFFFF] font-bold text-sm">Missões Concluídas</span>
+                      <CheckCircle className="h-5 w-5 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.concluidas}</div>
-                    <div className="text-[#D4A054] text-xs">Missões completadas</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.concluidas}</div>
+                    <div className="text-[#C5B89A] text-xs">Missões completadas</div>
                   </div>
 
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões em Progresso</span>
-                      <Play className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#FFFFFF] font-bold text-sm">Missões em Progresso</span>
+                      <Play className="h-5 w-5 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.emProgresso}</div>
-                    <div className="text-[#D4A054] text-xs">Em andamento</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.emProgresso}</div>
+                    <div className="text-[#C5B89A] text-xs">Em andamento</div>
                   </div>
 
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões Não Iniciadas</span>
-                      <Pause className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#FFFFFF] font-bold text-sm">Missões Não Iniciadas</span>
+                      <Pause className="h-5 w-5 text-[#FFC23C]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.naoIniciadas}</div>
-                    <div className="text-[#D4A054] text-xs">Aguardando início</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.naoIniciadas}</div>
+                    <div className="text-[#C5B89A] text-xs">Aguardando início</div>
                   </div>
                 </div>
               </div>
 
               {/* Cards de Missões - Tablet/Mobile */}
-              <div className="lg:hidden p-4" style={{ backgroundColor: '#312E26' }}>
+              <div className="lg:hidden p-4" style={{ backgroundColor: '#3A3734' }}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
-                    <CheckCircle className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.concluidas}</div>
-                    <div className="text-[#D4A054] text-xs">Concluídas</div>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
+                    <CheckCircle className="h-6 w-6 text-[#4DA3A9] mx-auto mb-2" />
+                    <div className="text-[#E5DACA] text-xl font-bold">{missoesData.concluidas}</div>
+                    <div className="text-[#C5B89A] text-xs">Concluídas</div>
                   </div>
                   
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
-                    <Play className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.emProgresso}</div>
-                    <div className="text-[#D4A054] text-xs">Em Progresso</div>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
+                    <Play className="h-6 w-6 text-[#4DA3A9] mx-auto mb-2" />
+                    <div className="text-[#E5DACA] text-xl font-bold">{missoesData.emProgresso}</div>
+                    <div className="text-[#C5B89A] text-xs">Em Progresso</div>
                   </div>
                   
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
-                    <Pause className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.naoIniciadas}</div>
-                    <div className="text-[#D4A054] text-xs">Não Iniciadas</div>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
+                    <Pause className="h-6 w-6 text-[#FFC23C] mx-auto mb-2" />
+                    <div className="text-[#E5DACA] text-xl font-bold">{missoesData.naoIniciadas}</div>
+                    <div className="text-[#C5B89A] text-xs">Não Iniciadas</div>
                   </div>
                 </div>
               </div>
@@ -580,90 +580,90 @@ export default function StudentDashboard() {
               <div className="flex-1 p-6">
                 {/* Cards de Estatísticas - Responsivo */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#F5F2E7] text-sm">Nível Atual</span>
-                      <Crown className="h-4 w-4 text-[#D4A054]" />
+                      <span className="text-[#E5DACA] text-sm">Nível Atual</span>
+                      <Crown className="h-4 w-4 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#D4A054] text-2xl font-bold">3</div>
-                    <div className="text-[#D4A054] text-xs">250 XP para próximo nível</div>
+                    <div className="text-[#4DA3A9] text-2xl font-bold">3</div>
+                    <div className="text-[#4DA3A9] text-xs">250 XP para próximo nível</div>
                   </div>
 
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#F5F2E7] text-sm">XP Total</span>
-                      <Star className="h-4 w-4 text-[#D4A054]" />
+                      <span className="text-[#E5DACA] text-sm">XP Total</span>
+                      <Star className="h-4 w-4 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#D4A054] text-2xl font-bold">2.750</div>
-                    <div className="text-[#D4A054] text-xs">Experiência acumulada</div>
+                    <div className="text-[#4DA3A9] text-2xl font-bold">2.750</div>
+                    <div className="text-[#4DA3A9] text-xs">Experiência acumulada</div>
                   </div>
 
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#F5F2E7] text-sm">Ranking</span>
-                      <Trophy className="h-4 w-4 text-[#D4A054]" />
+                      <span className="text-[#E5DACA] text-sm">Ranking</span>
+                      <Trophy className="h-4 w-4 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#D4A054] text-2xl font-bold">#12</div>
-                    <div className="text-[#D4A054] text-xs">de 124 alunos</div>
+                    <div className="text-[#4DA3A9] text-2xl font-bold">#12</div>
+                    <div className="text-[#4DA3A9] text-xs">de 124 alunos</div>
                   </div>
 
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#F5F2E7] text-sm">Conquistas</span>
-                      <Award className="h-4 w-4 text-[#D4A054]" />
+                      <span className="text-[#E5DACA] text-sm">Conquistas</span>
+                      <Award className="h-4 w-4 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#D4A054] text-2xl font-bold">2</div>
-                    <div className="text-[#D4A054] text-xs">de 45 disponíveis</div>
+                    <div className="text-[#4DA3A9] text-2xl font-bold">2</div>
+                    <div className="text-[#4DA3A9] text-xs">de 45 disponíveis</div>
                   </div>
                 </div>
 
                 {/* Missões Ativas */}
                 <div className="mb-8">
-                  <h2 className="text-xl font-bold text-[#F5F2E7] mb-6">Missões Ativas</h2>
+                  <h2 className="text-xl font-bold text-[#E5DACA] mb-6">Missões Ativas</h2>
                   
                   <div className="space-y-4">
-                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#F5F2E7] font-bold">A Busca pelos Números Perdidos</h3>
-                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#D4A054', color: '#1a1a1a' }}>
+                        <h3 className="text-[#E5DACA] font-bold">A Busca pelos Números Perdidos</h3>
+                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#4DA3A9', color: '#2E2B29' }}>
                           Continuar
                         </Button>
                       </div>
-                      <p className="text-[#D4A054] text-sm mb-4">Encontre os números perdidos escondidos no Reino da Matemática</p>
+                      <p className="text-[#4DA3A9] text-sm mb-4">Encontre os números perdidos escondidos no Reino da Matemática</p>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-[#F5F2E7]">matemática</span>
-                        <span className="text-[#D4A054]">150 XP</span>
-                        <span className="text-[#D4A054]">25min</span>
+                        <span className="text-[#E5DACA]">matemática</span>
+                        <span className="text-[#4DA3A9]">150 XP</span>
+                        <span className="text-[#4DA3A9]">25min</span>
                       </div>
                     </div>
 
-                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#F5F2E7] font-bold">As Crônicas das Palavras</h3>
-                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#D4A054', color: '#1a1a1a' }}>
+                        <h3 className="text-[#E5DACA] font-bold">As Crônicas das Palavras</h3>
+                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#4DA3A9', color: '#2E2B29' }}>
                           Iniciar
                         </Button>
                       </div>
-                      <p className="text-[#D4A054] text-sm mb-4">Desvende os mistérios da linguagem escrita</p>
+                      <p className="text-[#4DA3A9] text-sm mb-4">Desvende os mistérios da linguagem escrita</p>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-[#F5F2E7]">português</span>
-                        <span className="text-[#D4A054]">120 XP</span>
-                        <span className="text-[#D4A054]">15min</span>
+                        <span className="text-[#E5DACA]">português</span>
+                        <span className="text-[#4DA3A9]">120 XP</span>
+                        <span className="text-[#4DA3A9]">15min</span>
                       </div>
                     </div>
 
-                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                    <div className="p-6 rounded-lg border" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#F5F2E7] font-bold">Expedição ao Laboratório Secreto</h3>
-                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#D4A054', color: '#1a1a1a' }}>
+                        <h3 className="text-[#E5DACA] font-bold">Expedição ao Laboratório Secreto</h3>
+                        <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#4DA3A9', color: '#2E2B29' }}>
                           Concluída
                         </Button>
                       </div>
-                      <p className="text-[#D4A054] text-sm mb-4">Conduza experimentos para descobrir os segredos da natureza</p>
+                      <p className="text-[#4DA3A9] text-sm mb-4">Conduza experimentos para descobrir os segredos da natureza</p>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-[#F5F2E7]">ciências</span>
-                        <span className="text-[#D4A054]">200 XP</span>
-                        <span className="text-[#D4A054]">45min</span>
+                        <span className="text-[#E5DACA]">ciências</span>
+                        <span className="text-[#4DA3A9]">200 XP</span>
+                        <span className="text-[#4DA3A9]">45min</span>
                       </div>
                     </div>
                   </div>
@@ -671,38 +671,38 @@ export default function StudentDashboard() {
               </div>
 
               {/* Sidebar de Cards de Missões - Desktop (repetida para consistência) */}
-              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
-                <h3 className="text-[#D4A054] font-bold text-lg mb-6 flex items-center gap-2">
+              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}>
+                <h3 className="text-[#4DA3A9] font-bold text-lg mb-6 flex items-center gap-2">
                   <Sword className="h-5 w-5" />
                   Status das Missões
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões Concluídas</span>
-                      <CheckCircle className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#4DA3A9] font-bold text-sm">Missões Concluídas</span>
+                      <CheckCircle className="h-5 w-5 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.concluidas}</div>
-                    <div className="text-[#D4A054] text-xs">Missões completadas</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.concluidas}</div>
+                    <div className="text-[#4DA3A9] text-xs">Missões completadas</div>
                   </div>
 
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões em Progresso</span>
-                      <Play className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#4DA3A9] font-bold text-sm">Missões em Progresso</span>
+                      <Play className="h-5 w-5 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.emProgresso}</div>
-                    <div className="text-[#D4A054] text-xs">Em andamento</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.emProgresso}</div>
+                    <div className="text-[#4DA3A9] text-xs">Em andamento</div>
                   </div>
 
-                  <div className="p-4 rounded border" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+                  <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#D4A054] font-bold text-sm">Missões Não Iniciadas</span>
-                      <Pause className="h-5 w-5 text-[#D4A054]" />
+                      <span className="text-[#4DA3A9] font-bold text-sm">Missões Não Iniciadas</span>
+                      <Pause className="h-5 w-5 text-[#4DA3A9]" />
                     </div>
-                    <div className="text-[#F5F2E7] text-2xl font-bold mb-1">{missoesData.naoIniciadas}</div>
-                    <div className="text-[#D4A054] text-xs">Aguardando início</div>
+                    <div className="text-[#E5DACA] text-2xl font-bold mb-1">{missoesData.naoIniciadas}</div>
+                    <div className="text-[#4DA3A9] text-xs">Aguardando início</div>
                   </div>
                 </div>
               </div>
@@ -714,8 +714,8 @@ export default function StudentDashboard() {
             <div className="flex-1 p-8 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#3a3a3a' }}>
-                  {activeTab === 'ranking' && <Trophy className="h-10 w-10 text-[#D4A054]" />}
-                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10 text-[#D4A054]" />}
+                  {activeTab === 'ranking' && <Trophy className="h-10 w-10 text-[#4DA3A9]" />}
+                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10 text-[#4DA3A9]" />}
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">
                   {activeTab === 'ranking' && 'Ranking'}
@@ -730,9 +730,9 @@ export default function StudentDashboard() {
 
       {/* Dialog de informações do Reino */}
       <Dialog open={showKingdomInfo} onOpenChange={setShowKingdomInfo}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#2a2a2a] border-[#8b4513]">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#2E2B29] border-[#8b4513]">
           <DialogHeader>
-            <DialogTitle className="text-[#D4A054] text-xl flex items-center gap-2">
+            <DialogTitle className="text-[#4DA3A9] text-xl flex items-center gap-2">
               <Crown className="h-5 w-5" />
               Reino Educacional do Piauí
             </DialogTitle>
@@ -759,9 +759,9 @@ export default function StudentDashboard() {
 
       {/* Modal dos Vilarejos */}
       <Dialog open={showVillageMenu} onOpenChange={setShowVillageMenu}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#2E2B29', borderColor: '#4DA3A9' }}>
           <DialogHeader>
-            <DialogTitle className="text-[#D4A054] text-xl font-bold flex items-center gap-2">
+            <DialogTitle className="text-[#4DA3A9] text-xl font-bold flex items-center gap-2">
               <Shield className="h-6 w-6" />
               Vilarejos do Reinado
             </DialogTitle>
@@ -775,7 +775,7 @@ export default function StudentDashboard() {
                 placeholder="Buscar vilarejo..."
                 value={villageFilter}
                 onChange={(e) => setVillageFilter(e.target.value)}
-                className="pl-10 bg-[#3a3a3a] border-[#D4A054] text-white placeholder:text-[#b8860b]"
+                className="pl-10 bg-[#3a3a3a] border-[#4DA3A9] text-white placeholder:text-[#b8860b]"
               />
             </div>
 
@@ -785,7 +785,7 @@ export default function StudentDashboard() {
                 <div 
                   key={vilarejo.id}
                   className="p-6 rounded-lg border cursor-pointer hover:bg-[#3a3a3a] transition-colors"
-                  style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}
+                  style={{ backgroundColor: '#3A3734', borderColor: '#4DA3A9' }}
                   onClick={() => {
                     setSelectedCity(vilarejo.id);
                     setShowVillageMenu(false);
@@ -793,14 +793,14 @@ export default function StudentDashboard() {
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-                         style={{ backgroundColor: '#D4A054', color: '#1a1a1a' }}>
+                         style={{ backgroundColor: '#4DA3A9', color: '#2E2B29' }}>
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-[#F5F2E7] font-bold text-lg mb-2">{vilarejo.nome}</h3>
-                      <p className="text-[#D4A054] text-sm leading-relaxed">{vilarejo.descricao}</p>
+                      <h3 className="text-[#E5DACA] font-bold text-lg mb-2">{vilarejo.nome}</h3>
+                      <p className="text-[#4DA3A9] text-sm leading-relaxed">{vilarejo.descricao}</p>
                     </div>
-                    <MapPin className="h-5 w-5 text-[#D4A054] flex-shrink-0" />
+                    <MapPin className="h-5 w-5 text-[#4DA3A9] flex-shrink-0" />
                   </div>
                 </div>
               ))}
@@ -817,7 +817,7 @@ export default function StudentDashboard() {
             <Button 
               onClick={() => setShowVillageMenu(false)}
               className="px-4 py-2"
-              style={{ backgroundColor: '#D4A054', color: '#1a1a1a' }}
+              style={{ backgroundColor: '#4DA3A9', color: '#2E2B29' }}
             >
               Fechar
             </Button>
@@ -838,19 +838,19 @@ export default function StudentDashboard() {
           <div 
             className="absolute left-4 top-20 bottom-4 w-80 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-lg shadow-2xl border-2 pointer-events-auto"
             style={{ 
-              backgroundColor: '#312E26',
-              borderColor: '#D4A054'
+              backgroundColor: '#3A3734',
+              borderColor: '#E5DACA'
             }}
           >
             {/* Header */}
-            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#D4A054' }}>
-              <h2 className="text-[#D4A054] font-bold text-lg">Vilarejos</h2>
+            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#E5DACA' }}>
+              <h2 className="text-[#FFFFFF] font-bold text-lg">Vilarejos</h2>
               <Button
                 onClick={() => setShowSideMenu(false)}
                 className="p-1 rounded hover:opacity-75 transition-opacity"
                 style={{ backgroundColor: 'transparent' }}
               >
-                <X className="h-5 w-5 text-[#D4A054]" />
+                <X className="h-5 w-5 text-[#E5DACA]" />
               </Button>
             </div>
 
@@ -864,9 +864,9 @@ export default function StudentDashboard() {
                     setShowSideMenu(false);
                   }}
                   className="w-full text-left p-3 rounded border hover:bg-opacity-80 transition-all duration-200"
-                  style={{ backgroundColor: '#423F37', borderColor: '#D4A054' }}
+                  style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}
                 >
-                  <span className="text-[#F5F2E7] font-medium">{vilarejo.titulo}</span>
+                  <span className="text-[#E5DACA] font-medium">{vilarejo.titulo}</span>
                 </button>
               ))}
             </div>
@@ -876,25 +876,25 @@ export default function StudentDashboard() {
 
       {/* Modal de História do Vilarejo */}
       <Dialog open={!!selectedVillageStory} onOpenChange={() => setSelectedVillageStory(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto border-2" style={{ backgroundColor: '#423F37', borderColor: '#D4A054' }}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto border-2" style={{ backgroundColor: '#3A3734', borderColor: '#E5DACA' }}>
           {selectedVillageStory && vilarejosHistorias[selectedVillageStory] && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-[#D4A054] text-2xl font-bold flex items-center justify-between mb-4">
+                <DialogTitle className="text-[#FFFFFF] text-2xl font-bold flex items-center justify-between mb-4">
                   {vilarejosHistorias[selectedVillageStory].titulo}
                   <Button
                     onClick={() => setSelectedVillageStory(null)}
                     className="p-2 rounded hover:opacity-75 transition-opacity"
                     style={{ backgroundColor: 'transparent' }}
                   >
-                    <X className="h-6 w-6 text-[#D4A054]" />
+                    <X className="h-6 w-6 text-[#E5DACA]" />
                   </Button>
                 </DialogTitle>
               </DialogHeader>
               
               <div className="space-y-6">
-                <div className="p-4 rounded border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
-                  <p className="text-[#F5F2E7] text-lg leading-relaxed text-justify" style={{ fontSize: '18px', lineHeight: '1.6' }}>
+                <div className="p-4 rounded border" style={{ backgroundColor: '#2E2B29', borderColor: '#E5DACA' }}>
+                  <p className="text-[#E5DACA] text-lg leading-relaxed text-justify" style={{ fontSize: '18px', lineHeight: '1.6' }}>
                     {vilarejosHistorias[selectedVillageStory].historia}
                   </p>
                 </div>
@@ -904,7 +904,7 @@ export default function StudentDashboard() {
                 <Button 
                   onClick={() => setSelectedVillageStory(null)}
                   className="px-8 py-3 rounded font-medium text-lg hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: '#D4A054', color: '#312E26' }}
+                  style={{ backgroundColor: '#4DA3A9', color: '#FFFFFF' }}
                 >
                   Fechar
                 </Button>
