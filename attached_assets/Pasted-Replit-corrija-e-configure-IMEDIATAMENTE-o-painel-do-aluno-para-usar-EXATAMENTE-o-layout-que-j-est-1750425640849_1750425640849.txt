@@ -1,0 +1,77 @@
+Replit, corrija e configure IMEDIATAMENTE o painel do aluno para usar EXATAMENTE o layout que já está disponível em:
+
+https://25079a8c-e2b8-41fa-b22d-78b25ac4e9c8-00-2amhx6zj5rdcy.kirk.replit.dev
+
+Estrutura e estilo
+
+Use a sidebar escura à esquerda com:
+• Avatar e iniciais do aluno (círculo dourado, borda branca)
+• E-mail completo abaixo do avatar
+• Título “Aprendiz de Sabedoria”
+
+A barra de navegação superior deve ter, alinhados ao centro:
+• Logomarca Sabiá RPG (ícone + texto)
+• Botões “Mapa”, “Missões”, “Ranking” e “Fórum”
+• Ícone de notificações e contador de avisos
+• XP e nível do aluno “★ 0XP | Nível 1”
+• Botão de perfil “AL” no canto direito
+
+Carta de Atributos
+
+Abaixo do perfil, exiba barras de progresso para:
+Matemática, Linguagens, Ciências, História, Geografia e Artes
+
+Cada barra com cor distinta e rótulo e percentual à direita
+
+Conquistas e XP
+
+Seção “Conquistas” com 8 círculos vazios para medalhas
+
+Seção “Nível” mostrando “Nível 1” e “0/1000 XP”
+
+Área principal do mapa
+
+Canvas centralizado exibindo o mapa medieval com rios, muralhas e vilarejos
+
+Responsivo em 9:16 (1080×1920); ajuste o componente para ocupar toda a altura disponível
+
+Missões
+
+Abaixo do mapa, título “Missões”
+
+Botões de filtro: “Ativas (0)”, “Disponíveis (0)”, “Concluídas (0)”
+
+Botão “Ver Todas” à direita
+
+Mensagem central “Nenhuma missão ativa”
+
+Painel lateral direito
+
+Ícone grande de interrogação e título “Nenhuma Missão Selecionada”
+
+Texto de instrução e botão “Ver Missões Disponíveis”
+
+Funcionalidades dinâmicas
+
+Ao fazer login, carregue via API real os dados do aluno (atributos, conquistas, nível, XP)
+
+Mapear trilhas e missões com IA e atualizar contadores em tempo real
+
+Notificações ativas refletindo novos convites e alertas
+
+Testes e validação
+
+Compare pixel a pixel com o layout de referência
+
+Não deixe elementos faltando ou desalinhados
+
+Garanta que, após qualquer ação (login, seleção de missão, ganho de XP), o painel se atualize sem recarregar a página
+
+Implemente todas estas mudanças sem gerar dados fictícios e mantendo a responsividade e performance do SPA. Qualquer desvio no layout ou funcionalidade será considerado falha de implementação.
+
+
+
+
+
+
+
