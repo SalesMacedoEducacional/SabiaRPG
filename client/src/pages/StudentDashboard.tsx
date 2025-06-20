@@ -481,21 +481,8 @@ export default function StudentDashboard() {
         <div className="flex-1 flex flex-col">
           {activeTab === 'mapa' && (
             <div className="flex-1 flex flex-col lg:flex-row">
-              {/* Barra de Ferramentas do Mapa */}
+              {/* Área do Mapa */}
               <div className="w-full lg:flex-1">
-                <div className="p-4 border-b lg:border-b-0 lg:border-r flex items-center justify-between lg:justify-start gap-4" 
-                     style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
-                  <Button
-                    onClick={() => setShowVillageMenu(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded text-sm"
-                    style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}
-                  >
-                    <MapPin className="h-4 w-4" />
-                    📍 Vilarejos
-                  </Button>
-                </div>
-
-                {/* Área do Mapa */}
                 <div className="flex-1 p-6">
                   <div className="relative h-full min-h-[500px] rounded-lg overflow-hidden shadow-2xl border-2" 
                        style={{ borderColor: '#d4af37' }}>
@@ -504,6 +491,34 @@ export default function StudentDashboard() {
                       alt="Reino Educacional do Piauí"
                       className="w-full h-full object-contain"
                     />
+                    
+                    {/* Controles do Mapa - Canto Superior Esquerdo */}
+                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <Button
+                        onClick={() => setShowSideMenu(true)}
+                        className="p-2 rounded-full shadow-lg border-2"
+                        style={{ 
+                          backgroundColor: '#d4af37', 
+                          borderColor: '#312e26',
+                          color: '#312e26'
+                        }}
+                      >
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                      
+                      <Button
+                        onClick={() => setShowKingdomInfo(true)}
+                        className="p-2 rounded-full shadow-lg border-2"
+                        style={{ 
+                          backgroundColor: '#4DA3A9', 
+                          borderColor: '#312e26',
+                          color: '#312e26'
+                        }}
+                      >
+                        <Info className="h-5 w-5" />
+                      </Button>
+                    </div>
+
                     {/* Marcador animado se uma cidade foi selecionada */}
                     {selectedCity && (
                       <div 
@@ -844,17 +859,17 @@ export default function StudentDashboard() {
           {/* Panel */}
           <div 
             className="relative w-80 max-w-[90vw] h-full overflow-y-auto"
-            style={{ backgroundColor: '#2a2a2a' }}
+            style={{ backgroundColor: '#312E26' }}
           >
             {/* Header */}
-            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#d4af37' }}>
-              <h2 className="text-[#d4af37] font-bold text-lg">Vilarejos</h2>
+            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#D4A054' }}>
+              <h2 className="text-[#D4A054] font-bold text-lg">Vilarejos</h2>
               <Button
                 onClick={() => setShowSideMenu(false)}
-                className="p-1 rounded hover:bg-[#3a3a3a] transition-colors"
+                className="p-1 rounded hover:opacity-75 transition-opacity"
                 style={{ backgroundColor: 'transparent' }}
               >
-                <X className="h-5 w-5 text-[#d4af37]" />
+                <X className="h-5 w-5 text-[#D4A054]" />
               </Button>
             </div>
 
@@ -867,8 +882,8 @@ export default function StudentDashboard() {
                     setSelectedVillageStory(key);
                     setShowSideMenu(false);
                   }}
-                  className="w-full text-left p-3 rounded border hover:bg-[#3a3a3a] transition-colors"
-                  style={{ backgroundColor: 'transparent', borderColor: '#4DA3A9' }}
+                  className="w-full text-left p-3 rounded border hover:opacity-75 transition-opacity"
+                  style={{ backgroundColor: '#2a2a2a', borderColor: '#4DA3A9' }}
                 >
                   <span className="text-[#F5F2E7] font-medium">{vilarejo.titulo}</span>
                 </button>
@@ -880,18 +895,18 @@ export default function StudentDashboard() {
 
       {/* Modal de História do Vilarejo */}
       <Dialog open={!!selectedVillageStory} onOpenChange={() => setSelectedVillageStory(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
           {selectedVillageStory && vilarejosHistorias[selectedVillageStory] && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-[#d4af37] text-xl font-bold flex items-center justify-between">
+                <DialogTitle className="text-[#D4A054] text-xl font-bold flex items-center justify-between">
                   {vilarejosHistorias[selectedVillageStory].titulo}
                   <Button
                     onClick={() => setSelectedVillageStory(null)}
-                    className="p-1 rounded hover:bg-[#3a3a3a] transition-colors"
+                    className="p-1 rounded hover:opacity-75 transition-opacity"
                     style={{ backgroundColor: 'transparent' }}
                   >
-                    <X className="h-5 w-5 text-[#d4af37]" />
+                    <X className="h-5 w-5 text-[#D4A054]" />
                   </Button>
                 </DialogTitle>
               </DialogHeader>
@@ -906,7 +921,7 @@ export default function StudentDashboard() {
                 <Button 
                   onClick={() => setSelectedVillageStory(null)}
                   className="px-6 py-2 rounded font-medium"
-                  style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}
+                  style={{ backgroundColor: '#D4A054', color: '#312E26' }}
                 >
                   Fechar
                 </Button>
