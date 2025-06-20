@@ -193,22 +193,22 @@ export default function ProfessorDashboardNew() {
   // Componente do menu lateral
   const Sidebar = () => (
     <div className={`
-      fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-amber-800 via-amber-900 to-amber-950 
-      border-r border-amber-700/50 transition-all duration-300 ease-in-out
+      fixed inset-y-0 left-0 z-50 bg-[var(--background-card)] 
+      border-r border-[var(--border-card)] transition-all duration-300 ease-in-out
       ${sidebarOpen ? 'w-64' : 'w-16'}
       ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     `}>
       {/* Header do Sidebar */}
-      <div className="flex items-center justify-between p-4 border-b border-amber-800/30">
-        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-amber-200`}>
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-card)]">
+        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-[var(--text-primary)]`}>
           <h2 className="text-xl font-bold">SABI RPG</h2>
-          <p className="text-sm text-amber-400">Professor</p>
+          <p className="text-sm text-[var(--text-secondary)]">Professor</p>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-amber-300 hover:text-amber-200 hover:bg-amber-800/50"
+          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--background-elevated)]"
         >
           {sidebarOpen ? <ArrowLeftFromLine className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -225,8 +225,8 @@ export default function ProfessorDashboardNew() {
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200
                 ${activeMenu === item.id 
-                  ? 'bg-amber-700/70 text-amber-100 shadow-lg' 
-                  : 'text-amber-300 hover:bg-amber-800/50 hover:text-amber-200'
+                  ? 'bg-[var(--primary)] text-[var(--primary-contrast)] shadow-lg' 
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--background-elevated)] hover:text-[var(--text-primary)]'
                 }
                 ${!sidebarOpen && 'justify-center'}
               `}
@@ -242,22 +242,22 @@ export default function ProfessorDashboardNew() {
 
   // Header
   const Header = () => (
-    <header className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 border-b border-amber-800/50 px-6 py-4">
+    <header className="bg-[var(--background-secondary)] border-b border-[var(--border-card)] px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-amber-300 hover:text-amber-200"
+            className="lg:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <Menu className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-amber-200">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
               {menuItems.find(item => item.id === activeMenu)?.label || 'Dashboard'}
             </h1>
-            <p className="text-amber-400 text-sm">
+            <p className="text-[var(--text-secondary)] text-sm">
               Bem-vindo(a), {user?.nome}
             </p>
           </div>
@@ -265,13 +265,13 @@ export default function ProfessorDashboardNew() {
 
         <div className="flex items-center gap-4">
           <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-500 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-muted)] h-4 w-4" />
             <Input
               type="text"
               placeholder="Pesquisar..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="pl-10 bg-amber-900/50 border-amber-700/50 text-amber-200 placeholder-amber-500 focus:border-amber-600"
+              className="pl-10 bg-[var(--background-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--border-focus)]"
             />
           </div>
           
@@ -279,7 +279,7 @@ export default function ProfessorDashboardNew() {
           <div className="relative">
             <button
               onClick={() => setShowProfilePopup(!showProfilePopup)}
-              className="flex items-center gap-2 p-2 rounded-lg text-amber-300 hover:bg-amber-800/50 transition-colors"
+              className="flex items-center gap-2 p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--background-elevated)] transition-colors"
             >
               <User className="h-5 w-5" />
               <span className="text-sm font-medium hidden sm:block">{user?.nome || 'Professor'}</span>
@@ -288,21 +288,21 @@ export default function ProfessorDashboardNew() {
 
             {/* Popup do perfil */}
             {showProfilePopup && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-amber-900 border border-amber-700/50 rounded-lg shadow-xl p-2 z-50">
-                <div className="px-3 py-2 border-b border-amber-700/50">
-                  <p className="text-sm font-medium text-amber-200">{user?.nome || 'Professor'}</p>
-                  <p className="text-xs text-amber-400">{user?.email}</p>
+              <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--background-card)] border border-[var(--border-card)] rounded-lg shadow-xl p-2 z-50">
+                <div className="px-3 py-2 border-b border-[var(--border-card)]">
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{user?.nome || 'Professor'}</p>
+                  <p className="text-xs text-[var(--text-secondary)]">{user?.email}</p>
                 </div>
                 <button
                   onClick={() => setShowSettings(true)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-amber-300 hover:bg-amber-800/50 rounded-md"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--background-elevated)] rounded-md"
                 >
                   <Settings className="h-4 w-4" />
                   Configurações
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/30 rounded-md"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md"
                 >
                   <LogOut className="h-4 w-4" />
                   Sair
@@ -314,7 +314,7 @@ export default function ProfessorDashboardNew() {
           <Button
             variant="outline"
             size="sm"
-            className="border-amber-700/50 text-amber-300 hover:bg-amber-800/50"
+            className="border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--background-elevated)]"
           >
             <Shield className="h-4 w-4 mr-2" />
             Suporte
@@ -327,50 +327,50 @@ export default function ProfessorDashboardNew() {
   // Cards de estatísticas
   const StatsCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-300 text-sm font-medium">Turmas</p>
-              <p className="text-2xl font-bold text-amber-100">{minhasTurmas?.length || 0}</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Turmas</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{minhasTurmas?.length || 0}</p>
             </div>
-            <Users className="h-8 w-8 text-amber-400" />
+            <Users className="h-8 w-8 text-[var(--accent)]" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-300 text-sm font-medium">Componentes</p>
-              <p className="text-2xl font-bold text-amber-100">{meusComponentes?.length || 0}</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Componentes</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{meusComponentes?.length || 0}</p>
             </div>
-            <BookOpen className="h-8 w-8 text-amber-400" />
+            <BookOpen className="h-8 w-8 text-[var(--accent)]" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-300 text-sm font-medium">Planos de Aula</p>
-              <p className="text-2xl font-bold text-amber-100">{planosAula?.length || 0}</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Planos de Aula</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosAula?.length || 0}</p>
             </div>
-            <FileText className="h-8 w-8 text-amber-400" />
+            <FileText className="h-8 w-8 text-[var(--accent)]" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-amber-900/80 to-amber-950/90 border-amber-600/50 shadow-lg">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-300 text-sm font-medium">Alunos</p>
-              <p className="text-2xl font-bold text-amber-100">{meusAlunos?.length || 0}</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Alunos</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{meusAlunos?.length || 0}</p>
             </div>
-            <Award className="h-8 w-8 text-amber-400" />
+            <Award className="h-8 w-8 text-[var(--accent)]" />
           </div>
         </CardContent>
       </Card>
@@ -933,7 +933,7 @@ export default function ProfessorDashboardNew() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-950 via-amber-900 to-amber-950">
+    <div className="min-h-screen sabia-bg">
       <Sidebar />
       
       {/* Overlay para mobile */}
