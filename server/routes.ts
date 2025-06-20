@@ -3630,7 +3630,676 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
+
+  // ==================== ROTAS DO ALUNO ====================
+
+  // Dados do aluno - identificação inicial
+  app.get("/api/aluno/dados", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO DADOS DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          u.id,
+          u.nome,
+          u.email,
+          pa.escola_id,
+          pa.turma_id,
+          pa.ano_serie,
+          pa.xp_total,
+          pa.nivel,
+          pa.ultima_triagem,
+          e.nome as escola_nome,
+          t.nome as turma_nome
+        FROM usuarios u
+        JOIN perfis_aluno pa ON u.id = pa.usuario_id
+        LEFT JOIN escolas e ON pa.escola_id = e.id
+        LEFT JOIN turmas t ON pa.turma_id = t.id
+        WHERE u.id = $1 AND u.ativo = true
+      `, [usuarioId]);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "Dados do aluno não encontrados" });
+      }
+      
+      const aluno = result.rows[0];
+      console.log(`ALUNO ENCONTRADO: ${aluno.nome} - Escola: ${aluno.escola_nome} - Turma: ${aluno.turma_nome}`);
+      
+      return res.status(200).json(aluno);
+    } catch (error) {
+      console.error('Erro ao buscar dados do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Verificar necessidade de triagem diagnóstica
+  app.get("/api/aluno/needs-triagem", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== VERIFICANDO NECESSIDADE DE TRIAGEM: ${usuarioId} ===`);
+      
+      const alunoResult = await executeQuery(`
+        SELECT pa.ultima_triagem, pa.id as perfil_id
+        FROM perfis_aluno pa
+        WHERE pa.usuario_id = $1
+      `, [usuarioId]);
+      
+      if (alunoResult.rows.length === 0) {
+        return res.status(404).json({ message: "Perfil do aluno não encontrado" });
+      }
+      
+      const { ultima_triagem } = alunoResult.rows[0];
+      
+      // Se nunca fez triagem ou se passaram mais de 90 dias
+      const needsTriagem = !ultima_triagem || 
+        (Date.now() - new Date(ultima_triagem).getTime()) > (90 * 24 * 60 * 60 * 1000);
+      
+      console.log(`NECESSITA TRIAGEM: ${needsTriagem}`);
+      return res.status(200).json({ needsTriagem, ultima_triagem });
+    } catch (error) {
+      console.error('Erro ao verificar necessidade de triagem:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Submeter avaliação diagnóstica
+  app.post("/api/aluno/triagem", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      const { respostas } = req.body;
+      console.log(`=== PROCESSANDO TRIAGEM DO ALUNO: ${usuarioId} ===`);
+      
+      // Buscar perfil do aluno
+      const perfilResult = await executeQuery(`
+        SELECT id, turma_id FROM perfis_aluno WHERE usuario_id = $1
+      `, [usuarioId]);
+      
+      if (perfilResult.rows.length === 0) {
+        return res.status(404).json({ message: "Perfil do aluno não encontrado" });
+      }
+      
+      const perfilId = perfilResult.rows[0].id;
+      
+      // Processar respostas com IA para detectar nível e áreas
+      const avaliacaoIA = await processarAvaliacaoComIA(respostas);
+      
+      // Salvar progresso da triagem
+      await executeQuery(`
+        INSERT INTO progresso_aluno (perfil_id, tipo, data_avaliacao, respostas, nivel_detectado, areas_fortes, areas_fracas)
+        VALUES ($1, 'triagem', NOW(), $2, $3, $4, $5)
+      `, [perfilId, JSON.stringify(respostas), avaliacaoIA.nivel, avaliacaoIA.areas_fortes, avaliacaoIA.areas_fracas]);
+      
+      // Atualizar data da última triagem
+      await executeQuery(`
+        UPDATE perfis_aluno 
+        SET ultima_triagem = NOW(), nivel = $2
+        WHERE id = $1
+      `, [perfilId, avaliacaoIA.nivel]);
+      
+      // Gerar trilhas personalizadas com IA
+      await gerarTrilhasPersonalizadas(perfilId, avaliacaoIA);
+      
+      // Gerar missões baseadas no plano de aula
+      await gerarMissoesDoPlanoDeAula(perfilId, perfilResult.rows[0].turma_id);
+      
+      console.log(`TRIAGEM PROCESSADA - Nível detectado: ${avaliacaoIA.nivel}`);
+      return res.status(200).json({ 
+        nivel_detectado: avaliacaoIA.nivel,
+        areas_fortes: avaliacaoIA.areas_fortes,
+        areas_fracas: avaliacaoIA.areas_fracas 
+      });
+    } catch (error) {
+      console.error('Erro ao processar triagem:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar trilhas personalizadas
+  app.get("/api/aluno/trilhas", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO TRILHAS DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          t.id,
+          t.titulo,
+          t.descricao,
+          t.disciplina,
+          t.nivel,
+          COUNT(m.id) as missoes_total,
+          COUNT(CASE WHEN pa.status = 'concluida' THEN 1 END) as missoes_concluidas,
+          COALESCE(
+            ROUND(
+              (COUNT(CASE WHEN pa.status = 'concluida' THEN 1 END)::numeric / 
+               NULLIF(COUNT(m.id), 0)) * 100, 2
+            ), 0
+          ) as progresso
+        FROM trilhas t
+        JOIN perfis_aluno pf ON t.aluno_id = pf.id
+        LEFT JOIN missoes m ON t.id = m.trilha_id
+        LEFT JOIN progresso_aluno pa ON m.id = pa.missao_id AND pa.perfil_id = pf.id
+        WHERE pf.usuario_id = $1
+        GROUP BY t.id, t.titulo, t.descricao, t.disciplina, t.nivel
+        ORDER BY t.nivel, t.titulo
+      `, [usuarioId]);
+      
+      console.log(`TRILHAS ENCONTRADAS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar trilhas do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar missões do aluno
+  app.get("/api/aluno/missoes", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO MISSÕES DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          m.id,
+          m.titulo,
+          m.descricao,
+          m.area,
+          m.dificuldade,
+          m.xp_reward,
+          m.tempo_estimado,
+          m.conteudo,
+          COALESCE(pa.status, 'pendente') as status,
+          t.titulo as trilha_titulo
+        FROM missoes m
+        JOIN trilhas t ON m.trilha_id = t.id
+        JOIN perfis_aluno pf ON t.aluno_id = pf.id
+        LEFT JOIN progresso_aluno pa ON m.id = pa.missao_id AND pa.perfil_id = pf.id
+        WHERE pf.usuario_id = $1 AND m.ativa = true
+        ORDER BY 
+          CASE pa.status 
+            WHEN 'em_andamento' THEN 1
+            WHEN 'pendente' THEN 2
+            WHEN 'concluida' THEN 3
+            ELSE 4
+          END,
+          m.ordem, m.titulo
+      `, [usuarioId]);
+      
+      console.log(`MISSÕES ENCONTRADAS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar missões do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Iniciar missão
+  app.post("/api/aluno/missoes/iniciar", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      const { missaoId } = req.body;
+      console.log(`=== INICIANDO MISSÃO: ${missaoId} PARA ALUNO: ${usuarioId} ===`);
+      
+      // Buscar perfil do aluno
+      const perfilResult = await executeQuery(`
+        SELECT id FROM perfis_aluno WHERE usuario_id = $1
+      `, [usuarioId]);
+      
+      if (perfilResult.rows.length === 0) {
+        return res.status(404).json({ message: "Perfil do aluno não encontrado" });
+      }
+      
+      const perfilId = perfilResult.rows[0].id;
+      
+      // Verificar se a missão já foi iniciada
+      const existingProgress = await executeQuery(`
+        SELECT id, status FROM progresso_aluno 
+        WHERE perfil_id = $1 AND missao_id = $2
+      `, [perfilId, missaoId]);
+      
+      if (existingProgress.rows.length > 0) {
+        return res.status(400).json({ message: "Missão já foi iniciada" });
+      }
+      
+      // Criar registro de progresso
+      await executeQuery(`
+        INSERT INTO progresso_aluno (perfil_id, missao_id, status, atualizadoEm)
+        VALUES ($1, $2, 'em_andamento', NOW())
+      `, [perfilId, missaoId]);
+      
+      console.log(`MISSÃO INICIADA COM SUCESSO`);
+      return res.status(200).json({ message: "Missão iniciada com sucesso" });
+    } catch (error) {
+      console.error('Erro ao iniciar missão:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Completar missão
+  app.post("/api/aluno/missoes/completar", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      const { missaoId, resposta } = req.body;
+      console.log(`=== COMPLETANDO MISSÃO: ${missaoId} PARA ALUNO: ${usuarioId} ===`);
+      
+      // Buscar perfil do aluno
+      const perfilResult = await executeQuery(`
+        SELECT id FROM perfis_aluno WHERE usuario_id = $1
+      `, [usuarioId]);
+      
+      if (perfilResult.rows.length === 0) {
+        return res.status(404).json({ message: "Perfil do aluno não encontrado" });
+      }
+      
+      const perfilId = perfilResult.rows[0].id;
+      
+      // Buscar dados da missão
+      const missaoResult = await executeQuery(`
+        SELECT xp_reward FROM missoes WHERE id = $1
+      `, [missaoId]);
+      
+      if (missaoResult.rows.length === 0) {
+        return res.status(404).json({ message: "Missão não encontrada" });
+      }
+      
+      const xpReward = missaoResult.rows[0].xp_reward;
+      
+      // Processar resposta com IA para feedback
+      const feedbackIA = await processarRespostaComIA(resposta, missaoId);
+      
+      // Atualizar progresso
+      await executeQuery(`
+        UPDATE progresso_aluno 
+        SET status = 'concluida', resposta = $3, feedback_ia = $4, xp_ganho = $5, atualizadoEm = NOW()
+        WHERE perfil_id = $1 AND missao_id = $2
+      `, [perfilId, missaoId, JSON.stringify(resposta), feedbackIA, xpReward]);
+      
+      // Atualizar XP do aluno
+      await executeQuery(`
+        UPDATE perfis_aluno 
+        SET xp_total = xp_total + $2, nivel = FLOOR((xp_total + $2) / 1000) + 1
+        WHERE id = $1
+      `, [perfilId, xpReward]);
+      
+      // Verificar conquistas
+      await verificarConquistas(perfilId);
+      
+      console.log(`MISSÃO COMPLETADA - XP ganho: ${xpReward}`);
+      return res.status(200).json({ 
+        message: "Missão completada com sucesso",
+        xp_ganho: xpReward,
+        feedback: feedbackIA
+      });
+    } catch (error) {
+      console.error('Erro ao completar missão:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar conquistas do aluno
+  app.get("/api/aluno/conquistas", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO CONQUISTAS DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          c.id,
+          c.nome,
+          c.icone,
+          c.criterio as descricao,
+          ac.concedido_em as data_conquista,
+          CASE WHEN ac.id IS NOT NULL THEN true ELSE false END as desbloqueada
+        FROM conquistas c
+        LEFT JOIN aluno_conquistas ac ON c.id = ac.conquista_id
+        LEFT JOIN perfis_aluno pa ON ac.perfil_id = pa.id AND pa.usuario_id = $1
+        ORDER BY desbloqueada DESC, c.nome
+      `, [usuarioId]);
+      
+      console.log(`CONQUISTAS ENCONTRADAS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar conquistas do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar ranking do aluno
+  app.get("/api/aluno/ranking", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO RANKING DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        WITH ranking AS (
+          SELECT 
+            pa.usuario_id,
+            pa.xp_total,
+            pa.nivel,
+            ROW_NUMBER() OVER (ORDER BY pa.xp_total DESC) as posicao
+          FROM perfis_aluno pa
+          JOIN usuarios u ON pa.usuario_id = u.id
+          WHERE u.ativo = true
+        )
+        SELECT 
+          r.posicao,
+          r.xp_total,
+          r.nivel,
+          (SELECT COUNT(*) FROM perfis_aluno pa2 JOIN usuarios u2 ON pa2.usuario_id = u2.id WHERE u2.ativo = true) as total_alunos
+        FROM ranking r
+        WHERE r.usuario_id = $1
+      `, [usuarioId]);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "Dados de ranking não encontrados" });
+      }
+      
+      console.log(`POSIÇÃO NO RANKING: ${result.rows[0].posicao}`);
+      return res.status(200).json(result.rows[0]);
+    } catch (error) {
+      console.error('Erro ao buscar ranking do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar histórico de progresso
+  app.get("/api/aluno/historico", authenticate, authorize(["aluno"]), async (req, res) => {
+    try {
+      const usuarioId = req.session.userId;
+      console.log(`=== BUSCANDO HISTÓRICO DO ALUNO: ${usuarioId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          pa.id,
+          pa.tipo,
+          pa.data_avaliacao,
+          pa.respostas,
+          pa.nivel_detectado,
+          pa.areas_fortes,
+          pa.areas_fracas,
+          pa.xp_ganho,
+          m.titulo as missao_titulo
+        FROM progresso_aluno pa
+        JOIN perfis_aluno pf ON pa.perfil_id = pf.id
+        LEFT JOIN missoes m ON pa.missao_id = m.id
+        WHERE pf.usuario_id = $1
+        ORDER BY pa.data_avaliacao DESC
+        LIMIT 50
+      `, [usuarioId]);
+      
+      console.log(`REGISTROS DE HISTÓRICO: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar histórico do aluno:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
   
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// ==================== FUNÇÕES AUXILIARES PARA IA ====================
+
+async function processarAvaliacaoComIA(respostas: any): Promise<{
+  nivel: number;
+  areas_fortes: string[];
+  areas_fracas: string[];
+}> {
+  try {
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `
+    Analise estas respostas de avaliação diagnóstica e determine:
+    1. Nível de conhecimento (1-10)
+    2. Áreas fortes (máximo 3)
+    3. Áreas fracas (máximo 3)
+    
+    Respostas: ${JSON.stringify(respostas)}
+    
+    Responda em JSON no formato:
+    {
+      "nivel": número,
+      "areas_fortes": ["área1", "área2"],
+      "areas_fracas": ["área1", "área2"]
+    }
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    });
+
+    const resultado = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      nivel: resultado.nivel || 1,
+      areas_fortes: resultado.areas_fortes || [],
+      areas_fracas: resultado.areas_fracas || []
+    };
+  } catch (error) {
+    console.error('Erro ao processar avaliação com IA:', error);
+    // Fallback: análise básica das respostas
+    return {
+      nivel: 3,
+      areas_fortes: ["leitura"],
+      areas_fracas: ["matemática"]
+    };
+  }
+}
+
+async function gerarTrilhasPersonalizadas(perfilId: string, avaliacaoIA: any): Promise<void> {
+  try {
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `
+    Com base nesta avaliação, crie 3 trilhas de aprendizagem personalizadas:
+    - Nível: ${avaliacaoIA.nivel}
+    - Áreas fortes: ${avaliacaoIA.areas_fortes.join(', ')}
+    - Áreas fracas: ${avaliacaoIA.areas_fracas.join(', ')}
+    
+    Responda em JSON no formato:
+    {
+      "trilhas": [
+        {
+          "titulo": "Nome da trilha",
+          "descricao": "Descrição detalhada",
+          "disciplina": "matemática|português|ciências|história|geografia|artes",
+          "nivel": número
+        }
+      ]
+    }
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    });
+
+    const resultado = JSON.parse(response.choices[0].message.content || '{}');
+    
+    // Inserir trilhas no banco
+    for (const trilha of resultado.trilhas || []) {
+      await executeQuery(`
+        INSERT INTO trilhas (titulo, disciplina, nivel, aluno_id)
+        VALUES ($1, $2, $3, $4)
+      `, [trilha.titulo, trilha.disciplina, trilha.nivel, perfilId]);
+    }
+  } catch (error) {
+    console.error('Erro ao gerar trilhas personalizadas:', error);
+  }
+}
+
+async function gerarMissoesDoPlanoDeAula(perfilId: string, turmaId: string): Promise<void> {
+  try {
+    // Buscar planos de aula da turma
+    const planosResult = await executeQuery(`
+      SELECT pa.id, pa.titulo, pa.conteudo, c.nome as componente_nome
+      FROM planos_aula pa
+      JOIN turma_componentes tc ON pa.turma_componente_id = tc.id
+      JOIN componentes c ON tc.componente_id = c.id
+      WHERE tc.turma_id = $1 AND pa.ativo = true
+    `, [turmaId]);
+
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    for (const plano of planosResult.rows) {
+      const prompt = `
+      Baseado neste plano de aula, crie 3 missões épicas para alunos:
+      
+      Título: ${plano.titulo}
+      Componente: ${plano.componente_nome}
+      Conteúdo: ${plano.conteudo}
+      
+      Responda em JSON no formato:
+      {
+        "missoes": [
+          {
+            "titulo": "Nome da missão",
+            "descricao": "Descrição envolvente",
+            "area": "matemática|português|ciências|história|geografia|artes",
+            "dificuldade": número_1_a_5,
+            "xp_reward": número,
+            "tempo_estimado": minutos,
+            "conteudo": "Atividade detalhada"
+          }
+        ]
+      }
+      `;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+      });
+
+      const resultado = JSON.parse(response.choices[0].message.content || '{}');
+      
+      // Buscar trilha apropriada para inserir missões
+      const trilhaResult = await executeQuery(`
+        SELECT id FROM trilhas WHERE aluno_id = $1 AND disciplina = $2 LIMIT 1
+      `, [perfilId, resultado.missoes?.[0]?.area || 'matemática']);
+
+      if (trilhaResult.rows.length > 0) {
+        const trilhaId = trilhaResult.rows[0].id;
+        
+        // Inserir missões no banco
+        for (let i = 0; i < (resultado.missoes || []).length; i++) {
+          const missao = resultado.missoes[i];
+          await executeQuery(`
+            INSERT INTO missoes (trilha_id, titulo, descricao, area, dificuldade, xp_reward, tempo_estimado, conteudo, ordem, ativa)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
+          `, [trilhaId, missao.titulo, missao.descricao, missao.area, missao.dificuldade, missao.xp_reward, missao.tempo_estimado, JSON.stringify(missao.conteudo), i + 1]);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao gerar missões do plano de aula:', error);
+  }
+}
+
+async function processarRespostaComIA(resposta: any, missaoId: string): Promise<string> {
+  try {
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `
+    Analise esta resposta de missão e forneça feedback construtivo:
+    
+    Resposta: ${JSON.stringify(resposta)}
+    
+    Forneça feedback motivacional e educativo em até 100 palavras.
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return response.choices[0].message.content || "Ótimo trabalho! Continue assim!";
+  } catch (error) {
+    console.error('Erro ao processar resposta com IA:', error);
+    return "Ótimo trabalho! Continue assim!";
+  }
+}
+
+async function verificarConquistas(perfilId: string): Promise<void> {
+  try {
+    // Buscar XP e missões concluídas do aluno
+    const statsResult = await executeQuery(`
+      SELECT 
+        pa.xp_total,
+        pa.nivel,
+        COUNT(pr.id) as missoes_concluidas
+      FROM perfis_aluno pa
+      LEFT JOIN progresso_aluno pr ON pa.id = pr.perfil_id AND pr.status = 'concluida'
+      WHERE pa.id = $1
+      GROUP BY pa.id, pa.xp_total, pa.nivel
+    `, [perfilId]);
+
+    if (statsResult.rows.length === 0) return;
+
+    const { xp_total, nivel, missoes_concluidas } = statsResult.rows[0];
+
+    // Definir critérios de conquistas
+    const conquistasDisponiveis = [
+      { nome: "Primeiro Passo", criterio: "Primeira missão concluída", icone: "🎯", requisito: missoes_concluidas >= 1 },
+      { nome: "Explorador", criterio: "5 missões concluídas", icone: "🗺️", requisito: missoes_concluidas >= 5 },
+      { nome: "Aventureiro", criterio: "10 missões concluídas", icone: "⚔️", requisito: missoes_concluidas >= 10 },
+      { nome: "Mestre", criterio: "25 missões concluídas", icone: "👑", requisito: missoes_concluidas >= 25 },
+      { nome: "Iniciante", criterio: "Nível 2 alcançado", icone: "⭐", requisito: nivel >= 2 },
+      { nome: "Experiente", criterio: "Nível 5 alcançado", icone: "🌟", requisito: nivel >= 5 },
+      { nome: "Especialista", criterio: "Nível 10 alcançado", icone: "💫", requisito: nivel >= 10 },
+      { nome: "Colecionador de XP", criterio: "1000 XP acumulados", icone: "💎", requisito: xp_total >= 1000 }
+    ];
+
+    // Verificar e conceder conquistas
+    for (const conquista of conquistasDisponiveis) {
+      if (conquista.requisito) {
+        // Verificar se já tem a conquista
+        const jaTemResult = await executeQuery(`
+          SELECT c.id FROM conquistas c
+          JOIN aluno_conquistas ac ON c.id = ac.conquista_id
+          WHERE ac.perfil_id = $1 AND c.nome = $2
+        `, [perfilId, conquista.nome]);
+
+        if (jaTemResult.rows.length === 0) {
+          // Criar conquista se não existir
+          const conquistaResult = await executeQuery(`
+            INSERT INTO conquistas (nome, icone, criterio)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (nome) DO UPDATE SET nome = EXCLUDED.nome
+            RETURNING id
+          `, [conquista.nome, conquista.icone, conquista.criterio]);
+
+          let conquistaId;
+          if (conquistaResult.rows.length > 0) {
+            conquistaId = conquistaResult.rows[0].id;
+          } else {
+            // Buscar ID da conquista existente
+            const existingResult = await executeQuery(`
+              SELECT id FROM conquistas WHERE nome = $1
+            `, [conquista.nome]);
+            conquistaId = existingResult.rows[0]?.id;
+          }
+
+          if (conquistaId) {
+            // Conceder conquista
+            await executeQuery(`
+              INSERT INTO aluno_conquistas (perfil_id, conquista_id)
+              VALUES ($1, $2)
+            `, [perfilId, conquistaId]);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao verificar conquistas:', error);
+  }
 }
