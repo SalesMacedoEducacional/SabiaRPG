@@ -3975,7 +3975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: "1",
           nome: "Primeiro Passo",
           icone: "🏆",
-          descricao: "Complete sua primeira missão no SABI RPG",
+          descricao: "Complete sua primeira missão no SABIÁ RPG",
           data_conquista: new Date().toISOString(),
           desbloqueada: true
         },

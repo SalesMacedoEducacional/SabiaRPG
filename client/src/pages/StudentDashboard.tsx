@@ -490,7 +490,7 @@ export default function StudentDashboard() {
       <header className="bg-[var(--background-card)] border-b border-[var(--border-card)] px-6 py-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">SABI RPG</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">SABIÁ RPG</h1>
             <p className="text-sm text-[var(--text-secondary)]">
               {studentData.nome} - {studentData.turma_nome} | {studentData.escola_nome}
             </p>
