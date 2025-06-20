@@ -33,8 +33,18 @@ import {
   Settings,
   LogOut,
   Shield,
-  X
+  X,
+  BarChart3,
+  Activity,
+  AlertTriangle,
+  Trophy,
+  Eye,
+  Timer,
+  Users2,
+  BookOpen2,
+  Star
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
 
 // Schemas de validação
 const planoAulaSchema = z.object({

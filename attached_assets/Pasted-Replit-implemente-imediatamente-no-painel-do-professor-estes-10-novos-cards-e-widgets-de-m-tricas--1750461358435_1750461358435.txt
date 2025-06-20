@@ -1,0 +1,66 @@
+Replit, implemente imediatamente no painel do professor estes 10 novos cards e widgets de métricas, conforme as especificações, usando apenas dados reais e mantendo as cores da paleta (#4DA3A9, #D4A054, #A6E3E9, #FFC23C, #312E26):
+
+Tendência de Acesso
+
+Gráfico de linha dos logins diários dos alunos nos últimos 30 dias.
+
+Taxa de Conclusão de Missões
+
+Gauge ou pizza mostrando % de missões completas, pendentes e não iniciadas por turma/componente.
+
+Distribuição de Tempo de Estudo
+
+Histograma do tempo médio gasto em cada missão ou trilha.
+
+Ranking de Desempenho
+
+Leaderboard dos 5 alunos com maior XP ganho no mês, exibindo nome e pontuação.
+
+Alunos em Risco
+
+Lista de alunos com menos de X logins na última semana ou taxa de conclusão < Y%, com filtro por turma.
+
+Progresso por Componente
+
+Barras empilhadas mostrando % de progresso médio em cada componente (Linguagens, Matemática, etc.).
+
+Atividades Futuras
+
+Card listando próximas entregas/avaliações agendadas, com contagem regressiva de dias.
+
+Feedback Instantâneo da IA
+
+Card de texto dinâmico com insights da OpenAI (ex: “70% dos alunos errou equações”).
+
+Evolução Trimestral
+
+Gráfico de área comparando engajamento e conclusão por trimestre letivo.
+
+Conquistas da Turma
+
+Grid de ícones mostrando total de medalhas, XP e badges conquistados pelo grupo.
+
+Requisitos de implementação
+
+Utilize TanStack Chart ou Recharts para todos os gráficos.
+
+Cada card deve ter botão “Ver Detalhes” que abre modal/tab com tabela filtrável.
+
+Após qualquer cadastro, edição ou exclusão (missões, planos, etc.), faça refetch automático dos dados.
+
+Mantenha responsividade 9×16 e padronize estilos com Tailwind CSS e Radix UI.
+
+Aplique cores exatas da paleta nos elementos de gráfico, barras e ícones.
+
+Garanta que não haja dados fictícios: puxe diretamente das APIs Supabase/Express.
+
+Teste cada widget até que os números reflitam corretamente: logins, XP, taxas, prazos e riscos.
+
+Execute passo a passo e confirme no ambiente de produção que todos os novos cards estão funcionando, atualizando em tempo real e sem cache.
+
+
+
+
+
+
+
