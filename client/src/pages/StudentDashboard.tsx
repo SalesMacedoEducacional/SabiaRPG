@@ -108,80 +108,78 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-900 via-yellow-900 to-orange-900">
-      {/* Header Medieval */}
-      <header className="bg-gradient-to-r from-amber-800 to-yellow-800 border-b-4 border-yellow-600 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center border-2 border-yellow-400">
-                <Crown className="h-6 w-6 text-yellow-900" />
+    <div className="min-h-screen bg-[#2D1B0A]">
+      {/* Header Padrão do Sistema */}
+      <header className="bg-[#3D2817] border-b border-[#5D3F26] px-6 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#B8860B] rounded-full flex items-center justify-center">
+              <Crown className="h-6 w-6 text-[#2D1B0A]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#F4E4BC] tracking-wide">SABIÁ RPG</h1>
+              <p className="text-[#D4AF37] text-sm">Reino do Conhecimento Épico</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="bg-[#5D3F26] px-4 py-2 rounded-lg border border-[#B8860B]">
+              <div className="flex items-center gap-2 text-[#F4E4BC]">
+                <User className="h-4 w-4" />
+                <span className="font-semibold">{studentData.nome}</span>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-yellow-100 tracking-wide">⚔️ SABIÁ RPG ⚔️</h1>
-                <p className="text-yellow-200 text-sm">Reino do Conhecimento Épico</p>
+              <div className="text-xs text-[#D4AF37]">
+                {studentData.turma_nome} | {studentData.escola_nome}
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="bg-amber-700 px-4 py-2 rounded-lg border border-yellow-600">
-                <div className="flex items-center gap-2 text-yellow-100">
-                  <User className="h-4 w-4" />
-                  <span className="font-semibold">{studentData.nome}</span>
-                </div>
-                <div className="text-xs text-yellow-200">
-                  {studentData.turma_nome} | {studentData.escola_nome}
-                </div>
+            <div className="bg-[#5D3F26] px-4 py-2 rounded-lg border border-[#B8860B]">
+              <div className="flex items-center gap-2 text-[#F4E4BC]">
+                <Star className="h-4 w-4" />
+                <span className="font-bold">XP: {studentData.xp_total || 0}</span>
               </div>
-              
-              <div className="bg-amber-700 px-4 py-2 rounded-lg border border-yellow-600">
-                <div className="flex items-center gap-2 text-yellow-100">
-                  <Star className="h-4 w-4" />
-                  <span className="font-bold">XP: {studentData.xp_total || 0}</span>
-                </div>
-                <div className="text-xs text-yellow-200">Nível {studentData.nivel || 1}</div>
-              </div>
-              
-              <Button
-                variant="outline"
-                onClick={logout}
-                className="bg-red-800 hover:bg-red-700 text-yellow-100 border-red-600"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
-              </Button>
+              <div className="text-xs text-[#D4AF37]">Nível {studentData.nivel || 1}</div>
             </div>
+            
+            <Button
+              variant="outline"
+              onClick={logout}
+              className="bg-[#8B4513] hover:bg-[#A0522D] text-[#F4E4BC] border-[#8B4513]"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
           </div>
         </div>
       </header>
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar Esquerda - Atributos e Info do Jogador */}
-        <div className="w-80 bg-gradient-to-b from-amber-800 to-yellow-900 border-r-4 border-yellow-600 p-4 overflow-y-auto">
+        <div className="w-80 bg-[#3D2817] border-r border-[#5D3F26] p-4 overflow-y-auto">
           {/* Avatar e Info Principal */}
-          <div className="bg-amber-700 rounded-lg p-4 mb-6 border-2 border-yellow-600">
+          <div className="bg-[#5D3F26] rounded-lg p-4 mb-6 border border-[#B8860B]">
             <div className="text-center mb-4">
-              <div className="w-20 h-20 bg-yellow-600 rounded-full mx-auto mb-3 flex items-center justify-center border-3 border-yellow-400">
-                <span className="text-2xl font-bold text-yellow-900">
+              <div className="w-20 h-20 bg-[#B8860B] rounded-full mx-auto mb-3 flex items-center justify-center">
+                <span className="text-2xl font-bold text-[#2D1B0A]">
                   {studentData.nome?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'AL'}
                 </span>
               </div>
-              <h3 className="text-yellow-100 font-bold text-lg">{studentData.nome}</h3>
-              <p className="text-yellow-200 text-sm">{studentData.email}</p>
+              <h3 className="text-[#F4E4BC] font-bold text-lg">{studentData.nome}</h3>
+              <p className="text-[#D4AF37] text-sm">{studentData.email}</p>
             </div>
 
             {/* XP e Nível */}
             <div className="space-y-3">
-              <div className="bg-amber-800 p-3 rounded border border-yellow-600">
+              <div className="bg-[#4A3224] p-3 rounded border border-[#B8860B]">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-yellow-100 text-sm">Nível {studentData.nivel || 1}</span>
-                  <span className="text-yellow-200 text-xs">{studentData.xp_total || 0} XP</span>
+                  <span className="text-[#F4E4BC] text-sm">Nível {studentData.nivel || 1}</span>
+                  <span className="text-[#D4AF37] text-xs">{studentData.xp_total || 0} XP</span>
                 </div>
                 <Progress 
                   value={((studentData.xp_total || 0) % 1000) / 10} 
                   className="h-2"
                 />
-                <p className="text-yellow-200 text-xs mt-1">
+                <p className="text-[#D4AF37] text-xs mt-1">
                   {getXPParaProximoNivel(studentData.xp_total || 0)} XP para o próximo nível
                 </p>
               </div>
@@ -190,7 +188,7 @@ export default function StudentDashboard() {
 
           {/* Atributos por Componente */}
           <div className="mb-6">
-            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+            <h4 className="text-[#F4E4BC] font-bold mb-3 flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               ATRIBUTOS
             </h4>
@@ -203,12 +201,12 @@ export default function StudentDashboard() {
                 { nome: 'Geografia', progresso: 55, cor: 'bg-yellow-500' },
                 { nome: 'Artes', progresso: 70, cor: 'bg-pink-500' }
               ].map((attr, index) => (
-                <div key={index} className="bg-amber-800 p-2 rounded border border-yellow-600">
+                <div key={index} className="bg-[#5D3F26] p-2 rounded border border-[#B8860B]">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-yellow-100 text-sm">{attr.nome}</span>
-                    <span className="text-yellow-200 text-xs">{attr.progresso}%</span>
+                    <span className="text-[#F4E4BC] text-sm">{attr.nome}</span>
+                    <span className="text-[#D4AF37] text-xs">{attr.progresso}%</span>
                   </div>
-                  <div className="w-full bg-amber-900 rounded-full h-2">
+                  <div className="w-full bg-[#4A3224] rounded-full h-2">
                     <div 
                       className={`${attr.cor} h-2 rounded-full transition-all duration-300`}
                       style={{ width: `${attr.progresso}%` }}
@@ -221,17 +219,17 @@ export default function StudentDashboard() {
 
           {/* Conquistas Recentes */}
           <div className="mb-6">
-            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+            <h4 className="text-[#F4E4BC] font-bold mb-3 flex items-center gap-2">
               <Trophy className="h-4 w-4" />
               CONQUISTAS
             </h4>
             <div className="space-y-2">
               {conquistas.slice(0, 5).map((conquista, index) => (
-                <div key={index} className="bg-amber-800 p-2 rounded border border-yellow-600 flex items-center gap-2">
+                <div key={index} className="bg-[#5D3F26] p-2 rounded border border-[#B8860B] flex items-center gap-2">
                   <span className="text-xl">{conquista.icone}</span>
                   <div className="flex-1">
-                    <p className="text-yellow-100 text-sm font-medium">{conquista.nome}</p>
-                    <p className="text-yellow-200 text-xs">{conquista.descricao}</p>
+                    <p className="text-[#F4E4BC] text-sm font-medium">{conquista.nome}</p>
+                    <p className="text-[#D4AF37] text-xs">{conquista.descricao}</p>
                   </div>
                 </div>
               ))}
@@ -239,15 +237,15 @@ export default function StudentDashboard() {
           </div>
 
           {/* Ranking */}
-          <div className="bg-amber-700 rounded-lg p-4 border-2 border-yellow-600">
-            <h4 className="text-yellow-100 font-bold mb-3 flex items-center gap-2">
+          <div className="bg-[#5D3F26] rounded-lg p-4 border border-[#B8860B]">
+            <h4 className="text-[#F4E4BC] font-bold mb-3 flex items-center gap-2">
               <Award className="h-4 w-4" />
               RANKING
             </h4>
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-100 mb-1">#{ranking.posicao || 12}</div>
-              <p className="text-yellow-200 text-sm">de {ranking.total_alunos || 45} alunos</p>
-              <div className="mt-2 text-xs text-yellow-200">
+              <div className="text-3xl font-bold text-[#F4E4BC] mb-1">#{ranking.posicao || 12}</div>
+              <p className="text-[#D4AF37] text-sm">de {ranking.total_alunos || 45} alunos</p>
+              <div className="mt-2 text-xs text-[#D4AF37]">
                 {studentData.turma_nome} | {studentData.ano_serie}
               </div>
             </div>
@@ -257,22 +255,22 @@ export default function StudentDashboard() {
         {/* Área Principal - Mapa e Conteúdo */}
         <div className="flex-1 flex flex-col">
           {/* Navegação Superior */}
-          <div className="bg-amber-700 border-b-2 border-yellow-600 p-4">
+          <div className="bg-[#3D2817] border-b border-[#5D3F26] p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-amber-800 border border-yellow-600">
-                <TabsTrigger value="mapa" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+              <TabsList className="grid w-full grid-cols-4 bg-[#5D3F26] border border-[#B8860B]">
+                <TabsTrigger value="mapa" className="data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A] text-[#F4E4BC]">
                   <Map className="h-4 w-4 mr-2" />
                   Mapa
                 </TabsTrigger>
-                <TabsTrigger value="missoes" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                <TabsTrigger value="missoes" className="data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A] text-[#F4E4BC]">
                   <Sword className="h-4 w-4 mr-2" />
                   Missões
                 </TabsTrigger>
-                <TabsTrigger value="ranking" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                <TabsTrigger value="ranking" className="data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A] text-[#F4E4BC]">
                   <Trophy className="h-4 w-4 mr-2" />
                   Ranking
                 </TabsTrigger>
-                <TabsTrigger value="forum" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-yellow-900">
+                <TabsTrigger value="forum" className="data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A] text-[#F4E4BC]">
                   <ScrollText className="h-4 w-4 mr-2" />
                   Fórum
                 </TabsTrigger>
@@ -281,11 +279,11 @@ export default function StudentDashboard() {
           </div>
 
           {/* Conteúdo Principal */}
-          <div className="flex-1 p-4 overflow-y-auto">
+          <div className="flex-1 p-4 overflow-y-auto bg-[#4A3224]">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               {/* Tab do Mapa */}
               <TabsContent value="mapa" className="mt-0">
-                <div className="relative h-full min-h-[600px] bg-gradient-to-b from-green-400 via-green-500 to-green-600 rounded-lg border-4 border-yellow-600 overflow-hidden">
+                <div className="relative h-full min-h-[600px] bg-gradient-to-b from-green-400 via-green-500 to-green-600 rounded-lg border border-[#B8860B] overflow-hidden">
                   {/* Mapa Medieval de Fundo */}
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-90"
@@ -298,10 +296,10 @@ export default function StudentDashboard() {
                   <div className="relative z-10 h-full p-8">
                     {/* Cidade Central */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-amber-600 rounded-full p-6 border-4 border-yellow-400 shadow-lg cursor-pointer hover:scale-110 transition-transform">
-                        <Crown className="h-8 w-8 text-yellow-900" />
+                      <div className="bg-[#B8860B] rounded-full p-6 border-4 border-[#D4AF37] shadow-lg cursor-pointer hover:scale-110 transition-transform">
+                        <Crown className="h-8 w-8 text-[#2D1B0A]" />
                       </div>
-                      <p className="text-center text-yellow-100 font-bold mt-2">Palácio Real</p>
+                      <p className="text-center text-[#F4E4BC] font-bold mt-2">Palácio Real</p>
                     </div>
 
                     {/* Outras Localizações */}
@@ -318,17 +316,17 @@ export default function StudentDashboard() {
                       
                       return (
                         <div key={trilha.id} className="absolute" style={pos}>
-                          <div className="bg-amber-700 rounded-lg p-4 border-3 border-yellow-500 shadow-lg cursor-pointer hover:scale-105 transition-transform max-w-48">
+                          <div className="bg-[#5D3F26] rounded-lg p-4 border border-[#B8860B] shadow-lg cursor-pointer hover:scale-105 transition-transform max-w-48">
                             <div className="flex items-center gap-2 mb-2">
-                              <BookOpen className="h-5 w-5 text-yellow-200" />
-                              <h4 className="text-yellow-100 font-bold text-sm">{trilha.titulo}</h4>
+                              <BookOpen className="h-5 w-5 text-[#D4AF37]" />
+                              <h4 className="text-[#F4E4BC] font-bold text-sm">{trilha.titulo}</h4>
                             </div>
-                            <p className="text-yellow-200 text-xs mb-2">{trilha.descricao}</p>
+                            <p className="text-[#D4AF37] text-xs mb-2">{trilha.descricao}</p>
                             <div className="flex justify-between items-center">
-                              <Badge variant="secondary" className="bg-yellow-600 text-yellow-900">
+                              <Badge variant="secondary" className="bg-[#B8860B] text-[#2D1B0A]">
                                 {trilha.progresso}% completo
                               </Badge>
-                              <span className="text-yellow-200 text-xs">{trilha.nivel}</span>
+                              <span className="text-[#D4AF37] text-xs">{trilha.nivel}</span>
                             </div>
                           </div>
                         </div>
@@ -340,24 +338,24 @@ export default function StudentDashboard() {
 
               {/* Tab das Missões */}
               <TabsContent value="missoes" className="mt-0">
-                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
+                <div className="bg-[#5D3F26] rounded-lg p-6 border border-[#B8860B]">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-yellow-100">Missões Disponíveis</h2>
-                    <Button className="bg-yellow-600 hover:bg-yellow-500 text-yellow-900">
+                    <h2 className="text-2xl font-bold text-[#F4E4BC]">Missões Disponíveis</h2>
+                    <Button className="bg-[#B8860B] hover:bg-[#D4AF37] text-[#2D1B0A]">
                       Ver Todas
                     </Button>
                   </div>
 
                   <Tabs defaultValue="ativas" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-amber-800">
-                      <TabsTrigger value="ativas">Ativas (4)</TabsTrigger>
-                      <TabsTrigger value="disponiveis">Disponíveis (8)</TabsTrigger>
-                      <TabsTrigger value="concluidas">Concluídas (12)</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-3 bg-[#4A3224]">
+                      <TabsTrigger value="ativas" className="text-[#F4E4BC] data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A]">Ativas (4)</TabsTrigger>
+                      <TabsTrigger value="disponiveis" className="text-[#F4E4BC] data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A]">Disponíveis (8)</TabsTrigger>
+                      <TabsTrigger value="concluidas" className="text-[#F4E4BC] data-[state=active]:bg-[#B8860B] data-[state=active]:text-[#2D1B0A]">Concluídas (12)</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="ativas" className="mt-4">
                       {missoes.length === 0 ? (
-                        <div className="text-center py-8 text-yellow-200">
+                        <div className="text-center py-8 text-[#D4AF37]">
                           <Sword className="h-12 w-12 mx-auto mb-4 opacity-50" />
                           <p>Nenhuma missão ativa</p>
                           <p className="text-sm">Inicie uma nova missão no mapa ou na lista de missões disponíveis</p>
@@ -365,23 +363,23 @@ export default function StudentDashboard() {
                       ) : (
                         <div className="grid gap-4 md:grid-cols-2">
                           {missoes.map((missao) => (
-                            <Card key={missao.id} className="bg-amber-800 border-yellow-600">
+                            <Card key={missao.id} className="bg-[#4A3224] border-[#B8860B]">
                               <CardHeader className="pb-3">
-                                <CardTitle className="text-yellow-100 flex items-center gap-2">
+                                <CardTitle className="text-[#F4E4BC] flex items-center gap-2">
                                   <Sword className="h-5 w-5" />
                                   {missao.titulo}
                                 </CardTitle>
                               </CardHeader>
                               <CardContent>
-                                <p className="text-yellow-200 text-sm mb-3">{missao.descricao}</p>
+                                <p className="text-[#D4AF37] text-sm mb-3">{missao.descricao}</p>
                                 <div className="flex justify-between items-center mb-3">
-                                  <Badge className="bg-yellow-600 text-yellow-900">
+                                  <Badge className="bg-[#B8860B] text-[#2D1B0A]">
                                     {missao.xp_recompensa} XP
                                   </Badge>
-                                  <span className="text-yellow-200 text-xs">{missao.dificuldade}</span>
+                                  <span className="text-[#D4AF37] text-xs">{missao.dificuldade}</span>
                                 </div>
                                 <Button 
-                                  className="w-full bg-yellow-600 hover:bg-yellow-500 text-yellow-900"
+                                  className="w-full bg-[#B8860B] hover:bg-[#D4AF37] text-[#2D1B0A]"
                                   onClick={() => setSelectedMission(missao)}
                                 >
                                   Iniciar Missão
@@ -398,31 +396,31 @@ export default function StudentDashboard() {
 
               {/* Tab do Ranking */}
               <TabsContent value="ranking" className="mt-0">
-                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
-                  <h2 className="text-2xl font-bold text-yellow-100 mb-6">Ranking da Turma</h2>
+                <div className="bg-[#5D3F26] rounded-lg p-6 border border-[#B8860B]">
+                  <h2 className="text-2xl font-bold text-[#F4E4BC] mb-6">Ranking da Turma</h2>
                   
                   <div className="space-y-3">
                     {Array.from({ length: 10 }, (_, i) => (
                       <div key={i} className={`flex items-center gap-4 p-3 rounded-lg border ${
-                        i === ranking.posicao - 1 ? 'bg-yellow-600 border-yellow-400' : 'bg-amber-800 border-yellow-600'
+                        i === ranking.posicao - 1 ? 'bg-[#B8860B] border-[#D4AF37]' : 'bg-[#4A3224] border-[#B8860B]'
                       }`}>
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                          i === 0 ? 'bg-yellow-400 text-yellow-900' :
+                          i === 0 ? 'bg-[#D4AF37] text-[#2D1B0A]' :
                           i === 1 ? 'bg-gray-300 text-gray-800' :
                           i === 2 ? 'bg-orange-400 text-orange-900' :
-                          'bg-amber-600 text-amber-100'
+                          'bg-[#B8860B] text-[#F4E4BC]'
                         }`}>
                           {i + 1}
                         </div>
                         <div className="flex-1">
-                          <p className={`font-semibold ${i === ranking.posicao - 1 ? 'text-yellow-900' : 'text-yellow-100'}`}>
+                          <p className={`font-semibold ${i === ranking.posicao - 1 ? 'text-[#2D1B0A]' : 'text-[#F4E4BC]'}`}>
                             {i === ranking.posicao - 1 ? studentData.nome : `Aluno ${i + 1}`}
                           </p>
-                          <p className={`text-sm ${i === ranking.posicao - 1 ? 'text-yellow-800' : 'text-yellow-200'}`}>
+                          <p className={`text-sm ${i === ranking.posicao - 1 ? 'text-[#3D2817]' : 'text-[#D4AF37]'}`}>
                             {studentData.turma_nome}
                           </p>
                         </div>
-                        <div className={`text-right ${i === ranking.posicao - 1 ? 'text-yellow-900' : 'text-yellow-100'}`}>
+                        <div className={`text-right ${i === ranking.posicao - 1 ? 'text-[#2D1B0A]' : 'text-[#F4E4BC]'}`}>
                           <p className="font-bold">{2750 - (i * 200)} XP</p>
                           <p className="text-sm">Nível {Math.floor((2750 - (i * 200)) / 1000) + 1}</p>
                         </div>
@@ -434,9 +432,9 @@ export default function StudentDashboard() {
 
               {/* Tab do Fórum */}
               <TabsContent value="forum" className="mt-0">
-                <div className="bg-amber-700 rounded-lg p-6 border-2 border-yellow-600">
-                  <h2 className="text-2xl font-bold text-yellow-100 mb-6">Fórum da Comunidade</h2>
-                  <div className="text-center py-8 text-yellow-200">
+                <div className="bg-[#5D3F26] rounded-lg p-6 border border-[#B8860B]">
+                  <h2 className="text-2xl font-bold text-[#F4E4BC] mb-6">Fórum da Comunidade</h2>
+                  <div className="text-center py-8 text-[#D4AF37]">
                     <ScrollText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>Fórum em desenvolvimento</p>
                     <p className="text-sm">Em breve você poderá interagir com outros aventureiros!</p>
