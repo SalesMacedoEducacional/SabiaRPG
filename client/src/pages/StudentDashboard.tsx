@@ -57,6 +57,24 @@ export default function StudentDashboard() {
     enabled: !!user?.id
   });
 
+  // Dados padrão enquanto não carrega da API
+  const dadosAluno = {
+    nome: (studentData as any)?.nome || user?.nome || 'Aluno Teste',
+    email: (studentData as any)?.email || user?.email || 'aluno@sabiarpg.edu.br',
+    xp_total: (studentData as any)?.xp_total || 0,
+    nivel: (studentData as any)?.nivel || 1
+  };
+
+  // Componentes curriculares com progresso
+  const componentesCurriculares = [
+    { nome: 'Matemática', progresso: 0, cor: '#2563EB', local: 'VILA DA MATEMÁTICA' },
+    { nome: 'Linguagens', progresso: 0, cor: '#16A34A', local: 'VILA DAS LINGUAGENS' },
+    { nome: 'Ciências', progresso: 0, cor: '#9333EA', local: 'TORRE DAS CIÊNCIAS' },
+    { nome: 'História', progresso: 0, cor: '#DC2626', local: 'BIBLIOTECA' },
+    { nome: 'Geografia', progresso: 0, cor: '#EA580C', local: 'OBSERVATÓRIO' },
+    { nome: 'Artes', progresso: 0, cor: '#C2410C', local: 'ATELIÊ' }
+  ];
+
   if (studentLoading) {
     return (
       <div className="min-h-screen bg-[#2D1B0A] flex items-center justify-center">
@@ -143,11 +161,11 @@ export default function StudentDashboard() {
                 1
               </span>
             </div>
-            <span className="text-[#F4E4BC] text-sm">★ {studentData.xp_total || 0}XP | Nível {studentData.nivel || 1}</span>
+            <span className="text-[#F4E4BC] text-sm">★ {dadosAluno.xp_total}XP | Nível {dadosAluno.nivel}</span>
             <div className="w-8 h-8 bg-[#B8860B] rounded-full flex items-center justify-center border-2 border-[#F4E4BC] cursor-pointer"
                  onClick={logout}>
               <span className="text-[#2D1B0A] text-sm font-bold">
-                {studentData.nome?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'AL'}
+                {dadosAluno.nome?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'AL'}
               </span>
             </div>
           </div>
@@ -161,10 +179,10 @@ export default function StudentDashboard() {
           <div className="text-center mb-6">
             <div className="w-20 h-20 bg-[#B8860B] rounded-full mx-auto mb-3 flex items-center justify-center border-4 border-white">
               <span className="text-2xl font-bold text-[#2D1B0A]">
-                {studentData.nome?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'AL'}
+                {dadosAluno.nome?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'AL'}
               </span>
             </div>
-            <p className="text-[#D4AF37] text-sm mb-1">{studentData.email || 'aluno@sabiarpg.edu.br'}</p>
+            <p className="text-[#D4AF37] text-sm mb-1">{dadosAluno.email}</p>
             <p className="text-[#F4E4BC] text-xs">Aprendiz de Sabedoria</p>
           </div>
 
@@ -172,17 +190,10 @@ export default function StudentDashboard() {
           <div className="mb-6">
             <h4 className="text-[#F4E4BC] font-bold mb-3 text-sm">ATRIBUTOS</h4>
             <div className="space-y-3">
-              {[
-                { nome: 'Matemática', progresso: 0 },
-                { nome: 'Linguagens', progresso: 0 },
-                { nome: 'Ciências', progresso: 0 },
-                { nome: 'História', progresso: 0 },
-                { nome: 'Geografia', progresso: 0 },
-                { nome: 'Artes', progresso: 0 }
-              ].map((attr, index) => (
+              {componentesCurriculares.map((componente, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <span className="text-[#F4E4BC] text-xs">{attr.nome}</span>
-                  <span className="text-[#D4AF37] text-xs">{attr.progresso}%</span>
+                  <span className="text-[#F4E4BC] text-xs">{componente.nome}</span>
+                  <span className="text-[#D4AF37] text-xs">{componente.progresso}%</span>
                 </div>
               ))}
             </div>
@@ -216,55 +227,133 @@ export default function StudentDashboard() {
             <div className="flex-1 flex flex-col">
               {/* Mapa Medieval */}
               <div className="flex-1 p-4">
-                <div className="relative h-full min-h-[400px] bg-gradient-to-b from-green-400 via-green-500 to-green-600 rounded-lg overflow-hidden">
-                  {/* Mapa Medieval de Fundo */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-90"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23228B22'/%3E%3Cstop offset='50%25' style='stop-color:%2332CD32'/%3E%3Cstop offset='100%25' style='stop-color:%23228B22'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1000' height='600' fill='url(%23bg)'/%3E%3C/svg%3E")`
-                    }}
-                  ></div>
+                <div className="relative h-full min-h-[500px] rounded-lg overflow-hidden" 
+                     style={{
+                       background: 'linear-gradient(45deg, #8B7D6B 0%, #A0916F 20%, #7A9B76 40%, #6B8E6B 60%, #A0916F 80%, #8B7D6B 100%)'
+                     }}>
+                  
+                  {/* Rio serpenteante */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                    <path d="M0,300 Q200,200 400,300 Q600,400 800,300" 
+                          stroke="#4A90E2" strokeWidth="40" fill="none" opacity="0.7"/>
+                  </svg>
 
-                  {/* Locais no Mapa */}
+                  {/* Montanhas de fundo */}
+                  <div className="absolute top-0 left-0 w-full h-1/3 opacity-30">
+                    <svg viewBox="0 0 800 200" className="w-full h-full">
+                      <polygon points="0,200 100,50 200,200" fill="#5D4037" opacity="0.6"/>
+                      <polygon points="150,200 250,30 350,200" fill="#4E342E" opacity="0.7"/>
+                      <polygon points="300,200 400,60 500,200" fill="#5D4037" opacity="0.5"/>
+                      <polygon points="450,200 550,40 650,200" fill="#4E342E" opacity="0.6"/>
+                      <polygon points="600,200 700,70 800,200" fill="#5D4037" opacity="0.7"/>
+                    </svg>
+                  </div>
+
+                  {/* Locais específicos do mapa medieval */}
                   <div className="relative z-10 h-full p-8">
-                    {/* Cidade Central */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-[#B8860B] rounded-full p-6 border-4 border-[#D4AF37] shadow-lg cursor-pointer hover:scale-110 transition-transform">
-                        <Crown className="h-8 w-8 text-[#2D1B0A]" />
-                      </div>
-                      <p className="text-center text-[#F4E4BC] font-bold mt-2">Palácio Real</p>
-                    </div>
-
-                    {/* Outras Localizações */}
-                    {trilhas && Array.isArray(trilhas) && trilhas.map((trilha: any, index: number) => {
-                      const positions = [
-                        { top: '20%', left: '30%' },
-                        { top: '30%', right: '25%' },
-                        { bottom: '25%', left: '20%' },
-                        { bottom: '20%', right: '30%' },
-                        { top: '15%', left: '60%' },
-                        { bottom: '35%', left: '50%' }
-                      ];
-                      const pos = positions[index % positions.length];
-                      
-                      return (
-                        <div key={trilha.id} className="absolute" style={pos}>
-                          <div className="bg-[#5D3F26] rounded-lg p-4 border border-[#B8860B] shadow-lg cursor-pointer hover:scale-105 transition-transform max-w-48">
-                            <div className="flex items-center gap-2 mb-2">
-                              <BookOpen className="h-5 w-5 text-[#D4AF37]" />
-                              <h4 className="text-[#F4E4BC] font-bold text-sm">{trilha.titulo}</h4>
-                            </div>
-                            <p className="text-[#D4AF37] text-xs mb-2">{trilha.descricao}</p>
-                            <div className="flex justify-between items-center">
-                              <Badge variant="secondary" className="bg-[#B8860B] text-[#2D1B0A]">
-                                {trilha.progresso}% completo
-                              </Badge>
-                              <span className="text-[#D4AF37] text-xs">{trilha.nivel}</span>
-                            </div>
+                    
+                    {/* Fortaleza Principal - Centro-esquerda */}
+                    <div className="absolute top-1/2 left-1/3 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="relative">
+                        <div className="w-24 h-28 bg-[#8B4513] border-4 border-[#654321] rounded-t-lg">
+                          <div className="w-full h-4 bg-[#654321] mt-2"></div>
+                          <div className="flex justify-center mt-2">
+                            <Crown className="h-8 w-8 text-[#FFD700]" />
                           </div>
                         </div>
-                      );
-                    })}
+                        <p className="text-center text-[#F4E4BC] font-bold text-xs mt-1 bg-black/50 px-2 py-1 rounded">CASTELO</p>
+                      </div>
+                    </div>
+
+                    {/* Vila da Matemática - Norte */}
+                    <div className="absolute top-[15%] left-[20%]">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-[#8B4513] rounded-lg border-2 border-[#654321] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">M</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">VILA DA MATEMÁTICA</p>
+                      </div>
+                    </div>
+
+                    {/* Vila das Linguagens - Nordeste */}
+                    <div className="absolute top-[20%] right-[25%]">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-[#8B4513] rounded-lg border-2 border-[#654321] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">L</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">VILA DAS LINGUAGENS</p>
+                      </div>
+                    </div>
+
+                    {/* Torre das Ciências - Leste */}
+                    <div className="absolute top-[35%] right-[15%]">
+                      <div className="relative">
+                        <div className="w-8 h-16 bg-[#4A90E2] rounded-t-full border-2 border-[#2171B5] flex items-end justify-center pb-1">
+                          <span className="text-white text-xs font-bold">C</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">TORRE DAS CIÊNCIAS</p>
+                      </div>
+                    </div>
+
+                    {/* Biblioteca da História - Sul */}
+                    <div className="absolute bottom-[25%] left-[30%]">
+                      <div className="relative">
+                        <div className="w-14 h-10 bg-[#8B4513] border-2 border-[#654321] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">H</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">BIBLIOTECA</p>
+                      </div>
+                    </div>
+
+                    {/* Observatório da Geografia - Sudeste */}
+                    <div className="absolute bottom-[30%] right-[20%]">
+                      <div className="relative">
+                        <div className="w-10 h-10 bg-[#228B22] rounded-full border-2 border-[#006400] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">G</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">OBSERVATÓRIO</p>
+                      </div>
+                    </div>
+
+                    {/* Ateliê das Artes - Oeste */}
+                    <div className="absolute top-[45%] left-[10%]">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-[#9C27B0] rounded-lg border-2 border-[#6A1B9A] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">A</span>
+                        </div>
+                        <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">ATELIÊ</p>
+                      </div>
+                    </div>
+
+                    {/* Porto - Sul do rio */}
+                    <div className="absolute bottom-[20%] left-[60%]">
+                      <div className="relative">
+                        <div className="w-16 h-8 bg-[#8B4513] border-2 border-[#654321] flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">PORTO</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bosque Encantado - Sudoeste */}
+                    <div className="absolute bottom-[15%] left-[15%]">
+                      <div className="flex space-x-1">
+                        <div className="w-3 h-6 bg-[#228B22] rounded-t-full"></div>
+                        <div className="w-4 h-8 bg-[#32CD32] rounded-t-full"></div>
+                        <div className="w-3 h-5 bg-[#228B22] rounded-t-full"></div>
+                      </div>
+                      <p className="text-center text-[#F4E4BC] text-xs mt-1 bg-black/50 px-1 rounded">BOSQUE</p>
+                    </div>
+
+                  </div>
+
+                  {/* Controles de zoom */}
+                  <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+                    <button className="w-8 h-8 bg-[#5D3F26] border border-[#B8860B] rounded flex items-center justify-center text-[#F4E4BC] hover:bg-[#6B4A32]">
+                      +
+                    </button>
+                    <button className="w-8 h-8 bg-[#5D3F26] border border-[#B8860B] rounded flex items-center justify-center text-[#F4E4BC] hover:bg-[#6B4A32]">
+                      −
+                    </button>
                   </div>
                 </div>
               </div>
