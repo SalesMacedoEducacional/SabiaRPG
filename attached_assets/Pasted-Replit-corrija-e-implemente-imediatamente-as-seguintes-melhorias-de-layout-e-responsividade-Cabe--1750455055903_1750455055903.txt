@@ -1,0 +1,46 @@
+Replit, corrija e implemente imediatamente as seguintes melhorias de layout e responsividade:
+
+Cabeçalho
+
+Insira ao lado do texto “SABIÁ RPG” a logomarca oficial (formato SVG/PNG) com resolução nítida, mantendo proporção e alinhamento vertical com o texto.
+
+Garanta que o conjunto logo + nome seja responsivo: em telas estreitas (< 768 px) reduza o espaçamento e redimensione a logo para 24 px de altura, mantendo a legibilidade.
+
+Sidebar Direita por Cards
+Crie uma coluna fixa à direita da área de mapa/painel, contendo três cards alinhados verticalmente:
+
+Missões Concluídas – contador de missões com status “concluída”.
+
+Missões em Progresso – contador de missões “ativas” ou “em andamento”.
+
+Missões Não Iniciadas – contador de missões ainda não iniciadas.
+Cada card deve exibir título em negrito, ícone correspondente (check, play, pause), valor numérico grande e uma breve legenda.
+
+Paleta de Cores
+
+Fundo dos cards: tom escuro secundário (#312E26).
+
+Títulos e ícones: âmbar metálico (#D4A054).
+
+Números: off-white (#F5F2E7).
+
+Bordas e realces: teal acinzentado (#4DA3A9).
+Aplique as mesmas cores aos cards e ao cabeçalho, garantindo contraste e acessibilidade.
+
+Responsividade
+
+Em desktop (≥ 1024 px): cards da sidebar devem ocupar 20% da largura da área de conteúdo, com espaçamento de 16 px entre eles.
+
+Em tablet (≥ 768 px e < 1024 px): sidebar vira seção colapsável no topo da página, mostrando ícones de cada card que, ao tocar, expandem o contador.
+
+Em mobile (< 768 px): os três cards devem virar um carrossel deslizante por swipe, ocupando 100% da largura, text-center, com botões de navegação.
+
+Fluxo de Testes
+
+Faça login como aluno/professor/gestor e abra qualquer tela do mapa; confirme que a logo esteja alinhada corretamente e visível em todas as resoluções.
+
+Verifique que as três métricas de missões sejam sempre atualizadas em tempo real (sem cache) e reflitam o banco de dados.
+
+Teste em desktop, tablet e mobile, garantindo que o layout não quebre e obedeça às regras acima.
+
+Implemente todas as mudanças sem dados fictícios e teste exaustivamente até validar responsividade, logo, cores e exibição correta dos cards de missões.

@@ -1,0 +1,67 @@
+Replit, implemente IMEDIATAMENTE um menu descritivo de Vilarejos no mapa do Sabiá RPG, seguindo estas instruções:
+
+Localização do Menu
+
+Adicione um botão ou ícone de “📍 Vilarejos” fixo na barra de ferramentas do mapa.
+
+Ao clicar, abra um pop-up modal centralizado com lista dos 12 vilarejos.
+
+Estrutura do Pop-up
+
+Cabeçalho: título “Vilarejos do Reinado” + ícone de escudo.
+
+Corpo: lista ordenada de 12 itens. Cada item deve apresentar em destaque o nome (negrito) e, abaixo, a descrição conforme abaixo:
+
+markdown
+Copiar
+Editar
+1. Teresina  
+   Área central com muralhas medievais, confluência de dois rios e um núcleo mágico brilhante sinalizando a capital.
+
+2. Serra da Capivara (São Raimundo Nonato)  
+   Cânions vermelhos esculpidos, pinturas rupestres em rochas e figuras de animais pré-históricos.
+
+3. Delta do Parnaíba (Parnaíba)  
+   Labirinto de canais sinuosos, barcos flutuando, vegetação exuberante e ícone de criatura aquática.
+
+4. Oeiras  
+   Aldeia colonial com igreja barroca, ruas de pedra e telhados envelhecidos.
+
+5. Bom Jesus  
+   Cidade no alto de morros, igrejas elevadas, símbolos espirituais e cruzes históricas.
+
+6. Floriano  
+   Vila ribeirinha com cúpulas antigas, pontes de pedra sobre o rio e casarões imponentes.
+
+7. Picos  
+   Feira medieval, tendas coloridas, carroças e torres de vigia intercaladas por ruas de pedra.
+
+8. Piracuruca  
+   Estação ferroviária centenária, trilhos sinuosos e um trem a vapor detalhado.
+
+9. Jaicós  
+   Praça folclórica com máscaras culturais, tambores vibrantes e construções tradicionais.
+
+10. Barras  
+    Mercado colonial animado, sacadas ornamentadas e barracas de comércio com balanças antigas.
+
+11. Paulistana  
+    Semiárido com caatinga, ferrovia cortando o solo e trem da Transnordestina em movimento.
+
+12. Campo Maior  
+    Campo de batalha histórico, canhões, colinas onduladas e monumento central com bandeiras erguida.
+Interação
+
+O menu deve ser intuitivo: permita filtrar por região ou buscar por nome.
+
+Ao clicar em qualquer vilarejo da lista, feche o pop-up e destaque no mapa a região correspondente com um marcador animado.
+
+Inclua botão “Fechar” no topo do pop-up.
+
+Estilo e Responsividade
+
+Use a paleta de cores do sistema (fundo escuro, texto claro e realce em âmbar).
+
+Garanta responsividade: em tela pequena, pop-up ocupa 90% da largura.
+
+Teste: verifique que cada item abre a descrição correta e aciona o marcador no mapa, sem dados fictícios e com todos os 12 vilarejos.
