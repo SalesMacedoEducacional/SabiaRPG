@@ -301,9 +301,9 @@ export default function StudentDashboard() {
           <img 
             src="/attached_assets/LOGOSABIA_1750458941873.png" 
             alt="SABIÁ RPG" 
-            className="h-8 w-auto object-contain md:h-6 sm:h-5"
+            className="h-12 w-auto object-contain md:h-10 sm:h-8"
           />
-          <span className="text-xl font-bold text-[#D4A054] md:text-lg sm:text-base">SABIÁ RPG</span>
+          <span className="text-2xl font-bold text-[#F5F2E7] md:text-xl sm:text-lg">SABIÁ RPG</span>
         </div>
         
         {/* Navegação central */}
@@ -825,19 +825,22 @@ export default function StudentDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Menu Lateral Sanduíche */}
+      {/* Menu Lateral Sanduíche - Flutuando sobre o mapa */}
       {showSideMenu && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50 pointer-events-none">
           {/* Overlay */}
           <div 
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black bg-opacity-30 pointer-events-auto"
             onClick={() => setShowSideMenu(false)}
           />
           
-          {/* Panel */}
+          {/* Panel flutuante */}
           <div 
-            className="relative w-80 max-w-[90vw] h-full overflow-y-auto"
-            style={{ backgroundColor: '#312E26' }}
+            className="absolute left-4 top-20 bottom-4 w-80 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-lg shadow-2xl border-2 pointer-events-auto"
+            style={{ 
+              backgroundColor: '#312E26',
+              borderColor: '#D4A054'
+            }}
           >
             {/* Header */}
             <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#D4A054' }}>
@@ -860,8 +863,8 @@ export default function StudentDashboard() {
                     setSelectedVillageStory(key);
                     setShowSideMenu(false);
                   }}
-                  className="w-full text-left p-3 rounded border hover:opacity-75 transition-opacity"
-                  style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}
+                  className="w-full text-left p-3 rounded border hover:bg-opacity-80 transition-all duration-200"
+                  style={{ backgroundColor: '#423F37', borderColor: '#D4A054' }}
                 >
                   <span className="text-[#F5F2E7] font-medium">{vilarejo.titulo}</span>
                 </button>
@@ -873,32 +876,34 @@ export default function StudentDashboard() {
 
       {/* Modal de História do Vilarejo */}
       <Dialog open={!!selectedVillageStory} onOpenChange={() => setSelectedVillageStory(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto border-2" style={{ backgroundColor: '#423F37', borderColor: '#D4A054' }}>
           {selectedVillageStory && vilarejosHistorias[selectedVillageStory] && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-[#D4A054] text-xl font-bold flex items-center justify-between">
+                <DialogTitle className="text-[#D4A054] text-2xl font-bold flex items-center justify-between mb-4">
                   {vilarejosHistorias[selectedVillageStory].titulo}
                   <Button
                     onClick={() => setSelectedVillageStory(null)}
-                    className="p-1 rounded hover:opacity-75 transition-opacity"
+                    className="p-2 rounded hover:opacity-75 transition-opacity"
                     style={{ backgroundColor: 'transparent' }}
                   >
-                    <X className="h-5 w-5 text-[#D4A054]" />
+                    <X className="h-6 w-6 text-[#D4A054]" />
                   </Button>
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-4">
-                <p className="text-[#F5F2E7] text-base leading-relaxed text-justify" style={{ fontSize: '16px' }}>
-                  {vilarejosHistorias[selectedVillageStory].historia}
-                </p>
+              <div className="space-y-6">
+                <div className="p-4 rounded border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
+                  <p className="text-[#F5F2E7] text-lg leading-relaxed text-justify" style={{ fontSize: '18px', lineHeight: '1.6' }}>
+                    {vilarejosHistorias[selectedVillageStory].historia}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-6">
                 <Button 
                   onClick={() => setSelectedVillageStory(null)}
-                  className="px-6 py-2 rounded font-medium"
+                  className="px-8 py-3 rounded font-medium text-lg hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: '#D4A054', color: '#312E26' }}
                 >
                   Fechar
