@@ -27,7 +27,8 @@ import {
   CheckCircle,
   Play,
   Pause,
-  Award
+  Award,
+  Menu
 } from 'lucide-react';
 import mapaImg from '@assets/mapa_1750435067177.png';
 import logoImg from '@assets/image_1750454766181.png';
@@ -40,6 +41,8 @@ export default function StudentDashboard() {
   const [showKingdomInfo, setShowKingdomInfo] = useState(false);
   const [showVillageMenu, setShowVillageMenu] = useState(false);
   const [villageFilter, setVillageFilter] = useState('');
+  const [showSideMenu, setShowSideMenu] = useState(false);
+  const [selectedVillageStory, setSelectedVillageStory] = useState(null);
 
   // Dados dos 12 vilarejos
   const vilarejos = [
@@ -126,6 +129,58 @@ export default function StudentDashboard() {
     concluidas: 3,
     emProgresso: 2,
     naoIniciadas: 7
+  };
+
+  // Histórias completas dos vilarejos
+  const vilarejosHistorias = {
+    teresina: {
+      titulo: "Teresina",
+      historia: "Encravada entre muralhas de pedra cinzenta, Teresina exibe torres elevadas que recolhem o amarelo do sol nascente. O burburinho dos cais e o perfume de especiarias vindas dos mercados ecoam ao longo dos rios que se unem em Y, onde barqueiros entoam cânticos de bênção. À noite, tochas revelam brasões gravados nos portões medievais e crianças correm sob o arco central, ansiosas por histórias de antigos guardiões."
+    },
+    serra_capivara: {
+      titulo: "Serra da Capivara (São Raimundo Nonato)",
+      historia: "Nos penhascos vermelhos da Serra, o sopro do vento arrasta poeira que dança sobre pinturas rupestres milenares. Xamãs e caçadores, em vestes de couro curtido, traçam novos símbolos ao redor de fogueiras crepitantes, acreditando que ali residem as almas dos primeiros sábios. O eco de tambores primitivos mistura-se ao canto distante de aves de rapina, lembrando que aquele solo guarda segredos de eras imemoriais."
+    },
+    delta_parnaiba: {
+      titulo: "Delta do Parnaíba (Parnaíba)",
+      historia: "Águas translúcidas serpenteiam por entre manguezais e bancos de areia, refletindo palmeiras que se inclinam como guardiãs da foz. Pescadores em pequenos barcos de madeira deslizam silenciosos, lançando redes bordadas por conchas e contando lendas de criaturas anfíbias que emergem à lua cheia. O ar úmido traz cheiro de sal e algas, enquanto pássaros coloridos se agitam nos cipós pendentes."
+    },
+    oeiras: {
+      titulo: "Oeiras",
+      historia: "Ruelas de paralelepípedos conduzem ao claustro da igreja barroca, onde vitrais tingem de rubi e esmeralda os bancos de madeira entalhada. Donzelas em vestidos de linho cruzam praças onde merceeiros oferecem ervas medicinais e cerâmicas artesanais. Ao cair da tarde, o sino ressoa acompanhado do tilintar dos sinos menores, engalanando o ar com promessas de fé e histórias de padres viajantes."
+    },
+    bom_jesus: {
+      titulo: "Bom Jesus",
+      historia: "No alto de colinas verdejantes, capelas brancas e torres adornadas com cruzes de ferro velado avistam vales cobertos de neblina matinal. Peregrinos de todas as estradas trazem velas acesas, formando um tapete de luz que acende orações silenciosas. O aroma de incenso misterioso paira sobre procissões solenes, enquanto sinos saudosos sopram notas que atravessam duas léguas de campos ondulantes."
+    },
+    floriano: {
+      titulo: "Floriano",
+      historia: "Entre margens urdidas por pontes de pedra, o rio murmura segredos que remontam a caravanas de comerciantes. Cúpulas amarelas reluzem sob o sol poente, refletidas em águas calmas, enquanto ribeirinhos trocam histórias de naufrágios e tesouros esquecidos. Ao longe, moinhos de vento giram lentamente, misturando o farfalhar das folhas ao canto de coqueiros."
+    },
+    picos: {
+      titulo: "Picos",
+      historia: "Sob bandeiras coloridas de festival medieval, carroças carregam barris de mel, pimentas e tecidos finos até grandes tendas de lona. Côros de menestréis entoam violas e gaitas, embalando danças circulares na praça onde vigias vigiam desde as torres de vigia. O tilintar de moedas ecoa nos becos, enquanto artesãos esculpem brasões de família em madeira nobre."
+    },
+    piracuruca: {
+      titulo: "Piracuruca",
+      historia: "O apito retumbante do trem a vapor desperta lembranças de jornadas épicas por trilhos rústicos. A estação de pedra abriga bancos esculpidos e afiadores de lâminas que afiavam facas de bordo dos viajantes. Vapor e fumaça se entrelaçam ao aroma de café torrado, servindo de convite para viajantes trocarem cartas e confidências sob lanternas de óleo."
+    },
+    jaicos: {
+      titulo: "Jaicós",
+      historia: "Máscaras cerâmicas, talhadas com simbolismos tribais, enfeitam as fachadas das casas de taipa, enquanto tambores de couro ressoam na praça central. Filhos dos ancestrais dançam ao redor de fogueiras, vestindo colares de sementes coloridas e penas de arara. Aromas de gengibre e erva-doce percorrem barracas de remedinhos, saudando a sabedoria dos curandeiros locais."
+    },
+    barras: {
+      titulo: "Barras",
+      historia: "Palácios coloniais de sacadas ornamentadas cercam a praça de mercado, onde pesadores medem grãos dourados em balanças de ferro fundido. Mercadores percorrem barracas com tecidos estampados, cerâmicas esmaltadas e quintais de especiarias. O-negrejar de cavalos e o tilintar das ferraduras ecoam entre arcos e fontes, compondo uma sinfonia de trocas e encontros."
+    },
+    paulistana: {
+      titulo: "Paulistana",
+      historia: "Cactos retorcidos e mandacarus revelam a dureza da caatinga, enquanto trilhos atravessam o solo rachado rumo ao trem de ferro-clássico. Vagões carregam donativos e memórias de expedições sertanejas, homenageadas por violeiros entoando modas de viola. O vento quente carrega poeira avermelhada que aos poucos se assenta sobre vagões e estações abandonadas."
+    },
+    campo_maior: {
+      titulo: "Campo Maior",
+      historia: "Colinas verticais guardam trincheiras e canhões enferrujados, testemunhas de combates que decidiram reinos. Bandeiras pendem de mastros tortos, ainda ostentando brasões de velhas alianças. Soldados em armaduras clip-clop marcham silenciosos, e ao longe, uma espada cravada em pedra reaviva lendas de pactos e renovações."
+    }
   };
 
   // Query dos dados do aluno
@@ -241,14 +296,24 @@ export default function StudentDashboard() {
       {/* Header */}
       <header className="h-14 flex items-center justify-between px-6 border-b" 
               style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
-        {/* Logo SABIÁ RPG */}
-        <div className="flex items-center gap-3">
-          <img 
-            src={logoImg} 
-            alt="SABIÁ RPG" 
-            className="h-8 w-auto object-contain md:h-6 sm:h-5"
-          />
-          <span className="text-xl font-bold text-[#d4af37] md:text-lg sm:text-base">SABIÁ RPG</span>
+        {/* Menu Sanduíche e Logo SABIÁ RPG */}
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => setShowSideMenu(true)}
+            className="p-2 rounded hover:bg-[#3a3a3a] transition-colors"
+            style={{ backgroundColor: 'transparent' }}
+          >
+            <Menu className="h-6 w-6 text-[#d4af37]" />
+          </Button>
+          
+          <div className="flex items-center gap-3">
+            <img 
+              src={logoImg} 
+              alt="SABIÁ RPG" 
+              className="h-8 w-auto object-contain md:h-6 sm:h-5"
+            />
+            <span className="text-xl font-bold text-[#d4af37] md:text-lg sm:text-base">SABIÁ RPG</span>
+          </div>
         </div>
         
         {/* Navegação central */}
@@ -764,6 +829,90 @@ export default function StudentDashboard() {
               Fechar
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Menu Lateral Sanduíche */}
+      {showSideMenu && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowSideMenu(false)}
+          />
+          
+          {/* Panel */}
+          <div 
+            className="relative w-80 max-w-[90vw] h-full overflow-y-auto"
+            style={{ backgroundColor: '#2a2a2a' }}
+          >
+            {/* Header */}
+            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#d4af37' }}>
+              <h2 className="text-[#d4af37] font-bold text-lg">Vilarejos</h2>
+              <Button
+                onClick={() => setShowSideMenu(false)}
+                className="p-1 rounded hover:bg-[#3a3a3a] transition-colors"
+                style={{ backgroundColor: 'transparent' }}
+              >
+                <X className="h-5 w-5 text-[#d4af37]" />
+              </Button>
+            </div>
+
+            {/* Lista de Vilarejos */}
+            <div className="p-4 space-y-2">
+              {Object.entries(vilarejosHistorias).map(([key, vilarejo]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setSelectedVillageStory(key);
+                    setShowSideMenu(false);
+                  }}
+                  className="w-full text-left p-3 rounded border hover:bg-[#3a3a3a] transition-colors"
+                  style={{ backgroundColor: 'transparent', borderColor: '#4DA3A9' }}
+                >
+                  <span className="text-[#F5F2E7] font-medium">{vilarejo.titulo}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de História do Vilarejo */}
+      <Dialog open={!!selectedVillageStory} onOpenChange={() => setSelectedVillageStory(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+          {selectedVillageStory && vilarejosHistorias[selectedVillageStory] && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-[#d4af37] text-xl font-bold flex items-center justify-between">
+                  {vilarejosHistorias[selectedVillageStory].titulo}
+                  <Button
+                    onClick={() => setSelectedVillageStory(null)}
+                    className="p-1 rounded hover:bg-[#3a3a3a] transition-colors"
+                    style={{ backgroundColor: 'transparent' }}
+                  >
+                    <X className="h-5 w-5 text-[#d4af37]" />
+                  </Button>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <p className="text-[#F5F2E7] text-base leading-relaxed text-justify" style={{ fontSize: '16px' }}>
+                  {vilarejosHistorias[selectedVillageStory].historia}
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button 
+                  onClick={() => setSelectedVillageStory(null)}
+                  className="px-6 py-2 rounded font-medium"
+                  style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -1,0 +1,73 @@
+Replit, implemente imediatamente um menu sanduíche “Vilarejos” no canto superior esquerdo da aplicação Sabiá RPG, seguindo estas regras estritas:
+
+Aparência e posicionamento
+
+Ícone de “menu sanduíche” no header, ao lado do logotipo Sabiá RPG.
+
+Ao clicar, abrir um painel deslizante lateral contendo a lista de vilarejos.
+
+Responsivo: deve funcionar em desktop e mobile, cobrindo toda a altura e adaptando largura em telas pequenas.
+
+Itens do menu
+Liste exatamente os 12 vilarejos abaixo, na ordem, sem abreviações ou dados fictícios extras. Cada item deve abrir um modal pop-up centralizado com título e texto completo:
+
+Teresina
+“Encravada entre muralhas de pedra cinzenta, Teresina exibe torres elevadas que recolhem o amarelo do sol nascente. O burburinho dos cais e o perfume de especiarias vindas dos mercados ecoam ao longo dos rios que se unem em Y, onde barqueiros entoam cânticos de bênção. À noite, tochas revelam brasões gravados nos portões medievais e crianças correm sob o arco central, ansiosas por histórias de antigos guardiões.”
+
+Serra da Capivara (São Raimundo Nonato)
+“Nos penhascos vermelhos da Serra, o sopro do vento arrasta poeira que dança sobre pinturas rupestres milenares. Xamãs e caçadores, em vestes de couro curtido, traçam novos símbolos ao redor de fogueiras crepitantes, acreditando que ali residem as almas dos primeiros sábios. O eco de tambores primitivos mistura-se ao canto distante de aves de rapina, lembrando que aquele solo guarda segredos de eras imemoriais.”
+
+Delta do Parnaíba (Parnaíba)
+“Águas translúcidas serpenteiam por entre manguezais e bancos de areia, refletindo palmeiras que se inclinam como guardiãs da foz. Pescadores em pequenos barcos de madeira deslizam silenciosos, lançando redes bordadas por conchas e contando lendas de criaturas anfíbias que emergem à lua cheia. O ar úmido traz cheiro de sal e algas, enquanto pássaros coloridos se agitam nos cipós pendentes.”
+
+Oeiras
+“Ruelas de paralelepípedos conduzem ao claustro da igreja barroca, onde vitrais tingem de rubi e esmeralda os bancos de madeira entalhada. Donzelas em vestidos de linho cruzam praças onde merceeiros oferecem ervas medicinais e cerâmicas artesanais. Ao cair da tarde, o sino ressoa acompanhado do tilintar dos sinos menores, engalanando o ar com promessas de fé e histórias de padres viajantes.”
+
+Bom Jesus
+“No alto de colinas verdejantes, capelas brancas e torres adornadas com cruzes de ferro velado avistam vales cobertos de neblina matinal. Peregrinos de todas as estradas trazem velas acesas, formando um tapete de luz que acende orações silenciosas. O aroma de incenso misterioso paira sobre procissões solenes, enquanto sinos saudosos sopram notas que atravessam duas léguas de campos ondulantes.”
+
+Floriano
+“Entre margens urdidas por pontes de pedra, o rio murmura segredos que remontam a caravanas de comerciantes. Cúpulas amarelas reluzem sob o sol poente, refletidas em águas calmas, enquanto ribeirinhos trocam histórias de naufrágios e tesouros esquecidos. Ao longe, moinhos de vento giram lentamente, misturando o farfalhar das folhas ao canto de coqueiros.”
+
+Picos
+“Sob bandeiras coloridas de festival medieval, carroças carregam barris de mel, pimentas e tecidos finos até grandes tendas de lona. Côros de menestréis entoam violas e gaitas, embalando danças circulares na praça onde vigias vigiam desde as torres de vigia. O tilintar de moedas ecoa nos becos, enquanto artesãos esculpem brasões de família em madeira nobre.”
+
+Piracuruca
+“O apito retumbante do trem a vapor desperta lembranças de jornadas épicas por trilhos rústicos. A estação de pedra abriga bancos esculpidos e afiadores de lâminas que afiavam facas de bordo dos viajantes. Vapor e fumaça se entrelaçam ao aroma de café torrado, servindo de convite para viajantes trocarem cartas e confidências sob lanternas de óleo.”
+
+Jaicós
+“Máscaras cerâmicas, talhadas com simbolismos tribais, enfeitam as fachadas das casas de taipa, enquanto tambores de couro ressoam na praça central. Filhos dos ancestrais dançam ao redor de fogueiras, vestindo colares de sementes coloridas e penas de arara. Aromas de gengibre e erva-doce percorrem barracas de remedinhos, saudando a sabedoria dos curandeiros locais.”
+
+Barras
+“Palácios coloniais de sacadas ornamentadas cercam a praça de mercado, onde pesadores medem grãos dourados em balanças de ferro fundido. Mercadores percorrem barracas com tecidos estampados, cerâmicas esmaltadas e quintais de especiarias. O-negrejar de cavalos e o tilintar das ferraduras ecoam entre arcos e fontes, compondo uma sinfonia de trocas e encontros.”
+
+Paulistana
+“Cactos retorcidos e mandacarus revelam a dureza da caatinga, enquanto trilhos atravessam o solo rachado rumo ao trem de ferro-clássico. Vagões carregam donativos e memórias de expedições sertanejas, homenageadas por violeiros entoando modas de viola. O vento quente carrega poeira avermelhada que aos poucos se assenta sobre vagões e estações abandonadas.”
+
+Campo Maior
+“Colinas verticais guardam trincheiras e canhões enferrujados, testemunhas de combates que decidiram reinos. Bandeiras pendem de mastros tortos, ainda ostentando brasões de velhas alianças. Soldados em armaduras clip-clop marcham silenciosos, e ao longe, uma espada cravada em pedra reaviva lendas de pactos e renovações.”
+
+Funcionalidades do pop-up
+
+Cada modal deve ter título em negrito, texto justificado e botão “Fechar”.
+
+Pop-up deve desabilitar o fundo e ser fechado ao clicar fora ou no “X” no canto superior.
+
+Não exibir scroll interno excessivo: divida em até 3 parágrafos de leitura fácil.
+
+Testes
+
+Verificar abertura e fechamento em desktop (Chrome, Firefox) e mobile (iOS/Android).
+
+Garantir ausência de dados fictícios: usar apenas o texto acima.
+
+Validar responsividade e legibilidade com fontes mínimo 16 px e contraste conforme paleta do sistema.
+
+Ação: siga este roteiro à risca, sem alteraçõese reduções nos contos. Termine apenas quando cada item do menu abrir corretamente seu pop-up com texto integral e sem erros de layout ou scroll.
+
+
+
+
+
+
+

@@ -140,42 +140,6 @@ export const PerformanceIndicator = () => {
     return "Lento";
   };
 
-  if (recentMetrics.length === 0) return null;
-
-  return (
-    <div className="fixed bottom-4 right-4 z-40">
-      <div 
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border p-3 cursor-pointer hover:shadow-xl transition-shadow"
-        onClick={() => setShowDetails(!showDetails)}
-      >
-        <div className="flex items-center space-x-2">
-          <Clock className={cn("h-4 w-4", getPerformanceColor(avgDuration))} />
-          <span className="text-sm font-medium">
-            {avgDuration.toFixed(0)}ms
-          </span>
-          <span className={cn("text-xs", getPerformanceColor(avgDuration))}>
-            {getPerformanceStatus(avgDuration)}
-          </span>
-        </div>
-
-        {showDetails && (
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">
-              Últimas 5 operações:
-            </div>
-            {recentMetrics.map((metric, index) => (
-              <div key={index} className="flex justify-between text-xs">
-                <span className="text-gray-600 dark:text-gray-400 truncate max-w-24">
-                  {metric.operation.replace(/-/g, ' ')}
-                </span>
-                <span className={cn("font-mono", getPerformanceColor(metric.duration))}>
-                  {metric.duration.toFixed(0)}ms
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  // Remover mostrador de velocidade conforme solicitado
+  return null;
 };
