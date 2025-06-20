@@ -191,61 +191,61 @@ export default function ProfessorDashboard() {
         {/* Cards de Visão Geral */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Minhas Turmas */}
-          <Card className="bg-[#43341c] border-[#d4a054]">
+          <Card className="bg-gradient-to-br from-[#3d2817] to-[#2a1b10] border-[#8b6914] border-2 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#f4e4bc]">Minhas Turmas</CardTitle>
-              <Users className="h-4 w-4 text-[#d4a054]" />
+              <Users className="h-5 w-5 text-[#d4af37]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#f4e4bc]">{minhasTurmas.length}</div>
-              <p className="text-xs text-[#d4a054]">turmas ativas</p>
+              <div className="text-2xl font-bold text-[#ffd700]">{minhasTurmas.length}</div>
+              <p className="text-xs text-[#deb887]">turmas ativas</p>
             </CardContent>
           </Card>
 
           {/* Meus Componentes */}
-          <Card className="bg-[#43341c] border-[#d4a054]">
+          <Card className="bg-gradient-to-br from-[#3d2817] to-[#2a1b10] border-[#8b6914] border-2 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#f4e4bc]">Meus Componentes</CardTitle>
-              <BookOpen className="h-4 w-4 text-[#d4a054]" />
+              <BookOpen className="h-5 w-5 text-[#d4af37]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#f4e4bc]">{meusComponentes.length}</div>
-              <p className="text-xs text-[#d4a054]">disciplinas</p>
+              <div className="text-2xl font-bold text-[#ffd700]">{meusComponentes.length}</div>
+              <p className="text-xs text-[#deb887]">disciplinas</p>
             </CardContent>
           </Card>
 
           {/* Planos de Aula */}
-          <Card className="bg-[#43341c] border-[#d4a054]">
+          <Card className="bg-gradient-to-br from-[#3d2817] to-[#2a1b10] border-[#8b6914] border-2 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#f4e4bc]">Planos de Aula</CardTitle>
-              <FileText className="h-4 w-4 text-[#d4a054]" />
+              <FileText className="h-5 w-5 text-[#d4af37]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#f4e4bc]">{planosAula.length}</div>
-              <p className="text-xs text-[#d4a054]">planos criados</p>
+              <div className="text-2xl font-bold text-[#ffd700]">{planosAula.length}</div>
+              <p className="text-xs text-[#deb887]">planos criados</p>
             </CardContent>
           </Card>
 
           {/* Meus Alunos */}
-          <Card className="bg-[#43341c] border-[#d4a054]">
+          <Card className="bg-gradient-to-br from-[#3d2817] to-[#2a1b10] border-[#8b6914] border-2 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#f4e4bc]">Meus Alunos</CardTitle>
-              <Award className="h-4 w-4 text-[#d4a054]" />
+              <Award className="h-5 w-5 text-[#d4af37]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#f4e4bc]">{meusAlunos.length}</div>
-              <p className="text-xs text-[#d4a054]">alunos ativos</p>
+              <div className="text-2xl font-bold text-[#ffd700]">{meusAlunos.length}</div>
+              <p className="text-xs text-[#deb887]">alunos ativos</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Conteúdo Principal em Abas */}
         <Tabs defaultValue="visao-geral" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-[#43341c]">
-            <TabsTrigger value="visao-geral" className="text-[#f4e4bc] data-[state=active]:bg-[#d4a054] data-[state=active]:text-[#2d1810]">
+          <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-[#3d2817] to-[#2a1b10] border border-[#8b6914] rounded-lg p-1">
+            <TabsTrigger value="visao-geral" className="text-[#f4e4bc] data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#2a1b10] data-[state=active]:font-bold hover:bg-[#8b6914] hover:text-[#ffd700] transition-all duration-200">
               Visão Geral
             </TabsTrigger>
-            <TabsTrigger value="planos" className="text-[#f4e4bc] data-[state=active]:bg-[#d4a054] data-[state=active]:text-[#2d1810]">
+            <TabsTrigger value="planos" className="text-[#f4e4bc] data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#2a1b10] data-[state=active]:font-bold hover:bg-[#8b6914] hover:text-[#ffd700] transition-all duration-200">
               Planos de Aula
             </TabsTrigger>
             <TabsTrigger value="missoes" className="text-[#f4e4bc] data-[state=active]:bg-[#d4a054] data-[state=active]:text-[#2d1810]">
