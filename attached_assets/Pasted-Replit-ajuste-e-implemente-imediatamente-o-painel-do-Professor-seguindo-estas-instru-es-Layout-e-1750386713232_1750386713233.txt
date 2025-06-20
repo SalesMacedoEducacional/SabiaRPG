@@ -1,0 +1,93 @@
+Replit, ajuste e implemente imediatamente o painel do Professor seguindo estas instruções:
+
+Layout e cores
+
+Mantenha a paleta de cores oficial da plataforma em todos os elementos do painel do professor.
+
+Painel de Visão Geral
+
+Exiba cards com:
+
+Minhas Turmas: lista de turmas às quais o professor está vinculado via turma_componentes.
+
+Meus Componentes: lista de componentes (via componentes + turma_componentes) sob sua responsabilidade.
+
+Planos de Aula Trimestrais: atalho para criar/editar planos de aula de cada componente.
+
+Relatórios: acesso rápido aos relatórios de desempenho dos alunos.
+
+Formulário de Cadastro/Edição de Plano de Aula
+
+Permita ao professor selecionar:
+
+Componente (dos seus componentes vinculados)
+
+Trimestre (1º, 2º, 3º)
+
+Título e Conteúdo (texto livre)
+
+Ao salvar, grave em plano_aula com referência a turma_componente_id.
+
+Missões e Trilhas de IA
+
+Exiba seção “Missões & Trilhas IA” onde o professor pode:
+
+Visualizar todas as missões geradas automaticamente pela API GPT para seus componentes.
+
+Editar títulos, descrições e parâmetros de cada missão/trilha.
+
+Re-trigger de geração de conteúdo via IA após ajustes.
+
+Acompanhamento de Alunos
+
+Crie a aba “Meu Alunos” que lista todos os alunos vinculados aos seus componentes (perfis_aluno → turma_id → turma_componentes).
+
+Em cada registro de aluno, permita:
+
+Visualizar progresso de missões (status/pontos).
+
+Acessar relatórios de diagnóstico contínuo.
+
+Ações Rápidas
+
+No topo ou sidebar, inclua botões:
+
+Criar Missão (abre modal de geração IA)
+
+Minhas Turmas (lista rápida)
+
+Gerenciar Turmas (mesmo modal do gestor, mas filtrado às suas turmas)
+
+Relatórios (acesso direto ao dashboard de métricas de desempenho)
+
+Permissões
+
+Garanta que o professor só veja e edite:
+
+Componentes e turmas a que está vinculado
+
+Alunos desses componentes
+
+Seus próprios planos e missões
+
+Qualquer tentativa de acessar recurso fora de sua permissão deve exibir “Acesso Negado” com retorno ao seu painel.
+
+Refresh e Persistência
+
+Ao criar, editar ou excluir qualquer entidade (plano, missão, vínculo), dê refresh automático nos dados sem recarregar toda a página.
+
+Fluxo de validação
+
+Faça login como professor de teste;
+
+Confira se aparecem apenas suas turmas e componentes;
+
+Cadastre um plano de aula e veja-o listado;
+
+Gere e edite uma missão IA;
+
+Abra “Meu Alunos” e valide o progresso;
+
+Use os botões de ações rápidas para navegar;
+
+Teste acesso negado a áreas de gestor/administrador.

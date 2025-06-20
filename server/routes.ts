@@ -3406,6 +3406,230 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
+
+  // ========================================
+  // PROFESSOR ENDPOINTS
+  // ========================================
+
+  // Listar turmas do professor
+  app.get("/api/professor/minhas-turmas", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      console.log(`=== LISTANDO TURMAS DO PROFESSOR: ${professorId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT DISTINCT
+          t.id,
+          t.nome,
+          t.serie,
+          t.turno,
+          t.ano_letivo,
+          e.nome as escola_nome,
+          COUNT(pa.id) as total_alunos
+        FROM turmas t
+        JOIN turma_componentes tc ON t.id = tc.turma_id
+        JOIN escolas e ON t.escola_id = e.id
+        LEFT JOIN perfis_aluno pa ON t.id = pa.turma_id AND pa.ativo = true
+        WHERE tc.professor_id = $1 AND tc.ativo = true
+        GROUP BY t.id, t.nome, t.serie, t.turno, t.ano_letivo, e.nome
+        ORDER BY t.nome
+      `, [professorId]);
+      
+      console.log(`TURMAS DO PROFESSOR ENCONTRADAS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar turmas do professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Listar componentes do professor
+  app.get("/api/professor/meus-componentes", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      console.log(`=== LISTANDO COMPONENTES DO PROFESSOR: ${professorId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          tc.id,
+          c.nome,
+          c.cor_hex,
+          c.ano_serie,
+          t.nome as turma_nome,
+          t.serie as turma_serie
+        FROM turma_componentes tc
+        JOIN componentes c ON tc.componente_id = c.id
+        JOIN turmas t ON tc.turma_id = t.id
+        WHERE tc.professor_id = $1 AND tc.ativo = true
+        ORDER BY c.nome, t.nome
+      `, [professorId]);
+      
+      console.log(`COMPONENTES DO PROFESSOR ENCONTRADOS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar componentes do professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Listar planos de aula do professor
+  app.get("/api/professor/planos-aula", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      console.log(`=== LISTANDO PLANOS DE AULA DO PROFESSOR: ${professorId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          pa.id,
+          pa.titulo,
+          pa.conteudo,
+          pa.trimestre,
+          pa.criado_em,
+          c.nome as componente_nome,
+          t.nome as turma_nome
+        FROM planos_aula pa
+        JOIN turma_componentes tc ON pa.turma_componente_id = tc.id
+        JOIN componentes c ON tc.componente_id = c.id
+        JOIN turmas t ON tc.turma_id = t.id
+        WHERE tc.professor_id = $1
+        ORDER BY pa.criado_em DESC
+      `, [professorId]);
+      
+      console.log(`PLANOS DE AULA ENCONTRADOS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar planos de aula do professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Criar plano de aula
+  app.post("/api/professor/planos-aula", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      const { turma_componente_id, trimestre, titulo, conteudo } = req.body;
+      console.log(`=== CRIANDO PLANO DE AULA PARA PROFESSOR: ${professorId} ===`);
+      
+      // Verificar se o professor tem acesso ao componente
+      const verification = await executeQuery(`
+        SELECT id FROM turma_componentes 
+        WHERE id = $1 AND professor_id = $2 AND ativo = true
+      `, [turma_componente_id, professorId]);
+      
+      if (verification.rows.length === 0) {
+        return res.status(403).json({ message: "Acesso negado a este componente" });
+      }
+      
+      const result = await executeQuery(`
+        INSERT INTO planos_aula (turma_componente_id, trimestre, titulo, conteudo)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, titulo, trimestre, criado_em
+      `, [turma_componente_id, trimestre, titulo, conteudo]);
+      
+      console.log(`PLANO DE AULA CRIADO: ${result.rows[0].id}`);
+      return res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error('Erro ao criar plano de aula:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Listar missões do professor
+  app.get("/api/professor/missoes", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      console.log(`=== LISTANDO MISSÕES DO PROFESSOR: ${professorId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT 
+          m.id,
+          m.titulo,
+          m.descricao,
+          m.dificuldade,
+          m.xp_reward,
+          m.tempo_estimado,
+          m.ativa,
+          m.criado_em,
+          c.nome as componente_nome,
+          t.nome as turma_nome
+        FROM missoes m
+        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
+        JOIN componentes c ON tc.componente_id = c.id
+        JOIN turmas t ON tc.turma_id = t.id
+        WHERE tc.professor_id = $1
+        ORDER BY m.criado_em DESC
+      `, [professorId]);
+      
+      console.log(`MISSÕES ENCONTRADAS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar missões do professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Criar missão
+  app.post("/api/professor/missoes", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      const { turma_componente_id, titulo, descricao, dificuldade, xp_reward, tempo_estimado } = req.body;
+      console.log(`=== CRIANDO MISSÃO PARA PROFESSOR: ${professorId} ===`);
+      
+      // Verificar se o professor tem acesso ao componente
+      const verification = await executeQuery(`
+        SELECT id FROM turma_componentes 
+        WHERE id = $1 AND professor_id = $2 AND ativo = true
+      `, [turma_componente_id, professorId]);
+      
+      if (verification.rows.length === 0) {
+        return res.status(403).json({ message: "Acesso negado a este componente" });
+      }
+      
+      const result = await executeQuery(`
+        INSERT INTO missoes (turma_componente_id, titulo, descricao, dificuldade, xp_reward, tempo_estimado, ativa)
+        VALUES ($1, $2, $3, $4, $5, $6, true)
+        RETURNING id, titulo, dificuldade, xp_reward, criado_em
+      `, [turma_componente_id, titulo, descricao, dificuldade, xp_reward, tempo_estimado]);
+      
+      console.log(`MISSÃO CRIADA: ${result.rows[0].id}`);
+      return res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error('Erro ao criar missão:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Listar alunos do professor
+  app.get("/api/professor/meus-alunos", authenticate, authorize(["professor"]), async (req, res) => {
+    try {
+      const professorId = req.session.userId;
+      console.log(`=== LISTANDO ALUNOS DO PROFESSOR: ${professorId} ===`);
+      
+      const result = await executeQuery(`
+        SELECT DISTINCT
+          pa.id,
+          u.nome,
+          u.email,
+          pa.nivel,
+          pa.xp,
+          pa.status,
+          t.nome as turma_nome,
+          t.serie as turma_serie
+        FROM perfis_aluno pa
+        JOIN usuarios u ON pa.usuario_id = u.id
+        JOIN turmas t ON pa.turma_id = t.id
+        JOIN turma_componentes tc ON t.id = tc.turma_id
+        WHERE tc.professor_id = $1 AND pa.ativo = true AND u.ativo = true
+        ORDER BY u.nome
+      `, [professorId]);
+      
+      console.log(`ALUNOS DO PROFESSOR ENCONTRADOS: ${result.rows.length}`);
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar alunos do professor:', error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
   
   const httpServer = createServer(app);
   return httpServer;

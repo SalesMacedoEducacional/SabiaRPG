@@ -6,6 +6,7 @@ import AccessDenied from "@/pages/AccessDenied";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
+import ProfessorDashboard from "@/pages/ProfessorDashboard";
 import StudentDashboard from "@/pages/StudentDashboard";
 // Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
