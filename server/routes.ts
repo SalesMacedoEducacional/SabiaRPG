@@ -3430,7 +3430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         JOIN turma_componentes tc ON t.id = tc.turma_id
         JOIN escolas e ON t.escola_id = e.id
         LEFT JOIN perfis_aluno pa ON t.id = pa.turma_id AND pa.ativo = true
-        WHERE tc.professor_id = $1 AND tc.ativo = true
+        WHERE tc.professor_id = $1
         GROUP BY t.id, t.nome, t.serie, t.turno, t.ano_letivo, e.nome
         ORDER BY t.nome
       `, [professorId]);
@@ -3489,7 +3489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           t.nome as turma_nome
         FROM planos_aula pa
         JOIN turma_componentes tc ON pa.turma_componente_id = tc.id
-        JOIN componentes c ON tc.componente_id = c.id
+        JOIN componentes_curriculares c ON tc.componente_id = c.id
         JOIN turmas t ON tc.turma_id = t.id
         WHERE tc.professor_id = $1
         ORDER BY pa.criado_em DESC
