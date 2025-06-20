@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Crown, 
   Star, 
@@ -12,36 +14,25 @@ import {
   MessageCircle,
   Bell,
   Plus,
-  Minus
+  Minus,
+  User,
+  LogOut,
+  Settings,
+  X,
+  Info
 } from 'lucide-react';
+import mapaImg from '/mapa.png';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('mapa');
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showKingdomInfo, setShowKingdomInfo] = useState(false);
 
   // Query dos dados do aluno
   const { data: studentData = {}, isLoading: studentLoading } = useQuery({
     queryKey: ['/api/aluno/dados'],
-    enabled: !!user?.id
-  });
-
-  const { data: conquistas = [], isLoading: conquistasLoading } = useQuery({
-    queryKey: ['/api/aluno/conquistas'],
-    enabled: !!user?.id
-  });
-
-  const { data: ranking = [], isLoading: rankingLoading } = useQuery({
-    queryKey: ['/api/aluno/ranking'],
-    enabled: !!user?.id
-  });
-
-  const { data: trilhas = [], isLoading: trilhasLoading } = useQuery({
-    queryKey: ['/api/aluno/trilhas'],
-    enabled: !!user?.id
-  });
-
-  const { data: missoes = [], isLoading: missoesLoading } = useQuery({
-    queryKey: ['/api/aluno/missoes'],
     enabled: !!user?.id
   });
 
@@ -53,125 +44,245 @@ export default function StudentDashboard() {
     nivel: (studentData as any)?.nivel || 1
   };
 
+  // Dados das cidades do Piauí
+  const cidades = {
+    teresina: {
+      nome: "Teresina – A Cidade das Duas Correntes",
+      descricao: "Fortaleza Arcanomural: As muralhas de pedra negra são cravadas de runas que se acendem à noite, alimentadas pelo cristal pulsante no centro.",
+      caracteristicas: [
+        "Esfera do Conclave: O cristal mágico emite um brilho prateado que flutua acima da praça central, conferindo proteção contra ataques de criaturas sombrias.",
+        "Legião dos Vigias Azuis: Guardiões encapuzados patrulham torres gêmeas, montados em grifos menores.",
+        "Rios Viventes: As fitas azuis formam o 'Caminho de Lamen', correntes encantadas que conduzem viajantes místicos até portais submersos.",
+        "Mercadores de Pergaminhos: Ao longo dos fossos, tendas vendem mapas de tesouros e poções de visão aquática."
+      ]
+    },
+    parnaiba: {
+      nome: "Parnaíba – O Portal dos Ventos",
+      descricao: "Porto místico onde navios voadores atracam. O farol de cristal azul guia embarcações aéreas através das nuvens encantadas.",
+      caracteristicas: [
+        "Torre dos Ventos: Farol que emite raios azuis para orientar navios voadores",
+        "Mercado Flutuante: Plataformas suspensas onde comerciantes vendem artefatos mágicos",
+        "Guildas Náuticas: Navegadores especializados em rotas aéreas e marítimas",
+        "Santuário das Correntes: Local sagrado onde as águas terrestres encontram os ventos celestiais"
+      ]
+    },
+    picos: {
+      nome: "Picos – A Feira do Crepúsculo",
+      descricao: "Centro comercial do reino onde mercadores de todas as terras se reúnem. Famosa por seus mercados noturnos iluminados por cristais multicoloridos.",
+      caracteristicas: [
+        "Mercado das Mil Luzes: Cristais coloridos iluminam as bancas durante a noite",
+        "Guilda dos Comerciantes: Organização que regula o comércio entre reinos",
+        "Arena dos Negócios: Local onde contratos importantes são selados",
+        "Taverna do Viajante: Ponto de encontro de aventureiros e mercadores"
+      ]
+    },
+    floriano: {
+      nome: "Floriano – A Ponte dos Destinos",
+      descricao: "Cidade construída sobre uma ponte mágica que conecta duas dimensões. Conhecida pelos oráculos que preveem o futuro dos viajantes.",
+      caracteristicas: [
+        "Ponte Dimensional: Estrutura que liga dois planos de existência",
+        "Círculo dos Oráculos: Videntes que leem o destino nas águas correntes",
+        "Biblioteca Temporal: Contém registros do passado e futuro",
+        "Mercado de Amuletos: Venda de talismãs de proteção e sorte"
+      ]
+    },
+    campo_maior: {
+      nome: "Campo Maior – As Planícies Douradas",
+      descricao: "Vastas planícies onde crescem as plantas mágicas mais raras. Centro de estudos de alquimia e botânica mística.",
+      caracteristicas: [
+        "Jardins Alquímicos: Plantações de ervas com propriedades mágicas",
+        "Torre dos Elementos: Centro de estudos de transmutação",
+        "Laboratórios Secretos: Onde alquimistas desenvolvem poções raras",
+        "Festival das Colheitas: Celebração anual dos frutos mágicos"
+      ]
+    },
+    oeiras: {
+      nome: "Oeiras – O Enclave Barroco",
+      descricao: "Cidade de arquitetura elaborada onde residem os nobres e artistas. Conhecida por suas torres ornamentadas e jardins suspensos.",
+      caracteristicas: [
+        "Palácio das Artes: Residência dos mestres artistas do reino",
+        "Jardins Suspensos: Terraços mágicos que flutuam no ar",
+        "Academia Real: Centro de ensino para jovens nobres",
+        "Galeria dos Mestres: Exposição de obras de arte encantadas"
+      ]
+    },
+    bom_jesus: {
+      nome: "Bom Jesus – Os Morros da Fé",
+      descricao: "Cidade sagrada construída nas montanhas. Local de peregrinação onde monges guardam conhecimentos ancestrais.",
+      caracteristicas: [
+        "Mosteiro da Luz Eterna: Templo principal dos monges guardiões",
+        "Biblioteca Sagrada: Contém textos místicos e profecias antigas",
+        "Trilha dos Peregrinos: Caminho de purificação espiritual",
+        "Santuário da Cura: Local onde milagres de cura acontecem"
+      ]
+    }
+  };
+
+  const atributos = [
+    { nome: 'Matemática', progresso: 0, cor: '#ff6b35' },
+    { nome: 'Linguagens', progresso: 0, cor: '#f7931e' },
+    { nome: 'Ciências', progresso: 0, cor: '#1e90ff' },
+    { nome: 'História', progresso: 0, cor: '#dc143c' },
+    { nome: 'Geografia', progresso: 0, cor: '#32cd32' },
+    { nome: 'Artes', progresso: 0, cor: '#9370db' }
+  ];
+
   if (studentLoading) {
     return (
-      <div className="min-h-screen bg-[#2D1B0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center">
         <div className="text-center">
-          <Crown className="h-12 w-12 text-[#B8860B] mx-auto mb-4 animate-spin" />
-          <p className="text-[#F4E4BC] text-lg">Carregando seu reino...</p>
+          <Crown className="h-12 w-12 text-[#d4af37] mx-auto mb-4 animate-spin" />
+          <p className="text-white text-lg">Carregando seu reino...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#3a3a3a' }}>
+    <div className="min-h-screen bg-[#3a3a3a]">
       {/* Header */}
-      <header className="h-14 flex items-center justify-between px-6" style={{ backgroundColor: '#2a2a2a' }}>
+      <header className="h-14 flex items-center justify-between px-6 border-b border-[#8b4513]" 
+              style={{ backgroundColor: '#2a2a2a' }}>
         {/* Logo SABIÁ RPG */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#d4af37' }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" 
+               style={{ backgroundColor: '#d4af37' }}>
             <Crown className="h-4 w-4 text-black" />
           </div>
-          <span className="text-lg font-bold" style={{ color: '#d4af37' }}>SABIÁ RPG</span>
+          <span className="text-lg font-bold text-[#d4af37]">SABIÁ RPG</span>
         </div>
         
         {/* Navegação central */}
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            variant={activeTab === 'mapa' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('mapa')}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
-              activeTab === 'mapa' ? 'text-white' : 'text-[#b8860b]'
-            }`}
-            style={activeTab === 'mapa' ? { backgroundColor: '#8b4513' } : {}}
+            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium"
+            style={activeTab === 'mapa' ? { backgroundColor: '#8b4513', color: 'white' } : { color: '#b8860b' }}
           >
             <Map className="h-4 w-4" />
             Mapa
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'missoes' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('missoes')}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
-              activeTab === 'missoes' ? 'text-white' : 'text-[#b8860b]'
-            }`}
-            style={activeTab === 'missoes' ? { backgroundColor: '#8b4513' } : {}}
+            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium"
+            style={activeTab === 'missoes' ? { backgroundColor: '#8b4513', color: 'white' } : { color: '#b8860b' }}
           >
             <Sword className="h-4 w-4" />
             Missões
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'ranking' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('ranking')}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
-              activeTab === 'ranking' ? 'text-white' : 'text-[#b8860b]'
-            }`}
-            style={activeTab === 'ranking' ? { backgroundColor: '#8b4513' } : {}}
+            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium"
+            style={activeTab === 'ranking' ? { backgroundColor: '#8b4513', color: 'white' } : { color: '#b8860b' }}
           >
             <Trophy className="h-4 w-4" />
             Ranking
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'forum' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('forum')}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium ${
-              activeTab === 'forum' ? 'text-white' : 'text-[#b8860b]'
-            }`}
-            style={activeTab === 'forum' ? { backgroundColor: '#8b4513' } : {}}
+            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium"
+            style={activeTab === 'forum' ? { backgroundColor: '#8b4513', color: 'white' } : { color: '#b8860b' }}
           >
             <MessageCircle className="h-4 w-4" />
             Fórum
-          </button>
+          </Button>
         </div>
         
-        {/* Info do usuário */}
+        {/* Info do usuário com dropdown */}
         <div className="flex items-center gap-4 text-sm">
           <div className="relative">
-            <Bell className="h-5 w-5" style={{ color: '#b8860b' }} />
+            <Bell className="h-5 w-5 text-[#b8860b]" />
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-              1
+              3
             </span>
           </div>
           <div className="flex items-center gap-2 text-white">
-            <Star className="h-4 w-4" style={{ color: '#d4af37' }} />
+            <Star className="h-4 w-4 text-[#d4af37]" />
             <span>{dadosAluno.xp_total} XP</span>
-            <span style={{ color: '#b8860b' }}>|</span>
+            <span className="text-[#b8860b]">|</span>
             <span>Nível {dadosAluno.nivel}</span>
           </div>
-          <div 
-            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer text-white text-sm font-bold"
-            style={{ backgroundColor: '#8b4513' }}
-            onClick={logout}
-          >
-            AL
+          
+          {/* Dropdown do perfil */}
+          <div className="relative">
+            <Button
+              onClick={() => setShowProfile(!showProfile)}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#d4af37]"
+              style={{ backgroundColor: '#8b4513' }}
+            >
+              AL
+            </Button>
+            
+            {showProfile && (
+              <div className="absolute right-0 top-10 w-48 rounded border shadow-lg z-50"
+                   style={{ backgroundColor: '#2a2a2a', borderColor: '#8b4513' }}>
+                <div className="p-3 border-b border-[#8b4513]">
+                  <p className="text-white text-sm font-medium">Minha conta</p>
+                </div>
+                <div className="p-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-left text-white hover:bg-[#3a3a3a]"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Perfil
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={logout}
+                    className="w-full justify-start text-left text-white hover:bg-[#3a3a3a]"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       <div className="flex h-[calc(100vh-56px)]">
         {/* Sidebar Esquerda */}
-        <div className="w-60 p-4" style={{ backgroundColor: '#2a2a2a' }}>
+        <div className="w-60 p-4 border-r border-[#8b4513]" style={{ backgroundColor: '#2a2a2a' }}>
           {/* Avatar e Info */}
           <div className="text-center mb-6">
-            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-lg font-bold border-2"
-                 style={{ backgroundColor: '#8b4513', borderColor: '#d4af37' }}>
-              AL
+            <div className="relative mx-auto mb-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-lg font-bold border-2"
+                   style={{ backgroundColor: '#8b4513', borderColor: '#d4af37' }}>
+                AL
+              </div>
+              <div className="absolute -top-2 -right-2 bg-[#d4af37] text-black text-xs px-2 py-1 rounded-full font-bold">
+                Nv. 1
+              </div>
             </div>
             <p className="text-white text-sm mb-1">aluno@sabiarpg.edu.br</p>
-            <p style={{ color: '#b8860b', fontSize: '12px' }}>Aprendiz de Sabedoria</p>
+            <p className="text-[#b8860b] text-xs">Aprendiz de Sabedoria</p>
           </div>
 
-          {/* Atributos */}
+          {/* Atributos com cores dos componentes */}
           <div className="mb-6">
-            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: '#d4af37' }}>ATRIBUTOS</h4>
-            <div className="space-y-2">
-              {[
-                'Matemática',
-                'Linguagens', 
-                'Ciências',
-                'História',
-                'Geografia',
-                'Artes'
-              ].map((attr, index) => (
-                <div key={index} className="flex justify-between items-center text-sm">
-                  <span className="text-white">{attr}</span>
-                  <span style={{ color: '#b8860b' }}>0%</span>
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#d4af37]">ATRIBUTOS</h4>
+            <div className="space-y-3">
+              {atributos.map((attr, index) => (
+                <div key={index} className="space-y-1">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-white">{attr.nome}</span>
+                    <span className="text-[#b8860b]">{attr.progresso}%</span>
+                  </div>
+                  <div className="w-full bg-[#3a3a3a] rounded-full h-2">
+                    <div 
+                      className="h-2 rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${attr.progresso}%`, 
+                        backgroundColor: attr.cor 
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -179,26 +290,25 @@ export default function StudentDashboard() {
 
           {/* Conquistas */}
           <div className="mb-6">
-            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: '#d4af37' }}>CONQUISTAS</h4>
-            <div className="grid grid-cols-4 gap-2">
-              {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="w-8 h-8 rounded-full border flex items-center justify-center"
-                     style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
-                  <span style={{ color: '#666' }}>—</span>
+            <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#d4af37]">CONQUISTAS</h4>
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="w-8 h-8 rounded border flex items-center justify-center bg-[#3a3a3a] border-[#8b4513]">
+                  <span className="text-gray-600 text-xs">???</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Nível */}
-          <div className="rounded p-4" style={{ backgroundColor: '#3a3a3a' }}>
+          <div className="rounded p-4 border border-[#8b4513]" style={{ backgroundColor: '#3a3a3a' }}>
             <div className="text-center mb-3">
-              <div className="text-sm font-bold mb-1" style={{ color: '#d4af37' }}>Nível 1</div>
-              <div className="text-xs" style={{ color: '#b8860b' }}>0/1000 XP</div>
+              <div className="text-sm font-bold mb-1 text-[#d4af37]">Nível 1</div>
+              <div className="text-xs text-[#b8860b]">0/1000 XP</div>
             </div>
-            <div className="text-xs mb-2" style={{ color: '#b8860b' }}>1000 XP para o próximo nível</div>
-            <div className="w-full rounded h-2" style={{ backgroundColor: '#2a2a2a' }}>
-              <div className="h-2 rounded" style={{ width: '0%', backgroundColor: '#d4af37' }}></div>
+            <div className="text-xs mb-2 text-[#b8860b]">1000 XP para o próximo nível</div>
+            <div className="w-full rounded h-2 bg-[#2a2a2a]">
+              <div className="h-2 rounded bg-[#d4af37]" style={{ width: '0%' }}></div>
             </div>
           </div>
         </div>
@@ -207,251 +317,89 @@ export default function StudentDashboard() {
         <div className="flex-1 flex flex-col">
           {activeTab === 'mapa' && (
             <div className="flex-1 flex flex-col">
-              {/* Mapa Medieval */}
+              {/* Botão de informações do reino */}
+              <div className="p-4 border-b border-[#8b4513]" style={{ backgroundColor: '#2a2a2a' }}>
+                <Button
+                  onClick={() => setShowKingdomInfo(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded text-sm bg-[#8b4513] text-white hover:bg-[#a0522d]"
+                >
+                  <Info className="h-4 w-4" />
+                  Reino Educacional do Piauí
+                </Button>
+              </div>
+
+              {/* Mapa */}
               <div className="flex-1 p-6">
-                <div className="relative h-full rounded-lg overflow-hidden shadow-2xl" 
-                     style={{
-                       background: `
-                         radial-gradient(circle at 20% 30%, #8bc34a 0%, transparent 40%),
-                         radial-gradient(circle at 70% 20%, #689f38 0%, transparent 35%),
-                         radial-gradient(circle at 40% 70%, #7cb342 0%, transparent 45%),
-                         linear-gradient(135deg, #6b8e23 0%, #8bc34a 25%, #689f38 50%, #7cb342 75%, #6b8e23 100%)
-                       `
-                     }}>
+                <div className="relative h-full rounded-lg overflow-hidden shadow-2xl border-2 border-[#8b4513]">
+                  <img 
+                    src={mapaImg} 
+                    alt="Reino Educacional do Piauí"
+                    className="w-full h-full object-cover"
+                  />
                   
-                  {/* Texturas de terreno */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="w-full h-full"
-                         style={{
-                           backgroundImage: `
-                             radial-gradient(circle at 25% 25%, #4a5d23 1px, transparent 1px),
-                             radial-gradient(circle at 75% 75%, #3e4f1d 1px, transparent 1px)
-                           `,
-                           backgroundSize: '20px 20px, 30px 30px'
-                         }}>
-                    </div>
-                  </div>
+                  {/* Cidades clicáveis */}
+                  <div className="absolute inset-0">
+                    {/* Teresina */}
+                    <button
+                      onClick={() => setSelectedCity('teresina')}
+                      className="absolute top-[45%] left-[50%] w-8 h-8 rounded-full bg-[#d4af37] border-2 border-white transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform shadow-lg"
+                      title="Teresina"
+                    >
+                      <Crown className="h-4 w-4 mx-auto text-black" />
+                    </button>
 
-                  {/* Rio serpenteante */}
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
-                    <defs>
-                      <linearGradient id="riverGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#1976d2" stopOpacity="0.9"/>
-                        <stop offset="50%" stopColor="#42a5f5" stopOpacity="0.8"/>
-                        <stop offset="100%" stopColor="#64b5f6" stopOpacity="0.9"/>
-                      </linearGradient>
-                      <filter id="riverShadow">
-                        <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#2d1f0f" floodOpacity="0.4"/>
-                      </filter>
-                    </defs>
-                    <path d="M150,350 Q250,280 350,320 Q450,360 550,340 Q650,320 750,360 Q850,400 950,380" 
-                          stroke="url(#riverGradient)" strokeWidth="45" fill="none" filter="url(#riverShadow)"/>
-                    <path d="M150,350 Q250,280 350,320 Q450,360 550,340 Q650,320 750,360 Q850,400 950,380" 
-                          stroke="#87ceeb" strokeWidth="25" fill="none" opacity="0.7"/>
-                  </svg>
+                    {/* Parnaíba */}
+                    <button
+                      onClick={() => setSelectedCity('parnaiba')}
+                      className="absolute top-[15%] right-[20%] w-6 h-6 rounded-full bg-[#42a5f5] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Parnaíba"
+                    />
 
-                  {/* Áreas de terreno variadas */}
-                  <div className="absolute top-[60%] left-[70%] w-32 h-24 rounded-full opacity-30"
-                       style={{ background: 'radial-gradient(circle, #d2691e 0%, transparent 70%)' }}></div>
-                  <div className="absolute top-[20%] right-[20%] w-40 h-32 rounded-full opacity-25"
-                       style={{ background: 'radial-gradient(circle, #cd853f 0%, transparent 70%)' }}></div>
+                    {/* Picos */}
+                    <button
+                      onClick={() => setSelectedCity('picos')}
+                      className="absolute bottom-[35%] left-[25%] w-6 h-6 rounded-full bg-[#ff6b35] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Picos"
+                    />
 
-                  {/* Construções medievais */}
-                  <div className="relative z-10 h-full">
-                    
-                    {/* Castelo Principal */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="relative">
-                        <div className="w-20 h-28 rounded-t-lg shadow-xl flex flex-col items-center justify-center relative"
-                             style={{ 
-                               backgroundColor: '#8b4513', 
-                               border: '2px solid #d4af37',
-                               boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
-                             }}>
-                          <Crown className="h-8 w-8 text-yellow-400 mb-2" />
-                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                            <div className="w-3 h-8 rounded-t-full bg-red-600 border border-yellow-400"></div>
-                          </div>
-                          <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-200 rounded"></div>
-                          <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-200 rounded"></div>
-                        </div>
-                        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                          <p className="text-xs font-bold px-3 py-1 rounded border text-center whitespace-nowrap"
-                             style={{ color: '#d4af37', backgroundColor: '#2d1f0f', borderColor: '#8b4513' }}>
-                            CASTELO
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Floriano */}
+                    <button
+                      onClick={() => setSelectedCity('floriano')}
+                      className="absolute top-[60%] right-[15%] w-6 h-6 rounded-full bg-[#32cd32] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Floriano"
+                    />
 
-                    {/* Vila da Matemática */}
-                    <div className="absolute top-[18%] left-[12%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">M</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-orange-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        Matemática
-                      </p>
-                    </div>
+                    {/* Campo Maior */}
+                    <button
+                      onClick={() => setSelectedCity('campo_maior')}
+                      className="absolute bottom-[15%] right-[10%] w-6 h-6 rounded-full bg-[#f7931e] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Campo Maior"
+                    />
 
-                    {/* Vila das Linguagens */}
-                    <div className="absolute top-[25%] left-[35%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">L</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-blue-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        Linguagens
-                      </p>
-                    </div>
+                    {/* Oeiras */}
+                    <button
+                      onClick={() => setSelectedCity('oeiras')}
+                      className="absolute bottom-[45%] right-[25%] w-6 h-6 rounded-full bg-[#9370db] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Oeiras"
+                    />
 
-                    {/* Torre das Ciências */}
-                    <div className="absolute top-[20%] right-[12%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">C</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-purple-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        Ciências
-                      </p>
-                    </div>
-
-                    {/* Biblioteca da História */}
-                    <div className="absolute bottom-[25%] left-[15%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">H</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-red-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        História
-                      </p>
-                    </div>
-
-                    {/* Observatório da Geografia */}
-                    <div className="absolute bottom-[20%] right-[15%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">G</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-green-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        Geografia
-                      </p>
-                    </div>
-
-                    {/* Ateliê das Artes */}
-                    <div className="absolute top-[45%] left-[8%]">
-                      <div className="relative">
-                        <div className="w-14 h-20 rounded-t-lg shadow-lg flex items-center justify-center"
-                             style={{ backgroundColor: '#a0522d', border: '2px solid #cd853f' }}>
-                          <span className="text-white font-bold text-lg">A</span>
-                        </div>
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-4 bg-pink-600 rounded-t"></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center mt-1 px-1 py-0.5 rounded" 
-                         style={{ color: '#d4af37', backgroundColor: 'rgba(45,31,15,0.8)' }}>
-                        Artes
-                      </p>
-                    </div>
-
-                    {/* Construções menores espalhadas */}
-                    {[
-                      { top: '30%', left: '28%', color: '#8b4513' },
-                      { top: '35%', right: '28%', color: '#a0522d' },
-                      { bottom: '35%', left: '42%', color: '#8b4513' },
-                      { bottom: '30%', right: '35%', color: '#a0522d' },
-                      { top: '50%', left: '62%', color: '#8b4513' },
-                      { top: '40%', right: '25%', color: '#a0522d' },
-                      { bottom: '40%', left: '25%', color: '#8b4513' },
-                      { top: '25%', left: '55%', color: '#a0522d' },
-                      { top: '60%', left: '45%', color: '#8b4513' },
-                      { bottom: '50%', right: '45%', color: '#a0522d' }
-                    ].map((pos, i) => (
-                      <div key={i} className="absolute" style={pos}>
-                        <div className="w-10 h-16 rounded-t-md shadow-md"
-                             style={{ backgroundColor: pos.color, border: '1px solid #cd853f' }}>
-                        </div>
-                      </div>
-                    ))}
+                    {/* Bom Jesus */}
+                    <button
+                      onClick={() => setSelectedCity('bom_jesus')}
+                      className="absolute top-[25%] left-[15%] w-6 h-6 rounded-full bg-[#dc143c] border-2 border-white hover:scale-110 transition-transform shadow-lg"
+                      title="Bom Jesus"
+                    />
                   </div>
 
                   {/* Controles de zoom */}
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                    <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
-                            style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
+                    <Button className="w-10 h-10 rounded border-2 bg-[#3a3a3a] border-[#8b4513] text-white hover:bg-[#4a4a4a]">
                       <Plus className="h-5 w-5" />
-                    </button>
-                    <button className="w-10 h-10 rounded border-2 flex items-center justify-center text-white hover:bg-opacity-80 transition-all"
-                            style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
+                    </Button>
+                    <Button className="w-10 h-10 rounded border-2 bg-[#3a3a3a] border-[#8b4513] text-white hover:bg-[#4a4a4a]">
                       <Minus className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
-                </div>
-              </div>
-
-              {/* Seção de Missões */}
-              <div className="p-6" style={{ backgroundColor: '#2a2a2a' }}>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold" style={{ color: '#d4af37' }}>MISSÕES</h2>
-                  <Button className="text-white text-sm px-6 py-2 rounded hover:bg-opacity-80 transition-all"
-                          style={{ backgroundColor: '#8b4513' }}>
-                    Ver Todas
-                  </Button>
-                </div>
-
-                <div className="flex gap-3 mb-6">
-                  <button className="px-6 py-2 rounded text-sm font-medium text-white"
-                          style={{ backgroundColor: '#8b4513' }}>
-                    Ativas (0)
-                  </button>
-                  <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
-                          style={{ color: '#b8860b', backgroundColor: '#3a3a3a' }}>
-                    Disponíveis (0)
-                  </button>
-                  <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
-                          style={{ color: '#b8860b', backgroundColor: '#3a3a3a' }}>
-                    Concluídas (0)
-                  </button>
-                </div>
-
-                <div className="text-center py-12 rounded border"
-                     style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
-                  <p className="text-white font-medium text-lg">Nenhuma missão ativa</p>
-                  <p className="text-sm mt-2" style={{ color: '#b8860b' }}>
-                    Inicie uma nova missão disponível para continuar sua jornada
-                  </p>
                 </div>
               </div>
             </div>
@@ -461,43 +409,88 @@ export default function StudentDashboard() {
           {activeTab !== 'mapa' && (
             <div className="flex-1 p-8 flex items-center justify-center">
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                     style={{ backgroundColor: '#3a3a3a' }}>
-                  {activeTab === 'missoes' && <Sword className="h-10 w-10" style={{ color: '#d4af37' }} />}
-                  {activeTab === 'ranking' && <Trophy className="h-10 w-10" style={{ color: '#d4af37' }} />}
-                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10" style={{ color: '#d4af37' }} />}
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center bg-[#3a3a3a]">
+                  {activeTab === 'missoes' && <Sword className="h-10 w-10 text-[#d4af37]" />}
+                  {activeTab === 'ranking' && <Trophy className="h-10 w-10 text-[#d4af37]" />}
+                  {activeTab === 'forum' && <MessageCircle className="h-10 w-10 text-[#d4af37]" />}
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">
                   {activeTab === 'missoes' && 'Missões'}
                   {activeTab === 'ranking' && 'Ranking'}
                   {activeTab === 'forum' && 'Fórum'}
                 </h2>
-                <p style={{ color: '#b8860b' }}>Em desenvolvimento</p>
+                <p className="text-[#b8860b]">Em desenvolvimento</p>
               </div>
             </div>
           )}
         </div>
-
-        {/* Sidebar Direita */}
-        <div className="w-80 p-6" style={{ backgroundColor: '#2a2a2a' }}>
-          <div className="rounded-lg p-8 text-center h-full flex flex-col items-center justify-center border"
-               style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
-            <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center border-2"
-                 style={{ backgroundColor: '#2a2a2a', borderColor: '#8b4513' }}>
-              <span className="text-4xl" style={{ color: '#8b4513' }}>?</span>
-            </div>
-            <h3 className="text-white font-bold text-xl mb-2">Nenhuma Missão</h3>
-            <h3 className="text-white font-bold text-xl mb-6">Selecionada</h3>
-            <p className="text-sm mb-8 leading-relaxed max-w-xs" style={{ color: '#b8860b' }}>
-              Selecione uma missão no mapa ou na lista de missões disponíveis
-            </p>
-            <Button className="text-white text-sm px-6 py-3 rounded hover:bg-opacity-80 transition-all"
-                    style={{ backgroundColor: '#8b4513' }}>
-              Ver Missões Disponíveis
-            </Button>
-          </div>
-        </div>
       </div>
+
+      {/* Dialog de informações do Reino */}
+      <Dialog open={showKingdomInfo} onOpenChange={setShowKingdomInfo}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#2a2a2a] border-[#8b4513]">
+          <DialogHeader>
+            <DialogTitle className="text-[#d4af37] text-xl flex items-center gap-2">
+              <Crown className="h-5 w-5" />
+              Reino Educacional do Piauí
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-white space-y-4">
+            <p className="text-[#b8860b]">Explorar Vilarejo:</p>
+            <div className="space-y-2">
+              {Object.entries(cidades).map(([key, cidade]) => (
+                <div 
+                  key={key}
+                  className="p-3 rounded border border-[#8b4513] bg-[#3a3a3a] hover:bg-[#4a4a4a] cursor-pointer transition-colors"
+                  onClick={() => {
+                    setSelectedCity(key);
+                    setShowKingdomInfo(false);
+                  }}
+                >
+                  <p className="text-white">{cidade.nome}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de informações da cidade */}
+      <Dialog open={!!selectedCity} onOpenChange={() => setSelectedCity(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#f5f5dc] border-[#8b4513]">
+          {selectedCity && cidades[selectedCity] && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-[#8b4513] text-xl flex items-center justify-between">
+                  {cidades[selectedCity].nome}
+                  <Button
+                    onClick={() => setSelectedCity(null)}
+                    variant="ghost"
+                    className="h-6 w-6 p-0 text-[#8b4513] hover:bg-[#e5e5dc]"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-[#654321]">{cidades[selectedCity].descricao}</p>
+                
+                <div>
+                  <h3 className="text-[#8b4513] font-bold text-lg mb-3">Características Místicas:</h3>
+                  <ul className="space-y-2">
+                    {cidades[selectedCity].caracteristicas.map((caracteristica, index) => (
+                      <li key={index} className="text-[#654321] flex items-start gap-2">
+                        <span className="text-[#d4af37] mt-2">•</span>
+                        <span>{caracteristica}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
