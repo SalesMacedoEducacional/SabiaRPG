@@ -296,24 +296,14 @@ export default function StudentDashboard() {
       {/* Header */}
       <header className="h-14 flex items-center justify-between px-6 border-b" 
               style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
-        {/* Menu Sanduíche e Logo SABIÁ RPG */}
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => setShowSideMenu(true)}
-            className="p-2 rounded hover:bg-[#3a3a3a] transition-colors"
-            style={{ backgroundColor: 'transparent' }}
-          >
-            <Menu className="h-6 w-6 text-[#d4af37]" />
-          </Button>
-          
-          <div className="flex items-center gap-3">
-            <img 
-              src={logoImg} 
-              alt="SABIÁ RPG" 
-              className="h-8 w-auto object-contain md:h-6 sm:h-5"
-            />
-            <span className="text-xl font-bold text-[#d4af37] md:text-lg sm:text-base">SABIÁ RPG</span>
-          </div>
+        {/* Logo SABIÁ RPG */}
+        <div className="flex items-center gap-3">
+          <img 
+            src="/attached_assets/LOGOSABIA_1750458941873.png" 
+            alt="SABIÁ RPG" 
+            className="h-8 w-auto object-contain md:h-6 sm:h-5"
+          />
+          <span className="text-xl font-bold text-[#D4A054] md:text-lg sm:text-base">SABIÁ RPG</span>
         </div>
         
         {/* Navegação central */}
@@ -492,30 +482,18 @@ export default function StudentDashboard() {
                       className="w-full h-full object-contain"
                     />
                     
-                    {/* Controles do Mapa - Canto Superior Esquerdo */}
-                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                    {/* Menu Sanduíche - Canto Superior Esquerdo */}
+                    <div className="absolute top-4 left-4">
                       <Button
                         onClick={() => setShowSideMenu(true)}
-                        className="p-2 rounded-full shadow-lg border-2"
+                        className="p-3 rounded-full shadow-lg border-2 hover:opacity-80"
                         style={{ 
-                          backgroundColor: '#d4af37', 
-                          borderColor: '#312e26',
-                          color: '#312e26'
+                          backgroundColor: '#D4A054', 
+                          borderColor: '#312E26',
+                          color: '#312E26'
                         }}
                       >
-                        <Menu className="h-5 w-5" />
-                      </Button>
-                      
-                      <Button
-                        onClick={() => setShowKingdomInfo(true)}
-                        className="p-2 rounded-full shadow-lg border-2"
-                        style={{ 
-                          backgroundColor: '#4DA3A9', 
-                          borderColor: '#312e26',
-                          color: '#312e26'
-                        }}
-                      >
-                        <Info className="h-5 w-5" />
+                        <Menu className="h-6 w-6" />
                       </Button>
                     </div>
 
@@ -535,7 +513,7 @@ export default function StudentDashboard() {
               </div>
 
               {/* Sidebar de Cards de Missões - Desktop */}
-              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#312E26', borderColor: '#4DA3A9' }}>
+              <div className="hidden lg:block w-80 p-6 border-l" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
                 <h3 className="text-[#D4A054] font-bold text-lg mb-6 flex items-center gap-2">
                   <Sword className="h-5 w-5" />
                   Status das Missões
@@ -574,19 +552,19 @@ export default function StudentDashboard() {
               {/* Cards de Missões - Tablet/Mobile */}
               <div className="lg:hidden p-4" style={{ backgroundColor: '#312E26' }}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#4DA3A9' }}>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <CheckCircle className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
                     <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.concluidas}</div>
                     <div className="text-[#D4A054] text-xs">Concluídas</div>
                   </div>
                   
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#4DA3A9' }}>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <Play className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
                     <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.emProgresso}</div>
                     <div className="text-[#D4A054] text-xs">Em Progresso</div>
                   </div>
                   
-                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#4DA3A9' }}>
+                  <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <Pause className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
                     <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.naoIniciadas}</div>
                     <div className="text-[#D4A054] text-xs">Não Iniciadas</div>
@@ -602,7 +580,7 @@ export default function StudentDashboard() {
               <div className="flex-1 p-6">
                 {/* Cards de Estatísticas - Responsivo */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#4DA3A9' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[#F5F2E7] text-sm">Nível Atual</span>
                       <Crown className="h-4 w-4 text-[#D4A054]" />
@@ -611,7 +589,7 @@ export default function StudentDashboard() {
                     <div className="text-[#D4A054] text-xs">250 XP para próximo nível</div>
                   </div>
 
-                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#4DA3A9' }}>
+                  <div className="p-4 rounded-lg border" style={{ backgroundColor: '#312E26', borderColor: '#D4A054' }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[#F5F2E7] text-sm">XP Total</span>
                       <Star className="h-4 w-4 text-[#D4A054]" />
@@ -883,7 +861,7 @@ export default function StudentDashboard() {
                     setShowSideMenu(false);
                   }}
                   className="w-full text-left p-3 rounded border hover:opacity-75 transition-opacity"
-                  style={{ backgroundColor: '#2a2a2a', borderColor: '#4DA3A9' }}
+                  style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}
                 >
                   <span className="text-[#F5F2E7] font-medium">{vilarejo.titulo}</span>
                 </button>
