@@ -65,9 +65,9 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#3d2f1f' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#3a3a3a' }}>
       {/* Header */}
-      <header className="h-14 flex items-center justify-between px-6" style={{ backgroundColor: '#2d1f0f' }}>
+      <header className="h-14 flex items-center justify-between px-6" style={{ backgroundColor: '#2a2a2a' }}>
         {/* Logo SABIÁ RPG */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#d4af37' }}>
@@ -146,7 +146,7 @@ export default function StudentDashboard() {
 
       <div className="flex h-[calc(100vh-56px)]">
         {/* Sidebar Esquerda */}
-        <div className="w-60 p-4" style={{ backgroundColor: '#2d1f0f' }}>
+        <div className="w-60 p-4" style={{ backgroundColor: '#2a2a2a' }}>
           {/* Avatar e Info */}
           <div className="text-center mb-6">
             <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-lg font-bold border-2"
@@ -183,7 +183,7 @@ export default function StudentDashboard() {
             <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 8 }, (_, i) => (
                 <div key={i} className="w-8 h-8 rounded-full border flex items-center justify-center"
-                     style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+                     style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
                   <span style={{ color: '#666' }}>—</span>
                 </div>
               ))}
@@ -191,13 +191,13 @@ export default function StudentDashboard() {
           </div>
 
           {/* Nível */}
-          <div className="rounded p-4" style={{ backgroundColor: '#3d2f1f' }}>
+          <div className="rounded p-4" style={{ backgroundColor: '#3a3a3a' }}>
             <div className="text-center mb-3">
               <div className="text-sm font-bold mb-1" style={{ color: '#d4af37' }}>Nível 1</div>
               <div className="text-xs" style={{ color: '#b8860b' }}>0/1000 XP</div>
             </div>
             <div className="text-xs mb-2" style={{ color: '#b8860b' }}>1000 XP para o próximo nível</div>
-            <div className="w-full rounded h-2" style={{ backgroundColor: '#2d1f0f' }}>
+            <div className="w-full rounded h-2" style={{ backgroundColor: '#2a2a2a' }}>
               <div className="h-2 rounded" style={{ width: '0%', backgroundColor: '#d4af37' }}></div>
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function StudentDashboard() {
               </div>
 
               {/* Seção de Missões */}
-              <div className="p-6" style={{ backgroundColor: '#2d1f0f' }}>
+              <div className="p-6" style={{ backgroundColor: '#2a2a2a' }}>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold" style={{ color: '#d4af37' }}>MISSÕES</h2>
                   <Button className="text-white text-sm px-6 py-2 rounded hover:bg-opacity-80 transition-all"
@@ -437,17 +437,17 @@ export default function StudentDashboard() {
                     Ativas (0)
                   </button>
                   <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
-                          style={{ color: '#b8860b', backgroundColor: '#3d2f1f' }}>
+                          style={{ color: '#b8860b', backgroundColor: '#3a3a3a' }}>
                     Disponíveis (0)
                   </button>
                   <button className="px-6 py-2 rounded text-sm font-medium hover:bg-opacity-80 transition-all"
-                          style={{ color: '#b8860b', backgroundColor: '#3d2f1f' }}>
+                          style={{ color: '#b8860b', backgroundColor: '#3a3a3a' }}>
                     Concluídas (0)
                   </button>
                 </div>
 
                 <div className="text-center py-12 rounded border"
-                     style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+                     style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
                   <p className="text-white font-medium text-lg">Nenhuma missão ativa</p>
                   <p className="text-sm mt-2" style={{ color: '#b8860b' }}>
                     Inicie uma nova missão disponível para continuar sua jornada
@@ -462,7 +462,7 @@ export default function StudentDashboard() {
             <div className="flex-1 p-8 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                     style={{ backgroundColor: '#3d2f1f' }}>
+                     style={{ backgroundColor: '#3a3a3a' }}>
                   {activeTab === 'missoes' && <Sword className="h-10 w-10" style={{ color: '#d4af37' }} />}
                   {activeTab === 'ranking' && <Trophy className="h-10 w-10" style={{ color: '#d4af37' }} />}
                   {activeTab === 'forum' && <MessageCircle className="h-10 w-10" style={{ color: '#d4af37' }} />}
@@ -479,11 +479,11 @@ export default function StudentDashboard() {
         </div>
 
         {/* Sidebar Direita */}
-        <div className="w-80 p-6" style={{ backgroundColor: '#2d1f0f' }}>
+        <div className="w-80 p-6" style={{ backgroundColor: '#2a2a2a' }}>
           <div className="rounded-lg p-8 text-center h-full flex flex-col items-center justify-center border"
-               style={{ backgroundColor: '#3d2f1f', borderColor: '#8b4513' }}>
+               style={{ backgroundColor: '#3a3a3a', borderColor: '#8b4513' }}>
             <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center border-2"
-                 style={{ backgroundColor: '#2d1f0f', borderColor: '#8b4513' }}>
+                 style={{ backgroundColor: '#2a2a2a', borderColor: '#8b4513' }}>
               <span className="text-4xl" style={{ color: '#8b4513' }}>?</span>
             </div>
             <h3 className="text-white font-bold text-xl mb-2">Nenhuma Missão</h3>
