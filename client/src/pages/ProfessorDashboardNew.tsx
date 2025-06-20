@@ -193,22 +193,22 @@ export default function ProfessorDashboardNew() {
   // Componente do menu lateral
   const Sidebar = () => (
     <div className={`
-      fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900 
-      border-r border-amber-600/30 transition-all duration-300 ease-in-out
+      fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-amber-800 via-amber-900 to-amber-950 
+      border-r border-amber-700/50 transition-all duration-300 ease-in-out
       ${sidebarOpen ? 'w-64' : 'w-16'}
       ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     `}>
       {/* Header do Sidebar */}
-      <div className="flex items-center justify-between p-4 border-b border-amber-600/30">
-        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-amber-100`}>
+      <div className="flex items-center justify-between p-4 border-b border-amber-800/30">
+        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-amber-200`}>
           <h2 className="text-xl font-bold">SABI RPG</h2>
-          <p className="text-sm text-amber-300">Professor</p>
+          <p className="text-sm text-amber-400">Professor</p>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-amber-200 hover:text-amber-100 hover:bg-amber-700/50"
+          className="text-amber-300 hover:text-amber-200 hover:bg-amber-800/50"
         >
           {sidebarOpen ? <ArrowLeftFromLine className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -225,8 +225,8 @@ export default function ProfessorDashboardNew() {
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200
                 ${activeMenu === item.id 
-                  ? 'bg-amber-600/50 text-amber-100 shadow-lg' 
-                  : 'text-amber-200 hover:bg-amber-700/30 hover:text-amber-100'
+                  ? 'bg-amber-700/70 text-amber-100 shadow-lg' 
+                  : 'text-amber-300 hover:bg-amber-800/50 hover:text-amber-200'
                 }
                 ${!sidebarOpen && 'justify-center'}
               `}
@@ -237,72 +237,27 @@ export default function ProfessorDashboardNew() {
           );
         })}
       </nav>
-
-      {/* Perfil do usuário */}
-      <div className="border-t border-amber-600/30 p-4">
-        <div className="relative">
-          <button
-            onClick={() => setShowProfilePopup(!showProfilePopup)}
-            className={`
-              w-full flex items-center gap-3 p-2 rounded-lg text-amber-200 
-              hover:bg-amber-700/30 hover:text-amber-100 transition-colors
-              ${!sidebarOpen && 'justify-center'}
-            `}
-          >
-            <User className="h-5 w-5 flex-shrink-0" />
-            {sidebarOpen && (
-              <>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-medium truncate">{user?.nome || 'Professor'}</p>
-                  <p className="text-xs text-amber-300 truncate">{user?.email}</p>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </>
-            )}
-          </button>
-
-          {/* Popup do perfil */}
-          {showProfilePopup && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-amber-800 border border-amber-600/30 rounded-lg shadow-xl p-2">
-              <button
-                onClick={() => setShowSettings(true)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-amber-200 hover:bg-amber-700/50 rounded-md"
-              >
-                <Settings className="h-4 w-4" />
-                Configurações
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-300 hover:bg-red-900/30 rounded-md"
-              >
-                <LogOut className="h-4 w-4" />
-                Sair
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 
   // Header
   const Header = () => (
-    <header className="bg-gradient-to-r from-amber-900 via-amber-800 to-amber-900 border-b border-amber-600/30 px-6 py-4">
+    <header className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 border-b border-amber-800/50 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-amber-200 hover:text-amber-100"
+            className="lg:hidden text-amber-300 hover:text-amber-200"
           >
             <Menu className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-amber-100">
+            <h1 className="text-2xl font-bold text-amber-200">
               {menuItems.find(item => item.id === activeMenu)?.label || 'Dashboard'}
             </h1>
-            <p className="text-amber-300 text-sm">
+            <p className="text-amber-400 text-sm">
               Bem-vindo(a), {user?.nome}
             </p>
           </div>
@@ -310,19 +265,56 @@ export default function ProfessorDashboardNew() {
 
         <div className="flex items-center gap-4">
           <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-500 h-4 w-4" />
             <Input
               type="text"
               placeholder="Pesquisar..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="pl-10 bg-amber-800/50 border-amber-600/30 text-amber-100 placeholder-amber-400 focus:border-amber-500"
+              className="pl-10 bg-amber-900/50 border-amber-700/50 text-amber-200 placeholder-amber-500 focus:border-amber-600"
             />
           </div>
+          
+          {/* Perfil do usuário no header superior direito */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfilePopup(!showProfilePopup)}
+              className="flex items-center gap-2 p-2 rounded-lg text-amber-300 hover:bg-amber-800/50 transition-colors"
+            >
+              <User className="h-5 w-5" />
+              <span className="text-sm font-medium hidden sm:block">{user?.nome || 'Professor'}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+
+            {/* Popup do perfil */}
+            {showProfilePopup && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-amber-900 border border-amber-700/50 rounded-lg shadow-xl p-2 z-50">
+                <div className="px-3 py-2 border-b border-amber-700/50">
+                  <p className="text-sm font-medium text-amber-200">{user?.nome || 'Professor'}</p>
+                  <p className="text-xs text-amber-400">{user?.email}</p>
+                </div>
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-amber-300 hover:bg-amber-800/50 rounded-md"
+                >
+                  <Settings className="h-4 w-4" />
+                  Configurações
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/30 rounded-md"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
+          
           <Button
             variant="outline"
             size="sm"
-            className="border-amber-600/30 text-amber-200 hover:bg-amber-700/50"
+            className="border-amber-700/50 text-amber-300 hover:bg-amber-800/50"
           >
             <Shield className="h-4 w-4 mr-2" />
             Suporte
@@ -941,7 +933,7 @@ export default function ProfessorDashboardNew() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-amber-100">
+    <div className="min-h-screen bg-gradient-to-br from-amber-950 via-amber-900 to-amber-950">
       <Sidebar />
       
       {/* Overlay para mobile */}
