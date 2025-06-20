@@ -29,7 +29,11 @@ import {
   Clock,
   Target,
   TrendingUp,
-  Calendar
+  Calendar,
+  Settings,
+  LogOut,
+  Shield,
+  X
 } from "lucide-react";
 
 // Schemas de validação
@@ -53,7 +57,7 @@ type PlanoAulaForm = z.infer<typeof planoAulaSchema>;
 type MissaoForm = z.infer<typeof missaoSchema>;
 
 export default function ProfessorDashboardNew() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -62,9 +66,24 @@ export default function ProfessorDashboardNew() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isPlanoModalOpen, setIsPlanoModalOpen] = useState(false);
   const [isMissaoModalOpen, setIsMissaoModalOpen] = useState(false);
+
+  // Função para logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/auth';
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer logout",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Forms
   const planoForm = useForm<PlanoAulaForm>({
@@ -115,18 +134,22 @@ export default function ProfessorDashboardNew() {
     enabled: !!user,
   });
 
+  const { data: vinculos = [] } = useQuery({
+    queryKey: ["/api/professor/vinculos"],
+    enabled: !!user,
+  });
+
   // Mutations
   const createPlanoMutation = useMutation({
-    mutationFn: (data: PlanoAulaForm) => 
-      apiRequest('POST', '/api/professor/planos-aula', data),
+    mutationFn: (data: PlanoAulaForm) => apiRequest("/api/professor/planos-aula", "POST", data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/professor/planos-aula"] });
+      setIsPlanoModalOpen(false);
+      planoForm.reset();
       toast({
         title: "Sucesso",
         description: "Plano de aula criado com sucesso!",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/professor/planos-aula'] });
-      setIsPlanoModalOpen(false);
-      planoForm.reset();
     },
     onError: () => {
       toast({
@@ -134,608 +157,811 @@ export default function ProfessorDashboardNew() {
         description: "Erro ao criar plano de aula",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const createMissaoMutation = useMutation({
-    mutationFn: (data: MissaoForm) => 
-      apiRequest('POST', '/api/professor/missoes', data),
+    mutationFn: (data: MissaoForm) => apiRequest("/api/professor/missoes", "POST", data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/professor/missoes"] });
+      setIsMissaoModalOpen(false);
+      missaoForm.reset();
       toast({
         title: "Sucesso",
         description: "Missão criada com sucesso!",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/professor/missoes'] });
-      setIsMissaoModalOpen(false);
-      missaoForm.reset();
     },
     onError: () => {
       toast({
-        title: "Erro",
+        title: "Erro", 
         description: "Erro ao criar missão",
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const onSubmitPlano = (data: PlanoAulaForm) => {
-    createPlanoMutation.mutate(data);
-  };
+  // Menu items com ícones
+  const menuItems = [
+    { id: "dashboard", label: "Visão Geral", icon: Home },
+    { id: "turmas", label: "Turmas", icon: Users },
+    { id: "componentes", label: "Componentes", icon: BookOpen },
+    { id: "planos", label: "Planos de Aula", icon: FileText },
+    { id: "missoes", label: "Missões", icon: Brain },
+    { id: "alunos", label: "Alunos", icon: Award },
+  ];
 
-  const onSubmitMissao = (data: MissaoForm) => {
-    createMissaoMutation.mutate(data);
-  };
+  // Componente do menu lateral
+  const Sidebar = () => (
+    <div className={`
+      fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900 
+      border-r border-amber-600/30 transition-all duration-300 ease-in-out
+      ${sidebarOpen ? 'w-64' : 'w-16'}
+      ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+    `}>
+      {/* Header do Sidebar */}
+      <div className="flex items-center justify-between p-4 border-b border-amber-600/30">
+        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-amber-100`}>
+          <h2 className="text-xl font-bold">SABI RPG</h2>
+          <p className="text-sm text-amber-300">Professor</p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="text-amber-200 hover:text-amber-100 hover:bg-amber-700/50"
+        >
+          {sidebarOpen ? <ArrowLeftFromLine className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        </Button>
+      </div>
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+      {/* Menu de navegação */}
+      <nav className="flex-1 p-4 space-y-2">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveMenu(item.id)}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200
+                ${activeMenu === item.id 
+                  ? 'bg-amber-600/50 text-amber-100 shadow-lg' 
+                  : 'text-amber-200 hover:bg-amber-700/30 hover:text-amber-100'
+                }
+                ${!sidebarOpen && 'justify-center'}
+              `}
+            >
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span className="font-medium">{item.label}</span>}
+            </button>
+          );
+        })}
+      </nav>
 
-  const handleMenuSelect = (menu: string) => {
-    setActiveMenu(menu);
-    setMobileMenuOpen(false);
-  };
+      {/* Perfil do usuário */}
+      <div className="border-t border-amber-600/30 p-4">
+        <div className="relative">
+          <button
+            onClick={() => setShowProfilePopup(!showProfilePopup)}
+            className={`
+              w-full flex items-center gap-3 p-2 rounded-lg text-amber-200 
+              hover:bg-amber-700/30 hover:text-amber-100 transition-colors
+              ${!sidebarOpen && 'justify-center'}
+            `}
+          >
+            <User className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && (
+              <>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium truncate">{user?.nome || 'Professor'}</p>
+                  <p className="text-xs text-amber-300 truncate">{user?.email}</p>
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </>
+            )}
+          </button>
 
-  if (!user) {
-    return null;
-  }
+          {/* Popup do perfil */}
+          {showProfilePopup && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-amber-800 border border-amber-600/30 rounded-lg shadow-xl p-2">
+              <button
+                onClick={() => setShowSettings(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-amber-200 hover:bg-amber-700/50 rounded-md"
+              >
+                <Settings className="h-4 w-4" />
+                Configurações
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-300 hover:bg-red-900/30 rounded-md"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
+  // Header
+  const Header = () => (
+    <header className="bg-gradient-to-r from-amber-900 via-amber-800 to-amber-900 border-b border-amber-600/30 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden text-amber-200 hover:text-amber-100"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-amber-100">
+              {menuItems.find(item => item.id === activeMenu)?.label || 'Dashboard'}
+            </h1>
+            <p className="text-amber-300 text-sm">
+              Bem-vindo(a), {user?.nome}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="relative hidden md:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="pl-10 bg-amber-800/50 border-amber-600/30 text-amber-100 placeholder-amber-400 focus:border-amber-500"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-amber-600/30 text-amber-200 hover:bg-amber-700/50"
+          >
+            <Shield className="h-4 w-4 mr-2" />
+            Suporte
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+
+  // Cards de estatísticas
+  const StatsCards = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-amber-700 text-sm font-medium">Turmas</p>
+              <p className="text-2xl font-bold text-amber-900">{minhasTurmas?.length || 0}</p>
+            </div>
+            <Users className="h-8 w-8 text-amber-600" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-amber-700 text-sm font-medium">Componentes</p>
+              <p className="text-2xl font-bold text-amber-900">{meusComponentes?.length || 0}</p>
+            </div>
+            <BookOpen className="h-8 w-8 text-amber-600" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-amber-700 text-sm font-medium">Planos de Aula</p>
+              <p className="text-2xl font-bold text-amber-900">{planosAula?.length || 0}</p>
+            </div>
+            <FileText className="h-8 w-8 text-amber-600" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200/50 shadow-lg">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-amber-700 text-sm font-medium">Alunos</p>
+              <p className="text-2xl font-bold text-amber-900">{meusAlunos?.length || 0}</p>
+            </div>
+            <Award className="h-8 w-8 text-amber-600" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Conteúdo principal baseado no menu ativo
   const renderMainContent = () => {
     switch (activeMenu) {
       case "dashboard":
         return (
           <div className="space-y-6">
-            {/* Cards de Estatísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="sabia-card-bg border-accent shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-parchment">Minhas Turmas</CardTitle>
-                  <Users className="h-5 w-5 text-accent" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{Array.isArray(minhasTurmas) ? minhasTurmas.length : 0}</div>
-                  <p className="text-xs text-muted-foreground">turmas ativas</p>
-                </CardContent>
-              </Card>
-
-              <Card className="sabia-card-bg border-accent shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-parchment">Componentes</CardTitle>
-                  <BookOpen className="h-5 w-5 text-accent" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{Array.isArray(meusComponentes) ? meusComponentes.length : 0}</div>
-                  <p className="text-xs text-muted-foreground">disciplinas</p>
-                </CardContent>
-              </Card>
-
-              <Card className="sabia-card-bg border-accent shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-parchment">Planos de Aula</CardTitle>
-                  <FileText className="h-5 w-5 text-accent" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{Array.isArray(planosAula) ? planosAula.length : 0}</div>
-                  <p className="text-xs text-muted-foreground">planos criados</p>
-                </CardContent>
-              </Card>
-
-              <Card className="sabia-card-bg border-accent shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-parchment">Meus Alunos</CardTitle>
-                  <Award className="h-5 w-5 text-accent" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{Array.isArray(meusAlunos) ? meusAlunos.length : 0}</div>
-                  <p className="text-xs text-muted-foreground">alunos ativos</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Seções Principais */}
+            <StatsCards />
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="sabia-card-bg border-accent">
-                <CardHeader>
-                  <CardTitle className="text-parchment flex items-center gap-2">
-                    <Users className="h-5 w-5 text-accent" />
-                    Minhas Turmas
+              {/* Últimos planos de aula */}
+              <Card className="bg-white border-amber-200/50 shadow-lg">
+                <CardHeader className="border-b border-amber-100">
+                  <CardTitle className="text-amber-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Últimos Planos de Aula
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {Array.isArray(minhasTurmas) && minhasTurmas.length > 0 ? (
-                      minhasTurmas.map((turma: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-[#3a3730] border border-accent/20">
-                          <div>
-                            <p className="font-medium text-parchment">{turma.nome || `Turma ${index + 1}`}</p>
-                            <p className="text-sm text-muted-foreground">{turma.serie || 'Série não informada'}</p>
-                          </div>
-                          <span className="px-2 py-1 bg-accent text-dark-wood rounded text-xs font-medium">
-                            Ativa
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>Nenhuma turma encontrada</p>
+                <CardContent className="p-6">
+                  {planosAula?.slice(0, 3).map((plano: any) => (
+                    <div key={plano.id} className="flex items-center justify-between py-3 border-b border-amber-100 last:border-0">
+                      <div>
+                        <p className="font-medium text-amber-900">{plano.titulo}</p>
+                        <p className="text-sm text-amber-600">{plano.trimestre} - {plano.componente_nome}</p>
                       </div>
-                    )}
-                  </div>
+                      <Clock className="h-4 w-4 text-amber-500" />
+                    </div>
+                  )) || <p className="text-amber-600">Nenhum plano de aula encontrado</p>}
                 </CardContent>
               </Card>
 
-              <Card className="sabia-card-bg border-accent">
-                <CardHeader>
-                  <CardTitle className="text-parchment flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-accent" />
-                    Meus Componentes
+              {/* Missões ativas */}
+              <Card className="bg-white border-amber-200/50 shadow-lg">
+                <CardHeader className="border-b border-amber-100">
+                  <CardTitle className="text-amber-900 flex items-center gap-2">
+                    <Brain className="h-5 w-5" />
+                    Missões Ativas
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {Array.isArray(meusComponentes) && meusComponentes.length > 0 ? (
-                      meusComponentes.map((componente: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-[#3a3730] border border-accent/20">
-                          <div>
-                            <p className="font-medium text-parchment">{componente.nome || `Componente ${index + 1}`}</p>
-                            <p className="text-sm text-muted-foreground">{componente.turma_nome || 'Turma não informada'}</p>
-                          </div>
-                          <div 
-                            className="w-4 h-4 rounded-full border-2 border-accent"
-                            style={{ backgroundColor: componente.cor_hex || '#d4af37' }}
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>Nenhum componente encontrado</p>
+                <CardContent className="p-6">
+                  {missoes?.slice(0, 3).map((missao: any) => (
+                    <div key={missao.id} className="flex items-center justify-between py-3 border-b border-amber-100 last:border-0">
+                      <div>
+                        <p className="font-medium text-amber-900">{missao.titulo}</p>
+                        <p className="text-sm text-amber-600">XP: {missao.xp_reward} • {missao.tempo_estimado}min</p>
                       </div>
-                    )}
-                  </div>
+                      <Target className="h-4 w-4 text-amber-500" />
+                    </div>
+                  )) || <p className="text-amber-600">Nenhuma missão encontrada</p>}
                 </CardContent>
               </Card>
             </div>
           </div>
         );
-      
-      default:
+
+      case "turmas":
         return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-parchment mb-4">Seção em Desenvolvimento</h2>
-            <p className="text-muted-foreground">Esta funcionalidade será implementada em breve.</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-amber-900">Minhas Turmas</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {minhasTurmas?.map((turma: any) => (
+                <Card key={turma.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-amber-100">
+                    <CardTitle className="text-amber-900">{turma.nome}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-2">
+                      <p className="text-sm text-amber-600">
+                        <strong>Série:</strong> {turma.serie}
+                      </p>
+                      <p className="text-sm text-amber-600">
+                        <strong>Ano Letivo:</strong> {turma.ano_letivo}
+                      </p>
+                      <p className="text-sm text-amber-600">
+                        <strong>Status:</strong> 
+                        <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                          turma.ativa ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {turma.ativa ? 'Ativa' : 'Inativa'}
+                        </span>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || <p className="text-amber-600">Nenhuma turma encontrada</p>}
+            </div>
           </div>
         );
+
+      case "componentes":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-amber-900">Meus Componentes</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {meusComponentes?.map((componente: any) => (
+                <Card key={componente.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-amber-100">
+                    <CardTitle className="text-amber-900">{componente.nome}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-2">
+                      <p className="text-sm text-amber-600">
+                        <strong>Área:</strong> {componente.area}
+                      </p>
+                      <p className="text-sm text-amber-600">
+                        <strong>Carga Horária:</strong> {componente.carga_horaria}h
+                      </p>
+                      {componente.descricao && (
+                        <p className="text-sm text-amber-600">
+                          <strong>Descrição:</strong> {componente.descricao}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || <p className="text-amber-600">Nenhum componente encontrado</p>}
+            </div>
+          </div>
+        );
+
+      case "planos":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-amber-900">Planos de Aula</h2>
+              <Dialog open={isPlanoModalOpen} onOpenChange={setIsPlanoModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Novo Plano
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Criar Novo Plano de Aula</DialogTitle>
+                  </DialogHeader>
+                  <Form {...planoForm}>
+                    <form onSubmit={planoForm.handleSubmit((data) => createPlanoMutation.mutate(data))} className="space-y-4">
+                      <FormField
+                        control={planoForm.control}
+                        name="turma_componente_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Componente da Turma</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione um componente" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {vinculos?.map((vinculo: any) => (
+                                  <SelectItem key={vinculo.id} value={vinculo.id}>
+                                    {vinculo.componente_nome} - {vinculo.turma_nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={planoForm.control}
+                        name="trimestre"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Trimestre</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="1º">1º Trimestre</SelectItem>
+                                <SelectItem value="2º">2º Trimestre</SelectItem>
+                                <SelectItem value="3º">3º Trimestre</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={planoForm.control}
+                        name="titulo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Título</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Digite o título do plano" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={planoForm.control}
+                        name="conteudo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Conteúdo</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} placeholder="Descreva o conteúdo do plano de aula" rows={6} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex gap-2 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsPlanoModalOpen(false)}
+                          className="flex-1"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={createPlanoMutation.isPending}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700"
+                        >
+                          {createPlanoMutation.isPending ? "Criando..." : "Criar Plano"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+              {planosAula?.map((plano: any) => (
+                <Card key={plano.id} className="bg-white border-amber-200/50 shadow-lg">
+                  <CardHeader className="border-b border-amber-100">
+                    <CardTitle className="text-amber-900">{plano.titulo}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-3">
+                      <div className="flex gap-4 text-sm text-amber-600">
+                        <span><strong>Trimestre:</strong> {plano.trimestre}</span>
+                        <span><strong>Componente:</strong> {plano.componente_nome}</span>
+                        <span><strong>Turma:</strong> {plano.turma_nome}</span>
+                      </div>
+                      <p className="text-amber-800">{plano.conteudo}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || <p className="text-amber-600">Nenhum plano de aula encontrado</p>}
+            </div>
+          </div>
+        );
+
+      case "missoes":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-amber-900">Missões</h2>
+              <Dialog open={isMissaoModalOpen} onOpenChange={setIsMissaoModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Nova Missão
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Criar Nova Missão</DialogTitle>
+                  </DialogHeader>
+                  <Form {...missaoForm}>
+                    <form onSubmit={missaoForm.handleSubmit((data) => createMissaoMutation.mutate(data))} className="space-y-4">
+                      <FormField
+                        control={missaoForm.control}
+                        name="turma_componente_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Componente da Turma</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione um componente" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {vinculos?.map((vinculo: any) => (
+                                  <SelectItem key={vinculo.id} value={vinculo.id}>
+                                    {vinculo.componente_nome} - {vinculo.turma_nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={missaoForm.control}
+                        name="titulo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Título</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Digite o título da missão" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={missaoForm.control}
+                        name="descricao"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Descrição</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} placeholder="Descreva a missão" rows={4} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <FormField
+                          control={missaoForm.control}
+                          name="dificuldade"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dificuldade (1-5)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  max="5"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={missaoForm.control}
+                          name="xp_reward"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Recompensa XP</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={missaoForm.control}
+                          name="tempo_estimado"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tempo (min)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="5"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex gap-2 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsMissaoModalOpen(false)}
+                          className="flex-1"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={createMissaoMutation.isPending}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700"
+                        >
+                          {createMissaoMutation.isPending ? "Criando..." : "Criar Missão"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+              {missoes?.map((missao: any) => (
+                <Card key={missao.id} className="bg-white border-amber-200/50 shadow-lg">
+                  <CardHeader className="border-b border-amber-100">
+                    <CardTitle className="text-amber-900 flex items-center justify-between">
+                      {missao.titulo}
+                      <span className="text-sm font-normal text-amber-600">
+                        XP: {missao.xp_reward}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-3">
+                      <div className="flex gap-4 text-sm text-amber-600">
+                        <span><strong>Componente:</strong> {missao.componente_nome}</span>
+                        <span><strong>Turma:</strong> {missao.turma_nome}</span>
+                        <span><strong>Dificuldade:</strong> {missao.dificuldade}/5</span>
+                        <span><strong>Tempo:</strong> {missao.tempo_estimado}min</span>
+                      </div>
+                      <p className="text-amber-800">{missao.descricao}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || <p className="text-amber-600">Nenhuma missão encontrada</p>}
+            </div>
+          </div>
+        );
+
+      case "alunos":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-amber-900">Meus Alunos</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {meusAlunos?.map((aluno: any) => (
+                <Card key={aluno.id} className="bg-white border-amber-200/50 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="border-b border-amber-100">
+                    <CardTitle className="text-amber-900">{aluno.nome}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-2">
+                      <p className="text-sm text-amber-600">
+                        <strong>Email:</strong> {aluno.email}
+                      </p>
+                      <p className="text-sm text-amber-600">
+                        <strong>Turma:</strong> {aluno.turma_nome}
+                      </p>
+                      <p className="text-sm text-amber-600">
+                        <strong>Status:</strong> 
+                        <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                          aluno.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {aluno.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || <p className="text-amber-600">Nenhum aluno encontrado</p>}
+            </div>
+          </div>
+        );
+
+      default:
+        return <div>Conteúdo não encontrado</div>;
     }
   };
 
-  return (
-    <div className="sabia-bg flex flex-col">
-      <div className="sabia-decorative-corner top-left"></div>
-      <div className="sabia-decorative-corner top-right"></div>
-      <div className="sabia-decorative-corner bottom-left"></div>
-      <div className="sabia-decorative-corner bottom-right"></div>
-      
-      {/* Top Navigation Bar */}
-      <header className="bg-[#312e26] border-b border-accent shadow-lg z-10">
-        <div className="h-16 px-4 flex items-center justify-between relative">
-          {/* Menu Button com Título */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-white hover:text-accent"
-            >
-              <Menu size={24} />
-            </button>
-            <button
-              onClick={toggleSidebar}
-              className="hidden lg:flex text-white hover:text-accent"
-            >
-              {sidebarOpen ? <ArrowLeftFromLine size={20} /> : <Menu size={20} />}
-            </button>
-            <span className="text-parchment font-cinzel font-bold text-sm tracking-wide">
-              PAINEL DO <span className="text-accent">PROFESSOR</span>
-            </span>
-          </div>
-
-          {/* Logo Centralizada */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
-            <img 
-              src="/attached_assets/LOGOSABIA_1750308592736.png" 
-              alt="Sabiá RPG" 
-              className="h-8 w-auto object-contain"
-            />
-            <h1 className="text-xl font-cinzel font-bold text-parchment tracking-wide">
-              SABIÁ<span className="text-accent">RPG</span>
-            </h1>
+  // Modal de configurações
+  const SettingsModal = () => (
+    <Dialog open={showSettings} onOpenChange={setShowSettings}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Configurações do Perfil
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="h-10 w-10 text-amber-600" />
+            </div>
+            <h3 className="font-semibold text-amber-900">{user?.nome}</h3>
+            <p className="text-sm text-amber-600">{user?.email}</p>
+            <p className="text-xs text-amber-500 mt-1">Professor</p>
           </div>
           
-          {/* Ações Rápidas */}
-          <div className="flex items-center gap-3">
-            <Dialog open={isMissaoModalOpen} onOpenChange={setIsMissaoModalOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-accent hover:bg-accent-foreground text-dark-wood border border-accent">
-                  <Brain className="w-4 h-4 mr-2" />
-                  Criar Missão IA
-                </Button>
-              </DialogTrigger>
-            </Dialog>
-            
-            <Dialog open={isPlanoModalOpen} onOpenChange={setIsPlanoModalOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#6b5b47] hover:bg-[#7d6954] text-parchment border border-accent">
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Novo Plano
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+          <div className="border-t pt-4">
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {/* Implementar edição de perfil */}}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Editar Perfil
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {/* Implementar alteração de senha */}}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Alterar Senha
+              </Button>
+            </div>
+          </div>
+          
+          <div className="border-t pt-4">
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair da Conta
+            </Button>
           </div>
         </div>
-      </header>
+      </DialogContent>
+    </Dialog>
+  );
 
-      <div className="flex flex-1 relative">
-        {/* Sidebar */}
-        <aside className={`fixed lg:relative inset-y-0 left-0 z-30 w-64 bg-[#2a251e] border-r border-accent transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-16'} transition-all duration-300 ease-in-out`}>
-          <nav className="h-full px-3 py-6">
-            <ul className="space-y-2">
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("dashboard")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "dashboard" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <Home size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Visão Geral</span>}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("turmas")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "turmas" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <Users size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Minhas Turmas</span>}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("componentes")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "componentes" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <BookOpen size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Componentes</span>}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("planos")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "planos" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <FileText size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Planos de Aula</span>}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("missoes")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "missoes" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <Brain size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Missões & IA</span>}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleMenuSelect("alunos")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    activeMenu === "alunos" 
-                      ? "bg-accent text-dark-wood font-semibold" 
-                      : "text-parchment hover:bg-[#3a3730] hover:text-accent"
-                  }`}
-                >
-                  <Award size={20} />
-                  {(sidebarOpen || mobileMenuOpen) && <span>Meus Alunos</span>}
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </aside>
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-amber-700">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
-        {/* Main Content */}
-        <main className="flex-1 p-6 bg-[#1a1611] min-h-screen">
-          <div className="max-w-7xl mx-auto">
-            {renderMainContent()}
-          </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-amber-100">
+      <Sidebar />
+      
+      {/* Overlay para mobile */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+      
+      {/* Conteúdo principal */}
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
+        <Header />
+        
+        <main className="p-6">
+          {renderMainContent()}
         </main>
       </div>
 
-      {/* Modals */}
-      <Dialog open={isPlanoModalOpen} onOpenChange={setIsPlanoModalOpen}>
-        <DialogContent className="sabia-card-bg border-accent">
-          <DialogHeader>
-            <DialogTitle className="text-parchment">Novo Plano de Aula</DialogTitle>
-          </DialogHeader>
-          <Form {...planoForm}>
-            <form onSubmit={planoForm.handleSubmit(onSubmitPlano)} className="space-y-4">
-              <FormField
-                control={planoForm.control}
-                name="turma_componente_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Componente</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-[#3a3730] border-accent text-parchment">
-                          <SelectValue placeholder="Selecione um componente" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-[#2a251e] border-accent">
-                        {Array.isArray(meusComponentes) && meusComponentes.map((componente: any) => (
-                          <SelectItem key={componente.id} value={componente.id}>
-                            {componente.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={planoForm.control}
-                name="trimestre"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Trimestre</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-[#3a3730] border-accent text-parchment">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-[#2a251e] border-accent">
-                        <SelectItem value="1º">1º Trimestre</SelectItem>
-                        <SelectItem value="2º">2º Trimestre</SelectItem>
-                        <SelectItem value="3º">3º Trimestre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={planoForm.control}
-                name="titulo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Título</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Digite o título do plano de aula" 
-                        {...field} 
-                        className="bg-[#3a3730] border-accent text-parchment"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={planoForm.control}
-                name="conteudo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Conteúdo</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descreva o conteúdo do plano de aula" 
-                        rows={4}
-                        {...field} 
-                        className="bg-[#3a3730] border-accent text-parchment"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsPlanoModalOpen(false)}
-                  className="border-accent text-parchment hover:bg-[#3a3730]"
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-accent text-dark-wood hover:bg-accent-foreground"
-                  disabled={createPlanoMutation.isPending}
-                >
-                  {createPlanoMutation.isPending ? "Criando..." : "Criar Plano"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isMissaoModalOpen} onOpenChange={setIsMissaoModalOpen}>
-        <DialogContent className="sabia-card-bg border-accent">
-          <DialogHeader>
-            <DialogTitle className="text-parchment">Nova Missão</DialogTitle>
-          </DialogHeader>
-          <Form {...missaoForm}>
-            <form onSubmit={missaoForm.handleSubmit(onSubmitMissao)} className="space-y-4">
-              <FormField
-                control={missaoForm.control}
-                name="turma_componente_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Componente</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-[#3a3730] border-accent text-parchment">
-                          <SelectValue placeholder="Selecione um componente" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-[#2a251e] border-accent">
-                        {Array.isArray(meusComponentes) && meusComponentes.map((componente: any) => (
-                          <SelectItem key={componente.id} value={componente.id}>
-                            {componente.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={missaoForm.control}
-                name="titulo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Título</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Digite o título da missão" 
-                        {...field} 
-                        className="bg-[#3a3730] border-accent text-parchment"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={missaoForm.control}
-                name="descricao"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-parchment">Descrição</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descreva a missão" 
-                        rows={3}
-                        {...field} 
-                        className="bg-[#3a3730] border-accent text-parchment"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={missaoForm.control}
-                  name="dificuldade"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Dificuldade</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="1" 
-                          max="5" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          className="bg-[#3a3730] border-accent text-parchment"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={missaoForm.control}
-                  name="xp_reward"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">XP Recompensa</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="1" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          className="bg-[#3a3730] border-accent text-parchment"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={missaoForm.control}
-                  name="tempo_estimado"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-parchment">Tempo (min)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="5" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          className="bg-[#3a3730] border-accent text-parchment"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="flex justify-end gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsMissaoModalOpen(false)}
-                  className="border-accent text-parchment hover:bg-[#3a3730]"
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-accent text-dark-wood hover:bg-accent-foreground"
-                  disabled={createMissaoMutation.isPending}
-                >
-                  {createMissaoMutation.isPending ? "Criando..." : "Criar Missão"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <SettingsModal />
     </div>
   );
 }
