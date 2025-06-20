@@ -139,10 +139,10 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#3a3a3a]">
+    <div className="min-h-screen" style={{ backgroundColor: '#1a1a1a' }}>
       {/* Header */}
-      <header className="h-14 flex items-center justify-between px-6 border-b border-[#8b4513]" 
-              style={{ backgroundColor: '#2a2a2a' }}>
+      <header className="h-14 flex items-center justify-between px-6 border-b" 
+              style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
         {/* Logo SABIÁ RPG */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex items-center justify-center" 
@@ -219,8 +219,8 @@ export default function StudentDashboard() {
             
             {showProfile && (
               <div className="absolute right-0 top-10 w-48 rounded border shadow-lg z-50"
-                   style={{ backgroundColor: '#2a2a2a', borderColor: '#8b4513' }}>
-                <div className="p-3 border-b border-[#8b4513]">
+                   style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                <div className="p-3 border-b" style={{ borderColor: '#d4af37' }}>
                   <p className="text-white text-sm font-medium">Minha conta</p>
                 </div>
                 <div className="p-2">
@@ -248,7 +248,7 @@ export default function StudentDashboard() {
 
       <div className="flex h-[calc(100vh-56px)]">
         {/* Sidebar Esquerda */}
-        <div className="w-60 p-4 border-r border-[#8b4513]" style={{ backgroundColor: '#2a2a2a' }}>
+        <div className="w-60 p-4 border-r" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
           {/* Avatar e Info */}
           <div className="text-center mb-6">
             <div className="relative mx-auto mb-3">
@@ -301,7 +301,7 @@ export default function StudentDashboard() {
           </div>
 
           {/* Nível */}
-          <div className="rounded p-4 border border-[#8b4513]" style={{ backgroundColor: '#3a3a3a' }}>
+          <div className="rounded p-4 border" style={{ backgroundColor: '#3a3a3a', borderColor: '#d4af37' }}>
             <div className="text-center mb-3">
               <div className="text-sm font-bold mb-1 text-[#d4af37]">Nível 1</div>
               <div className="text-xs text-[#b8860b]">0/1000 XP</div>
@@ -316,89 +316,167 @@ export default function StudentDashboard() {
         {/* Área Principal */}
         <div className="flex-1 flex flex-col">
           {activeTab === 'mapa' && (
-            <div className="flex-1 flex flex-col">
-              {/* Botão de informações do reino */}
-              <div className="p-4 border-b border-[#8b4513]" style={{ backgroundColor: '#2a2a2a' }}>
-                <Button
-                  onClick={() => setShowKingdomInfo(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded text-sm bg-[#8b4513] text-white hover:bg-[#a0522d]"
-                >
-                  <Info className="h-4 w-4" />
-                  Reino Educacional do Piauí
-                </Button>
-              </div>
-
-              {/* Mapa */}
+            <div className="flex-1 flex">
+              {/* Área do Mapa */}
               <div className="flex-1 p-6">
-                <div className="relative h-full rounded-lg overflow-hidden shadow-2xl border-2 border-[#8b4513]">
+                <div className="relative h-full rounded-lg overflow-hidden shadow-2xl border-2" 
+                     style={{ borderColor: '#d4af37' }}>
                   <img 
                     src={mapaImg} 
                     alt="Reino Educacional do Piauí"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
-                  
-                  {/* Cidades clicáveis */}
-                  <div className="absolute inset-0">
-                    {/* Teresina */}
-                    <button
-                      onClick={() => setSelectedCity('teresina')}
-                      className="absolute top-[45%] left-[50%] w-8 h-8 rounded-full bg-[#d4af37] border-2 border-white transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform shadow-lg"
-                      title="Teresina"
+                </div>
+              </div>
+
+              {/* Painel de Informações do Reino */}
+              <div className="w-80 p-6 border-l" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                <div className="mb-6">
+                  <h3 className="text-[#d4af37] font-bold text-lg mb-4 flex items-center gap-2">
+                    <Crown className="h-5 w-5" />
+                    Reino Educacional do Piauí
+                  </h3>
+                  <p className="text-[#b8860b] text-sm mb-4">Explorar Vilarejo:</p>
+                </div>
+
+                <div className="space-y-3">
+                  {Object.entries(cidades).map(([key, cidade], index) => (
+                    <div 
+                      key={key}
+                      className="p-4 rounded border cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+                      style={{ backgroundColor: '#3a3a3a', borderColor: '#d4af37' }}
+                      onClick={() => setSelectedCity(key)}
                     >
-                      <Crown className="h-4 w-4 mx-auto text-black" />
-                    </button>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white text-sm font-medium">
+                          {cidade.nome.split(' – ')[0]}
+                        </span>
+                        <span className="text-[#d4af37] text-xs">
+                          {cidade.nome.split(' – ')[1]}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-                    {/* Parnaíba */}
-                    <button
-                      onClick={() => setSelectedCity('parnaiba')}
-                      className="absolute top-[15%] right-[20%] w-6 h-6 rounded-full bg-[#42a5f5] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Parnaíba"
-                    />
-
-                    {/* Picos */}
-                    <button
-                      onClick={() => setSelectedCity('picos')}
-                      className="absolute bottom-[35%] left-[25%] w-6 h-6 rounded-full bg-[#ff6b35] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Picos"
-                    />
-
-                    {/* Floriano */}
-                    <button
-                      onClick={() => setSelectedCity('floriano')}
-                      className="absolute top-[60%] right-[15%] w-6 h-6 rounded-full bg-[#32cd32] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Floriano"
-                    />
-
-                    {/* Campo Maior */}
-                    <button
-                      onClick={() => setSelectedCity('campo_maior')}
-                      className="absolute bottom-[15%] right-[10%] w-6 h-6 rounded-full bg-[#f7931e] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Campo Maior"
-                    />
-
-                    {/* Oeiras */}
-                    <button
-                      onClick={() => setSelectedCity('oeiras')}
-                      className="absolute bottom-[45%] right-[25%] w-6 h-6 rounded-full bg-[#9370db] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Oeiras"
-                    />
-
-                    {/* Bom Jesus */}
-                    <button
-                      onClick={() => setSelectedCity('bom_jesus')}
-                      className="absolute top-[25%] left-[15%] w-6 h-6 rounded-full bg-[#dc143c] border-2 border-white hover:scale-110 transition-transform shadow-lg"
-                      title="Bom Jesus"
-                    />
+                {/* Cards de Estatísticas */}
+                <div className="mt-8 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded border text-center" 
+                         style={{ backgroundColor: '#3a3a3a', borderColor: '#d4af37' }}>
+                      <div className="text-[#d4af37] text-lg font-bold">7</div>
+                      <div className="text-white text-xs">Cidades</div>
+                    </div>
+                    <div className="p-3 rounded border text-center" 
+                         style={{ backgroundColor: '#3a3a3a', borderColor: '#d4af37' }}>
+                      <div className="text-[#d4af37] text-lg font-bold">0</div>
+                      <div className="text-white text-xs">Exploradas</div>
+                    </div>
                   </div>
 
-                  {/* Controles de zoom */}
-                  <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                    <Button className="w-10 h-10 rounded border-2 bg-[#3a3a3a] border-[#8b4513] text-white hover:bg-[#4a4a4a]">
-                      <Plus className="h-5 w-5" />
-                    </Button>
-                    <Button className="w-10 h-10 rounded border-2 bg-[#3a3a3a] border-[#8b4513] text-white hover:bg-[#4a4a4a]">
-                      <Minus className="h-5 w-5" />
-                    </Button>
+                  <div className="p-4 rounded border" 
+                       style={{ backgroundColor: '#3a3a3a', borderColor: '#d4af37' }}>
+                    <h4 className="text-[#d4af37] font-bold text-sm mb-2">Progresso da Jornada</h4>
+                    <div className="w-full bg-[#2a2a2a] rounded-full h-2 mb-2">
+                      <div className="bg-[#d4af37] h-2 rounded-full" style={{ width: '0%' }}></div>
+                    </div>
+                    <div className="text-[#b8860b] text-xs">0% do reino explorado</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Aba Missões */}
+          {activeTab === 'missoes' && (
+            <div className="flex-1 p-6">
+              {/* Cards de Estatísticas */}
+              <div className="grid grid-cols-4 gap-6 mb-8">
+                <div className="p-4 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white text-sm">Nível Atual</span>
+                    <Crown className="h-4 w-4 text-[#d4af37]" />
+                  </div>
+                  <div className="text-[#d4af37] text-2xl font-bold">3</div>
+                  <div className="text-[#b8860b] text-xs">250 XP para próximo nível</div>
+                </div>
+
+                <div className="p-4 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white text-sm">XP Total</span>
+                    <Star className="h-4 w-4 text-[#d4af37]" />
+                  </div>
+                  <div className="text-[#d4af37] text-2xl font-bold">2.750</div>
+                  <div className="text-[#b8860b] text-xs">Experiência acumulada</div>
+                </div>
+
+                <div className="p-4 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white text-sm">Ranking</span>
+                    <Trophy className="h-4 w-4 text-[#d4af37]" />
+                  </div>
+                  <div className="text-[#d4af37] text-2xl font-bold">#12</div>
+                  <div className="text-[#b8860b] text-xs">de 124 alunos</div>
+                </div>
+
+                <div className="p-4 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white text-sm">Conquistas</span>
+                    <Award className="h-4 w-4 text-[#d4af37]" />
+                  </div>
+                  <div className="text-[#d4af37] text-2xl font-bold">2</div>
+                  <div className="text-[#b8860b] text-xs">de 45 disponíveis</div>
+                </div>
+              </div>
+
+              {/* Missões Ativas */}
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-white mb-6">Missões Ativas</h2>
+                
+                <div className="space-y-4">
+                  <div className="p-6 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-white font-bold">A Busca pelos Números Perdidos</h3>
+                      <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}>
+                        Continuar
+                      </Button>
+                    </div>
+                    <p className="text-[#b8860b] text-sm mb-4">Encontre os números perdidos escondidos no Reino da Matemática</p>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-white">matemática</span>
+                      <span className="text-[#b8860b]">150 XP</span>
+                      <span className="text-[#b8860b]">25min</span>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-white font-bold">As Crônicas das Palavras</h3>
+                      <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}>
+                        Iniciar
+                      </Button>
+                    </div>
+                    <p className="text-[#b8860b] text-sm mb-4">Desvende os mistérios da linguagem escrita</p>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-white">português</span>
+                      <span className="text-[#b8860b]">120 XP</span>
+                      <span className="text-[#b8860b]">15min</span>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-lg border" style={{ backgroundColor: '#2a2a2a', borderColor: '#d4af37' }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-white font-bold">Expedição ao Laboratório Secreto</h3>
+                      <Button className="px-4 py-2 rounded text-sm" style={{ backgroundColor: '#d4af37', color: '#1a1a1a' }}>
+                        Concluída
+                      </Button>
+                    </div>
+                    <p className="text-[#b8860b] text-sm mb-4">Conduza experimentos para descobrir os segredos da natureza</p>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-white">ciências</span>
+                      <span className="text-[#b8860b]">200 XP</span>
+                      <span className="text-[#b8860b]">45min</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -406,16 +484,14 @@ export default function StudentDashboard() {
           )}
 
           {/* Outras abas */}
-          {activeTab !== 'mapa' && (
+          {(activeTab === 'ranking' || activeTab === 'forum') && (
             <div className="flex-1 p-8 flex items-center justify-center">
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center bg-[#3a3a3a]">
-                  {activeTab === 'missoes' && <Sword className="h-10 w-10 text-[#d4af37]" />}
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#3a3a3a' }}>
                   {activeTab === 'ranking' && <Trophy className="h-10 w-10 text-[#d4af37]" />}
                   {activeTab === 'forum' && <MessageCircle className="h-10 w-10 text-[#d4af37]" />}
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">
-                  {activeTab === 'missoes' && 'Missões'}
                   {activeTab === 'ranking' && 'Ranking'}
                   {activeTab === 'forum' && 'Fórum'}
                 </h2>
