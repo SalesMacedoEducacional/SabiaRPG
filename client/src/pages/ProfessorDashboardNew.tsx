@@ -71,54 +71,84 @@ export default function ProfessorDashboardNew() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Queries para os novos widgets
+  // Queries para as 4 abas do dashboard
+  const { data: turmasData } = useQuery({
+    queryKey: ['/api/professor/turmas-detalhes'],
+    enabled: !!user?.id,
+  });
+
+  const { data: componentesData } = useQuery({
+    queryKey: ['/api/professor/componentes-detalhes'],
+    enabled: !!user?.id,
+  });
+
+  const { data: planosData } = useQuery({
+    queryKey: ['/api/professor/planos-detalhes'],
+    enabled: !!user?.id,
+  });
+
+  const { data: alunosData } = useQuery({
+    queryKey: ['/api/professor/alunos-detalhes'],
+    enabled: !!user?.id,
+  });
+
+  const { data: engajamentoData } = useQuery({
+    queryKey: ['/api/professor/engajamento'],
+    enabled: !!user?.id,
+  });
+
   const { data: loginTrends } = useQuery({
     queryKey: ['/api/professor/login-trends'],
     enabled: !!user?.id,
   });
 
-  const { data: missionStats } = useQuery({
-    queryKey: ['/api/professor/mission-stats'],
+  const { data: alunosAtivos } = useQuery({
+    queryKey: ['/api/professor/alunos-ativos'],
     enabled: !!user?.id,
   });
 
-  const { data: studyTimeDistribution } = useQuery({
-    queryKey: ['/api/professor/study-time'],
+  const { data: alunosRisco } = useQuery({
+    queryKey: ['/api/professor/alunos-risco'],
     enabled: !!user?.id,
   });
 
-  const { data: performanceRanking } = useQuery({
-    queryKey: ['/api/professor/performance-ranking'],
+  const { data: desempenhoData } = useQuery({
+    queryKey: ['/api/professor/desempenho'],
     enabled: !!user?.id,
   });
 
-  const { data: studentsAtRisk } = useQuery({
-    queryKey: ['/api/professor/students-at-risk'],
+  const { data: rankingXP } = useQuery({
+    queryKey: ['/api/professor/ranking-xp'],
     enabled: !!user?.id,
   });
 
-  const { data: componentProgress } = useQuery({
-    queryKey: ['/api/professor/component-progress'],
+  const { data: progressoComponentes } = useQuery({
+    queryKey: ['/api/professor/progresso-componentes'],
     enabled: !!user?.id,
   });
 
-  const { data: upcomingActivities } = useQuery({
-    queryKey: ['/api/professor/upcoming-activities'],
+  const { data: relatoriosData } = useQuery({
+    queryKey: ['/api/professor/relatorios'],
     enabled: !!user?.id,
   });
 
-  const { data: quarterlyEvolution } = useQuery({
-    queryKey: ['/api/professor/quarterly-evolution'],
+  const { data: evolucaoTrimestral } = useQuery({
+    queryKey: ['/api/professor/evolucao-trimestral'],
     enabled: !!user?.id,
   });
 
-  const { data: classAchievements } = useQuery({
-    queryKey: ['/api/professor/class-achievements'],
+  const { data: tempoMedioMissoes } = useQuery({
+    queryKey: ['/api/professor/tempo-medio-missoes'],
     enabled: !!user?.id,
   });
 
-  const { data: aiInsights } = useQuery({
-    queryKey: ['/api/professor/ai-insights'],
+  const { data: atividadesFuturas } = useQuery({
+    queryKey: ['/api/professor/atividades-futuras'],
+    enabled: !!user?.id,
+  });
+
+  const { data: conquistasColetivas } = useQuery({
+    queryKey: ['/api/professor/conquistas-coletivas'],
     enabled: !!user?.id,
   });
 
@@ -131,15 +161,27 @@ export default function ProfessorDashboardNew() {
     dark: '#312E26'
   };
 
+  // Abas do dashboard
+  const tabs = [
+    { id: "visao-geral", label: "Visão Geral", icon: Home },
+    { id: "engajamento", label: "Engajamento", icon: TrendingUp },
+    { id: "desempenho", label: "Desempenho", icon: Award },
+    { id: "relatorios", label: "Relatórios & Futuro", icon: FileText },
+  ];
+
   // Estado da interface
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("visao-geral");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isPlanoModalOpen, setIsPlanoModalOpen] = useState(false);
   const [isMissaoModalOpen, setIsMissaoModalOpen] = useState(false);
+  const [selectedDetailModal, setSelectedDetailModal] = useState("");
+  const [filterTurma, setFilterTurma] = useState("");
+  const [filterComponente, setFilterComponente] = useState("");
 
   // Função para logout
   const handleLogout = async () => {
@@ -448,354 +490,539 @@ export default function ProfessorDashboardNew() {
   );
 
   // Conteúdo principal baseado no menu ativo
+  // Componente para renderizar modais de detalhes
+  const renderDetailModal = () => {
+    if (!selectedDetailModal) return null;
+
+    return (
+      <Dialog open={!!selectedDetailModal} onOpenChange={() => setSelectedDetailModal("")}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes - {selectedDetailModal}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Filtros */}
+            <div className="flex gap-4">
+              <Select value={filterTurma} onValueChange={setFilterTurma}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por Turma" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas as Turmas</SelectItem>
+                  {turmasData?.map((turma: any) => (
+                    <SelectItem key={turma.id} value={turma.id}>{turma.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={filterComponente} onValueChange={setFilterComponente}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por Componente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos os Componentes</SelectItem>
+                  {componentesData?.map((comp: any) => (
+                    <SelectItem key={comp.id} value={comp.id}>{comp.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Conteúdo do modal baseado no tipo */}
+            {renderModalContent()}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  const renderModalContent = () => {
+    switch (selectedDetailModal) {
+      case "turmas":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {turmasData?.map((turma: any) => (
+              <Card key={turma.id}>
+                <CardContent className="p-4">
+                  <h3 className="font-medium">{turma.nome}</h3>
+                  <p className="text-sm text-gray-600">Série: {turma.serie}</p>
+                  <p className="text-sm text-gray-600">Modalidade: {turma.modalidade}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+      case "componentes":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {componentesData?.map((comp: any) => (
+              <Card key={comp.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: comp.cor_hex || '#4DA3A9' }}
+                    />
+                    <h3 className="font-medium">{comp.nome}</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">{comp.area}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+      case "alunos":
+        return (
+          <div className="space-y-4">
+            {alunosData?.map((aluno: any) => (
+              <Card key={aluno.id}>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm font-medium">Nome</p>
+                      <p className="text-sm text-gray-600">{aluno.nome}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Matrícula</p>
+                      <p className="text-sm text-gray-600">{aluno.matricula}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">CPF</p>
+                      <p className="text-sm text-gray-600">{aluno.cpf}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">E-mail</p>
+                      <p className="text-sm text-gray-600">{aluno.email}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+      default:
+        return <div>Dados não disponíveis</div>;
+    }
+  };
+
+  // Função para renderizar conteúdo das abas
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "visao-geral":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card Turmas */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Turmas</CardTitle>
+                <Users className="h-4 w-4 text-[var(--primary)]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{turmasData?.length || 0}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => setSelectedDetailModal("turmas")}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card Componentes */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Componentes</CardTitle>
+                <BookOpen className="h-4 w-4 text-[var(--secondary)]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{componentesData?.length || 0}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => setSelectedDetailModal("componentes")}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card Planos de Aula */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Planos de Aula</CardTitle>
+                <FileText className="h-4 w-4 text-[var(--accent)]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{planosData?.length || 0}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => setSelectedDetailModal("planos")}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card Alunos */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Alunos</CardTitle>
+                <Award className="h-4 w-4 text-[var(--warning)]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{alunosData?.length || 0}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => setSelectedDetailModal("alunos")}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case "engajamento":
+        return (
+          <div className="space-y-6">
+            {/* Tendência de Acesso */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" style={{ color: COLORS.primary }} />
+                  Tendência de Acesso (30 dias)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={loginTrends || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="logins" 
+                      stroke={COLORS.primary} 
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Cards de Alunos Ativos e em Risco */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg">Alunos Ativos (7 dias)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{alunosAtivos?.ultimos_7_dias || 0}</div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("alunos-ativos-7d")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg">Alunos Ativos (30 dias)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{alunosAtivos?.ultimos_30_dias || 0}</div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("alunos-ativos-30d")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    Alunos em Risco
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-red-600">{alunosRisco?.total || 0}</div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("alunos-risco")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case "desempenho":
+        return (
+          <div className="space-y-6">
+            {/* Taxa de Conclusão */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader>
+                <CardTitle>Taxa de Conclusão de Missões</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {desempenhoData?.concluidas_pct || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Concluídas</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {desempenhoData?.pendentes_pct || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Pendentes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">
+                      {desempenhoData?.nao_iniciadas_pct || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Não Iniciadas</div>
+                  </div>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setSelectedDetailModal("taxa-conclusao")}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Ranking XP e Progresso por Componente */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5" style={{ color: COLORS.quaternary }} />
+                    Ranking XP (mês) - Top 5
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(rankingXP || []).slice(0, 5).map((aluno: any, index) => (
+                      <div key={aluno.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-yellow-500 text-white text-xs flex items-center justify-center font-bold">
+                            {index + 1}
+                          </span>
+                          <span>{aluno.nome}</span>
+                        </div>
+                        <span className="font-bold">{aluno.xp} XP</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => setSelectedDetailModal("ranking-xp")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle>Progresso Médio por Componente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(progressoComponentes || []).map((comp: any) => (
+                      <div key={comp.id} className="flex items-center justify-between">
+                        <span className="text-sm">{comp.nome}</span>
+                        <span className="font-bold">{comp.progresso_medio}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => setSelectedDetailModal("progresso-componentes")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case "relatorios":
+        return (
+          <div className="space-y-6">
+            {/* Evolução Trimestral */}
+            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" style={{ color: COLORS.tertiary }} />
+                  Evolução Trimestral
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={evolucaoTrimestral || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="trimestre" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="conclusao_pct" fill={COLORS.tertiary} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Cards de Métricas */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Timer className="h-5 w-5" style={{ color: COLORS.secondary }} />
+                    Tempo Médio por Missão
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{tempoMedioMissoes?.tempo_medio || 0} min</div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("tempo-medio")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Calendar className="h-5 w-5" style={{ color: COLORS.primary }} />
+                    Atividades Futuras
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{atividadesFuturas?.length || 0}</div>
+                  <p className="text-sm text-gray-600">próximos 7 dias</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("atividades-futuras")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Star className="h-5 w-5" style={{ color: COLORS.quaternary }} />
+                    Conquistas Coletivas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{conquistasColetivas?.xp_total || 0} XP</div>
+                  <p className="text-sm text-gray-600">{conquistasColetivas?.medalhas || 0} medalhas</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="mt-2"
+                    onClick={() => setSelectedDetailModal("conquistas-coletivas")}
+                  >
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      default:
+        return <div>Aba não encontrada</div>;
+    }
+  };
+
   const renderMainContent = () => {
     switch (activeMenu) {
       case "dashboard":
         return (
           <div className="space-y-6">
-            <StatsCards />
-            
-            {/* Novos Widgets de Métricas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              
-              {/* 1. Tendência de Acesso */}
-              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Activity className="h-5 w-5" style={{ color: COLORS.primary }} />
-                    Tendência de Acesso (30 dias)
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={loginTrends || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="logins" 
-                        stroke={COLORS.primary} 
-                        strokeWidth={2}
-                        dot={{ fill: COLORS.primary }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* 2. Taxa de Conclusão de Missões */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Target className="h-5 w-5" style={{ color: COLORS.secondary }} />
-                    Taxa de Conclusão
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie
-                        data={missionStats || []}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {(missionStats || []).map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={[COLORS.primary, COLORS.secondary, COLORS.tertiary][index % 3]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* 3. Distribuição de Tempo de Estudo */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Timer className="h-5 w-5" style={{ color: COLORS.tertiary }} />
-                    Tempo de Estudo
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={studyTimeDistribution || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="mission" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="time" fill={COLORS.tertiary} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* 4. Ranking de Desempenho */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Trophy className="h-5 w-5" style={{ color: COLORS.quaternary }} />
-                    Top 5 Alunos (XP)
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {(performanceRanking || []).slice(0, 5).map((student, index) => (
-                      <div key={student.id} className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: COLORS.quaternary, color: 'white' }}>
-                            {index + 1}
-                          </span>
-                          <span className="font-medium">{student.nome}</span>
-                        </div>
-                        <span className="font-bold" style={{ color: COLORS.quaternary }}>{student.xp} XP</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 5. Alunos em Risco */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
-                    Alunos em Risco
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {(studentsAtRisk || []).slice(0, 4).map((student) => (
-                      <div key={student.id} className="flex items-center justify-between p-2 rounded bg-red-50 border border-red-200">
-                        <span className="font-medium">{student.nome}</span>
-                        <span className="text-xs text-red-600">{student.reason}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 6. Progresso por Componente */}
-              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Book className="h-5 w-5" style={{ color: COLORS.primary }} />
-                    Progresso por Componente
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={componentProgress || []} layout="horizontal">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="component" type="category" />
-                      <Tooltip />
-                      <Bar dataKey="progress" fill={COLORS.primary} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* 7. Atividades Futuras */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Calendar className="h-5 w-5" style={{ color: COLORS.secondary }} />
-                    Próximas Atividades
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {(upcomingActivities || []).slice(0, 3).map((activity) => (
-                      <div key={activity.id} className="p-3 rounded border" style={{ borderColor: COLORS.secondary }}>
-                        <div className="font-medium text-sm">{activity.title}</div>
-                        <div className="text-xs text-gray-600">{activity.daysLeft} dias restantes</div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 8. Feedback da IA */}
-              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Brain className="h-5 w-5" style={{ color: COLORS.quaternary }} />
-                    Insights da IA
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="p-4 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
-                    <p className="text-sm leading-relaxed">
-                      {aiInsights?.insight || "Analisando dados da turma..."}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 9. Evolução Trimestral */}
-              <Card className="lg:col-span-2 bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" style={{ color: COLORS.tertiary }} />
-                    Evolução Trimestral
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <AreaChart data={quarterlyEvolution || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="quarter" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area 
-                        type="monotone" 
-                        dataKey="engagement" 
-                        stackId="1"
-                        stroke={COLORS.tertiary} 
-                        fill={COLORS.tertiary} 
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="completion" 
-                        stackId="2"
-                        stroke={COLORS.primary} 
-                        fill={COLORS.primary} 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* 10. Conquistas da Turma */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Star className="h-5 w-5" style={{ color: COLORS.quaternary }} />
-                    Conquistas da Turma
-                  </CardTitle>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
-                    Ver Detalhes
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.quaternary}20` }}>
-                      <div className="text-2xl font-bold" style={{ color: COLORS.quaternary }}>
-                        {classAchievements?.medals || 0}
-                      </div>
-                      <div className="text-xs">Medalhas</div>
-                    </div>
-                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.primary}20` }}>
-                      <div className="text-2xl font-bold" style={{ color: COLORS.primary }}>
-                        {classAchievements?.totalXP || 0}
-                      </div>
-                      <div className="text-xs">XP Total</div>
-                    </div>
-                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.secondary}20` }}>
-                      <div className="text-2xl font-bold" style={{ color: COLORS.secondary }}>
-                        {classAchievements?.badges || 0}
-                      </div>
-                      <div className="text-xs">Badges</div>
-                    </div>
-                    <div className="text-center p-3 rounded" style={{ backgroundColor: `${COLORS.tertiary}20` }}>
-                      <div className="text-2xl font-bold" style={{ color: COLORS.tertiary }}>
-                        {classAchievements?.achievements || 0}
-                      </div>
-                      <div className="text-xs">Conquistas</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Header com título */}
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+                Painel do Professor
+              </h1>
+              <Button
+                onClick={() => {
+                  queryClient.invalidateQueries();
+                }}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Activity className="h-4 w-4" />
+                Atualizar Dados
+              </Button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Últimos planos de aula */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader className="border-b border-[var(--border-card)]">
-                  <CardTitle className="text-[var(--text-primary)] flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Últimos Planos de Aula
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {planosAula?.slice(0, 3).map((plano: any) => (
-                    <div key={plano.id} className="flex items-center justify-between py-3 border-b border-[var(--border-card)] last:border-0">
-                      <div>
-                        <p className="font-medium text-[var(--text-primary)]">{plano.titulo}</p>
-                        <p className="text-sm text-[var(--text-secondary)]">{plano.trimestre} - {plano.componente_nome}</p>
-                      </div>
-                      <Clock className="h-4 w-4 text-[var(--accent)]" />
-                    </div>
-                  )) || <p className="text-[var(--text-secondary)]">Nenhum plano de aula encontrado</p>}
-                </CardContent>
-              </Card>
-
-              {/* Missões ativas */}
-              <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader className="border-b border-[var(--border-card)]">
-                  <CardTitle className="text-[var(--text-primary)] flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
-                    Missões Ativas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {missoes?.slice(0, 3).map((missao: any) => (
-                    <div key={missao.id} className="flex items-center justify-between py-3 border-b border-[var(--border-card)] last:border-0">
-                      <div>
-                        <p className="font-medium text-[var(--text-primary)]">{missao.titulo}</p>
-                        <p className="text-sm text-[var(--text-secondary)]">XP: {missao.xp_reward} • {missao.tempo_estimado}min</p>
-                      </div>
-                      <Target className="h-4 w-4 text-[var(--accent)]" />
-                    </div>
-                  )) || <p className="text-[var(--text-secondary)]">Nenhuma missão encontrada</p>}
-                </CardContent>
-              </Card>
+            {/* Tabs de navegação */}
+            <div className="border-b border-[var(--border-card)]">
+              <nav className="-mb-px flex space-x-8">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors
+                        ${activeTab === tab.id
+                          ? 'border-[var(--primary)] text-[var(--primary)]'
+                          : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-card)]'
+                        }
+                      `}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
+
+            {/* Conteúdo das abas */}
+            {renderTabContent()}
           </div>
         );
 

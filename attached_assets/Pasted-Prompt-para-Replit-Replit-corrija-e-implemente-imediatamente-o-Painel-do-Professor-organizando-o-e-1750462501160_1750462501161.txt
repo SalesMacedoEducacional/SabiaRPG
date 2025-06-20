@@ -1,0 +1,96 @@
+Prompt para Replit
+
+Replit, corrija e implemente imediatamente o Painel do Professor organizando-o em 4 abas e preenchendo todos os dados a partir do banco real, sem gerar qualquer dado fictício além dos exemplos de validação abaixo:
+
+Aba 1 – Visão Geral
+Turmas
+
+Contar turmas cujo escola_id corresponda ao perfil do professor.
+
+Botão “Ver Detalhes” → modal listando Nome da Turma, Série, Modalidade.
+
+Componentes
+
+Contar componentes vinculados às turmas do professor.
+
+Botão “Ver Detalhes” → modal listando Componente e Cor HEX.
+
+Planos de Aula
+
+Contar planos de aula trimestrais criados pelo professor.
+
+Botão “Ver Detalhes” → modal com Título, Data de Criação e Turma.
+
+Alunos
+
+Contar alunos vinculados às turmas do professor.
+
+Botão “Ver Detalhes” → modal listando Nome, Matrícula, CPF, Telefone, E-mail.
+
+Aba 2 – Engajamento
+Tendência de Acesso (30 dias)
+
+Gráfico de linha dos logins diários.
+
+Alunos Ativos
+
+Contadores: Últimos 7 dias e Últimos 30 dias.
+
+“Ver Detalhes” → modal com Nome do Aluno e Data do Último Acesso.
+
+Alunos em Risco
+
+Contar alunos com < 2 logins na última semana.
+
+“Ver Detalhes” → modal listando esses alunos.
+
+Aba 3 – Desempenho
+Taxa de Conclusão de Missões (%)
+
+Ranking de XP (mês) – Top 5 alunos com Nome e XP acumulado.
+
+Progresso Médio por Componente – % médio de conclusão em cada matéria.
+
+Cada gráfico/table tem “Ver Detalhes” para filtro por Turma ou Componente.
+
+Aba 4 – Relatórios & Futuro
+Evolução Trimestral – % de missões concluídas em cada trimestre.
+
+Tempo Médio por Missão – minutos médios.
+
+Atividades Futuras – lista de missões que vencerão nos próximos 7 dias.
+
+Conquistas da Turma – total de medalhas coletivas e XP acumulado.
+
+Requisitos Gerais
+Auto-refresh automático após qualquer cadastro, edição ou exclusão.
+
+Usar somente dados reais do banco.
+
+Otimizar performance das consultas (índices, agregações).
+
+Paleta de cores e estilo devem seguir o design atual da plataforma.
+
+Todos os “Ver Detalhes” devem aplicar filtro por Turma/Componente conforme o professor.
+
+Exemplo de preenchimento fictício (valores de validação – não serão usados em produção):
+
+Aba	Card	Valor
+Visão Geral	Turmas	3
+Componentes	4
+Planos de Aula	2
+Alunos	58
+Engajamento	Alunos Ativos (7 dias)	22
+Alunos Ativos (30 dias)	45
+Alunos em Risco	5
+Desempenho	Missões Concluídas (%)	72 %
+Missões Pendentes (%)	18 %
+Missões Não Iniciadas (%)	10 %
+XP Top 5 (mês)	[1200, 980…]
+Progresso Médio (Matemática)	65 %
+Relatórios	Evolução T1 (%)	68 %
+Evolução T2 (%)	74 %
+Tempo Médio por Missão	12 min
+Conquistas Coletivas (XP)	4 500 XP
+
+Implemente e valide todos esses cards e modais usando apenas os registros reais do banco antes de considerar a tarefa concluída.
