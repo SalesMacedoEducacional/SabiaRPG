@@ -447,15 +447,15 @@ export default function StudentDashboard() {
 
         {/* Sidebar Direita - Missão Selecionada */}
         {selectedMission && (
-          <div className="w-80 bg-gradient-to-b from-amber-800 to-yellow-900 border-l-4 border-yellow-600 p-4">
-            <div className="bg-amber-700 rounded-lg p-4 border-2 border-yellow-600">
+          <div className="w-80 bg-[#3D2817] border-l border-[#5D3F26] p-4">
+            <div className="bg-[#5D3F26] rounded-lg p-4 border border-[#B8860B]">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-yellow-100 font-bold text-lg">Missão Selecionada</h3>
+                <h3 className="text-[#F4E4BC] font-bold text-lg">Missão Selecionada</h3>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedMission(null)}
-                  className="text-yellow-200 hover:text-yellow-100"
+                  className="text-[#D4AF37] hover:text-[#F4E4BC]"
                 >
                   ✕
                 </Button>
@@ -463,24 +463,24 @@ export default function StudentDashboard() {
               
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-yellow-100 font-semibold">{selectedMission.titulo}</h4>
-                  <p className="text-yellow-200 text-sm mt-1">{selectedMission.descricao}</p>
+                  <h4 className="text-[#F4E4BC] font-semibold">{selectedMission.titulo}</h4>
+                  <p className="text-[#D4AF37] text-sm mt-1">{selectedMission.descricao}</p>
                 </div>
                 
                 <div className="flex gap-2">
-                  <Badge className="bg-yellow-600 text-yellow-900">
+                  <Badge className="bg-[#B8860B] text-[#2D1B0A]">
                     {selectedMission.xp_recompensa} XP
                   </Badge>
-                  <Badge variant="outline" className="text-yellow-200 border-yellow-600">
+                  <Badge variant="outline" className="text-[#D4AF37] border-[#B8860B]">
                     {selectedMission.dificuldade}
                   </Badge>
                 </div>
                 
-                <p className="text-yellow-200 text-sm">
+                <p className="text-[#D4AF37] text-sm">
                   Selecione uma missão no mapa ou na lista de missões disponíveis.
                 </p>
                 
-                <Button className="w-full bg-yellow-600 hover:bg-yellow-500 text-yellow-900">
+                <Button className="w-full bg-[#B8860B] hover:bg-[#D4AF37] text-[#2D1B0A]">
                   Ver Missões Disponíveis
                 </Button>
               </div>
