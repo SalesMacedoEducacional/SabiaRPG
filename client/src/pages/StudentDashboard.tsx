@@ -439,8 +439,11 @@ export default function StudentDashboard() {
                 Nv. 1
               </div>
             </div>
-            <p className="text-white text-sm mb-1">aluno@sabiarpg.edu.br</p>
+            <p className="text-white text-sm mb-1">Aluno Teste</p>
+            <p className="text-[#D4A054] text-xs">aluno@sabiarpg.edu.br</p>
             <p className="text-[#b8860b] text-xs">Aprendiz de Sabedoria</p>
+            <p className="text-gray-300 text-xs mt-1">Escola: Colégio Paulistana</p>
+            <p className="text-gray-300 text-xs">Turma: 3º Ano – Manhã</p>
           </div>
 
           {/* Atributos com cores dos componentes */}
@@ -471,8 +474,30 @@ export default function StudentDashboard() {
           <div className="mb-6">
             <h4 className="text-sm font-bold mb-3 uppercase tracking-wide text-[#D4A054]">CONQUISTAS</h4>
             <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="w-8 h-8 rounded border flex items-center justify-center bg-[#3a3a3a] border-[#8b4513]">
+              {conquistasFicticias.map((conquista, index) => {
+                const IconComponent = conquista.icone;
+                return (
+                  <div 
+                    key={index} 
+                    className="w-8 h-8 rounded border flex items-center justify-center bg-gradient-to-br from-[#D4A054] to-[#B8904A] border-[#D4A054] hover:scale-110 transition-transform cursor-pointer group relative"
+                    title={conquista.nome}
+                  >
+                    <IconComponent className="text-white text-sm" />
+                    
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                      {conquista.nome}
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Slots vazios */}
+              {[4, 5, 6].map((slot) => (
+                <div 
+                  key={slot} 
+                  className="w-8 h-8 rounded border flex items-center justify-center bg-[#3a3a3a] border-[#8b4513]"
+                >
                   <span className="text-gray-600 text-xs">???</span>
                 </div>
               ))}
@@ -483,11 +508,11 @@ export default function StudentDashboard() {
           <div className="rounded p-4 border" style={{ backgroundColor: '#3a3a3a', borderColor: '#D4A054' }}>
             <div className="text-center mb-3">
               <div className="text-sm font-bold mb-1 text-[#D4A054]">Nível 1</div>
-              <div className="text-xs text-[#b8860b]">0/1000 XP</div>
+              <div className="text-xs text-[#b8860b]">1845/1000 XP</div>
             </div>
             <div className="text-xs mb-2 text-[#b8860b]">1000 XP para o próximo nível</div>
             <div className="w-full rounded h-2 bg-[#2a2a2a]">
-              <div className="h-2 rounded bg-[#D4A054]" style={{ width: '0%' }}></div>
+              <div className="h-2 rounded bg-[#D4A054] transition-all duration-500" style={{ width: '84.5%' }}></div>
             </div>
           </div>
         </div>
@@ -579,19 +604,19 @@ export default function StudentDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <CheckCircle className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.concluidas}</div>
+                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesFicticias.concluidas.length}</div>
                     <div className="text-[#D4A054] text-xs">Concluídas</div>
                   </div>
                   
                   <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <Play className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.emProgresso}</div>
+                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesFicticias.emProgresso.length}</div>
                     <div className="text-[#D4A054] text-xs">Em Progresso</div>
                   </div>
                   
                   <div className="p-4 rounded border text-center" style={{ backgroundColor: '#2a2a2a', borderColor: '#D4A054' }}>
                     <Pause className="h-6 w-6 text-[#D4A054] mx-auto mb-2" />
-                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesData.naoIniciadas}</div>
+                    <div className="text-[#F5F2E7] text-xl font-bold">{missoesFicticias.naoIniciadas}</div>
                     <div className="text-[#D4A054] text-xs">Não Iniciadas</div>
                   </div>
                 </div>
