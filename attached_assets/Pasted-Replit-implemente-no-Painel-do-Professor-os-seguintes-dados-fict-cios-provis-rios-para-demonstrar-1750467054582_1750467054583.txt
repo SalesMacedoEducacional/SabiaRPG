@@ -1,0 +1,109 @@
+Replit, implemente no “Painel do Professor” os seguintes dados fictícios provisórios para demonstrar cada card e gráfico, mantendo o layout e as abas já criadas (Visão Geral, Engajamento, Desempenho e Relatórios & Futuro). Use as cores da paleta definida:
+
+Aba Visão Geral
+Turmas: 3
+
+Turma A: 1º Ano – Manhã
+
+Turma B: 2º Ano – Integral
+
+Turma C: 3º Ano – Vespertino
+
+Componentes: 4
+
+Linguagens, Matemática, Ciências, História
+
+Planos de Aula: 5
+
+1º Tri: 3
+
+2º Tri: 2
+
+3º Tri: 0
+
+Alunos: 45
+
+Cada card deve exibir o contador e, ao clicar em Ver Detalhes, abrir modal com lista real de itens (nome, turma, componente, etc.).
+
+Aba Engajamento
+Tendência de Acesso (30 dias):
+Série temporal fake com 7 pontos:
+
+js
+Copiar
+Editar
+[
+  { dia: "2025-05-01", acessos: 4 },
+  { dia: "2025-05-05", acessos: 8 },
+  { dia: "2025-05-10", acessos: 12 },
+  { dia: "2025-05-15", acessos: 9 },
+  { dia: "2025-05-20", acessos: 14 },
+  { dia: "2025-05-25", acessos: 11 },
+  { dia: "2025-05-30", acessos: 16 }
+]
+Alunos Ativos (7 dias): 18
+
+Alunos Ativos (30 dias): 37
+
+Alunos em Risco: 5
+
+Cada card de ativos/perigo com botão Ver Detalhes.
+
+Aba Desempenho
+Taxa de Conclusão de Missões:
+
+Concluídas: 62 % (verde)
+
+Pendentes: 23 % (laranja)
+
+Não Iniciadas: 15 % (vermelho)
+
+Ranking XP (mês) – Top 5:
+
+João Silva – 1.250 XP
+
+Ana Beatriz – 1.100 XP
+
+Pedro Maranhão – 980 XP
+
+Júlia Mendes – 870 XP
+
+Lucas Tavares – 760 XP
+
+Progresso Médio por Componente:
+
+Componente	Média (%)
+Linguagens e suas Tecnologias	68 %
+Matemática e suas Tecnologias	54 %
+Ciências da Natureza	72 %
+História	47 %
+
+Aba Relatórios & Futuro
+Evolução Trimestral:
+Fake série com 3 trimestres:
+
+js
+Copiar
+Editar
+[
+  { tri: "2025 Q1", média: 48 },
+  { tri: "2025 Q2", média: 57 },
+  { tri: "2025 Q3", média: 63 }
+]
+Tempo Médio por Missão: 12 min
+
+Atividades Futuras (7 dias): 4
+
+Conquistas Coletivas: 320 XP
+
+Cada seção com Ver Detalhes que abra modal específicos.
+
+Observações de implementação
+
+Todos os números acima são fictícios, só para demonstrar o layout.
+
+Após qualquer ação (salvar ou atualizar), os cards devem dar refresh e permanecer na mesma aba.
+
+Use estritamente as cores da paleta do Sabiá RPG (verde #4DA3A9 para conclusão, âmbar #D4A054, azul-claro #A6E3E9, dourado #FFC23C, etc.).
+
+Não inclua dados fictícios além dos exemplos acima; em produção, esses valores virão das APIs.
