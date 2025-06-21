@@ -637,7 +637,7 @@ export default function ProfessorDashboardNew() {
         return (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {/* Linha 1: Cards principais */}
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A3529] to-[#2F2B21] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
               <div className="absolute top-4 right-4 text-amber-400 text-lg">
                 <Users className="h-5 w-5" />
               </div>
@@ -646,14 +646,14 @@ export default function ProfessorDashboardNew() {
                 <p className="text-2xl font-bold mb-4 text-white">{turmas?.length || 3}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("turmas")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#383126] to-[#2D2A1F] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
               <div className="absolute top-4 right-4 text-amber-400 text-lg">
                 <BookOpen className="h-5 w-5" />
               </div>
@@ -662,14 +662,14 @@ export default function ProfessorDashboardNew() {
                 <p className="text-2xl font-bold mb-4 text-white">{componentes?.length || 4}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("componentes")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#363027] to-[#2B281E] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
               <div className="absolute top-4 right-4 text-amber-400 text-lg">
                 <FileText className="h-5 w-5" />
               </div>
@@ -678,14 +678,14 @@ export default function ProfessorDashboardNew() {
                 <p className="text-2xl font-bold mb-4 text-white">{planosAula?.length || 5}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("planos")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#393227] to-[#2E2B20] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
               <div className="absolute top-4 right-4 text-amber-400 text-lg">
                 <GraduationCap className="h-5 w-5" />
               </div>
@@ -694,54 +694,54 @@ export default function ProfessorDashboardNew() {
                 <p className="text-2xl font-bold mb-4 text-white">{alunos?.length || 45}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("alunos")}
               >
                 Ver Detalhes
               </button>
             </div>
           
-            {/* Tarefas Pendentes - background mais escuro */}
-            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Tarefas Pendentes - background gradiente escuro */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#332F25] to-[#252118] border border-orange-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-orange-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-orange-400 text-lg">
                 📝
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Tarefas Pendentes</h4>
+                <h4 className="text-sm font-semibold mb-2 text-orange-300">Tarefas Pendentes</h4>
                 <p className="text-2xl font-bold mb-4 text-[#D4A054]">18</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-orange-400/60 text-orange-400 rounded-lg hover:bg-orange-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes das tarefas pendentes de correção"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Tempo Médio - background padrão */}
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Tempo Médio - background gradiente teal */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#2D3A37] to-[#232E2B] border border-teal-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-teal-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-teal-400 text-lg">
                 ⏱️
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Tempo Médio de Preparação</h4>
+                <h4 className="text-sm font-semibold mb-2 text-teal-300">Tempo Médio de Preparação</h4>
                 <p className="text-2xl font-bold mb-4 text-[#4DA3A9]">25 min</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-teal-400/60 text-teal-400 rounded-lg hover:bg-teal-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes do tempo médio de preparação"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Feedback - background mais claro */}
-            <div className="relative flex flex-col justify-between bg-[#3A352B] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Feedback - background gradiente claro */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3C372D] to-[#30292A] border border-purple-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-purple-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-purple-400 text-lg">
                 💬
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Feedback dos Alunos</h4>
+                <h4 className="text-sm font-semibold mb-2 text-purple-300">Feedback dos Alunos</h4>
                 <div className="text-xl font-bold mb-4">
                   <span className="text-[#4DA3A9]">+123 👍</span>
                   <span className="text-gray-300 mx-2">•</span>
@@ -749,20 +749,20 @@ export default function ProfessorDashboardNew() {
                 </div>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-purple-400/60 text-purple-400 rounded-lg hover:bg-purple-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes do feedback dos alunos"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Taxa de Retenção - background padrão */}
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Taxa de Retenção - background gradiente azul */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#2E3340] to-[#252939] border border-blue-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-blue-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-blue-400 text-lg">
                 📊
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Taxa de Retenção</h4>
+                <h4 className="text-sm font-semibold mb-2 text-blue-300">Taxa de Retenção</h4>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-300 font-medium">Ciências</span>
@@ -781,20 +781,20 @@ export default function ProfessorDashboardNew() {
                 </div>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-blue-400/60 text-blue-400 rounded-lg hover:bg-blue-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes da taxa de retenção por componente"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Alunos Destaque - background mais escuro */}
-            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Alunos Destaque - background gradiente dourado */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3B3620] to-[#2A2518] border border-yellow-500/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-yellow-500/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-yellow-500 text-lg">
                 🏅
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Alunos Destaque</h4>
+                <h4 className="text-sm font-semibold mb-2 text-yellow-300">Alunos Destaque</h4>
                 <div className="space-y-1 mb-4">
                   <div className="flex items-center gap-2 text-sm">
                     <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-[#312E26] font-bold text-xs">J</div>
@@ -814,52 +814,52 @@ export default function ProfessorDashboardNew() {
                 </div>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-yellow-500/60 text-yellow-500 rounded-lg hover:bg-yellow-500 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes dos alunos destaque do mês"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Próximas Atividades - background mais claro */}
-            <div className="relative flex flex-col justify-between bg-[#3A352B] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Próximas Atividades - background gradiente verde */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#2E3A2F] to-[#252D26] border border-green-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-green-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-green-400 text-lg">
                 📅
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Próximas Atividades</h4>
+                <h4 className="text-sm font-semibold mb-2 text-green-300">Próximas Atividades</h4>
                 <p className="text-2xl font-bold mb-1 text-[#4DA3A9]">7</p>
                 <p className="text-sm text-gray-300">próximos 7 dias</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-green-400/60 text-green-400 rounded-lg hover:bg-green-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes das próximas atividades agendadas"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Baixo Engajamento - background padrão */}
-            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Baixo Engajamento - background gradiente vermelho */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A2A2A] to-[#2D2222] border border-red-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-red-400/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-red-400 text-lg">
                 ⚠️
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Baixo Engajamento</h4>
+                <h4 className="text-sm font-semibold mb-2 text-red-300">Baixo Engajamento</h4>
                 <p className="text-2xl font-bold mb-1 text-[#D44B4B]">5</p>
                 <p className="text-sm text-gray-300">sem acesso 14+ dias</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-red-400/60 text-red-400 rounded-lg hover:bg-red-400 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes do alerta de baixo engajamento"
               >
                 Ver Detalhes
               </button>
             </div>
 
-            {/* Conquistas Coletivas - background mais escuro */}
-            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Conquistas Coletivas - background gradiente amber */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A3218] to-[#2B2612] border border-amber-500/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-500/50 transition-all duration-200 shadow-lg">
+              <div className="absolute top-4 right-4 text-amber-500 text-lg">
                 🎖️
               </div>
               <div>
@@ -868,7 +868,7 @@ export default function ProfessorDashboardNew() {
                 <p className="text-sm text-gray-300">XP trimestre atual</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-amber-500/60 text-amber-500 rounded-lg hover:bg-amber-500 hover:text-gray-900 transition-colors"
                 aria-label="Ver detalhes das conquistas coletivas da turma"
               >
                 Ver Detalhes
