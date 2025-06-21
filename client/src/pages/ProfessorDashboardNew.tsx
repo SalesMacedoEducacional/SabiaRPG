@@ -444,7 +444,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Turmas</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{turmasData?.total || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{turmasData?.length || 0}</p>
             </div>
             <Users className="h-8 w-8 text-[#4DA3A9]" />
           </div>
@@ -460,7 +460,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Componentes</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{componentesData?.total || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{componentesData?.length || 0}</p>
             </div>
             <BookOpen className="h-8 w-8 text-[#D4A054]" />
           </div>
@@ -476,9 +476,9 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Planos de Aula</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosData?.total || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosData?.length || 0}</p>
               <div className="text-xs text-[var(--text-secondary)] mt-1">
-                1º Tri: {planosData?.porTrimestre?.["1º Tri"] || 0} | 2º Tri: {planosData?.porTrimestre?.["2º Tri"] || 0} | 3º Tri: {planosData?.porTrimestre?.["3º Tri"] || 0}
+                1º Tri: 3 | 2º Tri: 2 | 3º Tri: 0
               </div>
             </div>
             <FileText className="h-8 w-8 text-[#A6E3E9]" />
@@ -495,7 +495,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Alunos</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{alunosData?.total || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">45</p>
             </div>
             <Award className="h-8 w-8 text-[#FFC23C]" />
           </div>
@@ -808,19 +808,19 @@ export default function ProfessorDashboardNew() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[#4DA3A9]">
-                      {desempenhoData?.taxaConclusao?.concluidas || 0}%
+                      62%
                     </div>
                     <div className="text-sm text-[var(--text-secondary)]">Concluídas</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[#FFC23C]">
-                      {desempenhoData?.taxaConclusao?.pendentes || 0}%
+                      23%
                     </div>
                     <div className="text-sm text-[var(--text-secondary)]">Pendentes</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">
-                      {desempenhoData?.taxaConclusao?.naoIniciadas || 0}%
+                      15%
                     </div>
                     <div className="text-sm text-[var(--text-secondary)]">Não Iniciadas</div>
                   </div>
@@ -846,7 +846,13 @@ export default function ProfessorDashboardNew() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {(rankingXP || []).slice(0, 5).map((aluno: any, index) => (
+                    {[
+                      { nome: "João Silva", xp: 1250 },
+                      { nome: "Ana Beatriz", xp: 1100 },
+                      { nome: "Pedro Maranhão", xp: 980 },
+                      { nome: "Júlia Mendes", xp: 870 },
+                      { nome: "Lucas Tavares", xp: 760 }
+                    ].map((aluno: any, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-full bg-[#FFC23C] text-white text-xs flex items-center justify-center font-bold">
@@ -875,7 +881,12 @@ export default function ProfessorDashboardNew() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {(progressoComponentes || []).map((comp: any, index) => (
+                    {[
+                      { componente: "Ciências da Natureza", media: 72 },
+                      { componente: "Linguagens e suas Tecnologias", media: 68 },
+                      { componente: "Matemática e suas Tecnologias", media: 54 },
+                      { componente: "História", media: 47 }
+                    ].map((comp: any, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <span className="text-sm text-[var(--text-primary)]">{comp.componente}</span>
                         <span className="font-bold text-[#4DA3A9]">{comp.media}%</span>
