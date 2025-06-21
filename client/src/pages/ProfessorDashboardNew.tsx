@@ -721,14 +721,14 @@ export default function ProfessorDashboardNew() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={loginTrends || []}>
+                  <LineChart data={engajamentoData || []}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <XAxis dataKey="dia" />
                     <YAxis />
                     <Tooltip />
                     <Line 
                       type="monotone" 
-                      dataKey="logins" 
+                      dataKey="acessos" 
                       stroke={COLORS.primary} 
                       strokeWidth={2}
                     />
@@ -744,7 +744,7 @@ export default function ProfessorDashboardNew() {
                   <CardTitle className="text-lg">Alunos Ativos (7 dias)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{alunosAtivos?.ultimos_7_dias || 0}</div>
+                  <div className="text-3xl font-bold text-[#4DA3A9]">{alunosAtivos?.seteDias || 0}</div>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -761,7 +761,7 @@ export default function ProfessorDashboardNew() {
                   <CardTitle className="text-lg">Alunos Ativos (30 dias)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{alunosAtivos?.ultimos_30_dias || 0}</div>
+                  <div className="text-3xl font-bold text-[#4DA3A9]">{alunosAtivos?.trintaDias || 0}</div>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -807,22 +807,22 @@ export default function ProfessorDashboardNew() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {desempenhoData?.concluidas_pct || 0}%
+                    <div className="text-2xl font-bold text-[#4DA3A9]">
+                      {desempenhoData?.taxaConclusao?.concluidas || 0}%
                     </div>
-                    <div className="text-sm text-gray-600">Concluídas</div>
+                    <div className="text-sm text-[var(--text-secondary)]">Concluídas</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {desempenhoData?.pendentes_pct || 0}%
+                    <div className="text-2xl font-bold text-[#FFC23C]">
+                      {desempenhoData?.taxaConclusao?.pendentes || 0}%
                     </div>
-                    <div className="text-sm text-gray-600">Pendentes</div>
+                    <div className="text-sm text-[var(--text-secondary)]">Pendentes</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">
-                      {desempenhoData?.nao_iniciadas_pct || 0}%
+                      {desempenhoData?.taxaConclusao?.naoIniciadas || 0}%
                     </div>
-                    <div className="text-sm text-gray-600">Não Iniciadas</div>
+                    <div className="text-sm text-[var(--text-secondary)]">Não Iniciadas</div>
                   </div>
                 </div>
                 <Button 
@@ -847,14 +847,14 @@ export default function ProfessorDashboardNew() {
                 <CardContent>
                   <div className="space-y-3">
                     {(rankingXP || []).slice(0, 5).map((aluno: any, index) => (
-                      <div key={aluno.id} className="flex items-center justify-between">
+                      <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-yellow-500 text-white text-xs flex items-center justify-center font-bold">
+                          <span className="w-6 h-6 rounded-full bg-[#FFC23C] text-white text-xs flex items-center justify-center font-bold">
                             {index + 1}
                           </span>
-                          <span>{aluno.nome}</span>
+                          <span className="text-[var(--text-primary)]">{aluno.nome}</span>
                         </div>
-                        <span className="font-bold">{aluno.xp} XP</span>
+                        <span className="font-bold text-[#FFC23C]">{aluno.xp} XP</span>
                       </div>
                     ))}
                   </div>
@@ -875,10 +875,10 @@ export default function ProfessorDashboardNew() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {(progressoComponentes || []).map((comp: any) => (
-                      <div key={comp.id} className="flex items-center justify-between">
-                        <span className="text-sm">{comp.nome}</span>
-                        <span className="font-bold">{comp.progresso_medio}%</span>
+                    {(progressoComponentes || []).map((comp: any, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--text-primary)]">{comp.componente}</span>
+                        <span className="font-bold text-[#4DA3A9]">{comp.media}%</span>
                       </div>
                     ))}
                   </div>
@@ -909,13 +909,19 @@ export default function ProfessorDashboardNew() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={evolucaoTrimestral || []}>
+                  <AreaChart data={evolucaoTrimestral || []}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="trimestre" />
+                    <XAxis dataKey="tri" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="conclusao_pct" fill={COLORS.tertiary} />
-                  </BarChart>
+                    <Area 
+                      type="monotone" 
+                      dataKey="media" 
+                      stroke={COLORS.primary}
+                      fill={COLORS.tertiary}
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
@@ -930,7 +936,7 @@ export default function ProfessorDashboardNew() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{tempoMedioMissoes?.tempo_medio || 0} min</div>
+                  <div className="text-3xl font-bold text-[#D4A054]">{tempoMedioMissoes?.tempoMedio || 0} min</div>
                   <Button 
                     size="sm" 
                     variant="outline" 
