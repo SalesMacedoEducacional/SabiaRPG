@@ -2764,31 +2764,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // REMOVIDOS ENDPOINTS ANTIGOS QUE FAZIAM CONSULTAS DE BANCO DEFEITUOSAS
-          SELECT DISTINCT u.id
-          FROM usuarios u
-          JOIN alunos a ON u.id = a.usuario_id
-          JOIN aluno_turmas at ON a.id = at.aluno_id
-          JOIN turmas t ON at.turma_id = t.id
-          JOIN turma_componentes tc ON t.id = tc.turma_id
-          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
-        )
-        SELECT 
-          COUNT(CASE WHEN uc.tipo = 'medalha' THEN 1 END) as medalhas,
-          COALESCE(SUM(pm.xp_ganho), 0) as xp_total,
-          COUNT(uc.id) as total_conquistas
-        FROM alunos_professor ap
-        LEFT JOIN usuario_conquistas uc ON ap.id = uc.usuario_id
-        LEFT JOIN progresso_missoes pm ON ap.id = pm.usuario_id;
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows[0] || { medalhas: 0, xp_total: 0, total_conquistas: 0 });
-    } catch (error) {
-      console.error('Erro ao buscar conquistas coletivas:', error);
-      res.json({ medalhas: 0, xp_total: 0, total_conquistas: 0 });
-    }
-  });
 
   // GET - Buscar usuário específico com detalhes completos
   app.get("/api/usuarios/:id", async (req, res) => {
