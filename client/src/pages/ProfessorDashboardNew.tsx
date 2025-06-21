@@ -705,6 +705,207 @@ export default function ProfessorDashboardNew() {
                 </Button>
               </CardContent>
             </Card>
+            
+            {/* Oito novos cards organizados em grade 2x4 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              {/* Tarefas Pendentes de Correção */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        📝 Tarefas Pendentes de Correção
+                      </p>
+                      <p className="text-2xl font-bold text-[#D4A054]">18</p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#D4A054] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#D4A054] text-lg">📝</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Tempo Médio de Preparação */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        ⏱️ Tempo Médio de Preparação
+                      </p>
+                      <p className="text-2xl font-bold text-[#4DA3A9]">25 min</p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#4DA3A9] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#4DA3A9] text-lg">⏱️</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Feedback dos Alunos */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        💬 Feedback dos Alunos
+                      </p>
+                      <p className="text-lg font-bold">
+                        <span className="text-[#8BC34A]">+123 👍</span>
+                        <span className="text-[var(--text-secondary)] mx-2">•</span>
+                        <span className="text-[#E57373]">-12 👎</span>
+                      </p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#8BC34A] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#8BC34A] text-lg">💬</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Taxa de Retenção por Componente */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 mb-3">
+                        📊 Taxa de Retenção por Componente
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[#4DA3A9]">Ciências</span>
+                          <span className="font-bold">84%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-[#4DA3A9] h-1.5 rounded-full" style={{width: '84%'}}></div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[#D4A054]">Linguagens</span>
+                          <span className="font-bold">76%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-[#D4A054] h-1.5 rounded-full" style={{width: '76%'}}></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-8 w-8 bg-[#4DA3A9] bg-opacity-20 rounded-lg flex items-center justify-center ml-4">
+                      <span className="text-[#4DA3A9] text-lg">📊</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Alunos Destaque do Mês */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 mb-3">
+                        🏅 Alunos Destaque do Mês
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-6 h-6 bg-[#FFC23C] rounded-full flex items-center justify-center text-white font-bold">J</div>
+                          <span>João Silva</span>
+                          <span className="font-bold text-[#FFC23C] ml-auto">1.250 XP</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-6 h-6 bg-[#A6E3E9] rounded-full flex items-center justify-center text-white font-bold">A</div>
+                          <span>Ana Beatriz</span>
+                          <span className="font-bold text-[#A6E3E9] ml-auto">1.100 XP</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-6 h-6 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold">P</div>
+                          <span>Pedro M.</span>
+                          <span className="font-bold text-[#4DA3A9] ml-auto">980 XP</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-8 w-8 bg-[#FFC23C] bg-opacity-20 rounded-lg flex items-center justify-center ml-4">
+                      <span className="text-[#FFC23C] text-lg">🏅</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Próximas Atividades Agendadas */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        📅 Próximas Atividades Agendadas
+                      </p>
+                      <p className="text-2xl font-bold text-[#A6E3E9]">7</p>
+                      <p className="text-xs text-[var(--text-secondary)]">próximos 7 dias</p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#A6E3E9] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#A6E3E9] text-lg">📅</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Alerta de Baixo Engajamento */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        ⚠️ Alerta de Baixo Engajamento
+                      </p>
+                      <p className="text-2xl font-bold text-[#E57373]">5</p>
+                      <p className="text-xs text-[var(--text-secondary)]">sem acesso 14+ dias</p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#E57373] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#E57373] text-lg">⚠️</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Conquistas Coletivas da Turma */}
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
+                        🎖️ Conquistas Coletivas da Turma
+                      </p>
+                      <p className="text-2xl font-bold text-[#FFC23C]">8.540 XP</p>
+                      <p className="text-xs text-[var(--text-secondary)]">trimestre atual</p>
+                    </div>
+                    <div className="h-8 w-8 bg-[#FFC23C] bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="text-[#FFC23C] text-lg">🎖️</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    Ver Detalhes
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
 

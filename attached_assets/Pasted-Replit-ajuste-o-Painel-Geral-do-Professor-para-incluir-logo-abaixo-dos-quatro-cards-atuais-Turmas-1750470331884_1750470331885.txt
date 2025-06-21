@@ -1,0 +1,67 @@
+Replit, ajuste o Painel Geral do Professor para incluir, logo abaixo dos quatro cards atuais (Turmas, Componentes, Planos de Aula e Alunos), mais oito novos cards organizados em grade 2×4, obedecendo a paleta de cores e estilo existentes. Cada card deve ter borda dourada, título em “Title” e um ícone à esquerda. Veja as especificações:
+
+Tarefas Pendentes de Correção 📝
+
+Fonte de dados: contagem de exercícios, redações ou missões não avaliadas.
+
+Cor do número: âmbar (#D4A054).
+
+Tempo Médio de Preparação ⏱️
+
+Fonte de dados: tempo médio (min) gasto na criação de planos de aula.
+
+Cor do número: teal acinzentado (#4DA3A9).
+
+Feedback dos Alunos 💬
+
+Fonte de dados: total de comentários positivos (verde #8BC34A) e negativos (vermelho #E57373).
+
+Exibir “+123 👍 • – 12 👎”.
+
+Taxa de Retenção por Componente 📊
+
+Fonte de dados: percentual de alunos que voltaram a acessar cada componente no mês.
+
+Cada componente deve aparecer com sua cor hex e barra de progresso.
+
+Alunos Destaque do Mês 🏅
+
+Fonte de dados: top 3 alunos por XP do período.
+
+Exibir foto ou iniciais, nome e XP.
+
+Próximas Atividades Agendadas 📅
+
+Fonte de dados: número de missões, avaliações ou eventos programados nos próximos 7 dias.
+
+Cor do número: azul-claro (#A6E3E9).
+
+Alerta de Baixo Engajamento ⚠️
+
+Fonte de dados: quantidade de alunos sem acesso nos últimos 14 dias.
+
+Cor do número: vermelho (#E57373).
+
+Conquistas Coletivas da Turma 🎖️
+
+Fonte de dados: soma total de XP ou medalhas coletivas obtidas pela turma no trimestre.
+
+Cor do número: dourado metálico (#FFC23C).
+
+Regras de implementação
+
+Mantenha o grid responsivo (2 colunas em desktop, 1 coluna em mobile).
+
+Cada card deve ter botão “Ver Detalhes” que abre modal com lista completa.
+
+Após qualquer ação de cadastro, edição ou exclusão de dados, todos os cards devem refazer fetch automaticamente e permanecer na mesma aba do painel.
+
+Use apenas dados reais do banco; sem placeholders permanentes.
+
+Teste exaustivamente até que:
+
+Os oito cards adicionais apareçam corretamente sob os quatro originais.
+
+Os números e cores correspondam às fontes de dados reais.
+
+O layout e responsividade fiquem uniformes com o visual atual do SABIÁ RPG.
