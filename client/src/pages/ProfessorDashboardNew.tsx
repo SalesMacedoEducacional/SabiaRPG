@@ -315,7 +315,7 @@ export default function ProfessorDashboardNew() {
       {/* Header do Sidebar */}
       <div className="flex items-center justify-between p-4 border-b border-[var(--border-card)]">
         <div className={`${sidebarOpen ? 'block' : 'hidden'} text-[var(--text-primary)]`}>
-          <h2 className="text-xl font-bold">SABI RPG</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">SABIÁ RPG</h2>
           <p className="text-sm text-[var(--text-secondary)]">Professor</p>
         </div>
         <Button
