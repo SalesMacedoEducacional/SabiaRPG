@@ -96,7 +96,7 @@ function Router() {
       {/* Rotas por papel do usuário */}
       <ProtectedRoute 
         path="/dashboard/aluno" 
-        component={StudentDashboardNew}
+        component={StudentDashboard}
         requireAuth={true}
       />
       

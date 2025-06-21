@@ -43,6 +43,9 @@ export default function StudentDashboard() {
   const [villageFilter, setVillageFilter] = useState('');
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [selectedVillageStory, setSelectedVillageStory] = useState(null);
+  const [showCompletedModal, setShowCompletedModal] = useState(false);
+  const [showInProgressModal, setShowInProgressModal] = useState(false);
+  const [showNotStartedModal, setShowNotStartedModal] = useState(false);
 
   // Dados dos 12 vilarejos
   const vilarejos = [
@@ -271,14 +274,36 @@ export default function StudentDashboard() {
     }
   };
 
+  // Dados fictícios conforme especificação
   const atributos = [
-    { nome: 'Matemática', progresso: 0, cor: '#ff6b35' },
-    { nome: 'Linguagens', progresso: 0, cor: '#f7931e' },
-    { nome: 'Ciências', progresso: 0, cor: '#1e90ff' },
-    { nome: 'História', progresso: 0, cor: '#dc143c' },
-    { nome: 'Geografia', progresso: 0, cor: '#32cd32' },
-    { nome: 'Artes', progresso: 0, cor: '#9370db' }
+    { nome: 'Matemática', progresso: 32, xp: 320, maxXp: 1000, cor: '#D4A054' },
+    { nome: 'Linguagens', progresso: 50, xp: 500, maxXp: 1000, cor: '#4DA3A9' },
+    { nome: 'Ciências', progresso: 15, xp: 150, maxXp: 1000, cor: '#A6E3E9' },
+    { nome: 'História', progresso: 60, xp: 600, maxXp: 1000, cor: '#FFC23C' },
+    { nome: 'Geografia', progresso: 20, xp: 200, maxXp: 1000, cor: '#4CE94A' },
+    { nome: 'Artes', progresso: 7, xp: 75, maxXp: 1000, cor: '#312E26' }
   ];
+
+  // Dados fictícios das conquistas
+  const conquistasFicticias = [
+    { nome: "Campeã de Álgebra", icone: Trophy },
+    { nome: "Exploradora de Parnaíba", icone: Map },
+    { nome: "Historiadora Júnior", icone: Crown }
+  ];
+
+  // Dados fictícios das missões
+  const missoesFicticias = {
+    concluidas: [
+      { id: 1, nome: "Batalha dos Números", componente: "Matemática" },
+      { id: 2, nome: "Vitória em Ciências Naturais", componente: "Ciências" },
+      { id: 3, nome: "Quiz de Geografia", componente: "Geografia" }
+    ],
+    emProgresso: [
+      { id: 4, nome: "Ruas de Oeiras", componente: "História" },
+      { id: 5, nome: "Desbravar Delta do Parnaíba", componente: "Geografia" }
+    ],
+    naoIniciadas: 5
+  };
 
   if (studentLoading) {
     return (
