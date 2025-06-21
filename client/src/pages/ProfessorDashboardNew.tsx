@@ -637,82 +637,82 @@ export default function ProfessorDashboardNew() {
       case "visao-geral":
         return (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-            {/* Linha 1: Cards principais */}
-            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A3529] to-[#2F2B21] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            {/* Cards principais com gradientes modernos */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A352C] to-[#2F2B23] border border-[#FFC23C]/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#FFC23C]/60 transition-all duration-300 shadow-lg backdrop-blur-sm">
+              <div className="absolute top-4 right-4 text-[#FFC23C] text-lg">
                 <Users className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Turmas</h4>
+                <h4 className="text-sm font-semibold mb-2 text-[#FFC23C]">Turmas</h4>
                 <p className="text-2xl font-bold mb-4 text-white">{turmas?.length || 3}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
                 onClick={() => setSelectedDetailModal("turmas")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#383126] to-[#2D2A1F] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A352C] to-[#2F2B23] border border-[#FFC23C]/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#FFC23C]/60 transition-all duration-300 shadow-lg backdrop-blur-sm">
+              <div className="absolute top-4 right-4 text-[#FFC23C] text-lg">
                 <BookOpen className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Componentes</h4>
+                <h4 className="text-sm font-semibold mb-2 text-[#FFC23C]">Componentes</h4>
                 <p className="text-2xl font-bold mb-4 text-white">{componentes?.length || 4}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
                 onClick={() => setSelectedDetailModal("componentes")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#363027] to-[#2B281E] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A352C] to-[#2F2B23] border border-[#FFC23C]/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#FFC23C]/60 transition-all duration-300 shadow-lg backdrop-blur-sm">
+              <div className="absolute top-4 right-4 text-[#FFC23C] text-lg">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Planos de Aula</h4>
+                <h4 className="text-sm font-semibold mb-2 text-[#FFC23C]">Planos de Aula</h4>
                 <p className="text-2xl font-bold mb-4 text-white">{planosAula?.length || 5}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
                 onClick={() => setSelectedDetailModal("planos")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#393227] to-[#2E2B20] border border-amber-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-amber-400/50 transition-all duration-200 shadow-lg">
-              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A352C] to-[#2F2B23] border border-[#FFC23C]/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#FFC23C]/60 transition-all duration-300 shadow-lg backdrop-blur-sm">
+              <div className="absolute top-4 right-4 text-[#FFC23C] text-lg">
                 <GraduationCap className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-amber-300">Alunos</h4>
+                <h4 className="text-sm font-semibold mb-2 text-[#FFC23C]">Alunos</h4>
                 <p className="text-2xl font-bold mb-4 text-white">{alunos?.length || 45}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-amber-400/60 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
                 onClick={() => setSelectedDetailModal("alunos")}
               >
                 Ver Detalhes
               </button>
             </div>
           
-            {/* Tarefas Pendentes - background gradiente escuro */}
-            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#332F25] to-[#252118] border border-orange-400/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-orange-400/50 transition-all duration-200 shadow-lg">
-              <div className="absolute top-4 right-4 text-orange-400 text-lg">
+            {/* Tarefas Pendentes - variant escuro */}
+            <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#2C2822] to-[#252118] border border-[#D4A054]/40 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#D4A054]/70 transition-all duration-300 shadow-lg backdrop-blur-sm">
+              <div className="absolute top-4 right-4 text-[#D4A054] text-lg">
                 📝
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-orange-300">Tarefas Pendentes</h4>
-                <p className="text-2xl font-bold mb-4 text-[#D4A054]">18</p>
+                <h4 className="text-sm font-semibold mb-2 text-[#D4A054]">Tarefas Pendentes</h4>
+                <p className="text-2xl font-bold mb-4 text-white">18</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-orange-400/60 text-orange-400 rounded-lg hover:bg-orange-400 hover:text-gray-900 transition-colors"
+                className="mt-auto py-2 px-4 border border-[#D4A054] text-[#D4A054] rounded-lg hover:bg-[#D4A054] hover:text-gray-900 transition-colors duration-200"
                 aria-label="Ver detalhes das tarefas pendentes de correção"
               >
                 Ver Detalhes
