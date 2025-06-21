@@ -701,205 +701,179 @@ export default function ProfessorDashboardNew() {
               </button>
             </div>
           
-            {/* Linha 2: Métricas de gestão */}
-            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Tarefas Pendentes de Correção</h3>
-                    <div className="text-4xl font-bold text-[#D4A054]">18</div>
-                  </div>
-                  <div className="text-xl">📝</div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
-                  aria-label="Ver detalhes das tarefas pendentes de correção"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Tarefas Pendentes - background mais escuro */}
+            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                📝
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Tarefas Pendentes</h4>
+                <p className="text-2xl font-bold mb-4 text-[#D4A054]">18</p>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes das tarefas pendentes de correção"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Tempo Médio de Preparação</h3>
-                    <div className="text-4xl font-bold text-[#4DA3A9]">25 min</div>
-                  </div>
-                  <div className="text-[#FFC23C] text-xl">⏱️</div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes do tempo médio de preparação"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Tempo Médio - background padrão */}
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                ⏱️
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Tempo Médio de Preparação</h4>
+                <p className="text-2xl font-bold mb-4 text-[#4DA3A9]">25 min</p>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes do tempo médio de preparação"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Feedback dos Alunos</h3>
-                    <div className="text-xl font-bold">
-                      <span className="text-[#4DA3A9]">+123 👍</span>
-                      <span className="text-[#F5F1E6] mx-2">•</span>
-                      <span className="text-[#D64A38]">-12 👎</span>
-                    </div>
-                  </div>
-                  <div className="text-[#FFC23C] text-xl">💬</div>
+            {/* Feedback - background mais claro */}
+            <div className="relative flex flex-col justify-between bg-[#3A352B] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                💬
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Feedback dos Alunos</h4>
+                <div className="text-xl font-bold mb-4">
+                  <span className="text-[#4DA3A9]">+123 👍</span>
+                  <span className="text-gray-300 mx-2">•</span>
+                  <span className="text-[#D44B4B]">-12 👎</span>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes do feedback dos alunos"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes do feedback dos alunos"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Taxa de Retenção</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#F5F1E6] font-medium">Ciências</span>
-                        <span className="text-[#4DA3A9] font-bold">84%</span>
-                      </div>
-                      <div className="w-full bg-[#423F37] rounded-full h-2">
-                        <div className="bg-[#4DA3A9] h-2 rounded-full" style={{width: '84%'}}></div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#F5F1E6] font-medium">Linguagens</span>
-                        <span className="text-[#D4A054] font-bold">76%</span>
-                      </div>
-                      <div className="w-full bg-[#423F37] rounded-full h-2">
-                        <div className="bg-[#D4A054] h-2 rounded-full" style={{width: '76%'}}></div>
-                      </div>
-                    </div>
+            {/* Taxa de Retenção - background padrão */}
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                📊
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Taxa de Retenção</h4>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300 font-medium">Ciências</span>
+                    <span className="text-[#4DA3A9] font-bold">84%</span>
                   </div>
-                  <div className="text-[#FFC23C] text-xl">📊</div>
+                  <div className="w-full bg-gray-600 rounded-full h-2">
+                    <div className="bg-[#4DA3A9] h-2 rounded-full" style={{width: '84%'}}></div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300 font-medium">Linguagens</span>
+                    <span className="text-[#D4A054] font-bold">76%</span>
+                  </div>
+                  <div className="w-full bg-gray-600 rounded-full h-2">
+                    <div className="bg-[#D4A054] h-2 rounded-full" style={{width: '76%'}}></div>
+                  </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes da taxa de retenção por componente"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes da taxa de retenção por componente"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            {/* Cards finais - gestão e conquistas */}
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Alunos Destaque</h3>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-[#312E26] font-bold text-xs">J</div>
-                        <span className="flex-1 font-medium text-[#F5F1E6]">João Silva</span>
-                        <span className="font-bold text-[#FFC23C] text-xs">1.250</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
-                        <span className="flex-1 font-medium text-[#F5F1E6]">Ana Beatriz</span>
-                        <span className="font-bold text-[#4DA3A9] text-xs">1.100</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#D4A054] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
-                        <span className="flex-1 font-medium text-[#F5F1E6]">Pedro M.</span>
-                        <span className="font-bold text-[#D4A054] text-xs">980</span>
-                      </div>
-                    </div>
+            {/* Alunos Destaque - background mais escuro */}
+            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                🏅
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Alunos Destaque</h4>
+                <div className="space-y-1 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-[#312E26] font-bold text-xs">J</div>
+                    <span className="flex-1 font-medium text-gray-300">João Silva</span>
+                    <span className="font-bold text-[#FFC23C] text-xs">1.250</span>
                   </div>
-                  <div className="text-[#FFC23C] text-xl">🏅</div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-5 h-5 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                    <span className="flex-1 font-medium text-gray-300">Ana Beatriz</span>
+                    <span className="font-bold text-[#4DA3A9] text-xs">1.100</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-5 h-5 bg-[#D4A054] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
+                    <span className="flex-1 font-medium text-gray-300">Pedro M.</span>
+                    <span className="font-bold text-[#D4A054] text-xs">980</span>
+                  </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes dos alunos destaque do mês"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes dos alunos destaque do mês"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Próximas Atividades</h3>
-                    <div className="text-4xl font-bold text-[#4DA3A9]">7</div>
-                    <div className="text-sm text-[#F5F1E6] mt-1">próximos 7 dias</div>
-                  </div>
-                  <div className="text-[#FFC23C] text-xl">📅</div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes das próximas atividades agendadas"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Próximas Atividades - background mais claro */}
+            <div className="relative flex flex-col justify-between bg-[#3A352B] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                📅
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Próximas Atividades</h4>
+                <p className="text-2xl font-bold mb-1 text-[#4DA3A9]">7</p>
+                <p className="text-sm text-gray-300">próximos 7 dias</p>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes das próximas atividades agendadas"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Baixo Engajamento</h3>
-                    <div className="text-4xl font-bold text-[#D64A38]">5</div>
-                    <div className="text-sm text-[#F5F1E6] mt-1">sem acesso 14+ dias</div>
-                  </div>
-                  <div className="text-[#FFC23C] text-xl">⚠️</div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes do alerta de baixo engajamento"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Baixo Engajamento - background padrão */}
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                ⚠️
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Baixo Engajamento</h4>
+                <p className="text-2xl font-bold mb-1 text-[#D44B4B]">5</p>
+                <p className="text-sm text-gray-300">sem acesso 14+ dias</p>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes do alerta de baixo engajamento"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Conquistas Coletivas</h3>
-                    <div className="text-4xl font-bold text-[#FFC23C]">8.540</div>
-                    <div className="text-sm text-[#F5F1E6] mt-1">XP trimestre atual</div>
-                  </div>
-                  <div className="text-[#FFC23C] text-xl">🎖️</div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  aria-label="Ver detalhes das conquistas coletivas da turma"
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Conquistas Coletivas - background mais escuro */}
+            <div className="relative flex flex-col justify-between bg-[#2A2821] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                🎖️
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Conquistas Coletivas</h4>
+                <p className="text-2xl font-bold mb-1 text-[#FFC23C]">8.540</p>
+                <p className="text-sm text-gray-300">XP trimestre atual</p>
+              </div>
+              <button 
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
+                aria-label="Ver detalhes das conquistas coletivas da turma"
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
           </div>
         );
