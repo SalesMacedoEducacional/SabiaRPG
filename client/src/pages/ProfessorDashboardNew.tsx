@@ -635,87 +635,71 @@ export default function ProfessorDashboardNew() {
     switch (activeTab) {
       case "visao-geral":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {/* Linha 1: Cards principais */}
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Turmas</h3>
-                    <div className="text-4xl font-bold text-[#F5F1E6]">{turmas?.length || 3}</div>
-                  </div>
-                  <Users className="h-5 w-5 text-[#FFC23C]" />
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  onClick={() => setSelectedDetailModal("turmas")}
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
+              <div className="absolute top-4 right-4 text-amber-400 text-xl">
+                <Users className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-300 mb-2">Turmas</h3>
+                <p className="text-3xl font-bold text-white mb-4">{turmas?.length || 3}</p>
+              </div>
+              <button 
+                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setSelectedDetailModal("turmas")}
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Componentes</h3>
-                    <div className="text-4xl font-bold text-[#F5F1E6]">{componentes?.length || 4}</div>
-                  </div>
-                  <BookOpen className="h-5 w-5 text-[#FFC23C]" />
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  onClick={() => setSelectedDetailModal("componentes")}
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
+              <div className="absolute top-4 right-4 text-amber-400 text-xl">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-300 mb-2">Componentes</h3>
+                <p className="text-3xl font-bold text-white mb-4">{componentes?.length || 4}</p>
+              </div>
+              <button 
+                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setSelectedDetailModal("componentes")}
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Planos de Aula</h3>
-                    <div className="text-4xl font-bold text-[#F5F1E6]">{planosAula?.length || 5}</div>
-                  </div>
-                  <FileText className="h-5 w-5 text-[#FFC23C]" />
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  onClick={() => setSelectedDetailModal("planos")}
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
+              <div className="absolute top-4 right-4 text-amber-400 text-xl">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-300 mb-2">Planos de Aula</h3>
+                <p className="text-3xl font-bold text-white mb-4">{planosAula?.length || 5}</p>
+              </div>
+              <button 
+                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setSelectedDetailModal("planos")}
+              >
+                Ver Detalhes
+              </button>
+            </div>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Alunos</h3>
-                    <div className="text-4xl font-bold text-[#F5F1E6]">{alunos?.length || 45}</div>
-                  </div>
-                  <GraduationCap className="h-5 w-5 text-[#FFC23C]" />
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
-                  onClick={() => setSelectedDetailModal("alunos")}
-                >
-                  Ver Detalhes
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
+              <div className="absolute top-4 right-4 text-amber-400 text-xl">
+                <GraduationCap className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-300 mb-2">Alunos</h3>
+                <p className="text-3xl font-bold text-white mb-4">{alunos?.length || 45}</p>
+              </div>
+              <button 
+                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setSelectedDetailModal("alunos")}
+              >
+                Ver Detalhes
+              </button>
+            </div>
           
             {/* Linha 2: Métricas de gestão */}
             <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">

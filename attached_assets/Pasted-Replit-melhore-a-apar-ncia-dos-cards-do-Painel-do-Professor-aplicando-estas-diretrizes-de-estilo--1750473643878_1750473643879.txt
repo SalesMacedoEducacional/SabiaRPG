@@ -1,0 +1,110 @@
+Replit, melhore a aparência dos cards do “Painel do Professor” aplicando estas diretrizes de estilo:
+
+Grid Responsivo
+
+Envolva os cards num contêiner div com classes Tailwind:
+
+html
+Copiar
+Editar
+<div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <!-- cards aqui -->
+</div>
+Assim, no mobile exibirá 1 card por linha, no tablet 2 e no desktop 4.
+
+Cartão Base
+
+Em cada card, use estas classes para criar um bloco uniforme e elegante:
+
+html
+Copiar
+Editar
+<div class="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300">
+  <!-- conteúdo -->
+</div>
+Explicação:
+
+bg-gray-800: fundo escuro uniforme
+
+border-amber-400: borda mais fina em tom dourado metálico
+
+rounded-lg: cantos arredondados
+
+p-6: espaçamento interno generoso
+
+shadow-md + hover:shadow-xl: leve sombra, mais intensa no hover
+
+transition-shadow duration-300: animação suave
+
+Ícone Superior Direito
+
+Posicione o ícone com:
+
+html
+Copiar
+Editar
+<div class="absolute top-4 right-4 text-amber-400 text-xl">
+  <!-- ícone SVG ou componente -->
+</div>
+Garante alinhamento consistente.
+
+Título e Métrica
+
+Título do card:
+
+html
+Copiar
+Editar
+<h3 class="text-sm font-semibold text-amber-300 mb-2">Turmas</h3>
+Valor principal:
+
+html
+Copiar
+Editar
+<p class="text-3xl font-bold text-white mb-4">3</p>
+mb-2 / mb-4 para espaçamento vertical.
+
+Botão “Ver Detalhes”
+
+Uniformize o botão em todos os cards:
+
+html
+Copiar
+Editar
+<button class="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200">
+  Ver Detalhes
+</button>
+Garante largura total e feedback de cor no hover.
+
+Legendas e Métricas Especiais
+
+Para cards como “Tempo Médio” e “Feedback” utilize cores de destaque no número:
+
+html
+Copiar
+Editar
+<p class="text-4xl font-bold text-teal-400">25 min</p>
+<p class="text-4xl font-bold text-green-500">+123 👍</p>
+Mantenha o restante do texto em text-gray-300 para contraste.
+
+Altura Mínima
+
+Assegure altura mínima para alinhar linhas:
+
+css
+Copiar
+Editar
+.painel-card { min-height: 200px; }
+Ou, em Tailwind, adicione min-h-[200px] na div do card.
+
+Espaçamento Interno Consistente
+
+Dentro do card, agrupe título, métrica e botão em flex flex-col justify-between h-full para que o botão fique sempre na base, independente do tamanho do texto.
+
+Teste e Ajuste
+
+Verifique em telas mobile, tablet e desktop.
+
+Garanta que não haja overflow ou quebra de layout.
+
+Implemente essas alterações para obter um painel limpo, harmônico e responsivo.
