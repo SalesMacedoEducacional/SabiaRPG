@@ -93,11 +93,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
     } 
     // Se for professor, redireciona para dashboard de professor
-    else if (user.role === 'teacher') {
-      console.log('Redirecionando professor para /teacher');
+    else if (user.role === 'teacher' || user.papel === 'professor') {
+      console.log('Redirecionando professor para /dashboard/professor');
       return (
         <Route path={path}>
-          <Redirect to="/teacher" />
+          <Redirect to="/dashboard/professor" />
         </Route>
       );
     }

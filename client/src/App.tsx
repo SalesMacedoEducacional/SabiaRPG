@@ -106,6 +106,12 @@ function Router() {
       />
       
       <ProtectedRoute 
+        path="/dashboard/professor" 
+        component={ProfessorDashboard}
+        requireAuth={true}
+      />
+      
+      <ProtectedRoute 
         path="/manager" 
         component={ManagerDashboardModerno}
         requireAuth={true}

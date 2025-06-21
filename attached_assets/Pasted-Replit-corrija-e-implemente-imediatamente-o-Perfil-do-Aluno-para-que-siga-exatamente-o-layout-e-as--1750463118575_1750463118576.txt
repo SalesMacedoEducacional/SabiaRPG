@@ -1,0 +1,72 @@
+Replit, corrija e implemente imediatamente o Perfil do Aluno para que siga exatamente o layout e as funcionalidades mostradas na imagem anexa, usando apenas dados reais do banco, sem inventar nada:
+
+Cabeçalho
+
+Exiba a logomarca ao lado do nome “SABIÁ RPG”.
+
+Botões de navegação: Mapa, Missões, Ranking, Fórum.
+
+Ícone de notificações com badge, e indicador XP | Nível X seguido do avatar/iniciais do aluno.
+
+Barra Lateral Esquerda
+
+Avatar circular com iniciais (ex.: “AL”), seguido de e-mail completo e título “Aprendiz de Sabedoria”.
+
+Nível destacado (badge “Nv. 1”).
+
+Atributos: barras horizontais mostrando % concluído em cada componente (Matemática, Linguagens, Ciências, História, Geografia, Artes).
+
+Conquistas: grade de 8 slots, preenchidos conforme medals do aluno.
+
+Progressão de XP: card com “Nível X”, “0/1000 XP”, barra de progresso e texto “1000 XP para o próximo nível”.
+
+Mapa Central
+
+Área de 9×16 responsiva exibindo o “Reino Educacional do Piauí” com todos os vilarejos clicáveis.
+
+Menu sanduíche (≡) no canto superior esquerdo do mapa.
+
+Barra Lateral Direita – Status das Missões
+
+Três cards verticais com título e contagem real:
+
+Missões Concluídas (✔) – exibe total de missões completadas.
+
+Missões em Progresso (▶) – mostra quantas estão ativas.
+
+Missões Não Iniciadas (▌▌) – quantas aguardam início.
+
+Cada card abre um pop-up “Ver Detalhes” listando missão, data de início/finalização e status.
+
+Notificação de Login
+
+Ajustar o toast para buscar o nome_completo do usuário logado e exibi-lo:
+
+“Login realizado com sucesso! Bem-vindo(a), [Nome Completo]!”
+
+Dados Reais e Auto-refresh
+
+Todas as estatísticas devem vir direto das tabelas usuários, plano_aula, missões, trilhas, progresso_aluno, aluno_conquistas.
+
+Após qualquer ação (login, mudança de status, conclusão de missão), recarregar automaticamente os dados sem recarregar a página inteira.
+
+Paleta de Cores
+
+Use as cores padrão já definidas (teal, âmbar, azul-claro, dourado metálico e marrom escuro) em todos os elementos interativos, barras e ícones.
+
+Validação de exemplo (apenas números de teste):
+
+Missões Concluídas: 3
+
+Missões em Progresso: 2
+
+Missões Não Iniciadas: 7
+
+Implemente e teste exaustivamente até que o perfil do aluno esteja idêntico ao layout enviado, sem nenhum dado fictício e com todas as funcionalidades exigidas.
+
+
+
+
+
+
+

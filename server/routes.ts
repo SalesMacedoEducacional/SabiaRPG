@@ -2693,6 +2693,417 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Novos endpoints para as 4 abas do dashboard do professor
+  app.get("/api/professor/turmas-detalhes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT DISTINCT t.id, t.nome, t.serie, t.modalidade, t.ano_letivo, t.ativa
+        FROM turmas t
+        JOIN turma_componentes tc ON t.id = tc.turma_id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1
+        ORDER BY t.nome;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar turmas detalhes:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/componentes-detalhes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT DISTINCT c.id, c.nome, c.area, c.cor_hex
+        FROM componentes c
+        JOIN turma_componentes tc ON c.id = tc.componente_id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1
+        ORDER BY c.nome;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar componentes detalhes:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/planos-detalhes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT p.id, p.titulo, p.created_at, t.nome as turma_nome
+        FROM planos_aula p
+        JOIN turma_componentes tc ON p.turma_componente_id = tc.id
+        JOIN turmas t ON tc.turma_id = t.id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1
+        ORDER BY p.created_at DESC;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar planos detalhes:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/alunos-detalhes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT DISTINCT u.id, u.nome, u.email, u.cpf, u.telefone, 
+               a.matricula, t.nome as turma_nome
+        FROM usuarios u
+        JOIN alunos a ON u.id = a.usuario_id
+        JOIN aluno_turmas at ON a.id = at.aluno_id
+        JOIN turmas t ON at.turma_id = t.id
+        JOIN turma_componentes tc ON t.id = tc.turma_id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
+        ORDER BY u.nome;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar alunos detalhes:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/alunos-ativos", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        WITH alunos_professor AS (
+          SELECT DISTINCT u.id, u.nome
+          FROM usuarios u
+          JOIN alunos a ON u.id = a.usuario_id
+          JOIN aluno_turmas at ON a.id = at.aluno_id
+          JOIN turmas t ON at.turma_id = t.id
+          JOIN turma_componentes tc ON t.id = tc.turma_id
+          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
+        ),
+        ativos_7d AS (
+          SELECT COUNT(DISTINCT ap.id) as count
+          FROM alunos_professor ap
+          JOIN sessoes s ON ap.id = s.user_id
+          WHERE s.created_at >= CURRENT_DATE - INTERVAL '7 days'
+        ),
+        ativos_30d AS (
+          SELECT COUNT(DISTINCT ap.id) as count
+          FROM alunos_professor ap
+          JOIN sessoes s ON ap.id = s.user_id
+          WHERE s.created_at >= CURRENT_DATE - INTERVAL '30 days'
+        )
+        SELECT 
+          (SELECT count FROM ativos_7d) as ultimos_7_dias,
+          (SELECT count FROM ativos_30d) as ultimos_30_dias;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows[0] || { ultimos_7_dias: 0, ultimos_30_dias: 0 });
+    } catch (error) {
+      console.error('Erro ao buscar alunos ativos:', error);
+      res.json({ ultimos_7_dias: 0, ultimos_30_dias: 0 });
+    }
+  });
+
+  app.get("/api/professor/alunos-risco", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        WITH alunos_professor AS (
+          SELECT DISTINCT u.id, u.nome
+          FROM usuarios u
+          JOIN alunos a ON u.id = a.usuario_id
+          JOIN aluno_turmas at ON a.id = at.aluno_id
+          JOIN turmas t ON at.turma_id = t.id
+          JOIN turma_componentes tc ON t.id = tc.turma_id
+          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
+        ),
+        login_counts AS (
+          SELECT 
+            ap.id,
+            ap.nome,
+            COUNT(s.id) as login_count
+          FROM alunos_professor ap
+          LEFT JOIN sessoes s ON ap.id = s.user_id 
+            AND s.created_at >= CURRENT_DATE - INTERVAL '7 days'
+          GROUP BY ap.id, ap.nome
+        )
+        SELECT 
+          COUNT(*) as total,
+          ARRAY_AGG(json_build_object('id', id, 'nome', nome, 'logins', login_count)) as alunos
+        FROM login_counts
+        WHERE login_count < 2;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows[0] || { total: 0, alunos: [] });
+    } catch (error) {
+      console.error('Erro ao buscar alunos em risco:', error);
+      res.json({ total: 0, alunos: [] });
+    }
+  });
+
+  app.get("/api/professor/desempenho", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        WITH missoes_stats AS (
+          SELECT 
+            COUNT(CASE WHEN pm.status = 'concluida' THEN 1 END) as concluidas,
+            COUNT(CASE WHEN pm.status = 'em_progresso' THEN 1 END) as pendentes,
+            COUNT(CASE WHEN pm.status = 'nao_iniciada' THEN 1 END) as nao_iniciadas,
+            COUNT(*) as total
+          FROM progresso_missoes pm
+          JOIN missoes m ON pm.missao_id = m.id
+          JOIN turma_componentes tc ON m.turma_componente_id = tc.id
+          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+          WHERE ptc.professor_id = $1
+        )
+        SELECT 
+          ROUND(concluidas * 100.0 / NULLIF(total, 0), 1) as concluidas_pct,
+          ROUND(pendentes * 100.0 / NULLIF(total, 0), 1) as pendentes_pct,
+          ROUND(nao_iniciadas * 100.0 / NULLIF(total, 0), 1) as nao_iniciadas_pct
+        FROM missoes_stats;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows[0] || { concluidas_pct: 0, pendentes_pct: 0, nao_iniciadas_pct: 0 });
+    } catch (error) {
+      console.error('Erro ao buscar dados de desempenho:', error);
+      res.json({ concluidas_pct: 0, pendentes_pct: 0, nao_iniciadas_pct: 0 });
+    }
+  });
+
+  app.get("/api/professor/ranking-xp", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT 
+          u.id,
+          u.nome,
+          COALESCE(SUM(pm.xp_ganho), 0) as xp
+        FROM usuarios u
+        JOIN alunos a ON u.id = a.usuario_id
+        JOIN aluno_turmas at ON a.id = at.aluno_id
+        JOIN turmas t ON at.turma_id = t.id
+        JOIN turma_componentes tc ON t.id = tc.turma_id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        LEFT JOIN progresso_missoes pm ON u.id = pm.usuario_id
+          AND pm.created_at >= DATE_TRUNC('month', CURRENT_DATE)
+        WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
+        GROUP BY u.id, u.nome
+        ORDER BY xp DESC
+        LIMIT 10;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar ranking XP:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/progresso-componentes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT 
+          c.id,
+          c.nome,
+          ROUND(AVG(CASE 
+            WHEN pm.status = 'concluida' THEN 100 
+            WHEN pm.status = 'em_progresso' THEN 50 
+            ELSE 0 
+          END), 1) as progresso_medio
+        FROM componentes c
+        JOIN turma_componentes tc ON c.id = tc.componente_id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        LEFT JOIN missoes m ON tc.id = m.turma_componente_id
+        LEFT JOIN progresso_missoes pm ON m.id = pm.missao_id
+        WHERE ptc.professor_id = $1
+        GROUP BY c.id, c.nome
+        ORDER BY progresso_medio DESC;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar progresso por componentes:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/evolucao-trimestral", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT 
+          CONCAT(EXTRACT(QUARTER FROM pm.created_at), 'º Trimestre') as trimestre,
+          ROUND(COUNT(CASE WHEN pm.status = 'concluida' THEN 1 END) * 100.0 / 
+                NULLIF(COUNT(*), 0), 1) as conclusao_pct
+        FROM progresso_missoes pm
+        JOIN missoes m ON pm.missao_id = m.id
+        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1
+          AND pm.created_at >= DATE_TRUNC('year', CURRENT_DATE)
+        GROUP BY EXTRACT(QUARTER FROM pm.created_at)
+        ORDER BY EXTRACT(QUARTER FROM pm.created_at);
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar evolução trimestral:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/tempo-medio-missoes", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT 
+          ROUND(AVG(EXTRACT(EPOCH FROM (pm.updated_at - pm.created_at))/60), 1) as tempo_medio
+        FROM progresso_missoes pm
+        JOIN missoes m ON pm.missao_id = m.id
+        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1 AND pm.status = 'concluida';
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows[0] || { tempo_medio: 0 });
+    } catch (error) {
+      console.error('Erro ao buscar tempo médio de missões:', error);
+      res.json({ tempo_medio: 0 });
+    }
+  });
+
+  app.get("/api/professor/atividades-futuras", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        SELECT 
+          m.id,
+          m.titulo,
+          m.data_entrega,
+          EXTRACT(DAY FROM (m.data_entrega - CURRENT_DATE)) as dias_restantes
+        FROM missoes m
+        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
+        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+        WHERE ptc.professor_id = $1 
+          AND m.data_entrega > CURRENT_DATE
+          AND m.data_entrega <= CURRENT_DATE + INTERVAL '7 days'
+        ORDER BY m.data_entrega ASC;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar atividades futuras:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/professor/conquistas-coletivas", async (req, res) => {
+    try {
+      const professorId = req.session?.userId;
+      if (!professorId) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const query = `
+        WITH alunos_professor AS (
+          SELECT DISTINCT u.id
+          FROM usuarios u
+          JOIN alunos a ON u.id = a.usuario_id
+          JOIN aluno_turmas at ON a.id = at.aluno_id
+          JOIN turmas t ON at.turma_id = t.id
+          JOIN turma_componentes tc ON t.id = tc.turma_id
+          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
+          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
+        )
+        SELECT 
+          COUNT(CASE WHEN uc.tipo = 'medalha' THEN 1 END) as medalhas,
+          COALESCE(SUM(pm.xp_ganho), 0) as xp_total,
+          COUNT(uc.id) as total_conquistas
+        FROM alunos_professor ap
+        LEFT JOIN usuario_conquistas uc ON ap.id = uc.usuario_id
+        LEFT JOIN progresso_missoes pm ON ap.id = pm.usuario_id;
+      `;
+
+      const result = await executeQuery(query, [professorId]);
+      res.json(result.rows[0] || { medalhas: 0, xp_total: 0, total_conquistas: 0 });
+    } catch (error) {
+      console.error('Erro ao buscar conquistas coletivas:', error);
+      res.json({ medalhas: 0, xp_total: 0, total_conquistas: 0 });
+    }
+  });
+
   // GET - Buscar usuário específico com detalhes completos
   app.get("/api/usuarios/:id", async (req, res) => {
     console.log('Usuário já autenticado via sessão:', req.session?.userId);
