@@ -630,18 +630,20 @@ export default function ProfessorDashboardNew() {
       case "visao-geral":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card Turmas */}
-            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Turmas</CardTitle>
-                <Users className="h-4 w-4 text-[var(--primary)]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">3</div>
+            {/* LINHA 1 - Cards principais */}
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Turmas</h3>
+                    <div className="text-4xl font-bold text-[#F5F1E6]">{turmas?.length || 3}</div>
+                  </div>
+                  <Users className="h-5 w-5 text-[#FFC23C]" />
+                </div>
                 <Button 
-                  size="sm" 
                   variant="outline" 
-                  className="mt-2"
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   onClick={() => setSelectedDetailModal("turmas")}
                 >
                   Ver Detalhes
@@ -705,9 +707,7 @@ export default function ProfessorDashboardNew() {
                 </Button>
               </CardContent>
             </Card>
-            
-            {/* Oito cards adicionais organizados em grade 4x2 responsiva */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 w-full">
+          
             {/* Tarefas Pendentes de Correção */}
             <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
               <CardContent className="p-6 flex flex-col h-full">
