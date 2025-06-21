@@ -42,7 +42,8 @@ import {
   Timer,
   Users2,
   Book,
-  Star
+  Star,
+  GraduationCap
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
 
