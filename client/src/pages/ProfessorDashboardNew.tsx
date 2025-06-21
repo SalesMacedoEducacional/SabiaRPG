@@ -706,201 +706,229 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
             
-            {/* Oito novos cards organizados em grade 2x4 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            {/* Oito cards adicionais organizados em grade 2x4 responsiva */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+              {/* LINHA 1 */}
               {/* Tarefas Pendentes de Correção */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        📝 Tarefas Pendentes de Correção
-                      </p>
-                      <p className="text-2xl font-bold text-[#D4A054]">18</p>
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Tarefas Pendentes de Correção
+                      </h3>
+                      <div className="text-4xl font-bold text-[#D4A054] leading-none">18</div>
                     </div>
-                    <div className="h-8 w-8 bg-[#D4A054] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#D4A054] text-lg">📝</span>
-                    </div>
+                    <div className="ml-4 text-2xl">📝</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes das tarefas pendentes de correção"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Tempo Médio de Preparação */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        ⏱️ Tempo Médio de Preparação
-                      </p>
-                      <p className="text-2xl font-bold text-[#4DA3A9]">25 min</p>
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Tempo Médio de Preparação
+                      </h3>
+                      <div className="text-4xl font-bold text-[#4DA3A9] leading-none">25 min</div>
                     </div>
-                    <div className="h-8 w-8 bg-[#4DA3A9] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#4DA3A9] text-lg">⏱️</span>
-                    </div>
+                    <div className="ml-4 text-2xl">⏱️</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes do tempo médio de preparação"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
+              {/* LINHA 2 */}
               {/* Feedback dos Alunos */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        💬 Feedback dos Alunos
-                      </p>
-                      <p className="text-lg font-bold">
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Feedback dos Alunos
+                      </h3>
+                      <div className="text-2xl font-bold leading-none">
                         <span className="text-[#8BC34A]">+123 👍</span>
                         <span className="text-[var(--text-secondary)] mx-2">•</span>
                         <span className="text-[#E57373]">-12 👎</span>
-                      </p>
+                      </div>
                     </div>
-                    <div className="h-8 w-8 bg-[#8BC34A] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#8BC34A] text-lg">💬</span>
-                    </div>
+                    <div className="ml-4 text-2xl">💬</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes do feedback dos alunos"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Taxa de Retenção por Componente */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 mb-3">
-                        📊 Taxa de Retenção por Componente
-                      </p>
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-3">
+                        Taxa de Retenção por Componente
+                      </h3>
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#4DA3A9]">Ciências</span>
-                          <span className="font-bold">84%</span>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-[#4DA3A9] font-medium">Ciências</span>
+                          <span className="font-bold text-[#4DA3A9]">84%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-[#4DA3A9] h-1.5 rounded-full" style={{width: '84%'}}></div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-[#4DA3A9] h-2 rounded-full" style={{width: '84%'}}></div>
                         </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#D4A054]">Linguagens</span>
-                          <span className="font-bold">76%</span>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-[#D4A054] font-medium">Linguagens</span>
+                          <span className="font-bold text-[#D4A054]">76%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-[#D4A054] h-1.5 rounded-full" style={{width: '76%'}}></div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-[#D4A054] h-2 rounded-full" style={{width: '76%'}}></div>
                         </div>
                       </div>
                     </div>
-                    <div className="h-8 w-8 bg-[#4DA3A9] bg-opacity-20 rounded-lg flex items-center justify-center ml-4">
-                      <span className="text-[#4DA3A9] text-lg">📊</span>
-                    </div>
+                    <div className="ml-4 text-2xl">📊</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes da taxa de retenção por componente"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
+              {/* LINHA 3 */}
               {/* Alunos Destaque do Mês */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 mb-3">
-                        🏅 Alunos Destaque do Mês
-                      </p>
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-3">
+                        Alunos Destaque do Mês
+                      </h3>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-[#FFC23C] rounded-full flex items-center justify-center text-white font-bold">J</div>
-                          <span>João Silva</span>
-                          <span className="font-bold text-[#FFC23C] ml-auto">1.250 XP</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 bg-[#FFC23C] rounded-full flex items-center justify-center text-white font-bold text-xs">J</div>
+                          <span className="flex-1 font-medium">João Silva</span>
+                          <span className="font-bold text-[#FFC23C]">1.250 XP</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-[#A6E3E9] rounded-full flex items-center justify-center text-white font-bold">A</div>
-                          <span>Ana Beatriz</span>
-                          <span className="font-bold text-[#A6E3E9] ml-auto">1.100 XP</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 bg-[#A6E3E9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                          <span className="flex-1 font-medium">Ana Beatriz</span>
+                          <span className="font-bold text-[#A6E3E9]">1.100 XP</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold">P</div>
-                          <span>Pedro M.</span>
-                          <span className="font-bold text-[#4DA3A9] ml-auto">980 XP</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
+                          <span className="flex-1 font-medium">Pedro M.</span>
+                          <span className="font-bold text-[#4DA3A9]">980 XP</span>
                         </div>
                       </div>
                     </div>
-                    <div className="h-8 w-8 bg-[#FFC23C] bg-opacity-20 rounded-lg flex items-center justify-center ml-4">
-                      <span className="text-[#FFC23C] text-lg">🏅</span>
-                    </div>
+                    <div className="ml-4 text-2xl">🏅</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes dos alunos destaque do mês"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Próximas Atividades Agendadas */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        📅 Próximas Atividades Agendadas
-                      </p>
-                      <p className="text-2xl font-bold text-[#A6E3E9]">7</p>
-                      <p className="text-xs text-[var(--text-secondary)]">próximos 7 dias</p>
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Próximas Atividades Agendadas
+                      </h3>
+                      <div className="text-4xl font-bold text-[#A6E3E9] leading-none">7</div>
+                      <div className="text-sm text-[var(--text-secondary)] mt-1">próximos 7 dias</div>
                     </div>
-                    <div className="h-8 w-8 bg-[#A6E3E9] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#A6E3E9] text-lg">📅</span>
-                    </div>
+                    <div className="ml-4 text-2xl">📅</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes das próximas atividades agendadas"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
+              {/* LINHA 4 */}
               {/* Alerta de Baixo Engajamento */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        ⚠️ Alerta de Baixo Engajamento
-                      </p>
-                      <p className="text-2xl font-bold text-[#E57373]">5</p>
-                      <p className="text-xs text-[var(--text-secondary)]">sem acesso 14+ dias</p>
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Alerta de Baixo Engajamento
+                      </h3>
+                      <div className="text-4xl font-bold text-[#E57373] leading-none">5</div>
+                      <div className="text-sm text-[var(--text-secondary)] mt-1">sem acesso 14+ dias</div>
                     </div>
-                    <div className="h-8 w-8 bg-[#E57373] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#E57373] text-lg">⚠️</span>
-                    </div>
+                    <div className="ml-4 text-2xl">⚠️</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes do alerta de baixo engajamento"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Conquistas Coletivas da Turma */}
-              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                        🎖️ Conquistas Coletivas da Turma
-                      </p>
-                      <p className="text-2xl font-bold text-[#FFC23C]">8.540 XP</p>
-                      <p className="text-xs text-[var(--text-secondary)]">trimestre atual</p>
+              <Card className="bg-[var(--background-card)] border-[#D4A054] border-2 shadow-lg hover:shadow-xl transition-all hover:border-[#D4A054] min-h-[160px]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">
+                        Conquistas Coletivas da Turma
+                      </h3>
+                      <div className="text-4xl font-bold text-[#FFC23C] leading-none">8.540 XP</div>
+                      <div className="text-sm text-[var(--text-secondary)] mt-1">trimestre atual</div>
                     </div>
-                    <div className="h-8 w-8 bg-[#FFC23C] bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="text-[#FFC23C] text-lg">🎖️</span>
-                    </div>
+                    <div className="ml-4 text-2xl">🎖️</div>
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-colors"
+                    aria-label="Ver detalhes das conquistas coletivas da turma"
+                  >
                     Ver Detalhes
                   </Button>
                 </CardContent>
