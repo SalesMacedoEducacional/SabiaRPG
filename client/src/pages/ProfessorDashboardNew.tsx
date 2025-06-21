@@ -439,51 +439,70 @@ export default function ProfessorDashboardNew() {
   // Cards de estatísticas
   const StatsCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedDetailModal("turmas")}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Turmas</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{minhasTurmas?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{turmasData?.total || 0}</p>
             </div>
-            <Users className="h-8 w-8 text-[var(--accent)]" />
+            <Users className="h-8 w-8 text-[#4DA3A9]" />
           </div>
+          <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+            <Eye className="h-3 w-3 mr-1" />
+            Ver Detalhes
+          </Button>
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedDetailModal("componentes")}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Componentes</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{meusComponentes?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{componentesData?.total || 0}</p>
             </div>
-            <BookOpen className="h-8 w-8 text-[var(--accent)]" />
+            <BookOpen className="h-8 w-8 text-[#D4A054]" />
           </div>
+          <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+            <Eye className="h-3 w-3 mr-1" />
+            Ver Detalhes
+          </Button>
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedDetailModal("planos")}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Planos de Aula</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosAula?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosData?.total || 0}</p>
+              <div className="text-xs text-[var(--text-secondary)] mt-1">
+                1º Tri: {planosData?.porTrimestre?.["1º Tri"] || 0} | 2º Tri: {planosData?.porTrimestre?.["2º Tri"] || 0} | 3º Tri: {planosData?.porTrimestre?.["3º Tri"] || 0}
+              </div>
             </div>
-            <FileText className="h-8 w-8 text-[var(--accent)]" />
+            <FileText className="h-8 w-8 text-[#A6E3E9]" />
           </div>
+          <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+            <Eye className="h-3 w-3 mr-1" />
+            Ver Detalhes
+          </Button>
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-[var(--background-card)] border-[var(--border-card)] shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedDetailModal("alunos")}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Alunos</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{meusAlunos?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{alunosData?.total || 0}</p>
             </div>
-            <Award className="h-8 w-8 text-[var(--accent)]" />
+            <Award className="h-8 w-8 text-[#FFC23C]" />
           </div>
+          <Button variant="ghost" size="sm" className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+            <Eye className="h-3 w-3 mr-1" />
+            Ver Detalhes
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -509,7 +528,7 @@ export default function ProfessorDashboardNew() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todas as Turmas</SelectItem>
-                  {turmasData?.map((turma: any) => (
+                  {turmasData?.turmas?.map((turma: any) => (
                     <SelectItem key={turma.id} value={turma.id}>{turma.nome}</SelectItem>
                   ))}
                 </SelectContent>
@@ -521,7 +540,7 @@ export default function ProfessorDashboardNew() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todos os Componentes</SelectItem>
-                  {componentesData?.map((comp: any) => (
+                  {componentesData?.componentes?.map((comp: any) => (
                     <SelectItem key={comp.id} value={comp.id}>{comp.nome}</SelectItem>
                   ))}
                 </SelectContent>
