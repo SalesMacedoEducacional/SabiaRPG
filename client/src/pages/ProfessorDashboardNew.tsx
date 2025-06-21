@@ -436,15 +436,6 @@ export default function ProfessorDashboardNew() {
               </div>
             )}
           </div>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--background-elevated)]"
-          >
-            <Shield className="h-4 w-4 mr-2" />
-            Suporte
-          </Button>
         </div>
       </div>
     </header>
