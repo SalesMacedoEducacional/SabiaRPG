@@ -2693,92 +2693,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Removed old database endpoints - using fictitious data endpoints below
-
-  app.get("/api/professor/alunos-ativos", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        WITH alunos_professor AS (
-          SELECT DISTINCT u.id, u.nome
-          FROM usuarios u
-          JOIN alunos a ON u.id = a.usuario_id
-          JOIN aluno_turmas at ON a.id = at.aluno_id
-          JOIN turmas t ON at.turma_id = t.id
-          JOIN turma_componentes tc ON t.id = tc.turma_id
-          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
-        ),
-        ativos_7d AS (
-          SELECT COUNT(DISTINCT ap.id) as count
-          FROM alunos_professor ap
-          JOIN sessoes s ON ap.id = s.user_id
-          WHERE s.created_at >= CURRENT_DATE - INTERVAL '7 days'
-        ),
-        ativos_30d AS (
-          SELECT COUNT(DISTINCT ap.id) as count
-          FROM alunos_professor ap
-          JOIN sessoes s ON ap.id = s.user_id
-          WHERE s.created_at >= CURRENT_DATE - INTERVAL '30 days'
-        )
-        SELECT 
-          (SELECT count FROM ativos_7d) as ultimos_7_dias,
-          (SELECT count FROM ativos_30d) as ultimos_30_dias;
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows[0] || { ultimos_7_dias: 0, ultimos_30_dias: 0 });
-    } catch (error) {
-      console.error('Erro ao buscar alunos ativos:', error);
-      res.json({ ultimos_7_dias: 0, ultimos_30_dias: 0 });
-    }
+  // === ENDPOINTS FICTÍCIOS LIMPOS PARA O PROFESSOR ===
+  
+  app.get("/api/professor/alunos-ativos", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = {
+      ultimos_7_dias: 18,
+      ultimos_30_dias: 37
+    };
+    return res.status(200).json(dados);
   });
 
-  app.get("/api/professor/alunos-risco", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
+  app.get("/api/professor/alunos-risco", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = [
+      { nome: "Carlos Mendes", ultimo_acesso: "2025-06-10", status: "Em Risco" },
+      { nome: "Maria Santos", ultimo_acesso: "2025-06-08", status: "Em Risco" },
+      { nome: "Rafael Lima", ultimo_acesso: "2025-06-05", status: "Em Risco" }
+    ];
+    return res.status(200).json(dados);
+  });
 
-      const query = `
-        WITH alunos_professor AS (
-          SELECT DISTINCT u.id, u.nome
-          FROM usuarios u
-          JOIN alunos a ON u.id = a.usuario_id
-          JOIN aluno_turmas at ON a.id = at.aluno_id
-          JOIN turmas t ON at.turma_id = t.id
-          JOIN turma_componentes tc ON t.id = tc.turma_id
-          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-          WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
-        ),
-        login_counts AS (
-          SELECT 
-            ap.id,
-            ap.nome,
-            COUNT(s.id) as login_count
-          FROM alunos_professor ap
-          LEFT JOIN sessoes s ON ap.id = s.user_id 
-            AND s.created_at >= CURRENT_DATE - INTERVAL '7 days'
-          GROUP BY ap.id, ap.nome
-        )
-        SELECT 
-          COUNT(*) as total,
-          ARRAY_AGG(json_build_object('id', id, 'nome', nome, 'logins', login_count)) as alunos
-        FROM login_counts
-        WHERE login_count < 2;
-      `;
+  app.get("/api/professor/evolucao-trimestral", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = [
+      { trimestre: "1º Trimestre", conclusao_pct: 48.0 },
+      { trimestre: "2º Trimestre", conclusao_pct: 57.0 },
+      { trimestre: "3º Trimestre", conclusao_pct: 63.0 }
+    ];
+    return res.status(200).json(dados);
+  });
 
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows[0] || { total: 0, alunos: [] });
-    } catch (error) {
-      console.error('Erro ao buscar alunos em risco:', error);
-      res.json({ total: 0, alunos: [] });
-    }
+  app.get("/api/professor/tempo-medio-missoes", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = { tempo_medio: 12 };
+    return res.status(200).json(dados);
+  });
+
+  app.get("/api/professor/atividades-futuras", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = [
+      { titulo: "Prova de Matemática", data: "2025-06-25" },
+      { titulo: "Trabalho de História", data: "2025-06-27" },
+      { titulo: "Seminário de Ciências", data: "2025-06-29" },
+      { titulo: "Redação de Linguagens", data: "2025-07-01" }
+    ];
+    return res.status(200).json(dados);
+  });
+
+  app.get("/api/professor/conquistas-coletivas", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = { total_xp: 320 };
+    return res.status(200).json(dados);
+  });
+
+  app.get("/api/professor/relatorios", authenticate, authorize(["professor"]), async (req, res) => {
+    const dados = {
+      tempo_medio_missoes: 12,
+      atividades_futuras: 4,
+      conquistas_coletivas: 320
+    };
+    return res.status(200).json(dados);
   });
 
   app.get("/api/professor/desempenho", authenticate, authorize(["professor"]), async (req, res) => {
@@ -2794,100 +2763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  app.get("/api/professor/evolucao-trimestral", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        SELECT 
-          CONCAT(EXTRACT(QUARTER FROM pm.created_at), 'º Trimestre') as trimestre,
-          ROUND(COUNT(CASE WHEN pm.status = 'concluida' THEN 1 END) * 100.0 / 
-                NULLIF(COUNT(*), 0), 1) as conclusao_pct
-        FROM progresso_missoes pm
-        JOIN missoes m ON pm.missao_id = m.id
-        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
-        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-        WHERE ptc.professor_id = $1
-          AND pm.created_at >= DATE_TRUNC('year', CURRENT_DATE)
-        GROUP BY EXTRACT(QUARTER FROM pm.created_at)
-        ORDER BY EXTRACT(QUARTER FROM pm.created_at);
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows);
-    } catch (error) {
-      console.error('Erro ao buscar evolução trimestral:', error);
-      res.json([]);
-    }
-  });
-
-  app.get("/api/professor/tempo-medio-missoes", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        SELECT 
-          ROUND(AVG(EXTRACT(EPOCH FROM (pm.updated_at - pm.created_at))/60), 1) as tempo_medio
-        FROM progresso_missoes pm
-        JOIN missoes m ON pm.missao_id = m.id
-        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
-        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-        WHERE ptc.professor_id = $1 AND pm.status = 'concluida';
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows[0] || { tempo_medio: 0 });
-    } catch (error) {
-      console.error('Erro ao buscar tempo médio de missões:', error);
-      res.json({ tempo_medio: 0 });
-    }
-  });
-
-  app.get("/api/professor/atividades-futuras", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        SELECT 
-          m.id,
-          m.titulo,
-          m.data_entrega,
-          EXTRACT(DAY FROM (m.data_entrega - CURRENT_DATE)) as dias_restantes
-        FROM missoes m
-        JOIN turma_componentes tc ON m.turma_componente_id = tc.id
-        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-        WHERE ptc.professor_id = $1 
-          AND m.data_entrega > CURRENT_DATE
-          AND m.data_entrega <= CURRENT_DATE + INTERVAL '7 days'
-        ORDER BY m.data_entrega ASC;
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows);
-    } catch (error) {
-      console.error('Erro ao buscar atividades futuras:', error);
-      res.json([]);
-    }
-  });
-
-  app.get("/api/professor/conquistas-coletivas", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        WITH alunos_professor AS (
+  // REMOVIDOS ENDPOINTS ANTIGOS QUE FAZIAM CONSULTAS DE BANCO DEFEITUOSAS
           SELECT DISTINCT u.id
           FROM usuarios u
           JOIN alunos a ON u.id = a.usuario_id
