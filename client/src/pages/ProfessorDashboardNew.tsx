@@ -626,6 +626,11 @@ export default function ProfessorDashboardNew() {
 
   // Função para renderizar conteúdo das abas
   const renderTabContent = () => {
+    // Definir dados das queries para usar no template
+    const turmas = minhasTurmas || [];
+    const componentes = meusComponentes || [];
+    const alunos = meusAlunos || [];
+    
     switch (activeTab) {
       case "visao-geral":
         return (
