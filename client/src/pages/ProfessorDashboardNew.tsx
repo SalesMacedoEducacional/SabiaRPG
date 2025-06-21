@@ -710,7 +710,7 @@ export default function ProfessorDashboardNew() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
               {/* LINHA 1 - 4 CARDS */}
               {/* Tarefas Pendentes de Correção */}
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#D4A054] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -735,7 +735,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Tempo Médio de Preparação */}
-              <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -760,7 +760,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Feedback dos Alunos */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#8BC34A] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -793,7 +793,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Taxa de Retenção por Componente */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -834,7 +834,7 @@ export default function ProfessorDashboardNew() {
               {/* LINHA 2 - 4 CARDS */}
 
               {/* Alunos Destaque do Mês */}
-              <Card className="bg-gradient-to-br from-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFC23C] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -874,7 +874,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Próximas Atividades Agendadas */}
-              <Card className="bg-gradient-to-br from-cyan-50 to-blue-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-cyan-50 to-blue-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#A6E3E9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -899,7 +899,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Alerta de Baixo Engajamento */}
-              <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#E57373] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
@@ -924,7 +924,7 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Conquistas Coletivas da Turma */}
-              <Card className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 min-h-[180px] group">
+              <Card className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
                 <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFC23C] bg-opacity-20 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
