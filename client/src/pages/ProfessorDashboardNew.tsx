@@ -629,8 +629,15 @@ export default function ProfessorDashboardNew() {
     switch (activeTab) {
       case "visao-geral":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* LINHA 1 - Cards principais */}
+          <div 
+            className="grid gap-4 w-full"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '16px'
+            }}
+          >
+            {/* Cards principais - reorganizados com design harmonizado */}
             <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
@@ -651,18 +658,19 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Card Componentes */}
-            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Componentes</CardTitle>
-                <BookOpen className="h-4 w-4 text-[var(--secondary)]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">4</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Componentes</h3>
+                    <div className="text-4xl font-bold text-[#F5F1E6]">{componentes?.length || 4}</div>
+                  </div>
+                  <BookOpen className="h-5 w-5 text-[#FFC23C]" />
+                </div>
                 <Button 
-                  size="sm" 
                   variant="outline" 
-                  className="mt-2"
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   onClick={() => setSelectedDetailModal("componentes")}
                 >
                   Ver Detalhes
@@ -670,18 +678,19 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Card Planos de Aula */}
-            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Planos de Aula</CardTitle>
-                <FileText className="h-4 w-4 text-[var(--accent)]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">5</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Planos de Aula</h3>
+                    <div className="text-4xl font-bold text-[#F5F1E6]">{planosAula?.length || 5}</div>
+                  </div>
+                  <FileText className="h-5 w-5 text-[#FFC23C]" />
+                </div>
                 <Button 
-                  size="sm" 
                   variant="outline" 
-                  className="mt-2"
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   onClick={() => setSelectedDetailModal("planos")}
                 >
                   Ver Detalhes
@@ -689,18 +698,19 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Card Alunos */}
-            <Card className="bg-[var(--background-card)] border-[var(--border-card)]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Alunos</CardTitle>
-                <Award className="h-4 w-4 text-[var(--warning)]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">45</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Alunos</h3>
+                    <div className="text-4xl font-bold text-[#F5F1E6]">{alunos?.length || 45}</div>
+                  </div>
+                  <GraduationCap className="h-5 w-5 text-[#FFC23C]" />
+                </div>
                 <Button 
-                  size="sm" 
                   variant="outline" 
-                  className="mt-2"
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   onClick={() => setSelectedDetailModal("alunos")}
                 >
                   Ver Detalhes
@@ -708,7 +718,7 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
           
-            {/* Tarefas Pendentes de Correção */}
+            {/* Cards de métricas e gestão */}
             <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
@@ -729,20 +739,19 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Tempo Médio de Preparação */}
-            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Tempo Médio de Preparação</h3>
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Tempo Médio de Preparação</h3>
                     <div className="text-4xl font-bold text-[#4DA3A9]">25 min</div>
                   </div>
-                  <div className="text-xl">⏱️</div>
+                  <div className="text-[#FFC23C] text-xl">⏱️</div>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   aria-label="Ver detalhes do tempo médio de preparação"
                 >
                   Ver Detalhes
@@ -750,24 +759,23 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Feedback dos Alunos */}
-            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Feedback dos Alunos</h3>
-                    <div className="text-2xl font-bold">
-                      <span className="text-[#8BC34A]">+123 👍</span>
-                      <span className="text-[var(--text-secondary)] mx-2">•</span>
-                      <span className="text-[#E57373]">-12 👎</span>
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Feedback dos Alunos</h3>
+                    <div className="text-xl font-bold">
+                      <span className="text-[#4DA3A9]">+123 👍</span>
+                      <span className="text-[#F5F1E6] mx-2">•</span>
+                      <span className="text-[#D64A38]">-12 👎</span>
                     </div>
                   </div>
-                  <div className="text-xl">💬</div>
+                  <div className="text-[#FFC23C] text-xl">💬</div>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   aria-label="Ver detalhes do feedback dos alunos"
                 >
                   Ver Detalhes
@@ -775,157 +783,141 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            {/* Taxa de Retenção por Componente */}
-            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-[#1e40af] font-bold text-sm mb-3 tracking-wide uppercase">
-                        Taxa de Retenção
-                      </h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#4DA3A9] font-bold">Ciências</span>
-                          <span className="font-black text-[#4DA3A9] text-sm">84%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-[#4DA3A9] to-[#6BC2C9] h-2 rounded-full shadow-sm" style={{width: '84%'}}></div>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#D4A054] font-bold">Linguagens</span>
-                          <span className="font-black text-[#D4A054] text-sm">76%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-[#D4A054] to-[#E4B064] h-2 rounded-full shadow-sm" style={{width: '76%'}}></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">📊</div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes da taxa de retenção por componente"
-                  >
-                    Ver Detalhes
-                  </Button>
-              </CardContent>
-            </Card>
-
-            {/* LINHA 3 - Últimos 4 cards novos */}
-            {/* Alunos Destaque do Mês */}
-            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Alunos Destaque</h3>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-white font-bold text-xs">J</div>
-                        <span className="flex-1 font-medium">João Silva</span>
-                        <span className="font-bold text-[#FFC23C] text-xs">1.250</span>
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Taxa de Retenção</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-[#F5F1E6] font-medium">Ciências</span>
+                        <span className="text-[#4DA3A9] font-bold">84%</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#A6E3E9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
-                        <span className="flex-1 font-medium">Ana Beatriz</span>
-                        <span className="font-bold text-[#A6E3E9] text-xs">1.100</span>
+                      <div className="w-full bg-[#423F37] rounded-full h-2">
+                        <div className="bg-[#4DA3A9] h-2 rounded-full" style={{width: '84%'}}></div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
-                        <span className="flex-1 font-medium">Pedro M.</span>
-                        <span className="font-bold text-[#4DA3A9] text-xs">980</span>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-[#F5F1E6] font-medium">Linguagens</span>
+                        <span className="text-[#D4A054] font-bold">76%</span>
+                      </div>
+                      <div className="w-full bg-[#423F37] rounded-full h-2">
+                        <div className="bg-[#D4A054] h-2 rounded-full" style={{width: '76%'}}></div>
                       </div>
                     </div>
                   </div>
-                  <div className="text-xl">🏅</div>
+                  <div className="text-[#FFC23C] text-xl">📊</div>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
+                  aria-label="Ver detalhes da taxa de retenção por componente"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Cards finais - gestão e conquistas */}
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Alunos Destaque</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-[#312E26] font-bold text-xs">J</div>
+                        <span className="flex-1 font-medium text-[#F5F1E6]">João Silva</span>
+                        <span className="font-bold text-[#FFC23C] text-xs">1.250</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                        <span className="flex-1 font-medium text-[#F5F1E6]">Ana Beatriz</span>
+                        <span className="font-bold text-[#4DA3A9] text-xs">1.100</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#D4A054] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
+                        <span className="flex-1 font-medium text-[#F5F1E6]">Pedro M.</span>
+                        <span className="font-bold text-[#D4A054] text-xs">980</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-[#FFC23C] text-xl">🏅</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
                   aria-label="Ver detalhes dos alunos destaque do mês"
                 >
                   Ver Detalhes
                 </Button>
               </CardContent>
-              </Card>
+            </Card>
 
-              {/* Próximas Atividades Agendadas */}
-              <Card className="bg-gradient-to-br from-cyan-50 to-blue-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#A6E3E9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#155e75] font-bold text-sm mb-3 tracking-wide uppercase">
-                        Próximas Atividades
-                      </h3>
-                      <div className="text-5xl font-black text-[#A6E3E9] leading-none mb-1 font-mono">7</div>
-                      <div className="text-xs text-cyan-700 font-medium">próximos 7 dias</div>
-                    </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">📅</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Próximas Atividades</h3>
+                    <div className="text-4xl font-bold text-[#4DA3A9]">7</div>
+                    <div className="text-sm text-[#F5F1E6] mt-1">próximos 7 dias</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes das próximas atividades agendadas"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="text-[#FFC23C] text-xl">📅</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
+                  aria-label="Ver detalhes das próximas atividades agendadas"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Alerta de Baixo Engajamento */}
-              <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#E57373] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#be123c] font-bold text-sm mb-3 tracking-wide uppercase">
-                        Baixo Engajamento
-                      </h3>
-                      <div className="text-5xl font-black text-[#E57373] leading-none mb-1 font-mono">5</div>
-                      <div className="text-xs text-red-700 font-medium">sem acesso 14+ dias</div>
-                    </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">⚠️</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Baixo Engajamento</h3>
+                    <div className="text-4xl font-bold text-[#D64A38]">5</div>
+                    <div className="text-sm text-[#F5F1E6] mt-1">sem acesso 14+ dias</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes do alerta de baixo engajamento"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="text-[#FFC23C] text-xl">⚠️</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
+                  aria-label="Ver detalhes do alerta de baixo engajamento"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Conquistas Coletivas da Turma */}
-              <Card className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFC23C] bg-opacity-20 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#a16207] font-bold text-sm mb-3 tracking-wide uppercase">
-                        Conquistas Coletivas
-                      </h3>
-                      <div className="text-4xl font-black text-[#FFC23C] leading-none mb-1 font-mono">8.540</div>
-                      <div className="text-xs text-amber-700 font-medium">XP trimestre atual</div>
-                    </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">🎖️</div>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[#FFC23C] text-base font-semibold mb-2">Conquistas Coletivas</h3>
+                    <div className="text-4xl font-bold text-[#FFC23C]">8.540</div>
+                    <div className="text-sm text-[#F5F1E6] mt-1">XP trimestre atual</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes das conquistas coletivas da turma"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                  <div className="text-[#FFC23C] text-xl">🎖️</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-[#FFC23C] text-[#FFC23C] bg-transparent hover:bg-[#FFC23C] hover:text-[#312E26] transition-colors"
+                  aria-label="Ver detalhes das conquistas coletivas da turma"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+
           </div>
         );
 
