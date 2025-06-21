@@ -2781,39 +2781,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/professor/desempenho", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        WITH missoes_stats AS (
-          SELECT 
-            COUNT(CASE WHEN pm.status = 'concluida' THEN 1 END) as concluidas,
-            COUNT(CASE WHEN pm.status = 'em_progresso' THEN 1 END) as pendentes,
-            COUNT(CASE WHEN pm.status = 'nao_iniciada' THEN 1 END) as nao_iniciadas,
-            COUNT(*) as total
-          FROM progresso_missoes pm
-          JOIN missoes m ON pm.missao_id = m.id
-          JOIN turma_componentes tc ON m.turma_componente_id = tc.id
-          JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-          WHERE ptc.professor_id = $1
-        )
-        SELECT 
-          ROUND(concluidas * 100.0 / NULLIF(total, 0), 1) as concluidas_pct,
-          ROUND(pendentes * 100.0 / NULLIF(total, 0), 1) as pendentes_pct,
-          ROUND(nao_iniciadas * 100.0 / NULLIF(total, 0), 1) as nao_iniciadas_pct
-        FROM missoes_stats;
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows[0] || { concluidas_pct: 0, pendentes_pct: 0, nao_iniciadas_pct: 0 });
-    } catch (error) {
-      console.error('Erro ao buscar dados de desempenho:', error);
-      res.json({ concluidas_pct: 0, pendentes_pct: 0, nao_iniciadas_pct: 0 });
-    }
+  app.get("/api/professor/desempenho", authenticate, authorize(["professor"]), async (req, res) => {
+    const dadosFicticios = {
+      concluidas_pct: 62.0,
+      pendentes_pct: 23.0,
+      nao_iniciadas_pct: 15.0
+    };
+    return res.status(200).json(dadosFicticios);
   });
 
 
