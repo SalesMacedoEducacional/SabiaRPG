@@ -3743,6 +3743,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return res.status(200).json(ficticiousData);
   });
 
+  app.get("/api/professor/login-trends", authenticate, authorize(["professor"]), async (req, res) => {
+    const ficticiousData = [
+      { dia: "2025-05-01", acessos: 4 },
+      { dia: "2025-05-05", acessos: 8 },
+      { dia: "2025-05-10", acessos: 12 },
+      { dia: "2025-05-15", acessos: 9 },
+      { dia: "2025-05-20", acessos: 14 },
+      { dia: "2025-05-25", acessos: 11 },
+      { dia: "2025-05-30", acessos: 16 }
+    ];
+    return res.status(200).json(ficticiousData);
+  });
+
   app.get("/api/professor/alunos-ativos", authenticate, authorize(["professor"]), async (req, res) => {
     const ficticiousData = {
       seteDias: 18,
