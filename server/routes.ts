@@ -2816,73 +2816,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/professor/ranking-xp", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
 
-      const query = `
-        SELECT 
-          u.id,
-          u.nome,
-          COALESCE(SUM(pm.xp_ganho), 0) as xp
-        FROM usuarios u
-        JOIN alunos a ON u.id = a.usuario_id
-        JOIN aluno_turmas at ON a.id = at.aluno_id
-        JOIN turmas t ON at.turma_id = t.id
-        JOIN turma_componentes tc ON t.id = tc.turma_id
-        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-        LEFT JOIN progresso_missoes pm ON u.id = pm.usuario_id
-          AND pm.created_at >= DATE_TRUNC('month', CURRENT_DATE)
-        WHERE ptc.professor_id = $1 AND u.papel = 'aluno'
-        GROUP BY u.id, u.nome
-        ORDER BY xp DESC
-        LIMIT 10;
-      `;
 
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows);
-    } catch (error) {
-      console.error('Erro ao buscar ranking XP:', error);
-      res.json([]);
-    }
-  });
 
-  app.get("/api/professor/progresso-componentes", async (req, res) => {
-    try {
-      const professorId = req.session?.userId;
-      if (!professorId) {
-        return res.status(401).json({ message: "Não autorizado" });
-      }
-
-      const query = `
-        SELECT 
-          c.id,
-          c.nome,
-          ROUND(AVG(CASE 
-            WHEN pm.status = 'concluida' THEN 100 
-            WHEN pm.status = 'em_progresso' THEN 50 
-            ELSE 0 
-          END), 1) as progresso_medio
-        FROM componentes c
-        JOIN turma_componentes tc ON c.id = tc.componente_id
-        JOIN professor_turma_componentes ptc ON tc.id = ptc.turma_componente_id
-        LEFT JOIN missoes m ON tc.id = m.turma_componente_id
-        LEFT JOIN progresso_missoes pm ON m.id = pm.missao_id
-        WHERE ptc.professor_id = $1
-        GROUP BY c.id, c.nome
-        ORDER BY progresso_medio DESC;
-      `;
-
-      const result = await executeQuery(query, [professorId]);
-      res.json(result.rows);
-    } catch (error) {
-      console.error('Erro ao buscar progresso por componentes:', error);
-      res.json([]);
-    }
-  });
 
   app.get("/api/professor/evolucao-trimestral", async (req, res) => {
     try {
