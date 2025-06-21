@@ -708,95 +708,77 @@ export default function ProfessorDashboardNew() {
             
             {/* Oito cards adicionais organizados em grade 4x2 responsiva */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 w-full">
-              {/* LINHA 1 - 4 CARDS */}
-              {/* Tarefas Pendentes de Correção */}
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
-                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#D4A054] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-3 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#8B4513] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
-                        Tarefas Pendentes de Correção
-                      </h3>
-                      <div className="text-3xl font-black text-[#D4A054] leading-none mb-1 font-mono">18</div>
-                      <div className="text-xs text-amber-700 font-medium">exercícios aguardando</div>
-                    </div>
-                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">📝</div>
+            {/* Tarefas Pendentes de Correção */}
+            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Tarefas Pendentes de Correção</h3>
+                    <div className="text-4xl font-bold text-[#D4A054]">18</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes das tarefas pendentes de correção"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="text-xl">📝</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  aria-label="Ver detalhes das tarefas pendentes de correção"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Tempo Médio de Preparação */}
-              <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
-                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-3 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#115e59] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
-                        Tempo Médio de Preparação
-                      </h3>
-                      <div className="text-3xl font-black text-[#4DA3A9] leading-none mb-1 font-mono">25</div>
-                      <div className="text-xs text-teal-700 font-medium">minutos por plano</div>
-                    </div>
-                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">⏱️</div>
+            {/* Tempo Médio de Preparação */}
+            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Tempo Médio de Preparação</h3>
+                    <div className="text-4xl font-bold text-[#4DA3A9]">25 min</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes do tempo médio de preparação"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="text-xl">⏱️</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  aria-label="Ver detalhes do tempo médio de preparação"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Feedback dos Alunos */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
-                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#8BC34A] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-3 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#15803d] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
-                        Feedback dos Alunos
-                      </h3>
-                      <div className="text-lg font-bold leading-tight">
-                        <div className="flex items-center gap-1 mb-1">
-                          <span className="text-[#8BC34A] font-black text-xl">+123</span>
-                          <span className="text-lg">👍</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[#E57373] font-black text-lg">-12</span>
-                          <span className="text-lg">👎</span>
-                        </div>
-                      </div>
+            {/* Feedback dos Alunos */}
+            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Feedback dos Alunos</h3>
+                    <div className="text-2xl font-bold">
+                      <span className="text-[#8BC34A]">+123 👍</span>
+                      <span className="text-[var(--text-secondary)] mx-2">•</span>
+                      <span className="text-[#E57373]">-12 👎</span>
                     </div>
-                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">💬</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes do feedback dos alunos"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="text-xl">💬</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  aria-label="Ver detalhes do feedback dos alunos"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Taxa de Retenção por Componente */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
-                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
+            {/* Taxa de Retenção por Componente */}
+            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-[#1e40af] font-bold text-sm mb-3 tracking-wide uppercase">
                         Taxa de Retenção
@@ -828,49 +810,45 @@ export default function ProfessorDashboardNew() {
                   >
                     Ver Detalhes
                   </Button>
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
 
-              {/* LINHA 2 - 4 CARDS */}
-
-              {/* Alunos Destaque do Mês */}
-              <Card className="bg-gradient-to-br from-yellow-50 to-orange-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFC23C] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <div className="flex-1">
-                      <h3 className="text-[#a16207] font-bold text-sm mb-3 tracking-wide uppercase">
-                        Alunos Destaque
-                      </h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-gradient-to-br from-[#FFC23C] to-[#FFD700] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">J</div>
-                          <span className="flex-1 font-bold text-[#a16207]">João Silva</span>
-                          <span className="font-black text-[#FFC23C] text-sm">1.250</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-gradient-to-br from-[#A6E3E9] to-[#7DD3FC] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">A</div>
-                          <span className="flex-1 font-bold text-[#a16207]">Ana Beatriz</span>
-                          <span className="font-black text-[#A6E3E9] text-sm">1.100</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-6 h-6 bg-gradient-to-br from-[#4DA3A9] to-[#0891B2] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">P</div>
-                          <span className="flex-1 font-bold text-[#a16207]">Pedro M.</span>
-                          <span className="font-black text-[#4DA3A9] text-sm">980</span>
-                        </div>
+            {/* LINHA 3 - Últimos 4 cards novos */}
+            {/* Alunos Destaque do Mês */}
+            <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-[var(--text-secondary)] text-base font-semibold mb-2">Alunos Destaque</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#FFC23C] rounded-full flex items-center justify-center text-white font-bold text-xs">J</div>
+                        <span className="flex-1 font-medium">João Silva</span>
+                        <span className="font-bold text-[#FFC23C] text-xs">1.250</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#A6E3E9] rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                        <span className="flex-1 font-medium">Ana Beatriz</span>
+                        <span className="font-bold text-[#A6E3E9] text-xs">1.100</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 bg-[#4DA3A9] rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
+                        <span className="flex-1 font-medium">Pedro M.</span>
+                        <span className="font-bold text-[#4DA3A9] text-xs">980</span>
                       </div>
                     </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">🏅</div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-auto border-[#D4A054] text-[#D4A054] hover:bg-[#D4A054] hover:text-white transition-all hover:shadow-lg font-semibold"
-                    aria-label="Ver detalhes dos alunos destaque do mês"
-                  >
-                    Ver Detalhes
-                  </Button>
-                </CardContent>
+                  <div className="text-xl">🏅</div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto mx-auto border-[#FFC23C] text-[#FFC23C] hover:bg-[#FFC23C] hover:text-white transition-colors"
+                  aria-label="Ver detalhes dos alunos destaque do mês"
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
               </Card>
 
               {/* Próximas Atividades Agendadas */}
