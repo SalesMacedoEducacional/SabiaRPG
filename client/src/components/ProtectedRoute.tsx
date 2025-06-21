@@ -81,16 +81,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (user && path === '/') {
     console.log('ProtectedRoute - role:', user.role);
     
-    // Se for aluno, verifica se precisa fazer triagem diagnóstica
-    if (user.role === 'student') {
-      const needsDiagnostic = localStorage.getItem('diagnostic_completed') !== 'true';
-      if (needsDiagnostic) {
-        return (
-          <Route path={path}>
-            <Component showDiagnostic={true} />
-          </Route>
-        );
-      }
+    // Se for aluno, redireciona para dashboard específico
+    if (user.role === 'student' || user.papel === 'aluno') {
+      console.log('Redirecionando aluno para /dashboard/aluno');
+      return (
+        <Route path={path}>
+          <Redirect to="/dashboard/aluno" />
+        </Route>
+      );
     } 
     // Se for professor, redireciona para dashboard de professor
     else if (user.role === 'teacher' || user.papel === 'professor') {

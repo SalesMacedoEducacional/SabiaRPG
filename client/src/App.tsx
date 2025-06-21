@@ -8,6 +8,7 @@ import Login from "@/pages/Login";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import ProfessorDashboard from "@/pages/ProfessorDashboardNew";
 import StudentDashboard from "@/pages/StudentDashboard";
+import StudentDashboardNew from "@/pages/StudentDashboardNew";
 // Dashboards do gestor
 import ManagerDashboard from "@/pages/ManagerDashboard";
 import ManagerDashboardModerno from "@/pages/ManagerDashboardModerno";
@@ -95,7 +96,7 @@ function Router() {
       {/* Rotas por papel do usuário */}
       <ProtectedRoute 
         path="/dashboard/aluno" 
-        component={StudentDashboard}
+        component={StudentDashboardNew}
         requireAuth={true}
       />
       
