@@ -444,7 +444,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Turmas</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{turmasData?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">3</p>
             </div>
             <Users className="h-8 w-8 text-[#4DA3A9]" />
           </div>
@@ -460,7 +460,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Componentes</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{componentesData?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">4</p>
             </div>
             <BookOpen className="h-8 w-8 text-[#D4A054]" />
           </div>
@@ -476,7 +476,7 @@ export default function ProfessorDashboardNew() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[var(--text-secondary)] text-sm font-medium">Planos de Aula</p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{planosData?.length || 0}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">5</p>
               <div className="text-xs text-[var(--text-secondary)] mt-1">
                 1º Tri: 3 | 2º Tri: 2 | 3º Tri: 0
               </div>
@@ -637,7 +637,7 @@ export default function ProfessorDashboardNew() {
                 <Users className="h-4 w-4 text-[var(--primary)]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{turmasData?.length || 0}</div>
+                <div className="text-2xl font-bold">3</div>
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -656,7 +656,7 @@ export default function ProfessorDashboardNew() {
                 <BookOpen className="h-4 w-4 text-[var(--secondary)]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{componentesData?.length || 0}</div>
+                <div className="text-2xl font-bold">4</div>
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -675,7 +675,7 @@ export default function ProfessorDashboardNew() {
                 <FileText className="h-4 w-4 text-[var(--accent)]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{planosData?.length || 0}</div>
+                <div className="text-2xl font-bold">5</div>
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -694,7 +694,7 @@ export default function ProfessorDashboardNew() {
                 <Award className="h-4 w-4 text-[var(--warning)]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{alunosData?.length || 0}</div>
+                <div className="text-2xl font-bold">45</div>
                 <Button 
                   size="sm" 
                   variant="outline" 
