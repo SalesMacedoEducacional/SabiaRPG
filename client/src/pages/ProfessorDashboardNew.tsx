@@ -379,14 +379,11 @@ export default function ProfessorDashboardNew() {
 
         {/* Logo SABIÁ RPG centralizada */}
         <div className="flex-1 flex justify-center">
-          <div className="flex flex-col items-center">
-            <img 
-              src={logoSabia} 
-              alt="SABIÁ RPG" 
-              className="h-14 w-auto object-contain"
-            />
-            <span className="text-xs font-bold text-[var(--primary)] mt-1">SABIÁ RPG</span>
-          </div>
+          <img 
+            src={logoSabia} 
+            alt="SABIÁ RPG" 
+            className="h-14 w-auto object-contain"
+          />
         </div>
 
         <div className="flex items-center gap-4">
