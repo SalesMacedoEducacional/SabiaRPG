@@ -46,7 +46,7 @@ import {
   GraduationCap
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
-import logoSabia from "@assets/LOGOSABIA_1750475071525.png";
+import logoSabia from "@assets/LOGOSABIA_1750475391122.png";
 
 // Schemas de validação
 const planoAulaSchema = z.object({
@@ -374,6 +374,18 @@ export default function ProfessorDashboardNew() {
             <p className="text-[var(--text-secondary)] text-sm">
               Bem-vindo(a), {user?.nome}
             </p>
+          </div>
+        </div>
+
+        {/* Logo SABIÁ RPG centralizada */}
+        <div className="flex-1 flex justify-center">
+          <div className="flex flex-col items-center">
+            <img 
+              src={logoSabia} 
+              alt="SABIÁ RPG" 
+              className="h-14 w-auto object-contain"
+            />
+            <span className="text-xs font-bold text-[var(--primary)] mt-1">SABIÁ RPG</span>
           </div>
         </div>
 
