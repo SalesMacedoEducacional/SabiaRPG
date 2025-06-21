@@ -707,21 +707,21 @@ export default function ProfessorDashboardNew() {
             </Card>
             
             {/* Oito cards adicionais organizados em grade 4x2 responsiva */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 w-full">
               {/* LINHA 1 - 4 CARDS */}
               {/* Tarefas Pendentes de Correção */}
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
+                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#D4A054] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
+                  <div className="flex items-start justify-between mb-3 relative z-10">
                     <div className="flex-1">
-                      <h3 className="text-[#8B4513] font-bold text-sm mb-3 tracking-wide uppercase">
+                      <h3 className="text-[#8B4513] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
                         Tarefas Pendentes de Correção
                       </h3>
-                      <div className="text-5xl font-black text-[#D4A054] leading-none mb-1 font-mono">18</div>
+                      <div className="text-3xl font-black text-[#D4A054] leading-none mb-1 font-mono">18</div>
                       <div className="text-xs text-amber-700 font-medium">exercícios aguardando</div>
                     </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">📝</div>
+                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">📝</div>
                   </div>
                   <Button 
                     variant="outline" 
@@ -735,18 +735,18 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Tempo Médio de Preparação */}
-              <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
+              <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
+                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
+                  <div className="flex items-start justify-between mb-3 relative z-10">
                     <div className="flex-1">
-                      <h3 className="text-[#115e59] font-bold text-sm mb-3 tracking-wide uppercase">
+                      <h3 className="text-[#115e59] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
                         Tempo Médio de Preparação
                       </h3>
-                      <div className="text-5xl font-black text-[#4DA3A9] leading-none mb-1 font-mono">25</div>
+                      <div className="text-3xl font-black text-[#4DA3A9] leading-none mb-1 font-mono">25</div>
                       <div className="text-xs text-teal-700 font-medium">minutos por plano</div>
                     </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">⏱️</div>
+                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">⏱️</div>
                   </div>
                   <Button 
                     variant="outline" 
@@ -760,26 +760,26 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Feedback dos Alunos */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
+                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#8BC34A] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
-                  <div className="flex items-start justify-between mb-4 relative z-10">
+                  <div className="flex items-start justify-between mb-3 relative z-10">
                     <div className="flex-1">
-                      <h3 className="text-[#15803d] font-bold text-sm mb-3 tracking-wide uppercase">
+                      <h3 className="text-[#15803d] font-bold text-xs mb-2 tracking-wide uppercase leading-tight">
                         Feedback dos Alunos
                       </h3>
-                      <div className="text-xl font-bold leading-tight">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[#8BC34A] font-black text-2xl">+123</span>
-                          <span className="text-2xl">👍</span>
+                      <div className="text-lg font-bold leading-tight">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="text-[#8BC34A] font-black text-xl">+123</span>
+                          <span className="text-lg">👍</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#E57373] font-black text-xl">-12</span>
-                          <span className="text-xl">👎</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#E57373] font-black text-lg">-12</span>
+                          <span className="text-lg">👎</span>
                         </div>
                       </div>
                     </div>
-                    <div className="ml-3 text-3xl opacity-80 group-hover:scale-110 transition-transform">💬</div>
+                    <div className="ml-2 text-2xl opacity-80 group-hover:scale-110 transition-transform">💬</div>
                   </div>
                   <Button 
                     variant="outline" 
@@ -793,8 +793,8 @@ export default function ProfessorDashboardNew() {
               </Card>
 
               {/* Taxa de Retenção por Componente */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group">
-                <CardContent className="p-5 flex flex-col h-full relative overflow-hidden">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-[#D4A054] border-2 shadow-lg hover:shadow-2xl transition-all hover:scale-105 h-[140px] group w-full">
+                <CardContent className="p-4 flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#4DA3A9] bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
                   <div className="flex items-start justify-between mb-4 relative z-10">
                     <div className="flex-1">
