@@ -43,7 +43,8 @@ import {
   Users2,
   Book,
   Star,
-  GraduationCap
+  GraduationCap,
+  HelpCircle
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
 import logoSabia from "@assets/LOGOSABIA_1750475391122.png";
@@ -302,6 +303,8 @@ export default function ProfessorDashboardNew() {
     { id: "planos", label: "Planos de Aula", icon: FileText },
     { id: "missoes", label: "Missões", icon: Brain },
     { id: "alunos", label: "Alunos", icon: Award },
+    { id: "configuracoes", label: "Configurações", icon: Settings },
+    { id: "suporte", label: "Suporte", icon: HelpCircle },
   ];
 
   // Componente do menu lateral
@@ -1683,10 +1686,122 @@ export default function ProfessorDashboardNew() {
           </div>
         );
 
+      case "configuracoes":
+        return <ConfiguracoesContent />;
+
+      case "suporte":
+        return <SuporteContent />;
+
       default:
         return <div>Conteúdo não encontrado</div>;
     }
   };
+
+  // Componente de Configurações
+  const ConfiguracoesContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Configurações</h2>
+      </div>
+      
+      <div className="grid gap-6">
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Preferências da Conta</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b border-[var(--border-card)]">
+              <div>
+                <p className="font-medium text-[var(--text-primary)]">Notificações por Email</p>
+                <p className="text-sm text-[var(--text-secondary)]">Receber atualizações sobre suas turmas</p>
+              </div>
+              <input type="checkbox" className="toggle" defaultChecked />
+            </div>
+            <div className="flex items-center justify-between py-3 border-b border-[var(--border-card)]">
+              <div>
+                <p className="font-medium text-[var(--text-primary)]">Modo Escuro</p>
+                <p className="text-sm text-[var(--text-secondary)]">Alternar tema da interface</p>
+              </div>
+              <input type="checkbox" className="toggle" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Segurança</h3>
+          <div className="space-y-4">
+            <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]">
+              Alterar Senha
+            </Button>
+            <Button variant="outline" className="border-[var(--border-primary)] text-[var(--text-primary)] hover:bg-[var(--background-elevated)]">
+              Configurar Autenticação em Duas Etapas
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Componente de Suporte
+  const SuporteContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Suporte</h2>
+      </div>
+      
+      <div className="grid gap-6">
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Central de Ajuda</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 bg-[var(--background-elevated)] rounded-lg hover:bg-[var(--background-elevated-hover)] transition-colors cursor-pointer">
+              <BookOpen className="h-5 w-5 text-[var(--primary)]" />
+              <div>
+                <p className="font-medium text-[var(--text-primary)]">Guia do Professor</p>
+                <p className="text-sm text-[var(--text-secondary)]">Aprenda a usar todas as funcionalidades</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-[var(--background-elevated)] rounded-lg hover:bg-[var(--background-elevated-hover)] transition-colors cursor-pointer">
+              <HelpCircle className="h-5 w-5 text-[var(--primary)]" />
+              <div>
+                <p className="font-medium text-[var(--text-primary)]">Perguntas Frequentes</p>
+                <p className="text-sm text-[var(--text-secondary)]">Encontre respostas para dúvidas comuns</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Contato</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 bg-[var(--background-elevated)] rounded-lg">
+              <div className="h-10 w-10 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                <User className="h-5 w-5 text-[var(--primary-contrast)]" />
+              </div>
+              <div>
+                <p className="font-medium text-[var(--text-primary)]">Suporte Técnico</p>
+                <p className="text-sm text-[var(--text-secondary)]">suporte@sabiarpg.edu.br</p>
+              </div>
+            </div>
+            <Button className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]">
+              Abrir Chamado de Suporte
+            </Button>
+          </div>
+        </div>
+        
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Informações do Sistema</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[var(--text-secondary)]">Versão:</span>
+              <span className="text-[var(--text-primary)]">SABIÁ RPG v2.1.0</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[var(--text-secondary)]">Última Atualização:</span>
+              <span className="text-[var(--text-primary)]">21 de Junho, 2025</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Modal de configurações
   const SettingsModal = () => (
