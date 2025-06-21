@@ -635,66 +635,66 @@ export default function ProfessorDashboardNew() {
     switch (activeTab) {
       case "visao-geral":
         return (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {/* Linha 1: Cards principais */}
-            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
-              <div className="absolute top-4 right-4 text-amber-400 text-xl">
-                <Users className="h-6 w-6" />
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                <Users className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-amber-300 mb-2">Turmas</h3>
-                <p className="text-3xl font-bold text-white mb-4">{turmas?.length || 3}</p>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Turmas</h4>
+                <p className="text-2xl font-bold mb-4 text-white">{turmas?.length || 3}</p>
               </div>
               <button 
-                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("turmas")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
-              <div className="absolute top-4 right-4 text-amber-400 text-xl">
-                <BookOpen className="h-6 w-6" />
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                <BookOpen className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-amber-300 mb-2">Componentes</h3>
-                <p className="text-3xl font-bold text-white mb-4">{componentes?.length || 4}</p>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Componentes</h4>
+                <p className="text-2xl font-bold mb-4 text-white">{componentes?.length || 4}</p>
               </div>
               <button 
-                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("componentes")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
-              <div className="absolute top-4 right-4 text-amber-400 text-xl">
-                <FileText className="h-6 w-6" />
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                <FileText className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-amber-300 mb-2">Planos de Aula</h3>
-                <p className="text-3xl font-bold text-white mb-4">{planosAula?.length || 5}</p>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Planos de Aula</h4>
+                <p className="text-2xl font-bold mb-4 text-white">{planosAula?.length || 5}</p>
               </div>
               <button 
-                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("planos")}
               >
                 Ver Detalhes
               </button>
             </div>
 
-            <div className="relative bg-gray-800 border border-amber-400 rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 min-h-[200px] flex flex-col justify-between">
-              <div className="absolute top-4 right-4 text-amber-400 text-xl">
-                <GraduationCap className="h-6 w-6" />
+            <div className="relative flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] transition-transform duration-200">
+              <div className="absolute top-4 right-4 text-amber-400 text-lg">
+                <GraduationCap className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-amber-300 mb-2">Alunos</h3>
-                <p className="text-3xl font-bold text-white mb-4">{alunos?.length || 45}</p>
+                <h4 className="text-sm font-semibold mb-2 text-amber-300">Alunos</h4>
+                <p className="text-2xl font-bold mb-4 text-white">{alunos?.length || 45}</p>
               </div>
               <button 
-                className="w-full py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-gray-900 transition-colors duration-200"
+                className="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors"
                 onClick={() => setSelectedDetailModal("alunos")}
               >
                 Ver Detalhes

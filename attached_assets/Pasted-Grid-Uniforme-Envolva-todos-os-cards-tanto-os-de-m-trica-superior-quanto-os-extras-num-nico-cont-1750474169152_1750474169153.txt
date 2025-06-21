@@ -1,0 +1,102 @@
+Grid Uniforme
+
+Envolva todos os cards (tanto os de métrica superior quanto os extras) num único container Tailwind:
+
+html
+Copiar
+Editar
+<div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+  <!-- cards -->
+</div>
+Essa configuração garante 1 coluna no mobile, 2 em tablet, 3 em desktop médio e 4 em desktop grande.
+
+Dimensões Fixas e Proporcionais
+
+Cada card deve ter classes:
+
+html
+Copiar
+Editar
+<div class="flex flex-col justify-between bg-[#312E26] border border-amber-400 rounded-2xl p-6 min-h-[180px]">
+  <!-- conteúdo -->
+</div>
+min-h-[180px] assegura altura igual a todos.
+
+Paleta de Cores Oficial
+
+Fundo: #312E26
+
+Borda: #FFC23C
+
+Título (texto pequeno): text-amber-300
+
+Valores principais: text-white ou cor de destaque (verde #4DA3A9 para positivas, vermelho #D44B4B para alerta)
+
+Detalhes/secundários: text-gray-300
+
+Tipografia e Espaçamento
+
+Título do card:
+
+html
+Copiar
+Editar
+<h4 class="text-sm font-semibold mb-2 text-amber-300">Título</h4>
+Valor principal:
+
+html
+Copiar
+Editar
+<p class="text-2xl font-bold mb-4 text-white">123</p>
+Botão “Ver Detalhes”:
+
+html
+Copiar
+Editar
+<button class="mt-auto py-2 px-4 border border-amber-400 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition-colors">Ver Detalhes</button>
+Ícones e Ilustrações
+
+Posicione o ícone no canto superior direito de cada card com:
+
+html
+Copiar
+Editar
+<div class="absolute top-4 right-4 text-amber-400 text-lg">
+  <!-- ícone SVG -->
+</div>
+Cards de Status das Missões (coluna lateral)
+
+Use o mesmo container div.grid para incluir também esses 3 cards, garantindo que, em telas largas, fiquem alinhados em uma única linha abaixo dos métricos gerais.
+
+Responsividade
+
+Teste em breakpoints:
+
+<640px: 1 coluna
+
+≥640px: 2 colunas
+
+≥768px: 3 colunas
+
+≥1024px: 4 colunas
+
+Hover e Animação
+
+Em todos os cards, adicione: hover:scale-[1.02] transition-transform duration-200 para leve “zoom” ao passar o mouse.
+
+Verificação Final
+
+Garanta que nenhuma célula de grid fique vazia ou de tamanho diferente das outras.
+
+Confirme uso das cores exatas da paleta (compare com a imagem).
+
+Não crie margens ou padding extras fora do padrão.
+
+Implemente estas alterações em todo o “Painel do Professor” para obter um visual limpo, consistente e fiel ao layout enviado.
+
+
+
+
+
+
+
