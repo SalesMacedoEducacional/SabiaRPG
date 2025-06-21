@@ -46,6 +46,7 @@ import {
   GraduationCap
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
+import logoSabia from "@assets/LOGOSABIA_1750475071525.png";
 
 // Schemas de validação
 const planoAulaSchema = z.object({
