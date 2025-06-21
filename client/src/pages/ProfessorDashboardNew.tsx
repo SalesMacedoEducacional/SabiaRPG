@@ -45,6 +45,7 @@ import {
   Star,
   GraduationCap
 } from "lucide-react";
+import logomarcaImg from "@/assets/logomarca.png";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
 
 // Schemas de validação
@@ -1196,22 +1197,29 @@ export default function ProfessorDashboardNew() {
       case "dashboard":
         return (
           <div className="space-y-6">
-            {/* Header com título */}
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-                Painel do Professor
-              </h1>
-              <Button
-                onClick={() => {
-                  queryClient.invalidateQueries();
-                }}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Activity className="h-4 w-4" />
-                Atualizar Dados
-              </Button>
+            {/* Header com logo e título */}
+            <div className="flex flex-col items-center space-y-4 mb-8">
+              <img 
+                src={logomarcaImg} 
+                alt="SABIÁ RPG" 
+                className="h-16 w-auto object-contain"
+              />
+              <div className="flex items-center justify-between w-full">
+                <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+                  SABIÁ RPG - Painel do Professor
+                </h1>
+                <Button
+                  onClick={() => {
+                    queryClient.invalidateQueries();
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Activity className="h-4 w-4" />
+                  Atualizar Dados
+                </Button>
+              </div>
             </div>
             
             {/* Tabs de navegação */}
