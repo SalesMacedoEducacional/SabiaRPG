@@ -629,16 +629,9 @@ export default function ProfessorDashboardNew() {
     switch (activeTab) {
       case "visao-geral":
         return (
-          <div 
-            className="grid gap-4 w-full"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '16px'
-            }}
-          >
-            {/* Cards principais - reorganizados com design harmonizado */}
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            {/* Linha 1: Cards principais */}
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -658,7 +651,7 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -678,7 +671,7 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -698,7 +691,7 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-lg transition-all duration-300 group" style={{ minHeight: '180px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+            <Card className="bg-[#312E26] border-[#FFC23C] border rounded-xl hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 h-[200px]">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -718,7 +711,7 @@ export default function ProfessorDashboardNew() {
               </CardContent>
             </Card>
           
-            {/* Cards de métricas e gestão */}
+            {/* Linha 2: Métricas de gestão */}
             <Card className="bg-[var(--background-card)] border-[#FFC23C] border rounded-xl h-[160px] group">
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
