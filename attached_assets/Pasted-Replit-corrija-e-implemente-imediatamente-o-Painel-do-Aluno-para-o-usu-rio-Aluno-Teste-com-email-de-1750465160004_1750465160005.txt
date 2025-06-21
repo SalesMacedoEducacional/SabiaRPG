@@ -1,0 +1,70 @@
+Replit, corrija e implemente imediatamente o Painel do Aluno para o usuário Aluno Teste com email de login aluno@sabiarpg.edu.br, seguindo exatamente este layout e estes dados fictícios de demonstração:
+
+Cabeçalho
+
+Exibir logomarca à esquerda e “SABIÁ RPG” ao centro, responsivo 1080×1920 (9×16).
+
+Botão sanduíche no canto superior esquerdo para abrir menu de vilarejos.
+
+Coluna Esquerda (Perfil e Atributos)
+
+Avatar redondo com iniciais “AL” e “Nv. 1” no canto superior.
+
+Dados do Perfil abaixo:
+
+Nome: Aluno Teste
+
+Email: aluno@sabiarpg.edu.br
+
+Escola: Colégio Paulistana (ID 3aa2a8a7-141b-42d9-af55-a656247c73b3)
+
+Turma: 3º Ano – Manhã (ID exemplo: 9f4c…2a1d)
+
+Atributos (barras de progresso), coluna à esquerda:
+
+Matemática — 320 XP / 1 000 XP — 32 % — cor #D4A054
+
+Linguagens — 500 XP / 1 000 XP — 50 % — cor #4DA3A9
+
+Ciências — 150 XP / 1 000 XP — 15 % — cor #A6E3E9
+
+História — 600 XP / 1 000 XP — 60 % — cor #FFC23C
+
+Geografia — 200 XP / 1 000 XP — 20 % — cor #4CE94A
+
+Artes — 75 XP / 1 000 XP — 7 % — cor #312E26
+
+Conquistas
+Exibir 3 ícones com tooltip:
+
+Campeã de Álgebra
+
+Exploradora de Parnaíba
+
+Historiadora Júnior
+
+Card “Status das Missões” (coluna direita)
+
+Missões Concluídas: 3 (lista: Batalha dos Números; Vitória em Ciências Naturais; Quiz de Geografia)
+
+Missões em Progresso: 2 (lista: Missão “Ruas de Oeiras”; Desbravar Delta do Parnaíba)
+
+Missões Não Iniciadas: 5 (exibir “Aguardando início” e número total)
+
+Rodapé/Pop-up
+
+Ao clicar em cada seção (“Concluídas”, “Em Progresso”, “Não Iniciadas”), abrir modal com detalhes de cada missão.
+
+Todos os dados devem vir do banco (sem dados fictícios além destes de demonstração).
+
+Funcionalidades Adicionais
+
+Sempre que o aluno fizer login, verificar no banco usuarios seu escola_id, turma_id e papel = aluno.
+
+Se for primeiro acesso, redirecionar para avaliação diagnóstica trimestral; caso contrário, exibir painel acima.
+
+Garantir refresh automático dos dados após qualquer ação (login, navegação, conclusão de missão).
+
+Manter cores exatas da paleta do sistema; não gerar cores aleatórias.
+
+Use este prompt para que o Replit implemente fielmente o layout, o comportamento e os dados de exemplo do Aluno Teste no painel de aluno.
