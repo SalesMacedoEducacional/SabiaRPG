@@ -314,6 +314,7 @@ export default function ProfessorDashboardNew() {
       border-r border-[var(--border-card)] transition-all duration-300 ease-in-out
       ${sidebarOpen ? 'w-64' : 'w-16'}
       ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      overflow-y-auto
     `}>
       {/* Header do Sidebar */}
       <div className="flex items-center justify-between p-4 border-b border-[var(--border-card)]">
@@ -381,23 +382,23 @@ export default function ProfessorDashboardNew() {
         </div>
 
         {/* Logo SABIÁ RPG centralizada */}
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center px-4">
           <img 
             src={logoSabia} 
             alt="SABIÁ RPG" 
-            className="h-14 w-auto object-contain"
+            className="h-12 sm:h-14 w-auto object-contain"
           />
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
+          <div className="relative hidden sm:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-muted)] h-4 w-4" />
             <Input
               type="text"
               placeholder="Pesquisar..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="pl-10 bg-[var(--background-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--border-focus)]"
+              className="w-32 sm:w-40 md:w-48 pl-10 bg-[var(--background-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--border-focus)]"
             />
           </div>
           
@@ -414,7 +415,7 @@ export default function ProfessorDashboardNew() {
 
             {/* Popup do perfil */}
             {showProfilePopup && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--background-card)] border border-[var(--border-card)] rounded-lg shadow-xl p-2 z-50">
+              <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--background-card)] border border-[var(--border-card)] rounded-lg shadow-xl p-2 z-50 mr-2 sm:mr-0">
                 <div className="px-3 py-2 border-b border-[var(--border-card)]">
                   <p className="text-sm font-medium text-[var(--text-primary)]">{user?.nome || 'Professor'}</p>
                   <p className="text-xs text-[var(--text-secondary)]">{user?.email}</p>
@@ -526,9 +527,9 @@ export default function ProfessorDashboardNew() {
           </DialogHeader>
           <div className="space-y-4">
             {/* Filtros */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <Select value={filterTurma} onValueChange={setFilterTurma}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filtrar por Turma" />
                 </SelectTrigger>
                 <SelectContent>
@@ -540,7 +541,7 @@ export default function ProfessorDashboardNew() {
               </Select>
               
               <Select value={filterComponente} onValueChange={setFilterComponente}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filtrar por Componente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -564,10 +565,10 @@ export default function ProfessorDashboardNew() {
     switch (selectedDetailModal) {
       case "turmas":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {turmasData?.map((turma: any) => (
               <Card key={turma.id}>
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <h3 className="font-medium">{turma.nome}</h3>
                   <p className="text-sm text-gray-600">Série: {turma.serie}</p>
                   <p className="text-sm text-gray-600">Modalidade: {turma.modalidade}</p>
@@ -578,10 +579,10 @@ export default function ProfessorDashboardNew() {
         );
       case "componentes":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {componentesData?.map((comp: any) => (
               <Card key={comp.id}>
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-4 h-4 rounded-full"
@@ -601,22 +602,22 @@ export default function ProfessorDashboardNew() {
             {alunosData?.map((aluno: any) => (
               <Card key={aluno.id}>
                 <CardContent className="p-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div>
-                      <p className="text-sm font-medium">Nome</p>
-                      <p className="text-sm text-gray-600">{aluno.nome}</p>
+                      <p className="text-xs sm:text-sm font-medium">Nome</p>
+                      <p className="text-xs sm:text-sm text-gray-600 break-words">{aluno.nome}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium">Matrícula</p>
-                      <p className="text-sm text-gray-600">{aluno.matricula}</p>
+                      <p className="text-xs sm:text-sm font-medium">Matrícula</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{aluno.matricula}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium">CPF</p>
-                      <p className="text-sm text-gray-600">{aluno.cpf}</p>
+                      <p className="text-xs sm:text-sm font-medium">CPF</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{aluno.cpf}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium">E-mail</p>
-                      <p className="text-sm text-gray-600">{aluno.email}</p>
+                      <p className="text-xs sm:text-sm font-medium">E-mail</p>
+                      <p className="text-xs sm:text-sm text-gray-600 break-all">{aluno.email}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -639,18 +640,18 @@ export default function ProfessorDashboardNew() {
     switch (activeTab) {
       case "visao-geral":
         return (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Cards principais com gradientes modernos */}
             <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#3A352C] to-[#2F2B23] border border-[#FFC23C]/30 rounded-2xl p-6 min-h-[180px] hover:scale-[1.02] hover:border-[#FFC23C]/60 transition-all duration-300 shadow-lg backdrop-blur-sm">
-              <div className="absolute top-4 right-4 text-[#FFC23C] text-lg">
-                <Users className="h-5 w-5" />
+              <div className="absolute top-3 sm:top-4 right-3 sm:right-4 text-[#FFC23C] text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold mb-2 text-[#FFC23C]">Turmas</h4>
-                <p className="text-2xl font-bold mb-4 text-white">{turmas?.length || 3}</p>
+                <h4 className="text-xs sm:text-sm font-semibold mb-2 text-[#FFC23C]">Turmas</h4>
+                <p className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white">{turmas?.length || 3}</p>
               </div>
               <button 
-                className="mt-auto py-2 px-4 border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
+                className="mt-auto py-1.5 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm border border-[#FFC23C] text-[#FFC23C] rounded-lg hover:bg-[#FFC23C] hover:text-gray-900 transition-colors duration-200"
                 onClick={() => setSelectedDetailModal("turmas")}
               >
                 Ver Detalhes
@@ -1690,14 +1691,14 @@ export default function ProfessorDashboardNew() {
 
   // Componente de Configurações
   const ConfiguracoesContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Configurações</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Configurações</h2>
       </div>
       
-      <div className="grid gap-6">
-        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Preferências da Conta</h3>
+      <div className="grid gap-4 sm:gap-6">
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">Preferências da Conta</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between py-3 border-b border-[var(--border-card)]">
               <div>
@@ -1716,8 +1717,8 @@ export default function ProfessorDashboardNew() {
           </div>
         </div>
         
-        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Segurança</h3>
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">Segurança</h3>
           <div className="space-y-4">
             <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-contrast)]">
               Alterar Senha
@@ -1733,14 +1734,14 @@ export default function ProfessorDashboardNew() {
 
   // Componente de Suporte
   const SuporteContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Suporte</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Suporte</h2>
       </div>
       
-      <div className="grid gap-6">
-        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Central de Ajuda</h3>
+      <div className="grid gap-4 sm:gap-6">
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">Central de Ajuda</h3>
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-4 bg-[var(--background-elevated)] rounded-lg hover:bg-[var(--background-elevated-hover)] transition-colors cursor-pointer">
               <BookOpen className="h-5 w-5 text-[var(--primary)]" />
@@ -1759,8 +1760,8 @@ export default function ProfessorDashboardNew() {
           </div>
         </div>
         
-        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Contato</h3>
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">Contato</h3>
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-4 bg-[var(--background-elevated)] rounded-lg">
               <div className="h-10 w-10 bg-[var(--primary)] rounded-full flex items-center justify-center">
@@ -1777,8 +1778,8 @@ export default function ProfessorDashboardNew() {
           </div>
         </div>
         
-        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Informações do Sistema</h3>
+        <div className="bg-[var(--background-card)] border border-[var(--border-card)] rounded-xl p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">Informações do Sistema</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-[var(--text-secondary)]">Versão:</span>
@@ -1797,7 +1798,7 @@ export default function ProfessorDashboardNew() {
   // Modal de configurações
   const SettingsModal = () => (
     <Dialog open={showSettings} onOpenChange={setShowSettings}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-[95vw] sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -1877,7 +1878,7 @@ export default function ProfessorDashboardNew() {
       <div className={`transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
         <Header />
         
-        <main className="p-6">
+        <main className="p-3 sm:p-4 md:p-6 overflow-x-hidden">
           {renderMainContent()}
         </main>
       </div>
