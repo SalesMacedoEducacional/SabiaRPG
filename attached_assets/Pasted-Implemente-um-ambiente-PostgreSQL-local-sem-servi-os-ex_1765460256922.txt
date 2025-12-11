@@ -1,0 +1,96 @@
+Implemente um ambiente PostgreSQL local (sem serviços externos) com API Node/TypeScript para testes. Siga estes requisitos exatamente:
+
+Ambiente/Nix
+
+Habilite Nix e inclua: Node 20, Yarn, PostgreSQL 16, gzip, bash e utilitários básicos.
+
+Não use Supabase/Neon. O Postgres deve rodar localmente no Replit.
+
+Estrutura
+
+Pastas: scripts/, pgdata/ (vazia), server/, backup/ (vazia).
+
+Arquivos raiz: package.json, tsconfig.json, .replit, replit.nix, README.md.
+
+Scripts de banco (sem pedir entrada do usuário)
+
+init_db: inicializa cluster Postgres em ./pgdata (user postgres, auth local “trust”), lê porta de PGPORT (padrão 5432), listen_addresses=localhost, logs em ./postgres.log, cria DB sabia. Se já existir cluster, não faz nada.
+
+start_db: inicia Postgres a partir de ./pgdata e informa porta.
+
+stop_db: para o Postgres rapidamente (modo fast).
+
+restore_from_backup: recebe como argumento o caminho para um dump do Supabase em .backup ou .backup.gz, garante Postgres iniciado, descompacta .gz para temporário, tenta criar extensões comuns se existirem (pgcrypto, uuid-ossp, pg_stat_statements) ignorando as que não estiverem disponíveis, executa restauração no DB sabia com limpeza de objetos, sem donos/permissões, inicialmente em paralelo; se falhar, repete sem paralelismo; apaga temporários; imprime “Restore concluído”.
+
+API Node (TypeScript)
+
+Porta da API: PORT (padrão 3000).
+
+Conexão com Postgres local usando user=postgres, host=localhost, database=sabia, port=PGPORT (padrão 5432).
+
+Endpoints obrigatórios:
+
+GET /health → retorna { ok: true, now: <timestamp do banco> }.
+
+GET /usuarios → retorna até 10 registros da tabela public.usuarios; se a tabela não existir, responder 500 com a mensagem de erro.
+
+Preparar o projeto para ts-node em desenvolvimento.
+
+Scripts npm
+
+db:init → roda init_db.
+
+db:start → roda start_db.
+
+db:stop → roda stop_db.
+
+db:restore → restaura a partir de ./backup/db_cluster-07-07-2025@19-28-51.backup.gz por padrão (permita sobrescrever passando outro caminho como argumento).
+
+dev → sobe a API após garantir que o banco está iniciado.
+
+Execução (no botão Run)
+
+O comando Run deve: iniciar Postgres (start_db), instalar dependências e iniciar dev.
+
+Garantir que o processo do Postgres permaneça ativo enquanto a API estiver rodando.
+
+Tratamento de extensões/limitações
+
+Não tente instalar extensões não disponíveis no ambiente (ex.: pgvector, http). Ignore silenciosamente se ausentes.
+
+RLS, policies, funções e triggers que vierem no dump em SQL puro devem ser restauradas.
+
+O projeto não inclui serviços gerenciados do Supabase (Auth/Storage); documente isso no README.
+
+README com instruções claras
+Incluir, no mínimo:
+
+Primeira vez: abrir o Shell e executar npm run db:init.
+
+Fazer upload do arquivo de backup do Supabase para ./backup/ (exatamente com o nome db_cluster-07-07-2025@19-28-51.backup.gz, mas permita qualquer nome).
+
+Restaurar: npm run db:restore (ou npm run db:restore -- ./backup/SEU_ARQUIVO.backup.gz).
+
+Clicar em Run para iniciar a API e o banco.
+
+Testar em /health (deve retornar timestamp) e /usuarios (se a tabela existir).
+
+Como parar o banco: npm run db:stop.
+
+Dica sobre espaço: apagar temporários após restore.
+
+Critérios de aceitação (checklist)
+
+Ao executar npm run db:init, o Postgres local é inicializado em ./pgdata e o DB sabia é criado.
+
+npm run db:restore ./backup/db_cluster-07-07-2025@19-28-51.backup.gz restaura o dump com mensagens de progresso e finaliza com “Restore concluído”.
+
+Ao clicar Run, a API sobe e responde em:
+
+GET /health com { ok: true, now: ... }.
+
+GET /usuarios retornando até 10 registros ou erro amigável se a tabela não existir.
+
+README explica todos os passos e limitações (sem Supabase Auth/Storage).
+
+Logs do Postgres ficam em ./postgres.log.
