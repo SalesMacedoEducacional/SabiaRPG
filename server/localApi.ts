@@ -5,9 +5,13 @@ const { Pool } = pg;
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
+const isRemoteDatabase = process.env.DATABASE_URL?.includes('supabase.com') || 
+                         process.env.DATABASE_URL?.includes('neon.tech') ||
+                         process.env.DATABASE_URL?.includes('pooler.');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: isRemoteDatabase ? { rejectUnauthorized: false } : false
 });
 
 const app = express();
