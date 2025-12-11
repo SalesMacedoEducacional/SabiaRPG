@@ -4,7 +4,10 @@ set -e
 BACKUP_FILE="${1:-./backup/db_cluster-07-07-2025@19-28-51.backup.gz}"
 PGDATA="./pgdata"
 PGPORT="${PGPORT:-5432}"
+PGSOCKET="./pgsocket"
 TEMP_FILE=""
+
+mkdir -p "$PGSOCKET"
 
 if [ ! -f "$BACKUP_FILE" ]; then
     echo "Erro: Arquivo de backup não encontrado: $BACKUP_FILE"
@@ -14,7 +17,7 @@ fi
 echo "Verificando PostgreSQL..."
 if ! pg_ctl -D "$PGDATA" status > /dev/null 2>&1; then
     echo "Iniciando PostgreSQL..."
-    pg_ctl -D "$PGDATA" -l ./postgres.log -o "-p $PGPORT" start
+    pg_ctl -D "$PGDATA" -l ./postgres.log start
     sleep 2
 fi
 

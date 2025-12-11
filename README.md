@@ -62,6 +62,58 @@ A plataforma é baseada em metodologias ativas como:
 - **Gamificação:** Estrutura narrativa baseada em RPGs
 - **Design acessível:** WCAG + VLibras + contraste e leitura em voz
 
+---
+
+## 🗄️ Banco de Dados PostgreSQL (Ambiente de Desenvolvimento)
+
+Este projeto usa o PostgreSQL gerenciado pelo Replit/Supabase para armazenamento de dados.
+
+### Configuração do Banco
+
+O banco de dados é automaticamente configurado através das variáveis de ambiente do Replit:
+- `DATABASE_URL` - String de conexão completa
+- `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` - Credenciais separadas
+
+### API de Teste (server/localApi.ts)
+
+Uma API simples está disponível para testar a conexão com o banco:
+
+```bash
+# Iniciar a API de teste (porta 3000 por padrão):
+tsx server/localApi.ts
+```
+
+### Endpoints de Teste
+
+| Endpoint | Descrição |
+|----------|-----------|
+| `GET /health` | Retorna `{ ok: true, now: <timestamp> }` verificando conexão |
+| `GET /usuarios` | Retorna até 10 registros da tabela usuarios |
+| `GET /tables` | Lista todas as tabelas públicas do banco |
+
+### Backup e Restauração
+
+Os arquivos de backup do Supabase ficam em `./backup/`. Para restaurar:
+1. Acesse o painel do Supabase
+2. Use a funcionalidade de restauração nativa
+3. Ou execute SQL diretamente pelo Drizzle Studio no Replit
+
+### Scripts Disponíveis (para ambientes locais fora do Replit)
+
+Os scripts em `scripts/` são projetados para ambientes locais com PostgreSQL instalado:
+- `init_db.sh` - Inicializa cluster PostgreSQL
+- `start_db.sh` - Inicia o servidor PostgreSQL
+- `stop_db.sh` - Para o servidor PostgreSQL
+- `restore_from_backup.sh` - Restaura backup .backup ou .backup.gz
+
+**Nota:** Estes scripts funcionam apenas em ambientes com PostgreSQL nativo instalado. No Replit, use o banco gerenciado automaticamente.
+
+### Limitações no Ambiente Replit
+
+- O PostgreSQL é gerenciado pelo Replit - não é possível rodar instâncias separadas
+- Use o Database Tool do Replit para gerenciamento visual
+- Para desenvolvimento local fora do Replit, os scripts shell estão disponíveis
+
 ## 👥 Equipe
 
 - **Estudantes:**  

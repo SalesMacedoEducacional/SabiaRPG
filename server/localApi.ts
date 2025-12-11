@@ -4,16 +4,14 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const PGPORT = parseInt(process.env.PGPORT || '5432', 10);
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'sabia',
-  port: PGPORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 const app = express();
+app.use(express.json());
 
 app.get('/health', async (req, res) => {
   try {
@@ -33,9 +31,25 @@ app.get('/usuarios', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API local rodando em http://localhost:${PORT}`);
-  console.log(`Conectando ao PostgreSQL na porta ${PGPORT}`);
+app.get('/tables', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name
+    `);
+    res.json(result.rows);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
+
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API local rodando em http://localhost:${PORT}`);
+    console.log(`Usando DATABASE_URL para conexão`);
+  });
+}
 
 export default app;

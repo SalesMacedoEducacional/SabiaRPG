@@ -3,6 +3,9 @@ set -e
 
 PGDATA="./pgdata"
 PGPORT="${PGPORT:-5432}"
+PGSOCKET="./pgsocket"
+
+mkdir -p "$PGSOCKET"
 
 if [ -d "$PGDATA/base" ]; then
     echo "Cluster PostgreSQL já existe em $PGDATA. Pulando inicialização."
@@ -15,18 +18,20 @@ initdb -D "$PGDATA" -U postgres --auth=trust
 cat >> "$PGDATA/postgresql.conf" <<EOF
 port = $PGPORT
 listen_addresses = 'localhost'
+unix_socket_directories = '$PWD/$PGSOCKET'
 log_destination = 'stderr'
 logging_collector = on
-log_directory = '..'
+log_directory = '$PWD'
 log_filename = 'postgres.log'
 EOF
 
-pg_ctl -D "$PGDATA" -l ./postgres.log -o "-p $PGPORT" start
-sleep 2
+echo "Iniciando PostgreSQL para criar banco..."
+pg_ctl -D "$PGDATA" -l ./postgres.log start
+sleep 3
 
 createdb -h localhost -p "$PGPORT" -U postgres sabia || true
 
 pg_ctl -D "$PGDATA" stop -m fast
 
 echo "Cluster inicializado com sucesso! DB 'sabia' criado."
-echo "Execute 'npm run db:start' para iniciar o PostgreSQL."
+echo "Execute 'bash scripts/start_db.sh' para iniciar o PostgreSQL."
